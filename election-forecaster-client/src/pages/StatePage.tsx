@@ -92,44 +92,57 @@ export const StatePage = () => {
         </div>
       </header>
 
-      <div className="state-content">
-        <div className="races-column">
-          {senateRaces.length > 0 && (
-            <section className="race-section">
-              <h2>Senate Race</h2>
-              {senateRaces.map(race => (
-                <RaceCard key={race.id} race={race} />
-              ))}
-            </section>
-          )}
+      {/* Large centered map */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
+        <StateMap
+          stateId={state.id}
+          districts={state.districts}
+        />
+      </div>
 
-          {govRaces.length > 0 && (
-            <section className="race-section">
-              <h2>Governor Race</h2>
-              {govRaces.map(race => (
-                <RaceCard key={race.id} race={race} />
-              ))}
-            </section>
-          )}
-
-          {houseRaces.length > 0 && (
-            <section className="race-section">
-              <h2>House Races</h2>
-              <div className="house-races-list">
-                {houseRaces.map(race => (
+      {/* Race data below */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        {(senateRaces.length > 0 || govRaces.length > 0) && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            gap: '24px',
+            marginBottom: '32px'
+          }}>
+            {senateRaces.length > 0 && (
+              <section className="race-section">
+                <h2>Senate Race</h2>
+                {senateRaces.map(race => (
                   <RaceCard key={race.id} race={race} />
                 ))}
-              </div>
-            </section>
-          )}
-        </div>
+              </section>
+            )}
 
-        <div className="map-column">
-          <StateMap
-            stateId={state.id}
-            districts={state.districts}
-          />
-        </div>
+            {govRaces.length > 0 && (
+              <section className="race-section">
+                <h2>Governor Race</h2>
+                {govRaces.map(race => (
+                  <RaceCard key={race.id} race={race} />
+                ))}
+              </section>
+            )}
+          </div>
+        )}
+
+        {houseRaces.length > 0 && (
+          <section className="race-section">
+            <h2>House Races</h2>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '16px'
+            }}>
+              {houseRaces.map(race => (
+                <RaceCard key={race.id} race={race} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
