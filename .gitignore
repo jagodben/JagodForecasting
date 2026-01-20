@@ -1,0 +1,71 @@
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio
+.vs/
+*.vsidx
+*.lock.json
+
+# User-specific files
+*.rsuser
+*.user
+*.userosscache
+
+# JetBrains Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Claude
+.claude/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+
+# Environment files (may contain secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# API keys and secrets
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+*.pfx
+*.key
+*.pem
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Test results
+TestResults/
+coverage/
+
+# Temp files
+*.tmp
+*.temp
