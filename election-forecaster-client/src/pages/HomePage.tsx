@@ -31,7 +31,7 @@ export const HomePage = () => {
   return (
     <div className="home-page">
       <header className="page-header">
-        <h1>2024 Election Forecast</h1>
+        <h1>2026 Election Forecast</h1>
         <p>Click on a state to view detailed race information</p>
       </header>
 
