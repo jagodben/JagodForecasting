@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { District, RaceRating } from '../../types';
 import { geoPath, geoAlbersUsa } from 'd3-geo';
 import { feature } from 'topojson-client';
@@ -53,6 +53,13 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
   const [districtFeatures, setDistrictFeatures] = useState<DistrictFeature[]>([]);
   const [paths, setPaths] = useState<Map<string, string>>(new Map());
 
+  // Zoom and pan state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [lastMouse, setLastMouse] = useState({ x: 0, y: 0 });
+  const svgRef = useRef<SVGSVGElement>(null);
+
   const stateFips = stateToFips[stateId] || '';
   const districtMap = useMemo(() =>
     new Map(districts.map(d => [d.number, d])),
@@ -64,11 +71,9 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
     fetch(DISTRICTS_URL)
       .then(res => res.json())
       .then(topology => {
-        // Get the first (and only) object name from the topology
         const objectName = Object.keys(topology.objects)[0];
         const geoJson = feature(topology, topology.objects[objectName]) as any;
 
-        // Filter to only this state's districts
         const stateDistricts = geoJson.features.filter((f: DistrictFeature) =>
           f.properties.STATEFP === stateFips
         );
@@ -78,11 +83,9 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
           return;
         }
 
-        // Create projection and calculate bounds for this state
         const baseProjection = geoAlbersUsa().scale(1000).translate([400, 250]);
         const basePath = geoPath().projection(baseProjection);
 
-        // Calculate bounds for all state districts
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         stateDistricts.forEach((district: DistrictFeature) => {
           const bounds = basePath.bounds(district);
@@ -94,7 +97,6 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
           }
         });
 
-        // Calculate scale and translation to fit state in view
         const width = maxX - minX;
         const height = maxY - minY;
         const centerX = (minX + maxX) / 2;
@@ -109,21 +111,9 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
           (svgHeight - padding * 2) / height
         );
 
-        // Generate paths with transformed coordinates
-        const pathMap = new Map<string, string>();
-        stateDistricts.forEach((district: DistrictFeature) => {
-          const pathData = basePath(district);
-          if (pathData) {
-            // Apply transform to center the state
-            pathMap.set(district.properties.GEOID, pathData);
-          }
-        });
-
-        // Store transform info for SVG
         const translateX = svgWidth / 2 - centerX * scale;
         const translateY = svgHeight / 2 - centerY * scale;
 
-        // Regenerate paths with proper scaling
         const scaledProjection = geoAlbersUsa()
           .scale(1000 * scale)
           .translate([
@@ -146,7 +136,90 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
       .catch(err => console.error('Failed to load district data:', err));
   }, [stateId, stateFips]);
 
-  const handleMouseEnter = (districtNum: number, event: React.MouseEvent) => {
+  // Reset zoom when state changes
+  useEffect(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, [stateId]);
+
+  // Use callback ref to attach wheel event listener
+  const svgCallbackRef = useCallback((node: SVGSVGElement | null) => {
+    if (svgRef.current) {
+      svgRef.current.removeEventListener('wheel', handleWheelRef.current);
+    }
+
+    svgRef.current = node;
+
+    if (node) {
+      node.addEventListener('wheel', handleWheelRef.current, { passive: false });
+    }
+  }, []);
+
+  // Store wheel handler in ref to avoid recreating listener
+  const handleWheelRef = useRef((e: WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    setZoom(z => {
+      const newZoom = Math.min(Math.max(z * delta, 1), 10);
+      // Clamp pan when zooming out
+      const maxPanX = newZoom > 1 ? 250 * newZoom * 0.8 : 0;
+      const maxPanY = newZoom > 1 ? 200 * newZoom * 0.8 : 0;
+      setPan(p => ({
+        x: Math.max(-maxPanX, Math.min(maxPanX, p.x)),
+        y: Math.max(-maxPanY, Math.min(maxPanY, p.y))
+      }));
+      return newZoom;
+    });
+  });
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 0) {
+      e.preventDefault();
+      setIsPanning(true);
+      setLastMouse({ x: e.clientX, y: e.clientY });
+    }
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    setTooltipPosition({ x: e.clientX, y: e.clientY });
+
+    if (isPanning) {
+      const dx = e.clientX - lastMouse.x;
+      const dy = e.clientY - lastMouse.y;
+
+      // Scale the movement based on zoom level and SVG size
+      const svgElement = svgRef.current;
+      if (svgElement) {
+        const rect = svgElement.getBoundingClientRect();
+        const scaleX = 500 / rect.width;
+        const scaleY = 400 / rect.height;
+
+        // Calculate max pan based on zoom level
+        // Allow full panning across the map when zoomed in, with small buffer outside
+        const maxPanX = zoom > 1 ? 250 * zoom * 0.8 : 0;
+        const maxPanY = zoom > 1 ? 200 * zoom * 0.8 : 0;
+
+        setPan(p => ({
+          x: Math.max(-maxPanX, Math.min(maxPanX, p.x + dx * scaleX)),
+          y: Math.max(-maxPanY, Math.min(maxPanY, p.y + dy * scaleY))
+        }));
+      }
+
+      setLastMouse({ x: e.clientX, y: e.clientY });
+    }
+  }, [isPanning, lastMouse, zoom]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsPanning(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsPanning(false);
+    setHoveredDistrict(null);
+  }, []);
+
+  const handleDistrictMouseEnter = (districtNum: number, event: React.MouseEvent) => {
+    if (isPanning) return;
     const district = districtMap.get(districtNum);
     if (district) {
       setHoveredDistrict(district);
@@ -154,15 +227,14 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
     }
   };
 
-  const handleMouseMove = (event: React.MouseEvent) => {
-    setTooltipPosition({ x: event.clientX, y: event.clientY });
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredDistrict(null);
+  const handleDistrictMouseLeave = () => {
+    if (!isPanning) {
+      setHoveredDistrict(null);
+    }
   };
 
   const handleClick = (districtNum: number) => {
+    if (isPanning) return;
     const district = districtMap.get(districtNum);
     if (district && onDistrictClick) {
       onDistrictClick(district);
@@ -175,7 +247,8 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
     <div className="state-map-container">
       <h3>{stateId} Congressional District{districts.length !== 1 ? 's' : ''}</h3>
 
-      <div style={{ width: '70vw', maxWidth: '900px', minWidth: '400px', margin: '0 auto' }}>
+      <div style={{ width: '70vw', maxWidth: '900px', minWidth: '400px', margin: '0 auto', position: 'relative' }}>
+
         {districtFeatures.length === 0 ? (
           <div style={{
             display: 'flex',
@@ -190,45 +263,62 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
           </div>
         ) : (
           <svg
+            ref={svgCallbackRef}
             viewBox="0 0 500 400"
             style={{
               width: '100%',
               height: 'auto',
               backgroundColor: '#f8f9fa',
-              borderRadius: '8px'
+              borderRadius: '8px',
+              cursor: isPanning ? 'grabbing' : 'grab',
+              userSelect: 'none',
             }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
           >
-            {districtFeatures.map((feat) => {
-              const cd = feat.properties.CD118FP;
-              // Convert district code: "00" means at-large (district 1), otherwise parse as number
-              const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
+            <g transform={`translate(${250 + pan.x}, ${200 + pan.y}) scale(${zoom}) translate(${-250}, ${-200})`}>
+              {districtFeatures.map((feat) => {
+                const cd = feat.properties.CD118FP;
+                const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
 
-              const district = districtMap.get(isAtLarge ? 1 : districtNum);
-              const fillColor = district ? getRatingColor(district.rating) : '#CCCCCC';
-              const isHovered = hoveredDistrict?.number === (isAtLarge ? 1 : districtNum);
+                const district = districtMap.get(isAtLarge ? 1 : districtNum);
+                const fillColor = district ? getRatingColor(district.rating) : '#CCCCCC';
+                const isHovered = hoveredDistrict?.number === (isAtLarge ? 1 : districtNum);
 
-              const pathData = paths.get(feat.properties.GEOID) || '';
+                const pathData = paths.get(feat.properties.GEOID) || '';
 
-              return (
-                <path
-                  key={feat.properties.GEOID}
-                  d={pathData}
-                  fill={isHovered ? '#FFD700' : fillColor}
-                  stroke="#FFFFFF"
-                  strokeWidth={1.5}
-                  style={{ cursor: 'pointer', transition: 'fill 0.15s ease' }}
-                  onMouseEnter={(e) => handleMouseEnter(isAtLarge ? 1 : districtNum, e)}
-                  onMouseMove={handleMouseMove}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => handleClick(isAtLarge ? 1 : districtNum)}
-                />
-              );
-            })}
+                return (
+                  <path
+                    key={feat.properties.GEOID}
+                    d={pathData}
+                    fill={isHovered ? '#FFD700' : fillColor}
+                    stroke="#FFFFFF"
+                    strokeWidth={1.5 / zoom}
+                    style={{ cursor: 'pointer', transition: 'fill 0.15s ease' }}
+                    onMouseEnter={(e) => handleDistrictMouseEnter(isAtLarge ? 1 : districtNum, e)}
+                    onMouseLeave={handleDistrictMouseLeave}
+                    onClick={() => handleClick(isAtLarge ? 1 : districtNum)}
+                  />
+                );
+              })}
+            </g>
           </svg>
         )}
+
+        {/* Instructions */}
+        <div style={{
+          textAlign: 'center',
+          fontSize: '12px',
+          color: '#888',
+          marginTop: '8px',
+        }}>
+          Scroll to zoom • Drag to pan • Click district for details
+        </div>
       </div>
 
-      {hoveredDistrict && (
+      {hoveredDistrict && !isPanning && (
         <div
           style={{
             position: 'fixed',
