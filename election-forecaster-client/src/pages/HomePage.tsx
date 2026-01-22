@@ -4,6 +4,7 @@ import { statesApi, racesApi } from '../services/api';
 import { RaceMap } from '../components/maps/RaceMap';
 import { USDistrictMap } from '../components/maps/USDistrictMap';
 import { MapLegend } from '../components/maps/MapLegend';
+import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 
 type MapView = 'senate' | 'house' | 'governors';
@@ -107,18 +108,27 @@ export const HomePage = () => {
         <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>{getMapTitle()}</h2>
 
         {activeView === 'senate' && senateRaces && (
-          <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} />
+          <>
+            <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} />
+            <MapLegend />
+            <ChamberForecast races={senateRaces} raceType={RaceType.Senate} />
+          </>
         )}
 
         {activeView === 'governors' && govRaces && (
-          <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} />
+          <>
+            <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} />
+            <MapLegend />
+          </>
         )}
 
         {activeView === 'house' && houseRaces && (
-          <USDistrictMap races={houseRaces} />
+          <>
+            <USDistrictMap races={houseRaces} />
+            <MapLegend />
+            <ChamberForecast races={houseRaces} raceType={RaceType.House} />
+          </>
         )}
-
-        <MapLegend />
       </div>
 
       <div className="stats-section">

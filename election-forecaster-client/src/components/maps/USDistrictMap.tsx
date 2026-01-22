@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Race, RaceRating } from '../../types';
-import { geoPath, geoAlbersUsa } from 'd3-geo';
+import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 
 const DISTRICTS_URL = '/data/districts.json';
@@ -124,7 +124,7 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
 
         const pathMap = new Map<string, string>();
         allDistricts.forEach((district: DistrictFeature) => {
-          const pathData = pathGenerator(district);
+          const pathData = pathGenerator(district as unknown as GeoPermissibleObjects);
           if (pathData) {
             pathMap.set(district.properties.GEOID, pathData);
           }

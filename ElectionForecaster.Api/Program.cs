@@ -1,5 +1,13 @@
 using ElectionForecaster.Core.Interfaces;
+using ElectionForecaster.Infrastructure.Data;
+using ElectionForecaster.Infrastructure.DataSources.Approval;
+using ElectionForecaster.Infrastructure.DataSources.Fundamentals;
+using ElectionForecaster.Infrastructure.DataSources.Interfaces;
+using ElectionForecaster.Infrastructure.DataSources.Polling;
+using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
+using ElectionForecaster.Infrastructure.Forecasting;
 using ElectionForecaster.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +24,36 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "Election Forecaster API", Version = "v1" });
 });
 
-// Register services
+// Configure SQLite database
+builder.Services.AddDbContext<ForecastDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("ForecastDb")));
+
+// Register core services
 builder.Services.AddSingleton<IStateService, StateService>();
 builder.Services.AddSingleton<IRaceService, RaceService>();
 builder.Services.AddSingleton<IDistrictService, DistrictService>();
+
+// Register HttpClient for data sources
+builder.Services.AddHttpClient<PolymarketClient>();
+builder.Services.AddHttpClient<KalshiClient>();
+builder.Services.AddHttpClient<FiveThirtyEightClient>();
+builder.Services.AddHttpClient<ApprovalAggregator>();
+
+// Register data sources
+builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
+builder.Services.AddScoped<IPredictionMarketSource, KalshiClient>();
+builder.Services.AddScoped<FiveThirtyEightClient>();
+builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<FiveThirtyEightClient>());
+builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
+builder.Services.AddScoped<IApprovalSource, ApprovalAggregator>();
+
+// Register forecasting components
+builder.Services.AddSingleton<WeightCalculator>();
+builder.Services.AddSingleton<MonteCarloSimulator>();
+builder.Services.AddScoped<IForecastingOrchestrator, ForecastingOrchestrator>();
+
+// Register background service for data refresh
+builder.Services.AddHostedService<DataRefreshService>();
 
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>
@@ -33,6 +67,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ForecastDbContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())

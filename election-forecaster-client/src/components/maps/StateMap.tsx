@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { District, RaceRating } from '../../types';
-import { geoPath, geoAlbersUsa } from 'd3-geo';
+import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 
 // Local TopoJSON file with 118th Congress districts
@@ -88,7 +88,7 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
 
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
         stateDistricts.forEach((district: DistrictFeature) => {
-          const bounds = basePath.bounds(district);
+          const bounds = basePath.bounds(district as unknown as GeoPermissibleObjects);
           if (bounds && bounds[0] && bounds[1]) {
             minX = Math.min(minX, bounds[0][0]);
             minY = Math.min(minY, bounds[0][1]);
@@ -124,7 +124,7 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
 
         const scaledPathMap = new Map<string, string>();
         stateDistricts.forEach((district: DistrictFeature) => {
-          const pathData = scaledPath(district);
+          const pathData = scaledPath(district as unknown as GeoPermissibleObjects);
           if (pathData) {
             scaledPathMap.set(district.properties.GEOID, pathData);
           }
