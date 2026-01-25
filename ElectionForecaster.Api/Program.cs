@@ -35,13 +35,11 @@ builder.Services.AddSingleton<IDistrictService, DistrictService>();
 
 // Register HttpClient for data sources
 builder.Services.AddHttpClient<PolymarketClient>();
-builder.Services.AddHttpClient<KalshiClient>();
 builder.Services.AddHttpClient<FiveThirtyEightClient>();
 builder.Services.AddHttpClient<ApprovalAggregator>();
 
 // Register data sources
 builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
-builder.Services.AddScoped<IPredictionMarketSource, KalshiClient>();
 builder.Services.AddScoped<FiveThirtyEightClient>();
 builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<FiveThirtyEightClient>());
 builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
