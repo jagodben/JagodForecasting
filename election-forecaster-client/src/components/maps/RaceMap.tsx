@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { useNavigate } from 'react-router-dom';
-import { StateSummary, Race, RaceRating, RaceType } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { StateSummary, Race, RaceRating, RaceType, DetailedForecast } from '../../types';
+import { forecastApi } from '../../services/api';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
+
+type DataSource = 'combined' | 'markets' | 'polling';
 
 // Map state names to their abbreviations
 const stateNameToId: Record<string, string> = {
@@ -17,6 +21,17 @@ const stateNameToId: Record<string, string> = {
   'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
   'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
   'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
+};
+
+// Convert probability to rating
+const probabilityToRating = (demProb: number): RaceRating => {
+  if (demProb >= 0.95) return RaceRating.SolidDem;
+  if (demProb >= 0.75) return RaceRating.LikelyDem;
+  if (demProb >= 0.55) return RaceRating.LeanDem;
+  if (demProb >= 0.45) return RaceRating.Tossup;
+  if (demProb >= 0.25) return RaceRating.LeanRep;
+  if (demProb >= 0.05) return RaceRating.LikelyRep;
+  return RaceRating.SolidRep;
 };
 
 const getRatingColor = (rating: RaceRating): string => {
@@ -55,12 +70,71 @@ interface TooltipData {
   stateName: string;
   stateId: string;
   race: Race | null;
+  demProb: number | null;
+  rating: RaceRating | null;
 }
 
 export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const [dataSource, setDataSource] = useState<DataSource>('combined');
+
+  // Fetch detailed forecasts for all races
+  const { data: detailedForecasts } = useQuery({
+    queryKey: ['forecasts', races.map(r => r.id)],
+    queryFn: async () => {
+      const forecasts = await Promise.all(
+        races.map(race => forecastApi.getByRaceId(race.id).catch(() => null))
+      );
+      return forecasts.filter((f): f is DetailedForecast => f !== null);
+    },
+    enabled: races.length > 0,
+  });
+
+  // Calculate ratings based on selected data source
+  const { raceRatings, hasMarketData, hasPollingData, marketCount, pollingCount } = useMemo(() => {
+    const ratings = new Map<string, { rating: RaceRating; demProb: number }>();
+    let marketsAvailable = 0;
+    let pollingAvailable = 0;
+
+    races.forEach(race => {
+      const detailed = detailedForecasts?.find(f => f.raceId === race.id);
+      let demProb: number;
+
+      // Check data availability
+      if (detailed?.inputs.marketOdds != null) marketsAvailable++;
+      if (detailed?.inputs.pollingAverage != null) pollingAvailable++;
+
+      // Get probability based on selected data source
+      if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
+        demProb = detailed.inputs.marketOdds;
+      } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
+        demProb = detailed.inputs.pollingAverage / 100;
+      } else if (detailed) {
+        demProb = detailed.demWinProbability;
+      } else {
+        // Fallback to original forecast
+        const demForecast = race.forecasts.find(f =>
+          race.candidates.find(c => c.id === f.candidateId)?.party === 'Democrat'
+        );
+        demProb = demForecast?.winProbability || 0.5;
+      }
+
+      ratings.set(race.id, {
+        rating: probabilityToRating(demProb),
+        demProb,
+      });
+    });
+
+    return {
+      raceRatings: ratings,
+      hasMarketData: marketsAvailable > 0,
+      hasPollingData: pollingAvailable > 0,
+      marketCount: marketsAvailable,
+      pollingCount: pollingAvailable,
+    };
+  }, [races, detailedForecasts, dataSource]);
 
   const stateMap = new Map(states.map(s => [s.id, s]));
   const raceMap = new Map(races.map(r => [r.stateId, r]));
@@ -70,12 +144,15 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
     const stateId = stateNameToId[stateName];
     const state = stateMap.get(stateId);
     const race = raceMap.get(stateId);
+    const ratingData = race ? raceRatings.get(race.id) : null;
 
     if (state) {
       setTooltipData({
         stateName: state.name,
         stateId: stateId,
         race: race || null,
+        demProb: ratingData?.demProb ?? null,
+        rating: ratingData?.rating ?? null,
       });
       setTooltipPosition({ x: event.clientX, y: event.clientY });
     }
@@ -99,17 +176,23 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
 
   const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
 
+  const getSourceLabel = (source: DataSource) => {
+    switch (source) {
+      case 'combined': return 'Combined';
+      case 'markets': return 'Polymarket';
+      case 'polling': return 'Polls';
+    }
+  };
+
   return (
-    <div className="us-map-container">
+    <div className="us-map-container" style={{ position: 'relative' }}>
       <ComposableMap projection="geoAlbersUsa" projectionConfig={{ scale: 1000 }}>
         <Geographies geography={GEO_URL}>
             {({ geographies }) => {
-              // Only apply pop-out effect if hovered state has a race
               const hoveredStateId = tooltipData?.race ? tooltipData.stateId : null;
 
               return (
                 <>
-                  {/* Render non-hovered states first */}
                   {geographies.map((geo) => {
                     const stateName = geo.properties.name;
                     const stateId = stateNameToId[stateName];
@@ -117,7 +200,8 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
                     if (stateId === hoveredStateId) return null;
 
                     const race = raceMap.get(stateId);
-                    const fillColor = race ? getRatingColor(race.rating) : '#DDDDDD';
+                    const ratingData = race ? raceRatings.get(race.id) : null;
+                    const fillColor = ratingData ? getRatingColor(ratingData.rating) : (race ? getRatingColor(race.rating) : '#DDDDDD');
 
                     return (
                       <Geography
@@ -138,7 +222,6 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
                       />
                     );
                   })}
-                  {/* Render hovered state on top (only if it has a race) */}
                   {hoveredStateId && geographies.map((geo) => {
                     const stateName = geo.properties.name;
                     const stateId = stateNameToId[stateName];
@@ -146,7 +229,8 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
                     if (stateId !== hoveredStateId) return null;
 
                     const race = raceMap.get(stateId);
-                    const fillColor = race ? getRatingColor(race.rating) : '#DDDDDD';
+                    const ratingData = race ? raceRatings.get(race.id) : null;
+                    const fillColor = ratingData ? getRatingColor(ratingData.rating) : (race ? getRatingColor(race.rating) : '#DDDDDD');
 
                     return (
                       <Geography
@@ -186,6 +270,53 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
         </Geographies>
       </ComposableMap>
 
+      {/* Data Source Tabs - Bottom Right */}
+      <div style={{
+        position: 'absolute',
+        bottom: '12px',
+        right: '12px',
+        display: 'flex',
+        gap: '4px',
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        padding: '4px',
+        borderRadius: '6px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      }}>
+        {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
+          const isDisabled =
+            (source === 'markets' && !hasMarketData) ||
+            (source === 'polling' && !hasPollingData);
+          const isActive = dataSource === source;
+          const count = source === 'markets' ? marketCount : source === 'polling' ? pollingCount : null;
+
+          return (
+            <button
+              key={source}
+              onClick={() => !isDisabled && setDataSource(source)}
+              disabled={isDisabled}
+              style={{
+                padding: '6px 10px',
+                fontSize: '11px',
+                fontWeight: isActive ? 600 : 400,
+                backgroundColor: isActive ? '#6366f1' : isDisabled ? '#e5e7eb' : '#f3f4f6',
+                color: isActive ? 'white' : isDisabled ? '#9ca3af' : '#374151',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                opacity: isDisabled ? 0.6 : 1,
+                whiteSpace: 'nowrap',
+              }}
+              title={isDisabled ? `No ${source === 'markets' ? 'market' : 'polling'} data available` : ''}
+            >
+              {getSourceLabel(source)}
+              {count !== null && count > 0 && (
+                <span style={{ marginLeft: '3px', opacity: 0.8 }}>({count})</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
       {tooltipData && (
         <div
           style={{
@@ -217,31 +348,29 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
               }}>
                 <span style={{ fontWeight: 500 }}>{raceTypeLabel} Race</span>
                 <span style={{
-                  backgroundColor: getRatingColor(tooltipData.race.rating),
+                  backgroundColor: tooltipData.rating ? getRatingColor(tooltipData.rating) : getRatingColor(tooltipData.race.rating),
                   color: 'white',
                   padding: '2px 8px',
                   borderRadius: '4px',
                   fontSize: '12px',
                   fontWeight: 'bold',
                 }}>
-                  {getRatingLabel(tooltipData.race.rating)}
+                  {tooltipData.rating ? getRatingLabel(tooltipData.rating) : getRatingLabel(tooltipData.race.rating)}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px' }}>
-                {tooltipData.race.forecasts.map((forecast) => {
-                  const candidate = tooltipData.race!.candidates.find(c => c.id === forecast.candidateId);
-                  const isDemo = candidate?.party === 'Democrat';
-                  return (
-                    <div key={forecast.candidateId} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-                      <span style={{ color: isDemo ? '#0015BC' : '#BC0000', fontWeight: 500 }}>
-                        {isDemo ? 'D' : 'R'}: {forecast.candidateName}
-                      </span>
-                      <span style={{ fontWeight: 'bold' }}>{(forecast.winProbability * 100).toFixed(0)}%</span>
-                    </div>
-                  );
-                })}
-              </div>
+              {tooltipData.demProb !== null && (
+                <div style={{ marginBottom: '8px', fontSize: '13px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#0015BC', fontWeight: 500 }}>Democrat</span>
+                    <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: '#BC0000', fontWeight: 500 }}>Republican</span>
+                    <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ color: '#666', fontSize: '13px' }}>
