@@ -30,35 +30,51 @@ public class PolymarketClient : IPredictionMarketSource
     private static readonly Dictionary<string, string> RaceIdToMarketId = new()
     {
         // Senate races 2026
-        { "TX-SEN-2026", "630964" },    // Texas Senate
-        { "GA-SEN-2026", "630940" },    // Georgia Senate
-        { "NC-SEN-2026", "630946" },    // North Carolina Senate
-        { "MI-SEN-2026", "630943" },    // Michigan Senate
-        { "AZ-SEN-2026", "630937" },    // Arizona Senate
-        { "NV-SEN-2026", "630949" },    // Nevada Senate
-        { "PA-SEN-2026", "630952" },    // Pennsylvania Senate
-        { "WI-SEN-2026", "630967" },    // Wisconsin Senate
-        { "OH-SEN-2026", "630958" },    // Ohio Senate
-        { "FL-SEN-2026", "630970" },    // Florida Senate
-        { "MN-SEN-2026", "630955" },    // Minnesota Senate
-        { "NH-SEN-2026", "630961" },    // New Hampshire Senate
-        { "CO-SEN-2026", "630973" },    // Colorado Senate
-        { "ME-SEN-2026", "630976" },    // Maine Senate
-        { "VA-SEN-2026", "630979" },    // Virginia Senate
-        { "NM-SEN-2026", "630982" },    // New Mexico Senate
-        { "IA-SEN-2026", "630985" },    // Iowa Senate
+        { "TX-SEN-2026", "630964" },   
+        { "OR-SEN-2026", "630898" },  
+        { "GA-SEN-2026", "630692" },  
+        { "NC-SEN-2026", "630883" },   
+        { "MI-SEN-2026", "630805" },   
+        { "MO-SEN-2026", "630832" },    
+        { "ID-SEN-2026", "630706" },    
+        { "WY-SEN-2026", "631003" },    
+        { "NM-SEN-2026", "630870" },    
+        { "AK-SEN-2026", "634974" },    
+        { "CO-SEN-2026", "630666" },    
+        { "SD-SEN-2026", "630938" },   
+        { "NE-SEN-2026", "634892" },    
+        { "KS-SEN-2026", "630747" },    
+        { "LA-SEN-2026", "634879" },
+        { "IL-SEN-2026", "630720" },
+        { "OK-SEN-2026", "631031" },  
+        { "MN-SEN-2026", "630772" },
+        { "IA-SEN-2026", "630734" },     
+        { "AR-SEN-2026", "630654" },   
+        { "MS-SEN-2026", "631018" },     
+        { "KY-SEN-2026", "630760" },    
+        { "TN-SEN-2026", "630951" },     
+        { "AL-SEN-2026", "630628" },   
+        { "SC-SEN-2026", "630925" },     
+        { "VA-SEN-2026", "630976" },  
+        { "WV-SEN-2026", "630990" },     
+        { "DE-SEN-2026", "630679" },
+        { "NJ-SEN-2026", "630857" },     
+        { "RI-SEN-2026", "630911" }, 
+        { "MA-SEN-2026", "630790" },     
+        { "ME-SEN-2026", "630772" },     
+        { "NH-SEN-2026", "630844" },     
 
         // Governor races 2026
-        { "GA-GOV-2026", "631000" },    // Georgia Governor
-        { "PA-GOV-2026", "631003" },    // Pennsylvania Governor
-        { "MI-GOV-2026", "631006" },    // Michigan Governor
-        { "WI-GOV-2026", "631009" },    // Wisconsin Governor
-        { "AZ-GOV-2026", "631012" },    // Arizona Governor
-        { "NV-GOV-2026", "631015" },    // Nevada Governor
-        { "NC-GOV-2026", "631018" },    // North Carolina Governor
-        { "FL-GOV-2026", "631021" },    // Florida Governor
-        { "TX-GOV-2026", "631024" },    // Texas Governor
-        { "OH-GOV-2026", "631027" },    // Ohio Governor
+        { "GA-GOV-2026", "" },    
+        { "PA-GOV-2026", "" },    
+        { "MI-GOV-2026", "" },    
+        { "WI-GOV-2026", "" },    
+        { "AZ-GOV-2026", "" },    
+        { "NV-GOV-2026", "" },    
+        { "NC-GOV-2026", "" },   
+        { "FL-GOV-2026", "" },    
+        { "TX-GOV-2026", "" },   
+        { "OH-GOV-2026", "" },   
     };
 
     public string SourceName => "Polymarket";
