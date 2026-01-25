@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { State, StateSummary, Race, District, RaceType } from '../types';
+import { State, StateSummary, Race, District, RaceType, DetailedForecast } from '../types';
 
 const API_BASE_URL = 'http://localhost:5000/api';
 
@@ -48,6 +48,18 @@ export const racesApi = {
 export const districtsApi = {
   getById: async (id: string): Promise<District> => {
     const response = await api.get<District>(`/districts/${id}`);
+    return response.data;
+  },
+};
+
+export const forecastApi = {
+  getByRaceId: async (raceId: string): Promise<DetailedForecast> => {
+    const response = await api.get<DetailedForecast>(`/forecast/${raceId}`);
+    return response.data;
+  },
+
+  getAll: async (): Promise<DetailedForecast[]> => {
+    const response = await api.get<DetailedForecast[]>('/forecast');
     return response.data;
   },
 };

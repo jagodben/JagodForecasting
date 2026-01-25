@@ -75,3 +75,28 @@ export interface StateSummary {
   overallRating: RaceRating;
   raceCount: number;
 }
+
+export interface ForecastInputs {
+  marketOdds: number | null;
+  pollingAverage: number | null;
+  fundamentalsPrediction: number | null;
+  approvalAdjustment: number | null;
+  marketWeight: number;
+  pollingWeight: number;
+  fundamentalsWeight: number;
+  approvalWeight: number;
+  marketLastUpdated: string | null;
+  pollingLastUpdated: string | null;
+  pollCount: number | null;
+}
+
+export interface DetailedForecast {
+  raceId: string;
+  demWinProbability: number;
+  repWinProbability: number;
+  demVoteShare: number;
+  repVoteShare: number;
+  confidence: number;
+  lastUpdated: string;
+  inputs: ForecastInputs;
+}

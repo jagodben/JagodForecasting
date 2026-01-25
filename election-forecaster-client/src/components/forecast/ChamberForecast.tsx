@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Race, RaceType } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { Race, RaceType, DetailedForecast } from '../../types';
+import { forecastApi } from '../../services/api';
+
+type DataSource = 'combined' | 'markets' | 'polling';
 
 interface ChamberForecastProps {
   races: Race[];
@@ -53,7 +57,49 @@ const generateMockHistoricalData = (currentDemOdds: number, raceType: RaceType):
 };
 
 export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
-  const { seatProjection, demVictoryOdds, historicalData } = useMemo(() => {
+  const [dataSource, setDataSource] = useState<DataSource>('combined');
+
+  // Fetch detailed forecasts for all races to get market/polling data
+  const { data: detailedForecasts, isLoading: isLoadingForecasts } = useQuery({
+    queryKey: ['forecasts', races.map(r => r.id)],
+    queryFn: async () => {
+      const forecasts = await Promise.all(
+        races.map(race => forecastApi.getByRaceId(race.id).catch(() => null))
+      );
+      return forecasts.filter((f): f is DetailedForecast => f !== null);
+    },
+    enabled: races.length > 0,
+  });
+
+  // Debug: log when detailed forecasts are loaded
+  console.log('Detailed forecasts:', detailedForecasts?.length ?? 0, 'races loaded');
+  if (detailedForecasts && detailedForecasts.length > 0) {
+    const withMarket = detailedForecasts.filter(f => f.inputs.marketOdds != null);
+    const withPolling = detailedForecasts.filter(f => f.inputs.pollingAverage != null);
+    console.log(`Market data: ${withMarket.length} races, Polling data: ${withPolling.length} races`);
+    if (withMarket.length > 0) {
+      console.log('Sample market odds:', withMarket[0].raceId, withMarket[0].inputs.marketOdds);
+    }
+    if (withPolling.length > 0) {
+      console.log('Sample polling:', withPolling[0].raceId, withPolling[0].inputs.pollingAverage);
+    }
+  }
+
+  // Helper function to calculate combined odds from seat projection
+  const calculateCombinedOdds = (projection: SeatProjection, raceCount: number, rt: RaceType): number => {
+    if (rt === RaceType.Senate) {
+      const demTotal = projection.democrat + 0.5 * projection.tossup;
+      const seatsNeeded = raceCount / 2;
+      const advantage = (demTotal - seatsNeeded) / raceCount;
+      return Math.round((50 + advantage * 100) * 10) / 10;
+    } else {
+      const demTotal = projection.democrat + 0.5 * projection.tossup;
+      const advantage = (demTotal - 218) / 50;
+      return Math.round((50 + advantage * 30) * 10) / 10;
+    }
+  };
+
+  const { seatProjection, demVictoryOdds, historicalData, hasMarketData, hasPollingData, activeSource, marketCount, pollingCount } = useMemo(() => {
     // Calculate seat projections based on race forecasts
     const projection: SeatProjection = {
       democrat: 0,
@@ -62,47 +108,78 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
       tossup: 0,
     };
 
+    // Track if we have market/polling data
+    let marketsAvailable = 0;
+    let pollingAvailable = 0;
+
     races.forEach(race => {
-      // Find the candidate with highest win probability
-      const sortedForecasts = [...race.forecasts].sort((a, b) => b.winProbability - a.winProbability);
-      const topForecast = sortedForecasts[0];
-      const topCandidate = race.candidates.find(c => c.id === topForecast?.candidateId);
+      // Find detailed forecast for this race
+      const detailed = detailedForecasts?.find(f => f.raceId === race.id);
 
-      if (!topForecast || !topCandidate) return;
+      // Check data availability
+      if (detailed?.inputs.marketOdds != null) marketsAvailable++;
+      if (detailed?.inputs.pollingAverage != null) pollingAvailable++;
 
-      // If it's close (within 10%), count as tossup for display
-      const margin = topForecast.winProbability - (sortedForecasts[1]?.winProbability || 0);
+      // Get the probability based on selected data source
+      let demProb: number;
 
-      if (margin < 0.1) {
-        projection.tossup++;
-      } else if (topCandidate.party === 'Democrat') {
+      if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
+        demProb = detailed.inputs.marketOdds;
+      } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
+        // Convert polling percentage to probability (simplified)
+        demProb = detailed.inputs.pollingAverage / 100;
+      } else if (detailed) {
+        demProb = detailed.demWinProbability;
+      } else {
+        // Fallback to original forecast
+        const demForecast = race.forecasts.find(f =>
+          race.candidates.find(c => c.id === f.candidateId)?.party === 'Democrat'
+        );
+        demProb = demForecast?.winProbability || 0.5;
+      }
+
+      // Categorize the race
+      if (demProb > 0.55) {
         projection.democrat++;
-      } else if (topCandidate.party === 'Republican') {
+      } else if (demProb < 0.45) {
         projection.republican++;
       } else {
-        projection.independent++;
+        projection.tossup++;
       }
     });
 
-    // Calculate overall victory odds
+    // Calculate overall victory odds based on selected data source
     // For Senate: Dems need 50 seats (or 51 without VP tiebreaker)
     // For House: Need 218 seats for majority
-    // This is a simplified calculation - real models use Monte Carlo simulations
 
     let demOdds: number;
+    let effectiveSource: DataSource = dataSource;
 
-    if (raceType === RaceType.Senate) {
-      // Assume 34 seats up for election, Dems currently have some safe seats
-      // Simplified: base it on projected seats vs needed
-      const demTotal = projection.democrat + 0.5 * projection.tossup;
-      const seatsNeeded = races.length / 2;
-      const advantage = (demTotal - seatsNeeded) / races.length;
-      demOdds = Math.round((50 + advantage * 100) * 10) / 10;
+    // If using specific data source, calculate average from that source
+    if (dataSource === 'markets' && detailedForecasts) {
+      const marketOdds = detailedForecasts
+        .filter(f => f.inputs.marketOdds != null)
+        .map(f => f.inputs.marketOdds!);
+      if (marketOdds.length > 0) {
+        demOdds = Math.round((marketOdds.reduce((a, b) => a + b, 0) / marketOdds.length) * 1000) / 10;
+      } else {
+        // Fallback to combined calculation
+        effectiveSource = 'combined';
+        demOdds = calculateCombinedOdds(projection, races.length, raceType);
+      }
+    } else if (dataSource === 'polling' && detailedForecasts) {
+      const pollingOdds = detailedForecasts
+        .filter(f => f.inputs.pollingAverage != null)
+        .map(f => f.inputs.pollingAverage!);
+      if (pollingOdds.length > 0) {
+        demOdds = Math.round((pollingOdds.reduce((a, b) => a + b, 0) / pollingOdds.length) * 10) / 10;
+      } else {
+        // Fallback to combined calculation
+        effectiveSource = 'combined';
+        demOdds = calculateCombinedOdds(projection, races.length, raceType);
+      }
     } else {
-      // House: 435 seats, need 218 for majority
-      const demTotal = projection.democrat + 0.5 * projection.tossup;
-      const advantage = (demTotal - 218) / 50; // Normalize
-      demOdds = Math.round((50 + advantage * 30) * 10) / 10;
+      demOdds = calculateCombinedOdds(projection, races.length, raceType);
     }
 
     demOdds = Math.max(5, Math.min(95, demOdds));
@@ -113,8 +190,13 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
       seatProjection: projection,
       demVictoryOdds: demOdds,
       historicalData: historical,
+      hasMarketData: marketsAvailable > 0,
+      hasPollingData: pollingAvailable > 0,
+      activeSource: effectiveSource,
+      marketCount: marketsAvailable,
+      pollingCount: pollingAvailable,
     };
-  }, [races, raceType]);
+  }, [races, raceType, dataSource, detailedForecasts]);
 
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
   const chamberName = raceType === RaceType.Senate ? 'Senate' : 'House';
@@ -130,8 +212,76 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const totalRepSeats = seatProjection.republican + assumedRepHeld;
   const totalIndSeats = seatProjection.independent;
 
+  const getSourceLabel = (source: DataSource) => {
+    switch (source) {
+      case 'combined': return 'Combined Forecast';
+      case 'markets': return 'Polymarket Odds';
+      case 'polling': return 'Polling Data';
+    }
+  };
+
   return (
     <div style={{ marginTop: '24px', width: '100%', maxWidth: '1000px', margin: '24px auto 0' }}>
+      {/* Loading indicator */}
+      {isLoadingForecasts && (
+        <div style={{
+          textAlign: 'center',
+          padding: '8px',
+          color: '#6b7280',
+          fontSize: '13px',
+          marginBottom: '8px',
+        }}>
+          Loading detailed forecast data...
+        </div>
+      )}
+
+      {/* Data Source Toggle */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '8px',
+        marginBottom: '16px',
+      }}>
+        {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
+          const isDisabled =
+            (source === 'markets' && !hasMarketData) ||
+            (source === 'polling' && !hasPollingData);
+
+          return (
+            <button
+              key={source}
+              onClick={() => !isDisabled && setDataSource(source)}
+              disabled={isDisabled}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: dataSource === source ? 'bold' : 'normal',
+                backgroundColor: dataSource === source ? '#6366f1' : isDisabled ? '#e5e7eb' : '#f3f4f6',
+                color: dataSource === source ? 'white' : isDisabled ? '#9ca3af' : '#374151',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: isDisabled ? 0.6 : 1,
+              }}
+              title={isDisabled ? `No ${source === 'markets' ? 'market' : 'polling'} data available` : ''}
+            >
+              {getSourceLabel(source)}
+              {source === 'markets' && hasMarketData && (
+                <span style={{ marginLeft: '6px', fontSize: '10px', opacity: 0.8 }}>
+                  ({marketCount})
+                </span>
+              )}
+              {source === 'polling' && hasPollingData && (
+                <span style={{ marginLeft: '6px', fontSize: '10px', opacity: 0.8 }}>
+                  ({pollingCount})
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Victory Odds Box */}
       <div style={{
         backgroundColor: 'white',
@@ -140,9 +290,25 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         marginBottom: '16px',
       }}>
-        <h3 style={{ margin: '0 0 20px 0', textAlign: 'center' }}>
+        <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
           {chamberName} Forecast - Chance of Winning Majority
         </h3>
+        <div style={{
+          textAlign: 'center',
+          fontSize: '13px',
+          color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
+          marginBottom: '16px',
+          fontWeight: 500,
+        }}>
+          {activeSource === 'markets' && 'Based on Polymarket prediction market odds'}
+          {activeSource === 'polling' && 'Based on polling averages'}
+          {activeSource === 'combined' && 'Combined forecast (markets + polling + fundamentals)'}
+          {dataSource !== activeSource && dataSource !== 'combined' && (
+            <span style={{ color: '#9ca3af', fontStyle: 'italic', marginLeft: '8px' }}>
+              (insufficient {dataSource === 'markets' ? 'market' : 'polling'} data - using combined)
+            </span>
+          )}
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* Democrat odds */}
