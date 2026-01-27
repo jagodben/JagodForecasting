@@ -5,7 +5,8 @@ public enum RaceRating
     SolidDem,
     LikelyDem,
     LeanDem,
-    Tossup,
+    TiltDem,
+    TiltRep,
     LeanRep,
     LikelyRep,
     SolidRep

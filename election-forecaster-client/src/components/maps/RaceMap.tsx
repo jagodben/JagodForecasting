@@ -25,12 +25,13 @@ const stateNameToId: Record<string, string> = {
 
 // Convert probability to rating
 const probabilityToRating = (demProb: number): RaceRating => {
-  if (demProb >= 0.95) return RaceRating.SolidDem;
-  if (demProb >= 0.75) return RaceRating.LikelyDem;
+  if (demProb >= 0.90) return RaceRating.SolidDem;
+  if (demProb >= 0.70) return RaceRating.LikelyDem;
   if (demProb >= 0.55) return RaceRating.LeanDem;
-  if (demProb >= 0.45) return RaceRating.Tossup;
-  if (demProb >= 0.25) return RaceRating.LeanRep;
-  if (demProb >= 0.05) return RaceRating.LikelyRep;
+  if (demProb > 0.50) return RaceRating.TiltDem;
+  if (demProb >= 0.45) return RaceRating.TiltRep;
+  if (demProb >= 0.30) return RaceRating.LeanRep;
+  if (demProb >= 0.10) return RaceRating.LikelyRep;
   return RaceRating.SolidRep;
 };
 
@@ -39,7 +40,8 @@ const getRatingColor = (rating: RaceRating): string => {
     case RaceRating.SolidDem: return '#0015BC';
     case RaceRating.LikelyDem: return '#3355DD';
     case RaceRating.LeanDem: return '#7799EE';
-    case RaceRating.Tossup: return '#9966CC';
+    case RaceRating.TiltDem: return '#AABBFF';
+    case RaceRating.TiltRep: return '#FFAAAA';
     case RaceRating.LeanRep: return '#EE7777';
     case RaceRating.LikelyRep: return '#DD3333';
     case RaceRating.SolidRep: return '#BC0000';
@@ -52,7 +54,8 @@ const getRatingLabel = (rating: RaceRating): string => {
     case RaceRating.SolidDem: return 'Solid D';
     case RaceRating.LikelyDem: return 'Likely D';
     case RaceRating.LeanDem: return 'Lean D';
-    case RaceRating.Tossup: return 'Tossup';
+    case RaceRating.TiltDem: return 'Tilt D';
+    case RaceRating.TiltRep: return 'Tilt R';
     case RaceRating.LeanRep: return 'Lean R';
     case RaceRating.LikelyRep: return 'Likely R';
     case RaceRating.SolidRep: return 'Solid R';
@@ -170,7 +173,13 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
     const stateName = geo.properties.name;
     const stateId = stateNameToId[stateName];
     if (stateId) {
-      navigate(`/state/${stateId}`);
+      // Find the race for this state and navigate to the race page
+      const race = races.find(r => r.stateId.toLowerCase() === stateId.toLowerCase());
+      if (race) {
+        navigate(`/race/${race.id}`);
+      } else {
+        navigate(`/state/${stateId}`);
+      }
     }
   };
 

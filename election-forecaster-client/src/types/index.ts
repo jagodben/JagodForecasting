@@ -17,7 +17,8 @@ export enum RaceRating {
   SolidDem = 'SolidDem',
   LikelyDem = 'LikelyDem',
   LeanDem = 'LeanDem',
-  Tossup = 'Tossup',
+  TiltDem = 'TiltDem',
+  TiltRep = 'TiltRep',
   LeanRep = 'LeanRep',
   LikelyRep = 'LikelyRep',
   SolidRep = 'SolidRep'

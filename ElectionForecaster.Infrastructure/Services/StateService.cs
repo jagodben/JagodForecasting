@@ -67,7 +67,8 @@ public class StateService : IStateService
             >= 12 => RaceRating.SolidDem,
             >= 6 => RaceRating.LikelyDem,
             >= 2 => RaceRating.LeanDem,
-            >= -2 => RaceRating.Tossup,
+            >= 0 => RaceRating.TiltDem,
+            >= -2 => RaceRating.TiltRep,
             >= -6 => RaceRating.LeanRep,
             >= -12 => RaceRating.LikelyRep,
             _ => RaceRating.SolidRep

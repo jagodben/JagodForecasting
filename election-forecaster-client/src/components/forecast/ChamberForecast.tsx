@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, DetailedForecast } from '../../types';
-import { forecastApi } from '../../services/api';
+import { forecastApi, ChamberMarketOdds } from '../../services/api';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -69,6 +69,13 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
       return forecasts.filter((f): f is DetailedForecast => f !== null);
     },
     enabled: races.length > 0,
+  });
+
+  // Fetch chamber-level market odds (overall control odds from Polymarket)
+  const { data: chamberMarketOdds } = useQuery({
+    queryKey: ['chamberMarketOdds', raceType],
+    queryFn: () => forecastApi.getChamberMarketOdds(raceType === RaceType.Senate ? 'Senate' : 'House'),
+    enabled: raceType === RaceType.Senate, // Only Senate has chamber market for now
   });
 
   // Debug: log when detailed forecasts are loaded
@@ -156,14 +163,23 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
     let effectiveSource: DataSource = dataSource;
 
     // If using specific data source, calculate average from that source
-    if (dataSource === 'markets' && detailedForecasts) {
-      const marketOdds = detailedForecasts
-        .filter(f => f.inputs.marketOdds != null)
-        .map(f => f.inputs.marketOdds!);
-      if (marketOdds.length > 0) {
-        demOdds = Math.round((marketOdds.reduce((a, b) => a + b, 0) / marketOdds.length) * 1000) / 10;
+    if (dataSource === 'markets') {
+      // Use chamber-level market odds if available (e.g., Polymarket overall Senate control)
+      if (chamberMarketOdds) {
+        demOdds = Math.round(chamberMarketOdds.demOdds * 1000) / 10;
+      } else if (detailedForecasts) {
+        // Fallback to averaging individual race market odds
+        const marketOdds = detailedForecasts
+          .filter(f => f.inputs.marketOdds != null)
+          .map(f => f.inputs.marketOdds!);
+        if (marketOdds.length > 0) {
+          demOdds = Math.round((marketOdds.reduce((a, b) => a + b, 0) / marketOdds.length) * 1000) / 10;
+        } else {
+          // Fallback to combined calculation
+          effectiveSource = 'combined';
+          demOdds = calculateCombinedOdds(projection, races.length, raceType);
+        }
       } else {
-        // Fallback to combined calculation
         effectiveSource = 'combined';
         demOdds = calculateCombinedOdds(projection, races.length, raceType);
       }
@@ -190,13 +206,14 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
       seatProjection: projection,
       demVictoryOdds: demOdds,
       historicalData: historical,
-      hasMarketData: marketsAvailable > 0,
+      hasMarketData: marketsAvailable > 0 || chamberMarketOdds != null,
       hasPollingData: pollingAvailable > 0,
       activeSource: effectiveSource,
       marketCount: marketsAvailable,
       pollingCount: pollingAvailable,
+      chamberMarketOdds: chamberMarketOdds,
     };
-  }, [races, raceType, dataSource, detailedForecasts]);
+  }, [races, raceType, dataSource, detailedForecasts, chamberMarketOdds]);
 
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
   const chamberName = raceType === RaceType.Senate ? 'Senate' : 'House';
@@ -215,7 +232,7 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const getSourceLabel = (source: DataSource) => {
     switch (source) {
       case 'combined': return 'Combined Forecast';
-      case 'markets': return 'Polymarket Odds';
+      case 'markets': return 'Public Opinion';
       case 'polling': return 'Polling Data';
     }
   };

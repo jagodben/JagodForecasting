@@ -5,7 +5,8 @@ const getRatingLabel = (rating: RaceRating): string => {
     case RaceRating.SolidDem: return 'Solid D';
     case RaceRating.LikelyDem: return 'Likely D';
     case RaceRating.LeanDem: return 'Lean D';
-    case RaceRating.Tossup: return 'Tossup';
+    case RaceRating.TiltDem: return 'Tilt D';
+    case RaceRating.TiltRep: return 'Tilt R';
     case RaceRating.LeanRep: return 'Lean R';
     case RaceRating.LikelyRep: return 'Likely R';
     case RaceRating.SolidRep: return 'Solid R';
@@ -18,7 +19,8 @@ const getRatingColor = (rating: RaceRating): string => {
     case RaceRating.SolidDem: return '#0015BC';
     case RaceRating.LikelyDem: return '#3355DD';
     case RaceRating.LeanDem: return '#7799EE';
-    case RaceRating.Tossup: return '#9966CC';
+    case RaceRating.TiltDem: return '#AABBFF';
+    case RaceRating.TiltRep: return '#FFAAAA';
     case RaceRating.LeanRep: return '#EE7777';
     case RaceRating.LikelyRep: return '#DD3333';
     case RaceRating.SolidRep: return '#BC0000';

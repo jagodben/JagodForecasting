@@ -52,6 +52,14 @@ export const districtsApi = {
   },
 };
 
+export interface ChamberMarketOdds {
+  chamber: string;
+  demOdds: number;
+  repOdds: number;
+  timestamp: string;
+  source: string;
+}
+
 export const forecastApi = {
   getByRaceId: async (raceId: string): Promise<DetailedForecast> => {
     const response = await api.get<DetailedForecast>(`/forecast/${raceId}`);
@@ -61,5 +69,14 @@ export const forecastApi = {
   getAll: async (): Promise<DetailedForecast[]> => {
     const response = await api.get<DetailedForecast[]>('/forecast');
     return response.data;
+  },
+
+  getChamberMarketOdds: async (chamberType: string): Promise<ChamberMarketOdds | null> => {
+    try {
+      const response = await api.get<ChamberMarketOdds>(`/forecast/chamber/${chamberType}/market-odds`);
+      return response.data;
+    } catch {
+      return null;
+    }
   },
 };

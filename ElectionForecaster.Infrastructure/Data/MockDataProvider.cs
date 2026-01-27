@@ -16,14 +16,14 @@ public static class MockDataProvider
         {
             ("AL", "Alabama", 9, 7, RaceRating.SolidRep, true, true),
             ("AK", "Alaska", 3, 1, RaceRating.LikelyRep, true, true),
-            ("AZ", "Arizona", 11, 9, RaceRating.Tossup, false, true),
+            ("AZ", "Arizona", 11, 9, RaceRating.TiltDem, false, true),
             ("AR", "Arkansas", 6, 4, RaceRating.SolidRep, true, true),
             ("CA", "California", 54, 52, RaceRating.SolidDem, false, true),
             ("CO", "Colorado", 10, 8, RaceRating.LikelyDem, true, true),
             ("CT", "Connecticut", 7, 5, RaceRating.SolidDem, false, true),
             ("DE", "Delaware", 3, 1, RaceRating.SolidDem, true, false),
             ("FL", "Florida", 30, 28, RaceRating.LeanRep, false, true),
-            ("GA", "Georgia", 16, 14, RaceRating.Tossup, true, true),
+            ("GA", "Georgia", 16, 14, RaceRating.TiltDem, true, true),
             ("HI", "Hawaii", 4, 2, RaceRating.SolidDem, false, true),
             ("ID", "Idaho", 4, 2, RaceRating.SolidRep, true, true),
             ("IL", "Illinois", 19, 17, RaceRating.SolidDem, true, true),
@@ -35,23 +35,23 @@ public static class MockDataProvider
             ("ME", "Maine", 4, 2, RaceRating.LeanDem, true, true),
             ("MD", "Maryland", 10, 8, RaceRating.SolidDem, false, true),
             ("MA", "Massachusetts", 11, 9, RaceRating.SolidDem, true, true),
-            ("MI", "Michigan", 15, 13, RaceRating.Tossup, true, true),
+            ("MI", "Michigan", 15, 13, RaceRating.TiltDem, true, true),
             ("MN", "Minnesota", 10, 8, RaceRating.LeanDem, true, true),
             ("MS", "Mississippi", 6, 4, RaceRating.SolidRep, true, false),
             ("MO", "Missouri", 10, 8, RaceRating.SolidRep, false, false),
             ("MT", "Montana", 4, 2, RaceRating.LikelyRep, true, false),
             ("NE", "Nebraska", 5, 3, RaceRating.SolidRep, true, true),
-            ("NV", "Nevada", 6, 4, RaceRating.Tossup, false, true),
+            ("NV", "Nevada", 6, 4, RaceRating.TiltDem, false, true),
             ("NH", "New Hampshire", 4, 2, RaceRating.LeanDem, true, true),
             ("NJ", "New Jersey", 14, 12, RaceRating.LikelyDem, true, false),
             ("NM", "New Mexico", 5, 3, RaceRating.LikelyDem, true, true),
             ("NY", "New York", 28, 26, RaceRating.SolidDem, false, true),
-            ("NC", "North Carolina", 16, 14, RaceRating.Tossup, true, false),
+            ("NC", "North Carolina", 16, 14, RaceRating.TiltDem, true, false),
             ("ND", "North Dakota", 3, 1, RaceRating.SolidRep, false, false),
             ("OH", "Ohio", 17, 15, RaceRating.LeanRep, false, true),
             ("OK", "Oklahoma", 7, 5, RaceRating.SolidRep, true, true),
             ("OR", "Oregon", 8, 6, RaceRating.LikelyDem, true, true),
-            ("PA", "Pennsylvania", 19, 17, RaceRating.Tossup, false, true),
+            ("PA", "Pennsylvania", 19, 17, RaceRating.TiltDem, false, true),
             ("RI", "Rhode Island", 4, 2, RaceRating.SolidDem, true, true),
             ("SC", "South Carolina", 9, 7, RaceRating.SolidRep, true, true),
             ("SD", "South Dakota", 3, 1, RaceRating.SolidRep, true, true),
@@ -62,7 +62,7 @@ public static class MockDataProvider
             ("VA", "Virginia", 13, 11, RaceRating.LeanDem, true, false),
             ("WA", "Washington", 12, 10, RaceRating.SolidDem, false, false),
             ("WV", "West Virginia", 4, 2, RaceRating.SolidRep, true, false),
-            ("WI", "Wisconsin", 10, 8, RaceRating.Tossup, false, true),
+            ("WI", "Wisconsin", 10, 8, RaceRating.TiltDem, false, true),
             ("WY", "Wyoming", 3, 1, RaceRating.SolidRep, true, true)
         };
 
@@ -268,11 +268,13 @@ public static class MockDataProvider
             RaceRating.SolidDem => (0.95, 0.05),
             RaceRating.LikelyDem => (0.80, 0.20),
             RaceRating.LeanDem => (0.65, 0.35),
-            RaceRating.Tossup => (0.50, 0.50),
+            RaceRating.TiltDem => (0.55, 0.45),
+            RaceRating.TiltRep => (0.45, 0.55),
             RaceRating.LeanRep => (0.35, 0.65),
             RaceRating.LikelyRep => (0.20, 0.80),
             RaceRating.SolidRep => (0.05, 0.95),
             _ => (0.50, 0.50)
         };
     }
+
 }

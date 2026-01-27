@@ -145,10 +145,11 @@ public class RaceService : IRaceService
         race.Rating = demProb switch
         {
             >= 0.90 => RaceRating.SolidDem,
-            >= 0.75 => RaceRating.LikelyDem,
-            >= 0.60 => RaceRating.LeanDem,
-            >= 0.40 => RaceRating.Tossup,
-            >= 0.25 => RaceRating.LeanRep,
+            >= 0.70 => RaceRating.LikelyDem,
+            >= 0.55 => RaceRating.LeanDem,
+            > 0.50 => RaceRating.TiltDem,
+            >= 0.45 => RaceRating.TiltRep,
+            >= 0.30 => RaceRating.LeanRep,
             >= 0.10 => RaceRating.LikelyRep,
             _ => RaceRating.SolidRep
         };

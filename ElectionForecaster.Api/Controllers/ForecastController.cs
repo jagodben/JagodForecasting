@@ -1,5 +1,6 @@
 using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Models;
+using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using ElectionForecaster.Infrastructure.Forecasting;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,13 +11,16 @@ namespace ElectionForecaster.Api.Controllers;
 public class ForecastController : ControllerBase
 {
     private readonly IForecastingOrchestrator _orchestrator;
+    private readonly PolymarketClient _polymarketClient;
     private readonly ILogger<ForecastController> _logger;
 
     public ForecastController(
         IForecastingOrchestrator orchestrator,
+        PolymarketClient polymarketClient,
         ILogger<ForecastController> logger)
     {
         _orchestrator = orchestrator;
+        _polymarketClient = polymarketClient;
         _logger = logger;
     }
 
@@ -67,6 +71,30 @@ public class ForecastController : ControllerBase
 
         var forecast = await _orchestrator.SimulateChamberAsync(chamber);
         return Ok(forecast);
+    }
+
+    /// <summary>
+    /// Gets the overall chamber control odds from Polymarket.
+    /// </summary>
+    [HttpGet("chamber/{chamberType}/market-odds")]
+    [ProducesResponseType(typeof(ChamberMarketOdds), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ChamberMarketOdds>> GetChamberMarketOdds(string chamberType)
+    {
+        var odds = await _polymarketClient.GetChamberOddsAsync(chamberType);
+        if (odds == null)
+        {
+            return NotFound(new { message = $"No market odds available for {chamberType}" });
+        }
+
+        return Ok(new ChamberMarketOdds
+        {
+            Chamber = chamberType,
+            DemOdds = odds.DemOdds,
+            RepOdds = odds.RepOdds,
+            Timestamp = odds.Timestamp,
+            Source = odds.Source
+        });
     }
 
     /// <summary>
@@ -161,4 +189,16 @@ public class RaceTypeSummary
     public int RepFavored { get; set; }
     public int Tossups { get; set; }
     public ChamberForecast? ChamberForecast { get; set; }
+}
+
+/// <summary>
+/// Chamber control odds from prediction markets.
+/// </summary>
+public class ChamberMarketOdds
+{
+    public string Chamber { get; set; } = "";
+    public double DemOdds { get; set; }
+    public double RepOdds { get; set; }
+    public DateTime Timestamp { get; set; }
+    public string Source { get; set; } = "";
 }
