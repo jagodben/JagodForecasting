@@ -278,7 +278,7 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
             justifyContent: 'center',
             height: '400px',
             color: '#666',
-            backgroundColor: '#f8f9fa',
+            backgroundColor: '#ffffff',
             borderRadius: '8px'
           }}>
             Loading district map...
@@ -290,7 +290,7 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
             style={{
               width: '100%',
               height: 'auto',
-              backgroundColor: '#f8f9fa',
+              backgroundColor: '#ffffff',
               borderRadius: '8px',
               cursor: isPanning ? 'grabbing' : 'grab',
               userSelect: 'none',
