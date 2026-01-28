@@ -130,24 +130,6 @@ export const HomePage = () => {
           </>
         )}
       </div>
-
-      <div className="stats-section">
-        <h2>Race Summary</h2>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-value">{senateRaces?.length || 0}</span>
-            <span className="stat-label">Senate Races</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-value">{govRaces?.length || 0}</span>
-            <span className="stat-label">Governor Races</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-value">{houseRaces?.length || 0}</span>
-            <span className="stat-label">House Races</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

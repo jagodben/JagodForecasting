@@ -1,7 +1,97 @@
+import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
 import { RaceType, RaceRating, Party } from '../types';
+
+type DataSource = 'combined' | 'markets' | 'polling';
+
+interface HistoricalOdds {
+  date: string;
+  demOdds: number;
+}
+
+// Generate mock historical data for a race based on data source
+const generateMockHistoricalData = (currentDemProb: number, rating: RaceRating, dataSource: DataSource): HistoricalOdds[] => {
+  const data: HistoricalOdds[] = [];
+  const today = new Date();
+
+  // Starting point based on rating
+  let baseOdds: number;
+  let volatility: number;
+
+  switch (rating) {
+    case RaceRating.SolidDem:
+      baseOdds = 75;
+      break;
+    case RaceRating.LikelyDem:
+      baseOdds = 65;
+      break;
+    case RaceRating.LeanDem:
+    case RaceRating.TiltDem:
+      baseOdds = 55;
+      break;
+    case RaceRating.TiltRep:
+    case RaceRating.LeanRep:
+      baseOdds = 45;
+      break;
+    case RaceRating.LikelyRep:
+      baseOdds = 35;
+      break;
+    case RaceRating.SolidRep:
+      baseOdds = 25;
+      break;
+    default:
+      baseOdds = 50;
+  }
+
+  // Different volatility based on data source
+  switch (dataSource) {
+    case 'markets':
+      volatility = 6; // Markets are more volatile
+      break;
+    case 'polling':
+      volatility = 2; // Polling is more stable
+      break;
+    case 'combined':
+    default:
+      volatility = 4;
+  }
+
+  let runningOdds = baseOdds;
+  const targetOdds = currentDemProb * 100;
+
+  for (let i = 60; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    const randomShift = (Math.random() - 0.5) * volatility;
+    const trendPull = (targetOdds - runningOdds) * 0.05;
+
+    runningOdds = runningOdds + randomShift + trendPull;
+    runningOdds = Math.max(5, Math.min(95, runningOdds));
+
+    data.push({
+      date: date.toISOString().split('T')[0],
+      demOdds: Math.round(runningOdds * 10) / 10,
+    });
+  }
+
+  // Ensure last point matches current probability
+  if (data.length > 0) {
+    data[data.length - 1].demOdds = Math.round(targetOdds * 10) / 10;
+  }
+
+  return data;
+};
+
+const getSourceLabel = (source: DataSource) => {
+  switch (source) {
+    case 'combined': return 'Combined Forecast';
+    case 'markets': return 'Public Opinion';
+    case 'polling': return 'Polling Data';
+  }
+};
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {
@@ -53,6 +143,7 @@ const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
 
 export const RacePage = () => {
   const { raceId } = useParams<{ raceId: string }>();
+  const [dataSource, setDataSource] = useState<DataSource>('combined');
 
   const { data: race, isLoading: raceLoading, error: raceError } = useQuery({
     queryKey: ['race', raceId],
@@ -71,6 +162,40 @@ export const RacePage = () => {
     queryFn: () => statesApi.getById(race!.stateId),
     enabled: !!race?.stateId,
   });
+
+  // Calculate probabilities based on selected data source
+  const { demProb, repProb, historicalData, hasMarketData, hasPollingData } = useMemo(() => {
+    if (!race) return { demProb: 0.5, repProb: 0.5, historicalData: [], hasMarketData: false, hasPollingData: false };
+
+    const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
+    const demForecastData = race.forecasts.find(f => f.candidateId === demCandidate?.id);
+
+    // Check data availability from forecast inputs
+    const marketAvailable = forecast?.inputs?.marketOdds != null;
+    const pollingAvailable = forecast?.inputs?.pollingAverage != null;
+
+    let demProbability: number;
+
+    if (dataSource === 'markets' && marketAvailable) {
+      demProbability = forecast!.inputs.marketOdds!;
+    } else if (dataSource === 'polling' && pollingAvailable) {
+      // Convert polling average to probability (simplified)
+      demProbability = forecast!.inputs.pollingAverage! / 100;
+    } else {
+      // Combined or fallback
+      demProbability = demForecastData?.winProbability ?? 0.5;
+    }
+
+    const historical = generateMockHistoricalData(demProbability, race.rating, dataSource);
+
+    return {
+      demProb: demProbability,
+      repProb: 1 - demProbability,
+      historicalData: historical,
+      hasMarketData: marketAvailable,
+      hasPollingData: pollingAvailable,
+    };
+  }, [race, forecast, dataSource]);
 
   if (raceLoading) {
     return (
@@ -99,7 +224,7 @@ export const RacePage = () => {
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);
 
   return (
-    <div className="race-page" style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+    <div className="race-page" style={{ backgroundColor: 'white', minHeight: '100vh', padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
       <nav className="breadcrumb" style={{ marginBottom: '20px' }}>
         <Link to="/">Map</Link>
         <span> / </span>
@@ -128,82 +253,137 @@ export const RacePage = () => {
         </h2>
       </header>
 
-      {/* Win Probability Section */}
+      {/* Data Source Toggle */}
       <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        marginBottom: '24px',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '8px',
+        marginBottom: '32px',
       }}>
-        <h3 style={{ margin: '0 0 20px 0', textAlign: 'center' }}>Win Probability</h3>
+        {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
+          const isDisabled =
+            (source === 'markets' && !hasMarketData) ||
+            (source === 'polling' && !hasPollingData);
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Democrat */}
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0015BC' }}>
-              {demForecast ? `${(demForecast.winProbability * 100).toFixed(1)}%` : '-'}
-            </div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
-              {demCandidate?.name || 'Democrat'}
-            </div>
-            {demCandidate?.isIncumbent && (
-              <div style={{ fontSize: '12px', color: '#999' }}>Incumbent</div>
-            )}
+          return (
+            <button
+              key={source}
+              onClick={() => !isDisabled && setDataSource(source)}
+              disabled={isDisabled}
+              style={{
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: dataSource === source ? 'bold' : 'normal',
+                backgroundColor: dataSource === source ? '#6366f1' : isDisabled ? '#e5e7eb' : '#f3f4f6',
+                color: dataSource === source ? 'white' : isDisabled ? '#9ca3af' : '#374151',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: isDisabled ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: isDisabled ? 0.6 : 1,
+              }}
+              title={isDisabled ? `No ${source === 'markets' ? 'market' : 'polling'} data available` : ''}
+            >
+              {getSourceLabel(source)}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Win Probability Section */}
+      <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
+      <div style={{
+        textAlign: 'center',
+        fontSize: '13px',
+        color: dataSource === 'markets' ? '#059669' : dataSource === 'polling' ? '#2563eb' : '#6b7280',
+        marginBottom: '16px',
+        fontWeight: 500,
+      }}>
+        {dataSource === 'markets' && 'Based on Polymarket prediction market odds'}
+        {dataSource === 'polling' && 'Based on polling averages'}
+        {dataSource === 'combined' && 'Combined forecast (markets + polling + fundamentals)'}
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px' }}>
+        {/* Democrat */}
+        <div style={{ flex: 1, textAlign: 'center' }}>
+          <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0015BC' }}>
+            {(demProb * 100).toFixed(1)}%
           </div>
-
-          {/* Bar */}
-          <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{
-              width: `${demForecast ? demForecast.winProbability * 100 : 50}%`,
-              backgroundColor: '#0015BC',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              transition: 'width 0.3s ease',
-            }}>
-              D
-            </div>
-            <div style={{
-              width: `${repForecast ? repForecast.winProbability * 100 : 50}%`,
-              backgroundColor: '#BC0000',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              transition: 'width 0.3s ease',
-            }}>
-              R
-            </div>
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            {demCandidate?.name || 'Democrat'}
           </div>
+          {demCandidate?.isIncumbent && (
+            <div style={{ fontSize: '12px', color: '#999' }}>Incumbent</div>
+          )}
+        </div>
 
-          {/* Republican */}
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#BC0000' }}>
-              {repForecast ? `${(repForecast.winProbability * 100).toFixed(1)}%` : '-'}
-            </div>
-            <div style={{ fontSize: '14px', color: '#666' }}>
-              {repCandidate?.name || 'Republican'}
-            </div>
-            {repCandidate?.isIncumbent && (
-              <div style={{ fontSize: '12px', color: '#999' }}>Incumbent</div>
-            )}
+        {/* Bar */}
+        <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{
+            width: `${demProb * 100}%`,
+            backgroundColor: '#0015BC',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            transition: 'width 0.3s ease',
+          }}>
+            D
+          </div>
+          <div style={{
+            width: `${repProb * 100}%`,
+            backgroundColor: '#BC0000',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            transition: 'width 0.3s ease',
+          }}>
+            R
           </div>
         </div>
+
+        {/* Republican */}
+        <div style={{ flex: 1, textAlign: 'center' }}>
+          <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#BC0000' }}>
+            {(repProb * 100).toFixed(1)}%
+          </div>
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            {repCandidate?.name || 'Republican'}
+          </div>
+          {repCandidate?.isIncumbent && (
+            <div style={{ fontSize: '12px', color: '#999' }}>Incumbent</div>
+          )}
+        </div>
+      </div>
+
+      {/* Prediction Over Time Chart */}
+      <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Prediction Over Time</h3>
+      <div style={{
+        textAlign: 'center',
+        fontSize: '13px',
+        color: dataSource === 'markets' ? '#059669' : dataSource === 'polling' ? '#2563eb' : '#6b7280',
+        marginBottom: '16px',
+        fontWeight: 500,
+      }}>
+        {dataSource === 'markets' && 'Polymarket odds history'}
+        {dataSource === 'polling' && 'Polling average history'}
+        {dataSource === 'combined' && 'Combined forecast history'}
+      </div>
+      <div style={{ marginBottom: '48px' }}>
+        <PredictionChart
+          data={historicalData}
+          demName={demCandidate?.name || 'Democrat'}
+          repName={repCandidate?.name || 'Republican'}
+        />
       </div>
 
       {/* Forecast Inputs Section */}
       {forecast?.inputs && (
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          marginBottom: '24px',
-        }}>
+        <div style={{ marginBottom: '48px' }}>
           <h3 style={{ margin: '0 0 20px 0' }}>Forecast Inputs</h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
@@ -242,65 +422,56 @@ export const RacePage = () => {
       )}
 
       {/* Candidates Section */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      }}>
-        <h3 style={{ margin: '0 0 20px 0' }}>Candidates</h3>
+      <h3 style={{ margin: '0 0 20px 0' }}>Candidates</h3>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {race.candidates.map(candidate => {
-            const candidateForecast = race.forecasts.find(f => f.candidateId === candidate.id);
-            return (
-              <div
-                key={candidate.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '16px',
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '8px',
-                  borderLeft: `4px solid ${getPartyColor(candidate.party)}`,
-                }}
-              >
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  backgroundColor: getPartyColor(candidate.party),
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 'bold',
-                  fontSize: '20px',
-                  marginRight: '16px',
-                }}>
-                  {candidate.party === Party.Democrat ? 'D' : candidate.party === Party.Republican ? 'R' : 'I'}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 'bold', fontSize: '18px' }}>
-                    {candidate.name}
-                    {candidate.isIncumbent && (
-                      <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
-                        (Incumbent)
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ color: '#666' }}>{candidate.party}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                    {candidateForecast ? `${(candidateForecast.winProbability * 100).toFixed(1)}%` : '-'}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#666' }}>Win Probability</div>
-                </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '32px' }}>
+        {race.candidates.map(candidate => {
+          const candidateForecast = race.forecasts.find(f => f.candidateId === candidate.id);
+          return (
+            <div
+              key={candidate.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '16px 0',
+                borderBottom: '1px solid #eee',
+              }}
+            >
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                backgroundColor: getPartyColor(candidate.party),
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                fontSize: '20px',
+                marginRight: '16px',
+              }}>
+                {candidate.party === Party.Democrat ? 'D' : candidate.party === Party.Republican ? 'R' : 'I'}
               </div>
-            );
-          })}
-        </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 'bold', fontSize: '18px' }}>
+                  {candidate.name}
+                  {candidate.isIncumbent && (
+                    <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
+                      (Incumbent)
+                    </span>
+                  )}
+                </div>
+                <div style={{ color: '#666' }}>{candidate.party}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                  {candidateForecast ? `${(candidateForecast.winProbability * 100).toFixed(1)}%` : '-'}
+                </div>
+                <div style={{ fontSize: '12px', color: '#666' }}>Win Probability</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -325,3 +496,223 @@ const InputCard = ({ label, value, sublabel, color }: InputCardProps) => (
     {sublabel && <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>{sublabel}</div>}
   </div>
 );
+
+// SVG line chart component for prediction history
+const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; demName: string; repName: string }) => {
+  const [hoveredPoint, setHoveredPoint] = useState<{ index: number; party: 'dem' | 'rep' } | null>(null);
+
+  const width = 900;
+  const height = 400;
+  const padding = { top: 35, right: 65, bottom: 45, left: 55 };
+
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  const xScale = (index: number) => padding.left + (index / (data.length - 1)) * chartWidth;
+  const yScale = (value: number) => padding.top + chartHeight - ((value / 100) * chartHeight);
+
+  const demLinePath = data.map((d, i) => {
+    const x = xScale(i);
+    const y = yScale(d.demOdds);
+    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+  }).join(' ');
+
+  const repLinePath = data.map((d, i) => {
+    const x = xScale(i);
+    const y = yScale(100 - d.demOdds);
+    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+  }).join(' ');
+
+  const dateIndices = [0, Math.floor(data.length / 4), Math.floor(data.length / 2), Math.floor(3 * data.length / 4), data.length - 1];
+  const dateLabels = dateIndices.map(i => ({
+    index: i,
+    label: new Date(data[i].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  }));
+
+  const currentDemOdds = data[data.length - 1].demOdds;
+  const currentRepOdds = Math.round((100 - currentDemOdds) * 10) / 10;
+
+  const getTooltipData = () => {
+    if (!hoveredPoint) return null;
+    const d = data[hoveredPoint.index];
+    const date = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const odds = hoveredPoint.party === 'dem' ? d.demOdds : Math.round((100 - d.demOdds) * 10) / 10;
+    const party = hoveredPoint.party === 'dem' ? demName : repName;
+    const color = hoveredPoint.party === 'dem' ? '#0015BC' : '#BC0000';
+    const x = xScale(hoveredPoint.index);
+    const y = yScale(hoveredPoint.party === 'dem' ? d.demOdds : 100 - d.demOdds);
+    return { date, odds, party, color, x, y };
+  };
+
+  const tooltipData = getTooltipData();
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ maxWidth: '100%' }}>
+      {/* Grid lines */}
+      {[20, 40, 60, 80].map(v => (
+        <g key={v}>
+          <line
+            x1={padding.left}
+            y1={yScale(v)}
+            x2={width - padding.right}
+            y2={yScale(v)}
+            stroke="#eee"
+            strokeWidth="1"
+          />
+          <text
+            x={padding.left - 10}
+            y={yScale(v)}
+            textAnchor="end"
+            alignmentBaseline="middle"
+            fontSize="12"
+            fill="#999"
+          >
+            {v}%
+          </text>
+        </g>
+      ))}
+
+      {/* 50% line */}
+      <line
+        x1={padding.left}
+        y1={yScale(50)}
+        x2={width - padding.right}
+        y2={yScale(50)}
+        stroke="#666"
+        strokeWidth="1.5"
+        strokeDasharray="6,4"
+      />
+      <text
+        x={width - padding.right + 8}
+        y={yScale(50)}
+        alignmentBaseline="middle"
+        fontSize="11"
+        fill="#666"
+      >
+        50%
+      </text>
+
+      {/* Democrat line */}
+      <path
+        d={demLinePath}
+        fill="none"
+        stroke="#0015BC"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {data.map((d, i) => (
+        <circle
+          key={`dem-${i}`}
+          cx={xScale(i)}
+          cy={yScale(d.demOdds)}
+          r={hoveredPoint?.index === i && hoveredPoint?.party === 'dem' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
+          fill="#0015BC"
+          style={{ cursor: 'pointer' }}
+          onMouseEnter={() => setHoveredPoint({ index: i, party: 'dem' })}
+          onMouseLeave={() => setHoveredPoint(null)}
+        />
+      ))}
+
+      {/* Republican line */}
+      <path
+        d={repLinePath}
+        fill="none"
+        stroke="#BC0000"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+      {data.map((d, i) => (
+        <circle
+          key={`rep-${i}`}
+          cx={xScale(i)}
+          cy={yScale(100 - d.demOdds)}
+          r={hoveredPoint?.index === i && hoveredPoint?.party === 'rep' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
+          fill="#BC0000"
+          style={{ cursor: 'pointer' }}
+          onMouseEnter={() => setHoveredPoint({ index: i, party: 'rep' })}
+          onMouseLeave={() => setHoveredPoint(null)}
+        />
+      ))}
+
+      {/* X-axis labels */}
+      {dateLabels.map(({ index, label }) => (
+        <text
+          key={index}
+          x={xScale(index)}
+          y={height - 12}
+          textAnchor="middle"
+          fontSize="12"
+          fill="#666"
+        >
+          {label}
+        </text>
+      ))}
+
+      {/* Current value labels */}
+      <text
+        x={width - padding.right + 8}
+        y={yScale(currentDemOdds)}
+        alignmentBaseline="middle"
+        fontSize="14"
+        fontWeight="bold"
+        fill="#0015BC"
+      >
+        {currentDemOdds}%
+      </text>
+      <text
+        x={width - padding.right + 8}
+        y={yScale(currentRepOdds)}
+        alignmentBaseline="middle"
+        fontSize="14"
+        fontWeight="bold"
+        fill="#BC0000"
+      >
+        {currentRepOdds}%
+      </text>
+
+      {/* Legend */}
+      <g transform={`translate(${padding.left + 10}, ${padding.top - 18})`}>
+        <circle cx="0" cy="0" r="6" fill="#0015BC" />
+        <text x="12" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">{demName}</text>
+        <circle cx="180" cy="0" r="6" fill="#BC0000" />
+        <text x="192" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">{repName}</text>
+      </g>
+
+      {/* Tooltip */}
+      {tooltipData && (
+        <g transform={`translate(${tooltipData.x}, ${tooltipData.y - 12})`}>
+          <rect
+            x="-50"
+            y="-38"
+            width="100"
+            height="36"
+            rx="6"
+            fill="white"
+            stroke={tooltipData.color}
+            strokeWidth="2"
+            filter="drop-shadow(0 2px 4px rgba(0,0,0,0.2))"
+          />
+          <text
+            x="0"
+            y="-22"
+            textAnchor="middle"
+            fontSize="11"
+            fill="#666"
+          >
+            {tooltipData.date}
+          </text>
+          <text
+            x="0"
+            y="-6"
+            textAnchor="middle"
+            fontSize="15"
+            fontWeight="bold"
+            fill="#333"
+          >
+            {tooltipData.odds}%
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+};

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, DetailedForecast } from '../../types';
-import { forecastApi, ChamberMarketOdds } from '../../services/api';
+import { forecastApi } from '../../services/api';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -23,21 +23,47 @@ interface HistoricalOdds {
 }
 
 // Mock historical data - in a real app this would come from the API
-const generateMockHistoricalData = (currentDemOdds: number, raceType: RaceType): HistoricalOdds[] => {
+// Different data sources have different volatility and base patterns
+const generateMockHistoricalData = (currentDemOdds: number, raceType: RaceType, dataSource: DataSource): HistoricalOdds[] => {
   const data: HistoricalOdds[] = [];
   const today = new Date();
 
-  // Generate daily data for the past 60 days
-  const baseOdds = raceType === RaceType.Senate ? 48 : 44;
+  // Different starting points and volatility based on data source
+  let baseOdds: number;
+  let volatility: number;
+  let trendStrength: number;
+
+  switch (dataSource) {
+    case 'markets':
+      // Markets are more volatile but more responsive to news
+      baseOdds = raceType === RaceType.Senate ? 45 : 42;
+      volatility = 4; // Higher daily swings
+      trendStrength = 0.08; // Faster trend adjustment
+      break;
+    case 'polling':
+      // Polling is more stable but slower to change
+      baseOdds = raceType === RaceType.Senate ? 50 : 46;
+      volatility = 1.5; // Lower daily swings
+      trendStrength = 0.03; // Slower trend adjustment
+      break;
+    case 'combined':
+    default:
+      // Combined is a middle ground
+      baseOdds = raceType === RaceType.Senate ? 48 : 44;
+      volatility = 2.5;
+      trendStrength = 0.05;
+      break;
+  }
+
   let runningOdds = baseOdds;
 
   for (let i = 60; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
 
-    // Simulate daily model recalculation with small random walk + trend toward current
-    const randomShift = (Math.random() - 0.5) * 3; // -1.5 to +1.5 daily shift
-    const trendPull = (currentDemOdds - runningOdds) * 0.05; // Gentle pull toward final value
+    // Simulate daily model recalculation with random walk + trend toward current
+    const randomShift = (Math.random() - 0.5) * volatility;
+    const trendPull = (currentDemOdds - runningOdds) * trendStrength;
 
     runningOdds = runningOdds + randomShift + trendPull;
     runningOdds = Math.max(20, Math.min(80, runningOdds));
@@ -145,13 +171,11 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
         demProb = demForecast?.winProbability || 0.5;
       }
 
-      // Categorize the race
-      if (demProb > 0.55) {
+      // Categorize the race based on which side has the lead
+      if (demProb >= 0.5) {
         projection.democrat++;
-      } else if (demProb < 0.45) {
-        projection.republican++;
       } else {
-        projection.tossup++;
+        projection.republican++;
       }
     });
 
@@ -200,7 +224,7 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
 
     demOdds = Math.max(5, Math.min(95, demOdds));
 
-    const historical = generateMockHistoricalData(demOdds, raceType);
+    const historical = generateMockHistoricalData(demOdds, raceType, effectiveSource);
 
     return {
       seatProjection: projection,
@@ -299,14 +323,8 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
         })}
       </div>
 
-      {/* Victory Odds Box */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        marginBottom: '16px',
-      }}>
+      {/* Victory Odds */}
+      <div style={{ marginBottom: '32px' }}>
         <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
           {chamberName} Forecast - Chance of Winning Majority
         </h3>
@@ -376,67 +394,20 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
         </div>
       </div>
 
-      {/* Seat Projections Box */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        marginBottom: '16px',
-      }}>
-        <h3 style={{ margin: '0 0 20px 0', textAlign: 'center' }}>
-          Projected Seats ({majorityNeeded} needed for majority)
+      {/* Seat Projections */}
+      <div style={{ marginBottom: '32px' }}>
+        <h3 style={{ margin: '0 0 16px 0', textAlign: 'center' }}>
+          Projected Seats
         </h3>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap' }}>
-          <div style={{ textAlign: 'center', minWidth: '120px' }}>
-            <div style={{
-              fontSize: '40px',
-              fontWeight: 'bold',
-              color: '#0015BC',
-              backgroundColor: 'rgba(0, 21, 188, 0.1)',
-              borderRadius: '12px',
-              padding: '16px 28px',
-            }}>
-              {totalDemSeats}
-            </div>
-            <div style={{ fontSize: '16px', color: '#666', marginTop: '10px' }}>Democrats</div>
-          </div>
-
-          {totalIndSeats > 0 && (
-            <div style={{ textAlign: 'center', minWidth: '120px' }}>
-              <div style={{
-                fontSize: '40px',
-                fontWeight: 'bold',
-                color: '#666',
-                backgroundColor: 'rgba(102, 102, 102, 0.1)',
-                borderRadius: '12px',
-                padding: '16px 28px',
-              }}>
-                {totalIndSeats}
-              </div>
-              <div style={{ fontSize: '16px', color: '#666', marginTop: '10px' }}>Independent</div>
-            </div>
-          )}
-
-          <div style={{ textAlign: 'center', minWidth: '120px' }}>
-            <div style={{
-              fontSize: '40px',
-              fontWeight: 'bold',
-              color: '#BC0000',
-              backgroundColor: 'rgba(188, 0, 0, 0.1)',
-              borderRadius: '12px',
-              padding: '16px 28px',
-            }}>
-              {totalRepSeats}
-            </div>
-            <div style={{ fontSize: '16px', color: '#666', marginTop: '10px' }}>Republicans</div>
-          </div>
+        {/* Labels above bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#0015BC' }}>{totalDemSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#BC0000' }}>{totalRepSeats}</span>
         </div>
 
-        {/* Seat bar visualization */}
+        {/* Seat bar */}
         <div style={{
-          marginTop: '24px',
           height: '32px',
           display: 'flex',
           borderRadius: '6px',
@@ -458,26 +429,24 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
             backgroundColor: '#333',
           }} />
         </div>
+      </div>
+
+      {/* Historical Trend Chart */}
+      <div style={{ marginBottom: '32px' }}>
+        <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
+          Win Probability Over Time
+        </h3>
         <div style={{
           textAlign: 'center',
           fontSize: '13px',
-          color: '#666',
-          marginTop: '8px',
+          color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
+          marginBottom: '16px',
+          fontWeight: 500,
         }}>
-          {majorityNeeded} seats needed for majority
+          {activeSource === 'markets' && 'Polymarket odds history'}
+          {activeSource === 'polling' && 'Polling average history'}
+          {activeSource === 'combined' && 'Combined forecast history'}
         </div>
-      </div>
-
-      {/* Historical Trend Chart Box */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '12px',
-        padding: '24px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-      }}>
-        <h3 style={{ margin: '0 0 20px 0', textAlign: 'center' }}>
-          Win Probability Over Time
-        </h3>
 
         <OddsChart data={historicalData} />
       </div>
