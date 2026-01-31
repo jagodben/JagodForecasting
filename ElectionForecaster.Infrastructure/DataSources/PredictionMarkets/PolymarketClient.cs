@@ -23,6 +23,8 @@ public class PolymarketClient : IPredictionMarketSource
 
     // Polymarket API endpoint for fetching market data by ID
     private const string MarketsApiBaseUrl = "https://gamma-api.polymarket.com/markets";
+    // CLOB API endpoint for historical price data
+    private const string ClobApiBaseUrl = "https://clob.polymarket.com";
 
     // Mapping of race IDs to Polymarket market IDs
     // These IDs are found by visiting the market page and checking the network tab
@@ -442,6 +444,194 @@ public class PolymarketClient : IPredictionMarketSource
     /// </summary>
     public static IReadOnlyCollection<string> GetConfiguredRaceIds() => RaceIdToMarketId.Keys;
 
+    /// <summary>
+    /// Fetches historical price data from the Polymarket CLOB API and backfills the ForecastHistory table.
+    /// </summary>
+    public async Task BackfillHistoricalDataAsync(ForecastDbContext dbContext, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Starting Polymarket historical data backfill for {Count} races...", RaceIdToMarketId.Count);
+
+        var startDate = new DateTime(2025, 11, 3, 0, 0, 0, DateTimeKind.Utc);
+        var successCount = 0;
+
+        foreach (var (raceId, marketId) in RaceIdToMarketId)
+        {
+            try
+            {
+                // Check if we already have history going back to the start date
+                var earliestEntry = await dbContext.ForecastHistory
+                    .Where(f => f.RaceId == raceId)
+                    .OrderBy(f => f.Date)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (earliestEntry != null && earliestEntry.Date <= startDate.AddDays(1))
+                {
+                    _logger.LogDebug("Skipping {RaceId} - already has history from {Date}", raceId, earliestEntry.Date);
+                    continue;
+                }
+
+                var history = await FetchClobHistoryForRaceAsync(raceId, marketId, startDate, cancellationToken);
+                if (history == null || history.Count == 0)
+                {
+                    _logger.LogDebug("No CLOB history available for {RaceId}", raceId);
+                    continue;
+                }
+
+                // Get existing dates to avoid duplicates
+                var existingDates = await dbContext.ForecastHistory
+                    .Where(f => f.RaceId == raceId)
+                    .Select(f => f.Date)
+                    .ToListAsync(cancellationToken);
+                var existingDateSet = new HashSet<DateTime>(existingDates.Select(d => d.Date));
+
+                // Deduplicate CLOB data by date (take last entry per date)
+                var dedupedHistory = history
+                    .GroupBy(h => h.date.Date)
+                    .Select(g => g.Last())
+                    .Where(h => !existingDateSet.Contains(h.date.Date))
+                    .ToList();
+
+                foreach (var (date, demProb) in dedupedHistory)
+                {
+                    dbContext.ForecastHistory.Add(new ForecastHistoryEntity
+                    {
+                        RaceId = raceId,
+                        Date = date.Date,
+                        DemWinProbability = demProb,
+                        RepWinProbability = 1.0 - demProb,
+                        DemVoteShare = 0,
+                        RepVoteShare = 0,
+                        Confidence = 0.5,
+                        MarketWeight = 1.0,
+                        PollingWeight = 0,
+                        FundamentalsWeight = 0,
+                        ApprovalWeight = 0,
+                        MarketOdds = demProb
+                    });
+                }
+
+                if (dedupedHistory.Count > 0)
+                {
+                    await dbContext.SaveChangesAsync(cancellationToken);
+                    successCount++;
+                    _logger.LogInformation("Backfilled {Count} history entries for {RaceId}", dedupedHistory.Count, raceId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error backfilling history for {RaceId}", raceId);
+                // Clear tracked entities to avoid cascading failures
+                dbContext.ChangeTracker.Clear();
+            }
+        }
+
+        _logger.LogInformation("Historical data backfill complete. {Success}/{Total} races updated.", successCount, RaceIdToMarketId.Count);
+    }
+
+    private async Task<List<(DateTime date, double demProb)>?> FetchClobHistoryForRaceAsync(
+        string raceId, string marketId, DateTime startDate, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Step 1: Fetch the market from gamma API to get CLOB token IDs and outcomes
+            var url = $"{MarketsApiBaseUrl}/{marketId}";
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var market = JsonSerializer.Deserialize<PolymarketMarketResponse>(
+                content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            if (market == null) return null;
+
+            var clobTokenIds = market.GetClobTokenIds();
+            var outcomes = market.GetOutcomes();
+            if (clobTokenIds.Count < 2 || outcomes.Count < 2) return null;
+
+            // Step 2: Determine which token index represents Democrat win probability
+            int demTokenIndex = GetDemTokenIndex(outcomes, market.Question);
+            if (demTokenIndex < 0 || demTokenIndex >= clobTokenIds.Count) return null;
+
+            bool invertPrice = false;
+            string tokenId;
+
+            if (demTokenIndex >= 0)
+            {
+                tokenId = clobTokenIds[demTokenIndex];
+            }
+            else
+            {
+                // Fallback: use the first token and invert if it's Republican
+                tokenId = clobTokenIds[0];
+                invertPrice = true;
+            }
+
+            // Step 3: Fetch historical prices from CLOB API
+            var historyUrl = $"{ClobApiBaseUrl}/prices-history?market={tokenId}&interval=all&fidelity=1440";
+            var historyResponse = await _httpClient.GetAsync(historyUrl, cancellationToken);
+            if (!historyResponse.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("CLOB API returned {Status} for token history", historyResponse.StatusCode);
+                return null;
+            }
+
+            var historyContent = await historyResponse.Content.ReadAsStringAsync(cancellationToken);
+            var historyData = JsonSerializer.Deserialize<ClobPriceHistoryResponse>(
+                historyContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (historyData?.History == null || historyData.History.Count == 0) return null;
+
+            // Step 4: Convert to (date, demProb) pairs, filtering from startDate
+            var result = new List<(DateTime, double)>();
+            foreach (var point in historyData.History)
+            {
+                var date = DateTimeOffset.FromUnixTimeSeconds(point.T).UtcDateTime;
+                if (date < startDate) continue;
+
+                var demProb = invertPrice ? (1.0 - point.P) : point.P;
+                demProb = Math.Max(0.01, Math.Min(0.99, demProb));
+                result.Add((date.Date, demProb));
+            }
+
+            _logger.LogDebug("Fetched {Count} CLOB history points for {RaceId}", result.Count, raceId);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error fetching CLOB history for {RaceId}", raceId);
+            return null;
+        }
+    }
+
+    private static int GetDemTokenIndex(List<string> outcomes, string? question)
+    {
+        for (int i = 0; i < outcomes.Count; i++)
+        {
+            var outcome = outcomes[i].ToLowerInvariant();
+
+            if (outcome.Contains("democrat") || outcome.Contains("dem"))
+                return i;
+
+            // For "Yes/No" markets, "Yes" corresponds to the party in the question
+            if (outcome == "yes" && question != null)
+            {
+                if (question.ToLowerInvariant().Contains("democrat"))
+                    return i; // "Yes" = Democrat wins
+                if (question.ToLowerInvariant().Contains("republican"))
+                    return i == 0 ? 1 : 0; // "Yes" = Republican wins, so "No" index = Democrat
+            }
+            if (outcome == "no" && question != null)
+            {
+                if (question.ToLowerInvariant().Contains("republican"))
+                    return i; // "No" to Republican = Democrat wins
+                if (question.ToLowerInvariant().Contains("democrat"))
+                    return i == 0 ? 1 : 0; // "No" to Democrat = Republican wins
+            }
+        }
+
+        // Default: assume second token is Democrat (common in "Will Republicans win?" markets)
+        return 1;
+    }
+
     // DTO for Polymarket /markets/{id} API response
     private class PolymarketMarketResponse
     {
@@ -451,6 +641,7 @@ public class PolymarketClient : IPredictionMarketSource
         public string? Volume { get; set; }
         public string? Outcomes { get; set; }
         public string? OutcomePrices { get; set; }
+        public string? ClobTokenIds { get; set; }
         public string? GroupItemTitle { get; set; }
         public bool? Active { get; set; }
         public bool? Closed { get; set; }
@@ -480,5 +671,30 @@ public class PolymarketClient : IPredictionMarketSource
                 return new List<string>();
             }
         }
+
+        public List<string> GetClobTokenIds()
+        {
+            if (string.IsNullOrEmpty(ClobTokenIds)) return new List<string>();
+            try
+            {
+                return JsonSerializer.Deserialize<List<string>>(ClobTokenIds) ?? new List<string>();
+            }
+            catch
+            {
+                return new List<string>();
+            }
+        }
+    }
+
+    // DTO for CLOB API /prices-history response
+    private class ClobPriceHistoryResponse
+    {
+        public List<ClobPricePoint> History { get; set; } = new();
+    }
+
+    private class ClobPricePoint
+    {
+        public long T { get; set; }
+        public double P { get; set; }
     }
 }

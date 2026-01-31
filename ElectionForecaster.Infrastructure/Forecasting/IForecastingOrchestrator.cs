@@ -32,4 +32,9 @@ public interface IForecastingOrchestrator
     /// Stores daily snapshot of forecasts to the database.
     /// </summary>
     Task StoreDailySnapshotAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Backfills forecast history from Polymarket CLOB historical price data.
+    /// </summary>
+    Task BackfillHistoryFromMarketsAsync(CancellationToken cancellationToken = default);
 }

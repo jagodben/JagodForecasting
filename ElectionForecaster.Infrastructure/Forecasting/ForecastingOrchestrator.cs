@@ -5,6 +5,7 @@ using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.Data.Entities;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.Models;
+using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -78,8 +79,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         // 5. Calculate vote shares
         var (demVoteShare, repVoteShare) = EstimateVoteShares(polling, fundamentals);
 
-        // 6. Get historical data
-        var history = await GetForecastHistoryAsync(raceId, 90, cancellationToken);
+        // 6. Get historical data (back to Nov 2025)
+        var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
 
         // 7. Build the detailed forecast
         var forecast = new DetailedForecast
@@ -265,6 +266,21 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Daily snapshot stored");
+    }
+
+    public async Task BackfillHistoryFromMarketsAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Starting forecast history backfill from Polymarket...");
+
+        // Find the PolymarketClient from the registered market sources
+        var polymarketClient = _marketSources.OfType<PolymarketClient>().FirstOrDefault();
+        if (polymarketClient == null)
+        {
+            _logger.LogWarning("PolymarketClient not found in registered market sources, cannot backfill");
+            return;
+        }
+
+        await polymarketClient.BackfillHistoricalDataAsync(_dbContext, cancellationToken);
     }
 
     private async Task<MarketOdds?> GetAggregatedMarketOddsAsync(string raceId, CancellationToken cancellationToken)

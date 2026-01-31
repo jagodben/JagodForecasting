@@ -11,80 +11,6 @@ interface HistoricalOdds {
   demOdds: number;
 }
 
-// Generate mock historical data for a race based on data source
-const generateMockHistoricalData = (currentDemProb: number, rating: RaceRating, dataSource: DataSource): HistoricalOdds[] => {
-  const data: HistoricalOdds[] = [];
-  const today = new Date();
-
-  // Starting point based on rating
-  let baseOdds: number;
-  let volatility: number;
-
-  switch (rating) {
-    case RaceRating.SolidDem:
-      baseOdds = 75;
-      break;
-    case RaceRating.LikelyDem:
-      baseOdds = 65;
-      break;
-    case RaceRating.LeanDem:
-    case RaceRating.TiltDem:
-      baseOdds = 55;
-      break;
-    case RaceRating.TiltRep:
-    case RaceRating.LeanRep:
-      baseOdds = 45;
-      break;
-    case RaceRating.LikelyRep:
-      baseOdds = 35;
-      break;
-    case RaceRating.SolidRep:
-      baseOdds = 25;
-      break;
-    default:
-      baseOdds = 50;
-  }
-
-  // Different volatility based on data source
-  switch (dataSource) {
-    case 'markets':
-      volatility = 6; // Markets are more volatile
-      break;
-    case 'polling':
-      volatility = 2; // Polling is more stable
-      break;
-    case 'combined':
-    default:
-      volatility = 4;
-  }
-
-  let runningOdds = baseOdds;
-  const targetOdds = currentDemProb * 100;
-
-  for (let i = 60; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-
-    const randomShift = (Math.random() - 0.5) * volatility;
-    const trendPull = (targetOdds - runningOdds) * 0.05;
-
-    runningOdds = runningOdds + randomShift + trendPull;
-    runningOdds = Math.max(5, Math.min(95, runningOdds));
-
-    data.push({
-      date: date.toISOString().split('T')[0],
-      demOdds: Math.round(runningOdds * 10) / 10,
-    });
-  }
-
-  // Ensure last point matches current probability
-  if (data.length > 0) {
-    data[data.length - 1].demOdds = Math.round(targetOdds * 10) / 10;
-  }
-
-  return data;
-};
-
 const getSourceLabel = (source: DataSource) => {
   switch (source) {
     case 'combined': return 'Combined Forecast';
@@ -119,6 +45,17 @@ const getRatingColor = (rating: RaceRating): string => {
     case RaceRating.SolidRep: return '#BC0000';
     default: return '#CCCCCC';
   }
+};
+
+const probabilityToRating = (demProb: number): RaceRating => {
+  if (demProb >= 0.90) return RaceRating.SolidDem;
+  if (demProb >= 0.70) return RaceRating.LikelyDem;
+  if (demProb >= 0.55) return RaceRating.LeanDem;
+  if (demProb > 0.50) return RaceRating.TiltDem;
+  if (demProb >= 0.45) return RaceRating.TiltRep;
+  if (demProb >= 0.30) return RaceRating.LeanRep;
+  if (demProb >= 0.10) return RaceRating.LikelyRep;
+  return RaceRating.SolidRep;
 };
 
 const getPartyColor = (party: Party): string => {
@@ -186,7 +123,14 @@ export const RacePage = () => {
       demProbability = demForecastData?.winProbability ?? 0.5;
     }
 
-    const historical = generateMockHistoricalData(demProbability, race.rating, dataSource);
+    // Use real history from API, filtered from Nov 3 2025 onwards
+    const startDate = new Date('2025-11-03');
+    const historical: HistoricalOdds[] = (forecast?.history ?? [])
+      .filter(h => new Date(h.date) >= startDate)
+      .map(h => ({
+        date: h.date.split('T')[0],
+        demOdds: Math.round(h.demWinProbability * 1000) / 10,
+      }));
 
     return {
       demProb: demProbability,
@@ -232,20 +176,8 @@ export const RacePage = () => {
       </nav>
 
       <header style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+        <div style={{ marginBottom: '8px' }}>
           <h1 style={{ margin: 0 }}>{stateName}</h1>
-          <span
-            style={{
-              backgroundColor: getRatingColor(race.rating),
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontWeight: 'bold',
-              fontSize: '14px',
-            }}
-          >
-            {getRatingLabel(race.rating)}
-          </span>
         </div>
         <h2 style={{ margin: 0, color: '#666', fontWeight: 'normal' }}>
           {raceTypeLabel} {race.year}
@@ -365,20 +297,24 @@ export const RacePage = () => {
       <div style={{
         textAlign: 'center',
         fontSize: '13px',
-        color: dataSource === 'markets' ? '#059669' : dataSource === 'polling' ? '#2563eb' : '#6b7280',
+        color: dataSource === 'markets' ? '#059669' : '#6b7280',
         marginBottom: '16px',
         fontWeight: 500,
       }}>
-        {dataSource === 'markets' && 'Polymarket odds history'}
-        {dataSource === 'polling' && 'Polling average history'}
-        {dataSource === 'combined' && 'Combined forecast history'}
+        {dataSource === 'markets' ? 'Polymarket odds history' : getSourceLabel(dataSource)}
       </div>
       <div style={{ marginBottom: '48px' }}>
-        <PredictionChart
-          data={historicalData}
-          demName={demCandidate?.name || 'Democrat'}
-          repName={repCandidate?.name || 'Republican'}
-        />
+        {dataSource === 'markets' && historicalData.length >= 2 ? (
+          <PredictionChart
+            data={historicalData}
+            demName={demCandidate?.name || 'Democrat'}
+            repName={repCandidate?.name || 'Republican'}
+          />
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#999', fontSize: '14px' }}>
+            No historical data available
+          </div>
+        )}
       </div>
 
       {/* Forecast Inputs Section */}

@@ -20,6 +20,7 @@ public class DataRefreshService : BackgroundService
     private DateTime _lastMarketRefresh = DateTime.MinValue;
     private DateTime _lastPollingRefresh = DateTime.MinValue;
     private DateTime _lastSnapshot = DateTime.MinValue;
+    private bool _backfillComplete = false;
 
     public DataRefreshService(
         IServiceProvider serviceProvider,
@@ -69,6 +70,22 @@ public class DataRefreshService : BackgroundService
         var orchestrator = scope.ServiceProvider.GetRequiredService<IForecastingOrchestrator>();
 
         var now = DateTime.UtcNow;
+
+        // One-time backfill of historical Polymarket data
+        if (!_backfillComplete)
+        {
+            _logger.LogInformation("Running one-time Polymarket historical data backfill...");
+            try
+            {
+                await orchestrator.BackfillHistoryFromMarketsAsync(cancellationToken);
+                _backfillComplete = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to backfill historical data");
+                _backfillComplete = true; // Don't retry on failure
+            }
+        }
 
         // Check if market refresh is needed
         if (now - _lastMarketRefresh > _marketRefreshInterval)

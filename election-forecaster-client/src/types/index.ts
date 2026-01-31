@@ -91,6 +91,14 @@ export interface ForecastInputs {
   pollCount: number | null;
 }
 
+export interface HistoricalDataPoint {
+  date: string;
+  demWinProbability: number;
+  repWinProbability: number;
+  demVoteShare: number | null;
+  repVoteShare: number | null;
+}
+
 export interface DetailedForecast {
   raceId: string;
   demWinProbability: number;
@@ -100,4 +108,5 @@ export interface DetailedForecast {
   confidence: number;
   lastUpdated: string;
   inputs: ForecastInputs;
+  history: HistoricalDataPoint[];
 }
