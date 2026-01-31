@@ -8,9 +8,11 @@ import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 
 type MapView = 'senate' | 'house' | 'governors';
+type DataSource = 'combined' | 'markets' | 'polling';
 
 export const HomePage = () => {
   const [activeView, setActiveView] = useState<MapView>('senate');
+  const [dataSource, setDataSource] = useState<DataSource>('combined');
 
   const { data: states, isLoading: statesLoading } = useQuery({
     queryKey: ['states'],
@@ -53,82 +55,64 @@ export const HomePage = () => {
     );
   }
 
-  const getMapTitle = () => {
-    switch (activeView) {
-      case 'senate': return 'Senate Races';
-      case 'house': return 'House Races';
-      case 'governors': return 'Governor Races';
-    }
-  };
+  const forecastRaces =
+    activeView === 'senate' ? senateRaces :
+    activeView === 'house' ? houseRaces :
+    govRaces;
 
-  const getMapDescription = () => {
-    switch (activeView) {
-      case 'senate': return 'Hover over a state to see Senate race details. Click to view full state info.';
-      case 'house': return 'Hover over a district to see House race details. Scroll to zoom, drag to pan.';
-      case 'governors': return 'Hover over a state to see Governor race details. Click to view full state info.';
-    }
-  };
+  const forecastRaceType =
+    activeView === 'senate' ? RaceType.Senate :
+    activeView === 'house' ? RaceType.House :
+    RaceType.Governor;
 
   return (
-    <div className="home-page">
-      <header className="page-header">
-        <h1>2026 Election Forecast</h1>
-        <p>{getMapDescription()}</p>
+    <div className="dashboard">
+      {/* Header row */}
+      <header className="dashboard-header">
+        <h1 className="dashboard-title">2026 Election Forecast</h1>
+        <div className="dashboard-tabs">
+          {(['senate', 'house', 'governors'] as MapView[]).map((view) => (
+            <button
+              key={view}
+              onClick={() => setActiveView(view)}
+              className={`dashboard-tab ${activeView === view ? 'dashboard-tab--active' : ''}`}
+            >
+              {view === 'senate' ? 'Senate' : view === 'house' ? 'House' : 'Governors'}
+            </button>
+          ))}
+        </div>
       </header>
 
-      {/* Map type tabs */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '8px',
-        marginBottom: '24px',
-      }}>
-        {(['senate', 'house', 'governors'] as MapView[]).map((view) => (
-          <button
-            key={view}
-            onClick={() => setActiveView(view)}
-            style={{
-              padding: '12px 24px',
-              fontSize: '16px',
-              fontWeight: activeView === view ? 'bold' : 'normal',
-              backgroundColor: activeView === view ? '#333' : '#f0f0f0',
-              color: activeView === view ? 'white' : '#333',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {view === 'senate' ? 'Senate Map' : view === 'house' ? 'House Map' : 'Governors Map'}
-          </button>
-        ))}
+      {/* Main content: map + sidebar */}
+      <div className="dashboard-main">
+        <div className="dashboard-map">
+          {activeView === 'senate' && senateRaces && (
+            <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} dataSource={dataSource} />
+          )}
+          {activeView === 'governors' && govRaces && (
+            <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} dataSource={dataSource} />
+          )}
+          {activeView === 'house' && houseRaces && (
+            <USDistrictMap races={houseRaces} dataSource={dataSource} />
+          )}
+        </div>
+
+        {forecastRaces && (
+          <div className="dashboard-sidebar">
+            <ChamberForecast
+              races={forecastRaces}
+              raceType={forecastRaceType}
+              compact
+              dataSource={dataSource}
+              onDataSourceChange={setDataSource}
+            />
+          </div>
+        )}
       </div>
 
-      <div className="map-section">
-        <h2 style={{ textAlign: 'center', marginBottom: '16px' }}>{getMapTitle()}</h2>
-
-        {activeView === 'senate' && senateRaces && (
-          <>
-            <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} />
-            <MapLegend />
-            <ChamberForecast races={senateRaces} raceType={RaceType.Senate} />
-          </>
-        )}
-
-        {activeView === 'governors' && govRaces && (
-          <>
-            <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} />
-            <MapLegend />
-          </>
-        )}
-
-        {activeView === 'house' && houseRaces && (
-          <>
-            <USDistrictMap races={houseRaces} />
-            <MapLegend />
-            <ChamberForecast races={houseRaces} raceType={RaceType.House} />
-          </>
-        )}
+      {/* Legend row */}
+      <div className="dashboard-legend">
+        <MapLegend />
       </div>
     </div>
   );

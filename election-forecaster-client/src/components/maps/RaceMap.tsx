@@ -67,6 +67,7 @@ interface RaceMapProps {
   states: StateSummary[];
   races: Race[];
   raceType: RaceType;
+  dataSource?: DataSource;
 }
 
 interface TooltipData {
@@ -77,11 +78,10 @@ interface TooltipData {
   rating: RaceRating | null;
 }
 
-export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
+export const RaceMap = ({ states, races, raceType, dataSource = 'combined' }: RaceMapProps) => {
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const [dataSource, setDataSource] = useState<DataSource>('combined');
 
   // Fetch detailed forecasts for all races
   const { data: detailedForecasts } = useQuery({
@@ -96,18 +96,12 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
   });
 
   // Calculate ratings based on selected data source
-  const { raceRatings, hasMarketData, hasPollingData, marketCount, pollingCount } = useMemo(() => {
+  const raceRatings = useMemo(() => {
     const ratings = new Map<string, { rating: RaceRating; demProb: number }>();
-    let marketsAvailable = 0;
-    let pollingAvailable = 0;
 
     races.forEach(race => {
       const detailed = detailedForecasts?.find(f => f.raceId === race.id);
       let demProb: number;
-
-      // Check data availability
-      if (detailed?.inputs.marketOdds != null) marketsAvailable++;
-      if (detailed?.inputs.pollingAverage != null) pollingAvailable++;
 
       // Get probability based on selected data source
       if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
@@ -130,13 +124,7 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
       });
     });
 
-    return {
-      raceRatings: ratings,
-      hasMarketData: marketsAvailable > 0,
-      hasPollingData: pollingAvailable > 0,
-      marketCount: marketsAvailable,
-      pollingCount: pollingAvailable,
-    };
+    return ratings;
   }, [races, detailedForecasts, dataSource]);
 
   const stateMap = new Map(states.map(s => [s.id, s]));
@@ -184,14 +172,6 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
   };
 
   const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
-
-  const getSourceLabel = (source: DataSource) => {
-    switch (source) {
-      case 'combined': return 'Combined';
-      case 'markets': return 'Polymarket';
-      case 'polling': return 'Polls';
-    }
-  };
 
   return (
     <div className="us-map-container" style={{ position: 'relative' }}>
@@ -278,53 +258,6 @@ export const RaceMap = ({ states, races, raceType }: RaceMapProps) => {
             }}
         </Geographies>
       </ComposableMap>
-
-      {/* Data Source Tabs - Bottom Right */}
-      <div style={{
-        position: 'absolute',
-        bottom: '12px',
-        right: '12px',
-        display: 'flex',
-        gap: '4px',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        padding: '4px',
-        borderRadius: '6px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-      }}>
-        {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
-          const isDisabled =
-            (source === 'markets' && !hasMarketData) ||
-            (source === 'polling' && !hasPollingData);
-          const isActive = dataSource === source;
-          const count = source === 'markets' ? marketCount : source === 'polling' ? pollingCount : null;
-
-          return (
-            <button
-              key={source}
-              onClick={() => !isDisabled && setDataSource(source)}
-              disabled={isDisabled}
-              style={{
-                padding: '6px 10px',
-                fontSize: '11px',
-                fontWeight: isActive ? 600 : 400,
-                backgroundColor: isActive ? '#6366f1' : isDisabled ? '#e5e7eb' : '#f3f4f6',
-                color: isActive ? 'white' : isDisabled ? '#9ca3af' : '#374151',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isDisabled ? 'not-allowed' : 'pointer',
-                opacity: isDisabled ? 0.6 : 1,
-                whiteSpace: 'nowrap',
-              }}
-              title={isDisabled ? `No ${source === 'markets' ? 'market' : 'polling'} data available` : ''}
-            >
-              {getSourceLabel(source)}
-              {count !== null && count > 0 && (
-                <span style={{ marginLeft: '3px', opacity: 0.8 }}>({count})</span>
-              )}
-            </button>
-          );
-        })}
-      </div>
 
       {tooltipData && (
         <div

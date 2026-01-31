@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Race, RaceRating } from '../../types';
+import { useQuery } from '@tanstack/react-query';
+import { Race, RaceRating, DetailedForecast } from '../../types';
+import { forecastApi } from '../../services/api';
 import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
+
+type DataSource = 'combined' | 'markets' | 'polling';
 
 const DISTRICTS_URL = '/data/districts.json';
 
@@ -60,8 +64,21 @@ const getRatingLabel = (rating: RaceRating): string => {
   }
 };
 
+// Convert probability to rating
+const probabilityToRating = (demProb: number): RaceRating => {
+  if (demProb >= 0.90) return RaceRating.SolidDem;
+  if (demProb >= 0.70) return RaceRating.LikelyDem;
+  if (demProb >= 0.55) return RaceRating.LeanDem;
+  if (demProb > 0.50) return RaceRating.TiltDem;
+  if (demProb >= 0.45) return RaceRating.TiltRep;
+  if (demProb >= 0.30) return RaceRating.LeanRep;
+  if (demProb >= 0.10) return RaceRating.LikelyRep;
+  return RaceRating.SolidRep;
+};
+
 interface USDistrictMapProps {
   races: Race[];
+  dataSource?: DataSource;
 }
 
 interface DistrictFeature {
@@ -81,7 +98,7 @@ interface TooltipData {
   race: Race | null;
 }
 
-export const USDistrictMap = ({ races }: USDistrictMapProps) => {
+export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapProps) => {
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -100,6 +117,41 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
   // Keep refs in sync with state
   zoomRef.current = zoom;
   panRef.current = pan;
+
+  // Fetch detailed forecasts for data-source-aware coloring
+  const { data: detailedForecasts } = useQuery({
+    queryKey: ['forecasts', races.map(r => r.id)],
+    queryFn: async () => {
+      const forecasts = await Promise.all(
+        races.map(race => forecastApi.getByRaceId(race.id).catch(() => null))
+      );
+      return forecasts.filter((f): f is DetailedForecast => f !== null);
+    },
+    enabled: races.length > 0,
+  });
+
+  // Calculate ratings based on selected data source
+  // For 'combined', use the original per-district race.rating (detailed forecasts are state-level)
+  const raceRatings = useMemo(() => {
+    if (dataSource === 'combined') return null;
+
+    const ratings = new Map<string, RaceRating>();
+    races.forEach(race => {
+      const detailed = detailedForecasts?.find(f => f.raceId === race.id);
+      let demProb: number | null = null;
+
+      if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
+        demProb = detailed.inputs.marketOdds;
+      } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
+        demProb = detailed.inputs.pollingAverage / 100;
+      }
+
+      if (demProb != null) {
+        ratings.set(race.id, probabilityToRating(demProb));
+      }
+    });
+    return ratings;
+  }, [races, detailedForecasts, dataSource]);
 
   // Create race lookup map: "stateId-districtNum" -> Race
   const raceMap = new Map(
@@ -270,7 +322,7 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
 
   return (
     <div className="us-map-container">
-      <div style={{ width: '100%', position: 'relative' }}>
+      <div style={{ width: '85%', height: '85%', position: 'relative', margin: '0 auto' }}>
         {districtFeatures.length === 0 ? (
           <div style={{
             display: 'flex',
@@ -311,7 +363,8 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
                 if (isHovered) return null;
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
-                const fillColor = race ? getRatingColor(race.rating) : '#CCCCCC';
+                const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
+                const fillColor = rating ? getRatingColor(rating) : '#CCCCCC';
                 const pathData = paths.get(feat.properties.GEOID) || '';
 
                 return (
@@ -338,7 +391,8 @@ export const USDistrictMap = ({ races }: USDistrictMapProps) => {
                 if (!isHovered) return null;
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
-                const fillColor = race ? getRatingColor(race.rating) : '#CCCCCC';
+                const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
+                const fillColor = rating ? getRatingColor(rating) : '#CCCCCC';
                 const pathData = paths.get(feat.properties.GEOID) || '';
 
                 return (
