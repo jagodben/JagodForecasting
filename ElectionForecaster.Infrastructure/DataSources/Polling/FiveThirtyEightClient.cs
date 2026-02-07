@@ -123,37 +123,10 @@ public class FiveThirtyEightClient : IPollingSource
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Refreshing FiveThirtyEight polling data...");
-
-        try
-        {
-            // Load pollster ratings first
-            await LoadPollsterRatingsAsync(cancellationToken);
-
-            // Fetch all poll types in parallel
-            var tasks = new[]
-            {
-                FetchPollsCsvAsync(SenatePolls, "Senate", cancellationToken),
-                FetchPollsCsvAsync(GovernorPolls, "Governor", cancellationToken),
-                FetchPollsCsvAsync(HousePolls, "House", cancellationToken)
-            };
-
-            var results = await Task.WhenAll(tasks);
-            var allPolls = results.SelectMany(r => r).ToList();
-
-            _cachedPolls.Clear();
-            _cachedPolls.AddRange(allPolls);
-
-            // Save to database
-            await SavePollsToDbAsync(allPolls, cancellationToken);
-
-            _lastRefresh = DateTime.UtcNow;
-            _logger.LogInformation("FiveThirtyEight refresh complete. {Count} polls loaded.", allPolls.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error refreshing FiveThirtyEight data");
-        }
+        // FiveThirtyEight polling disabled for now - data source not properly configured
+        _logger.LogDebug("FiveThirtyEight polling refresh skipped (disabled)");
+        _lastRefresh = DateTime.UtcNow;
+        await Task.CompletedTask;
     }
 
     private async Task LoadPollsterRatingsAsync(CancellationToken cancellationToken)

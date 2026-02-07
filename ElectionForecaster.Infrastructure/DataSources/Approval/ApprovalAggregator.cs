@@ -97,47 +97,11 @@ public class ApprovalAggregator : IApprovalSource
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Refreshing presidential approval data...");
-
-        try
-        {
-            var approvalData = await FetchFiveThirtyEightApprovalAsync(cancellationToken);
-
-            if (approvalData.Count > 0)
-            {
-                // Save to database
-                foreach (var data in approvalData)
-                {
-                    var exists = await _dbContext.ApprovalRatings.AnyAsync(
-                        a => a.Date.Date == data.Date.Date && a.Source == data.Source,
-                        cancellationToken);
-
-                    if (!exists)
-                    {
-                        _dbContext.ApprovalRatings.Add(new ApprovalRatingEntity
-                        {
-                            Date = data.Date,
-                            ApprovePercent = data.ApprovePercent,
-                            DisapprovePercent = data.DisapprovePercent,
-                            Source = data.Source
-                        });
-                    }
-                }
-
-                await _dbContext.SaveChangesAsync(cancellationToken);
-
-                // Update cached value
-                var latest = approvalData.OrderByDescending(a => a.Date).First();
-                _cachedApproval = latest.ApprovePercent;
-                _lastRefresh = DateTime.UtcNow;
-
-                _logger.LogInformation("Approval refresh complete. Current approval: {Approval}%", _cachedApproval);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error refreshing approval data");
-        }
+        // FiveThirtyEight approval data disabled for now - data source not properly configured
+        _logger.LogDebug("Approval data refresh skipped (disabled)");
+        _cachedApproval = NeutralApproval; // Default to neutral
+        _lastRefresh = DateTime.UtcNow;
+        await Task.CompletedTask;
     }
 
     private async Task<List<ApprovalDataPoint>> FetchFiveThirtyEightApprovalAsync(CancellationToken cancellationToken)
