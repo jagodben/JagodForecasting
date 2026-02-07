@@ -2,7 +2,7 @@ import axios from 'axios';
 import { State, StateSummary, Race, District, RaceType, DetailedForecast } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://electionforecaster.onrender.com/api');
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://api.jagodforecasting.com/api');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
