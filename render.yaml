@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: election-forecaster-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /swagger
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+    disk:
+      name: forecast-data
+      mountPath: /app/data
+      sizeGB: 1

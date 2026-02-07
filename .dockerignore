@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+
+# Node.js (frontend - not needed in API container)
+election-forecaster-client/
+node_modules/
+
+# Build artifacts
+**/bin/
+**/obj/
+
+# Documentation
+*.md
+docs/
+
+# GitHub
+.github/
+
+# SQLite database (will be created at runtime)
+*.db
+
+# Misc
+.claude/

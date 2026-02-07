@@ -46,9 +46,8 @@ build/
 .env.production.local
 *.env
 
-# API keys and secrets
+# API keys and secrets (keep appsettings.Production.json for deployment)
 appsettings.Development.json
-appsettings.Production.json
 secrets.json
 *.pfx
 *.key
@@ -69,3 +68,8 @@ coverage/
 # Temp files
 *.tmp
 *.temp
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal

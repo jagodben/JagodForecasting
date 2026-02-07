@@ -156,6 +156,62 @@ The `MockDataProvider` generates realistic election data including:
 - **Path with `#` character**: Vite has issues with paths containing `#` (like "C# Projects"). Run the frontend from a different location if you encounter this.
 - **Node.js version**: Vite 5.x requires Node.js 20+. If using an older version, you may need to downgrade Vite.
 
+## Deployment
+
+### Option 1: Free Tier Stack (Recommended)
+
+**Backend: Render (Free)**
+
+1. Create a [Render](https://render.com) account
+2. Click "New" → "Web Service"
+3. Connect your GitHub repository
+4. Configure:
+   - **Name:** `election-forecaster-api`
+   - **Runtime:** Docker
+   - **Plan:** Free
+5. Add environment variable:
+   - `Cors__AllowedOrigins__0` = `https://your-frontend-domain.vercel.app`
+6. Deploy
+
+Your API will be available at `https://election-forecaster-api.onrender.com`
+
+> **Note:** Free tier spins down after 15 minutes of inactivity. First request after sleep takes ~30 seconds.
+
+**Frontend: Vercel (Free)**
+
+1. Create a [Vercel](https://vercel.com) account
+2. Click "Add New" → "Project"
+3. Import your GitHub repository
+4. Configure:
+   - **Root Directory:** `election-forecaster-client`
+   - **Framework Preset:** Vite
+5. Add environment variable:
+   - `VITE_API_URL` = `https://election-forecaster-api.onrender.com/api`
+6. Deploy
+
+Your frontend will be available at `https://your-project.vercel.app`
+
+**Domain: Cloudflare (~$10/year)**
+
+1. Purchase domain at [Cloudflare Registrar](https://www.cloudflare.com/products/registrar/)
+2. In Vercel: Settings → Domains → Add your domain
+3. In Render: Settings → Custom Domain → Add your API subdomain (e.g., `api.yourdomain.com`)
+4. Update the `VITE_API_URL` in Vercel to use your API subdomain
+5. Update `Cors__AllowedOrigins__0` in Render to use your frontend domain
+
+### Environment Variables Reference
+
+**Backend (Render)**
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `ASPNETCORE_ENVIRONMENT` | Runtime environment | `Production` |
+| `Cors__AllowedOrigins__0` | Allowed frontend origin | `https://yourdomain.com` |
+
+**Frontend (Vercel)**
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API URL | `https://api.yourdomain.com/api` |
+
 ## License
 
 MIT
