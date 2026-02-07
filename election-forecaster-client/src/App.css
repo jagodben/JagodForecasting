@@ -524,6 +524,26 @@
   }
 
   /* Dashboard responsive */
+  .dashboard-header {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .dashboard-title {
+    font-size: 18px;
+  }
+
+  .dashboard-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
   .dashboard-main {
     flex-direction: column;
   }
@@ -533,5 +553,42 @@
     border-left: none;
     border-top: 1px solid #e5e7eb;
     max-height: 200px;
+  }
+
+  .dashboard-map {
+    padding: 4px;
+  }
+
+  .dashboard-legend .map-legend {
+    padding: 6px 12px;
+  }
+
+  .dashboard-legend .legend-items {
+    gap: 8px;
+  }
+
+  .dashboard-legend .legend-item {
+    font-size: 10px;
+  }
+
+  .dashboard-legend .legend-color {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .dashboard-title {
+    font-size: 16px;
+  }
+
+  .dashboard-tab {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .dashboard-legend .legend-item {
+    font-size: 9px;
   }
 }
