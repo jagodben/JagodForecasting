@@ -298,7 +298,6 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
   const totalDemSeats = seatProjection.democrat + assumedDemHeld;
   const totalRepSeats = seatProjection.republican + assumedRepHeld;
-  const totalIndSeats = seatProjection.independent;
 
   // Build seat bar segments: Solid D → ... → Solid R, with assumed-held as Solid
   const seatSegments = RATING_ORDER.map(rating => {

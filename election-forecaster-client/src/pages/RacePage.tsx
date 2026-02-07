@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
-import { RaceType, RaceRating, Party } from '../types';
+import { RaceType, Party } from '../types';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -17,45 +17,6 @@ const getSourceLabel = (source: DataSource) => {
     case 'markets': return 'Public Opinion';
     case 'polling': return 'Polling Data';
   }
-};
-
-const getRatingLabel = (rating: RaceRating): string => {
-  switch (rating) {
-    case RaceRating.SolidDem: return 'Solid Democrat';
-    case RaceRating.LikelyDem: return 'Likely Democrat';
-    case RaceRating.LeanDem: return 'Lean Democrat';
-    case RaceRating.TiltDem: return 'Tilt Democrat';
-    case RaceRating.TiltRep: return 'Tilt Republican';
-    case RaceRating.LeanRep: return 'Lean Republican';
-    case RaceRating.LikelyRep: return 'Likely Republican';
-    case RaceRating.SolidRep: return 'Solid Republican';
-    default: return 'Unknown';
-  }
-};
-
-const getRatingColor = (rating: RaceRating): string => {
-  switch (rating) {
-    case RaceRating.SolidDem: return '#0015BC';
-    case RaceRating.LikelyDem: return '#3355DD';
-    case RaceRating.LeanDem: return '#7799EE';
-    case RaceRating.TiltDem: return '#AABBFF';
-    case RaceRating.TiltRep: return '#FFAAAA';
-    case RaceRating.LeanRep: return '#EE7777';
-    case RaceRating.LikelyRep: return '#DD3333';
-    case RaceRating.SolidRep: return '#BC0000';
-    default: return '#CCCCCC';
-  }
-};
-
-const probabilityToRating = (demProb: number): RaceRating => {
-  if (demProb >= 0.90) return RaceRating.SolidDem;
-  if (demProb >= 0.70) return RaceRating.LikelyDem;
-  if (demProb >= 0.55) return RaceRating.LeanDem;
-  if (demProb > 0.50) return RaceRating.TiltDem;
-  if (demProb >= 0.45) return RaceRating.TiltRep;
-  if (demProb >= 0.30) return RaceRating.LeanRep;
-  if (demProb >= 0.10) return RaceRating.LikelyRep;
-  return RaceRating.SolidRep;
 };
 
 const getPartyColor = (party: Party): string => {
@@ -161,8 +122,6 @@ export const RacePage = () => {
 
   const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
-  const demForecast = race.forecasts.find(f => f.candidateId === demCandidate?.id);
-  const repForecast = race.forecasts.find(f => f.candidateId === repCandidate?.id);
 
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);
