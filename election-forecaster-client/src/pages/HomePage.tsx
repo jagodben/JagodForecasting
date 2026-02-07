@@ -67,7 +67,7 @@ export const HomePage = () => {
     <div className="dashboard">
       {/* Header row */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">2026 Election Forecast</h1>
+        <h1 className="dashboard-title">Jagod Forecasting</h1>
         <div className="dashboard-tabs">
           {(['senate', 'house', 'governors'] as MapView[]).map((view) => (
             <button
