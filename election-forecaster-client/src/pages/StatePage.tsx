@@ -54,8 +54,7 @@ export const StatePage = () => {
   if (error || !state) {
     return (
       <div className="error-container">
-        <h2>State not found</h2>
-        <Link to="/">Back to Map</Link>
+        <p>jagodforecasting.com is currently undergoing maintenance, please try again later</p>
       </div>
     );
   }

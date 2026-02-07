@@ -114,8 +114,7 @@ export const RacePage = () => {
   if (raceError || !race) {
     return (
       <div className="error-container">
-        <h2>Race not found</h2>
-        <Link to="/">Back to Map</Link>
+        <p>jagodforecasting.com is currently undergoing maintenance, please try again later</p>
       </div>
     );
   }
