@@ -206,11 +206,20 @@ Your frontend will be available at `https://your-project.vercel.app`
 |----------|-------------|---------|
 | `ASPNETCORE_ENVIRONMENT` | Runtime environment | `Production` |
 | `Cors__AllowedOrigins__0` | Allowed frontend origin | `https://yourdomain.com` |
+| `ApiKey` | Secret API key (required for production) | `your-secret-key-here` |
 
 **Frontend (Vercel)**
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `VITE_API_URL` | Backend API URL | `https://api.yourdomain.com/api` |
+| `VITE_API_KEY` | API key (must match backend) | `your-secret-key-here` |
+
+### Security Features
+
+- **API Key Authentication**: All API requests require a valid API key in the `X-API-Key` header
+- **Rate Limiting**: 100 requests per minute per client
+- **CORS**: Only configured origins can make browser requests
+- **Swagger disabled in production**: API documentation only available in development
 
 ## License
 

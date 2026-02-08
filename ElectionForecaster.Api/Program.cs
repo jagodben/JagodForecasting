@@ -1,3 +1,5 @@
+using System.Threading.RateLimiting;
+using ElectionForecaster.Api.Middleware;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Approval;
@@ -7,6 +9,7 @@ using ElectionForecaster.Infrastructure.DataSources.Polling;
 using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using ElectionForecaster.Infrastructure.Forecasting;
 using ElectionForecaster.Infrastructure.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,6 +56,19 @@ builder.Services.AddScoped<IForecastingOrchestrator, ForecastingOrchestrator>();
 // Register background service for data refresh
 builder.Services.AddHostedService<DataRefreshService>();
 
+// Configure rate limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = 429;
+    options.AddFixedWindowLimiter("api", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100; // 100 requests per window
+        limiterOptions.Window = TimeSpan.FromMinutes(1); // 1 minute window
+        limiterOptions.QueueLimit = 10;
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+});
+
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>
 {
@@ -86,19 +102,30 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Election Forecaster API v1");
-});
 
-// Only use HTTPS redirection in development (Render handles HTTPS at proxy level)
+// Only enable Swagger in development
 if (app.Environment.IsDevelopment())
 {
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Election Forecaster API v1");
+    });
     app.UseHttpsRedirection();
 }
+
 app.UseCors("ReactApp");
+
+// Rate limiting
+app.UseRateLimiter();
+
+// API key validation (skipped if no API key configured)
+app.UseApiKeyValidation();
+
 app.UseAuthorization();
-app.MapControllers();
+app.MapControllers().RequireRateLimiting("api");
+
+// Health check endpoint (no auth required)
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.Run();

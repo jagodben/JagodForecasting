@@ -4,10 +4,13 @@ import { State, StateSummary, Race, District, RaceType, DetailedForecast } from 
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://api.jagodforecasting.com/api');
 
+const API_KEY = import.meta.env.VITE_API_KEY || '';
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    ...(API_KEY && { 'X-API-Key': API_KEY }),
   },
 });
 
