@@ -1,5 +1,4 @@
 using System.Threading.RateLimiting;
-using ElectionForecaster.Api.Middleware;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Approval;
@@ -118,9 +117,6 @@ app.UseCors("ReactApp");
 
 // Rate limiting
 app.UseRateLimiter();
-
-// API key validation (skipped if no API key configured)
-app.UseApiKeyValidation();
 
 app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("api");
