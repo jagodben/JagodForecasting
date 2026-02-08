@@ -118,7 +118,7 @@
 }
 
 .dashboard-sidebar {
-  width: 280px;
+  width: 420px;
   flex-shrink: 0;
   border-left: 1px solid #e5e7eb;
   overflow-y: auto;
@@ -228,9 +228,10 @@
 }
 
 .forecast-sidebar__seat-bar {
-  height: 20px;
+  flex: 1;
+  height: 28px;
   display: flex;
-  border-radius: 4px;
+  border-radius: 5px;
   overflow: hidden;
   position: relative;
 }
