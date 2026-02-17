@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
 import { RaceMap } from '../components/maps/RaceMap';
 import { USDistrictMap } from '../components/maps/USDistrictMap';
-import { MapLegend } from '../components/maps/MapLegend';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 
@@ -106,11 +105,6 @@ export const HomePage = () => {
             />
           </div>
         )}
-      </div>
-
-      {/* Legend row */}
-      <div className="dashboard-legend">
-        <MapLegend />
       </div>
     </div>
   );

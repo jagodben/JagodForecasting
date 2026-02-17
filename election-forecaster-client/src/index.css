@@ -1,10 +1,37 @@
+/* NYT Editorial Style - Vibrant Edition */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
 :root {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+  /* Typography */
+  --font-headline: 'Playfair Display', Georgia, serif;
+  --font-body: 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Political Colors - High Contrast */
+  --dem-solid: #0044CC;
+  --dem-likely: #2266DD;
+  --dem-lean: #5599EE;
+  --dem-tilt: #99CCFF;
+  --rep-tilt: #FFCC99;
+  --rep-lean: #EE8855;
+  --rep-likely: #DD4422;
+  --rep-solid: #CC0000;
+
+  /* UI Colors */
+  --text-primary: #121212;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --border-color: #e0e0e0;
+  --bg-page: #ffffff;
+  --bg-dark: #121212;
+  --bg-card: #f8f8f8;
+  --accent: #121212;
+
+  font-family: var(--font-body);
+  line-height: 1.6;
   font-weight: 400;
   color-scheme: light;
-  color: #1a1a2e;
-  background-color: #ffffff;
+  color: var(--text-primary);
+  background-color: var(--bg-page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,7 +49,7 @@ body {
 }
 
 a {
-  color: #0015BC;
+  color: var(--dem-solid);
   text-decoration: none;
 }
 
@@ -30,37 +57,45 @@ a:hover {
   text-decoration: underline;
 }
 
+h1, h2, h3 {
+  font-family: var(--font-headline);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
 h1 {
-  font-size: 2.5em;
-  line-height: 1.2;
+  font-size: 2.75em;
+  line-height: 1.15;
   margin: 0;
 }
 
 h2 {
-  font-size: 1.5em;
+  font-size: 1.75em;
   margin: 0 0 16px 0;
 }
 
 h3 {
-  font-size: 1.2em;
+  font-size: 1.25em;
   margin: 0 0 12px 0;
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 2px;
   border: none;
   padding: 12px 24px;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #0015BC;
+  font-size: 0.875em;
+  font-weight: 600;
+  font-family: var(--font-body);
+  background-color: var(--accent);
   color: white;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 button:hover {
-  background-color: #000d7a;
+  background-color: #333;
 }
 
 button:active {

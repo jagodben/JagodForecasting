@@ -21,8 +21,8 @@ const getSourceLabel = (source: DataSource) => {
 
 const getPartyColor = (party: Party): string => {
   switch (party) {
-    case Party.Democrat: return '#0015BC';
-    case Party.Republican: return '#BC0000';
+    case Party.Democrat: return '#0044CC';
+    case Party.Republican: return '#CC0000';
     case Party.Independent: return '#808080';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';
@@ -197,7 +197,7 @@ export const RacePage = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px' }}>
         {/* Democrat */}
         <div style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0015BC' }}>
+          <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0044CC' }}>
             {(demProb * 100).toFixed(1)}%
           </div>
           <div style={{ fontSize: '14px', color: '#666' }}>
@@ -212,7 +212,7 @@ export const RacePage = () => {
         <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
           <div style={{
             width: `${demProb * 100}%`,
-            backgroundColor: '#0015BC',
+            backgroundColor: '#0044CC',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -224,7 +224,7 @@ export const RacePage = () => {
           </div>
           <div style={{
             width: `${repProb * 100}%`,
-            backgroundColor: '#BC0000',
+            backgroundColor: '#CC0000',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -238,7 +238,7 @@ export const RacePage = () => {
 
         {/* Republican */}
         <div style={{ flex: 1, textAlign: 'center' }}>
-          <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#BC0000' }}>
+          <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#CC0000' }}>
             {(repProb * 100).toFixed(1)}%
           </div>
           <div style={{ fontSize: '14px', color: '#666' }}>
@@ -432,7 +432,7 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
     const date = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const odds = hoveredPoint.party === 'dem' ? d.demOdds : Math.round((100 - d.demOdds) * 10) / 10;
     const party = hoveredPoint.party === 'dem' ? demName : repName;
-    const color = hoveredPoint.party === 'dem' ? '#0015BC' : '#BC0000';
+    const color = hoveredPoint.party === 'dem' ? '#0044CC' : '#CC0000';
     const x = xScale(hoveredPoint.index);
     const y = yScale(hoveredPoint.party === 'dem' ? d.demOdds : 100 - d.demOdds);
     return { date, odds, party, color, x, y };
@@ -490,7 +490,7 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
       <path
         d={demLinePath}
         fill="none"
-        stroke="#0015BC"
+        stroke="#0044CC"
         strokeWidth="3"
         strokeLinejoin="round"
       />
@@ -500,7 +500,7 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
           cx={xScale(i)}
           cy={yScale(d.demOdds)}
           r={hoveredPoint?.index === i && hoveredPoint?.party === 'dem' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
-          fill="#0015BC"
+          fill="#0044CC"
           style={{ cursor: 'pointer' }}
           onMouseEnter={() => setHoveredPoint({ index: i, party: 'dem' })}
           onMouseLeave={() => setHoveredPoint(null)}
@@ -511,7 +511,7 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
       <path
         d={repLinePath}
         fill="none"
-        stroke="#BC0000"
+        stroke="#CC0000"
         strokeWidth="3"
         strokeLinejoin="round"
       />
@@ -521,7 +521,7 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
           cx={xScale(i)}
           cy={yScale(100 - d.demOdds)}
           r={hoveredPoint?.index === i && hoveredPoint?.party === 'rep' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
-          fill="#BC0000"
+          fill="#CC0000"
           style={{ cursor: 'pointer' }}
           onMouseEnter={() => setHoveredPoint({ index: i, party: 'rep' })}
           onMouseLeave={() => setHoveredPoint(null)}
@@ -549,7 +549,7 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
         alignmentBaseline="middle"
         fontSize="14"
         fontWeight="bold"
-        fill="#0015BC"
+        fill="#0044CC"
       >
         {currentDemOdds}%
       </text>
@@ -559,16 +559,16 @@ const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; d
         alignmentBaseline="middle"
         fontSize="14"
         fontWeight="bold"
-        fill="#BC0000"
+        fill="#CC0000"
       >
         {currentRepOdds}%
       </text>
 
       {/* Legend */}
       <g transform={`translate(${padding.left + 10}, ${padding.top - 18})`}>
-        <circle cx="0" cy="0" r="6" fill="#0015BC" />
+        <circle cx="0" cy="0" r="6" fill="#0044CC" />
         <text x="12" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">{demName}</text>
-        <circle cx="180" cy="0" r="6" fill="#BC0000" />
+        <circle cx="180" cy="0" r="6" fill="#CC0000" />
         <text x="192" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">{repName}</text>
       </g>
 

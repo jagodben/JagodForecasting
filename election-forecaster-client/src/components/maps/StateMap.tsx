@@ -19,15 +19,15 @@ const stateToFips: Record<string, string> = {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#0015BC';
-    case RaceRating.LikelyDem: return '#3355DD';
-    case RaceRating.LeanDem: return '#7799EE';
-    case RaceRating.TiltDem: return '#AABBFF';
-    case RaceRating.TiltRep: return '#FFAAAA';
-    case RaceRating.LeanRep: return '#EE7777';
-    case RaceRating.LikelyRep: return '#DD3333';
-    case RaceRating.SolidRep: return '#BC0000';
-    default: return '#CCCCCC';
+    case RaceRating.SolidDem: return '#0044CC';
+    case RaceRating.LikelyDem: return '#2266DD';
+    case RaceRating.LeanDem: return '#5599EE';
+    case RaceRating.TiltDem: return '#99CCFF';
+    case RaceRating.TiltRep: return '#FFCC99';
+    case RaceRating.LeanRep: return '#EE8855';
+    case RaceRating.LikelyRep: return '#DD4422';
+    case RaceRating.SolidRep: return '#CC0000';
+    default: return '#E0E0E0';
   }
 };
 
@@ -362,7 +362,7 @@ const DistrictTooltipContent = ({ district, isAtLarge }: DistrictTooltipContentP
             const isDemo = candidate?.party === 'Democrat';
             return (
               <div key={forecast.candidateId} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-                <span style={{ color: isDemo ? '#0015BC' : '#BC0000', fontWeight: 500 }}>
+                <span style={{ color: isDemo ? '#0044CC' : '#CC0000', fontWeight: 500 }}>
                   {candidate?.party === 'Democrat' ? 'D' : 'R'}: {forecast.candidateName}
                 </span>
                 <span style={{ fontWeight: 'bold' }}>{(forecast.winProbability * 100).toFixed(0)}%</span>

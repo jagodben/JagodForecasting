@@ -16,14 +16,14 @@ const RATING_ORDER: RaceRating[] = [
 ];
 
 const RATING_COLORS: Record<RaceRating, string> = {
-  [RaceRating.SolidDem]: '#0015BC',
-  [RaceRating.LikelyDem]: '#3355DD',
-  [RaceRating.LeanDem]: '#7799EE',
-  [RaceRating.TiltDem]: '#AABBFF',
-  [RaceRating.TiltRep]: '#FFAAAA',
-  [RaceRating.LeanRep]: '#EE7777',
-  [RaceRating.LikelyRep]: '#DD3333',
-  [RaceRating.SolidRep]: '#BC0000',
+  [RaceRating.SolidDem]: '#0044CC',
+  [RaceRating.LikelyDem]: '#2266DD',
+  [RaceRating.LeanDem]: '#5599EE',
+  [RaceRating.TiltDem]: '#99CCFF',
+  [RaceRating.TiltRep]: '#FFCC99',
+  [RaceRating.LeanRep]: '#EE8855',
+  [RaceRating.LikelyRep]: '#DD4422',
+  [RaceRating.SolidRep]: '#CC0000',
 };
 
 // Convert probability to rating
@@ -330,42 +330,34 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             <img src="/democrat.png" alt="Democrat" style={{ width: '32px', height: '32px' }} />
             <img src="/republican.png" alt="Republican" style={{ width: '32px', height: '32px' }} />
           </div>
-          <div className="forecast-sidebar__odds">
-            <div className="forecast-sidebar__odds-value" style={{ color: '#0015BC' }}>
-              {demVictoryOdds}%
-            </div>
-            <div className="forecast-sidebar__odds-bar">
-              <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0015BC' }} />
-              <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#BC0000' }} />
-            </div>
-            <div className="forecast-sidebar__odds-value" style={{ color: '#BC0000' }}>
-              {repVictoryOdds}%
-            </div>
+          <div className="forecast-sidebar__seats">
+            <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
+            <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
+          </div>
+          <div className="forecast-sidebar__seat-bar">
+            <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044CC' }} />
+            <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#CC0000' }} />
           </div>
         </div>
 
         {/* Projected Seats */}
         <div className="forecast-sidebar__section">
-          <div className="forecast-sidebar__odds">
-            <div className="forecast-sidebar__odds-value" style={{ color: '#0015BC' }}>
-              {totalDemSeats}
-            </div>
-            <div className="forecast-sidebar__seat-bar">
-              {seatSegments.map(seg => (
-                <div key={seg.rating} style={{
-                  width: `${(seg.count / totalSeats) * 100}%`,
-                  backgroundColor: seg.color,
-                }} />
-              ))}
-              {raceType !== RaceType.Governor && (
-                <div className="forecast-sidebar__majority-line" style={{
-                  left: `${(majorityNeeded / totalSeats) * 100}%`,
-                }} />
-              )}
-            </div>
-            <div className="forecast-sidebar__odds-value" style={{ color: '#BC0000' }}>
-              {totalRepSeats}
-            </div>
+          <div className="forecast-sidebar__seats">
+            <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
+            <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
+          </div>
+          <div className="forecast-sidebar__seat-bar">
+            {seatSegments.map(seg => (
+              <div key={seg.rating} style={{
+                width: `${(seg.count / totalSeats) * 100}%`,
+                backgroundColor: seg.color,
+              }} />
+            ))}
+            {raceType !== RaceType.Governor && (
+              <div className="forecast-sidebar__majority-line" style={{
+                left: `${(majorityNeeded / totalSeats) * 100}%`,
+              }} />
+            )}
           </div>
           {raceType !== RaceType.Governor && (
             <div className="forecast-sidebar__majority-label">
@@ -497,7 +489,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* Democrat odds */}
           <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0015BC' }}>
+            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0044CC' }}>
               {demVictoryOdds}%
             </div>
             <div style={{ fontSize: '16px', color: '#666' }}>Democrats</div>
@@ -507,7 +499,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
             <div style={{
               width: `${demVictoryOdds}%`,
-              backgroundColor: '#0015BC',
+              backgroundColor: '#0044CC',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -520,7 +512,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             </div>
             <div style={{
               width: `${repVictoryOdds}%`,
-              backgroundColor: '#BC0000',
+              backgroundColor: '#CC0000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -535,7 +527,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
           {/* Republican odds */}
           <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#BC0000' }}>
+            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#CC0000' }}>
               {repVictoryOdds}%
             </div>
             <div style={{ fontSize: '16px', color: '#666' }}>Republicans</div>
@@ -551,8 +543,8 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
         {/* Labels above bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#0015BC' }}>{totalDemSeats}</span>
-          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#BC0000' }}>{totalRepSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#0044CC' }}>{totalDemSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#CC0000' }}>{totalRepSeats}</span>
         </div>
 
         {/* Seat bar */}
@@ -651,7 +643,7 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
     const date = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const odds = hoveredPoint.party === 'dem' ? d.demOdds : Math.round((100 - d.demOdds) * 10) / 10;
     const party = hoveredPoint.party === 'dem' ? 'Democrats' : 'Republicans';
-    const color = hoveredPoint.party === 'dem' ? '#0015BC' : '#BC0000';
+    const color = hoveredPoint.party === 'dem' ? '#0044CC' : '#CC0000';
     const x = xScale(hoveredPoint.index);
     const y = yScale(hoveredPoint.party === 'dem' ? d.demOdds : 100 - d.demOdds);
     return { date, odds, party, color, x, y };
@@ -709,7 +701,7 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
       <path
         d={demLinePath}
         fill="none"
-        stroke="#0015BC"
+        stroke="#0044CC"
         strokeWidth="3"
         strokeLinejoin="round"
       />
@@ -719,7 +711,7 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
           cx={xScale(i)}
           cy={yScale(d.demOdds)}
           r={hoveredPoint?.index === i && hoveredPoint?.party === 'dem' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
-          fill="#0015BC"
+          fill="#0044CC"
           style={{ cursor: 'pointer' }}
           onMouseEnter={() => setHoveredPoint({ index: i, party: 'dem' })}
           onMouseLeave={() => setHoveredPoint(null)}
@@ -730,7 +722,7 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
       <path
         d={repLinePath}
         fill="none"
-        stroke="#BC0000"
+        stroke="#CC0000"
         strokeWidth="3"
         strokeLinejoin="round"
       />
@@ -740,7 +732,7 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
           cx={xScale(i)}
           cy={yScale(100 - d.demOdds)}
           r={hoveredPoint?.index === i && hoveredPoint?.party === 'rep' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
-          fill="#BC0000"
+          fill="#CC0000"
           style={{ cursor: 'pointer' }}
           onMouseEnter={() => setHoveredPoint({ index: i, party: 'rep' })}
           onMouseLeave={() => setHoveredPoint(null)}
@@ -768,7 +760,7 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
         alignmentBaseline="middle"
         fontSize="14"
         fontWeight="bold"
-        fill="#0015BC"
+        fill="#0044CC"
       >
         {currentDemOdds}%
       </text>
@@ -778,16 +770,16 @@ const OddsChart = ({ data }: { data: HistoricalOdds[] }) => {
         alignmentBaseline="middle"
         fontSize="14"
         fontWeight="bold"
-        fill="#BC0000"
+        fill="#CC0000"
       >
         {currentRepOdds}%
       </text>
 
       {/* Legend */}
       <g transform={`translate(${padding.left + 10}, ${padding.top - 18})`}>
-        <circle cx="0" cy="0" r="6" fill="#0015BC" />
+        <circle cx="0" cy="0" r="6" fill="#0044CC" />
         <text x="12" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">Democrats</text>
-        <circle cx="110" cy="0" r="6" fill="#BC0000" />
+        <circle cx="110" cy="0" r="6" fill="#CC0000" />
         <text x="122" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">Republicans</text>
       </g>
 

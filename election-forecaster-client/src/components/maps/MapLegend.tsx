@@ -1,14 +1,14 @@
 import { RaceRating } from '../../types';
 
 const legendItems: { rating: RaceRating; label: string; color: string }[] = [
-  { rating: RaceRating.SolidDem, label: 'Solid Dem', color: '#0015BC' },
-  { rating: RaceRating.LikelyDem, label: 'Likely Dem', color: '#3355DD' },
-  { rating: RaceRating.LeanDem, label: 'Lean Dem', color: '#7799EE' },
-  { rating: RaceRating.TiltDem, label: 'Tilt Dem', color: '#AABBFF' },
-  { rating: RaceRating.TiltRep, label: 'Tilt Rep', color: '#FFAAAA' },
-  { rating: RaceRating.LeanRep, label: 'Lean Rep', color: '#EE7777' },
-  { rating: RaceRating.LikelyRep, label: 'Likely Rep', color: '#DD3333' },
-  { rating: RaceRating.SolidRep, label: 'Solid Rep', color: '#BC0000' },
+  { rating: RaceRating.SolidDem, label: 'Solid Dem', color: '#0044CC' },
+  { rating: RaceRating.LikelyDem, label: 'Likely Dem', color: '#2266DD' },
+  { rating: RaceRating.LeanDem, label: 'Lean Dem', color: '#5599EE' },
+  { rating: RaceRating.TiltDem, label: 'Tilt Dem', color: '#99CCFF' },
+  { rating: RaceRating.TiltRep, label: 'Tilt Rep', color: '#FFCC99' },
+  { rating: RaceRating.LeanRep, label: 'Lean Rep', color: '#EE8855' },
+  { rating: RaceRating.LikelyRep, label: 'Likely Rep', color: '#DD4422' },
+  { rating: RaceRating.SolidRep, label: 'Solid Rep', color: '#CC0000' },
 ];
 
 export const MapLegend = () => {
