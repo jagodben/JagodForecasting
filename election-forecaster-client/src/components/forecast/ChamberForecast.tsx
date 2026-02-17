@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating, DetailedForecast } from '../../types';
 import { forecastApi } from '../../services/api';
@@ -46,6 +46,7 @@ interface ChamberForecastProps {
   compact?: boolean;
   dataSource?: DataSource;
   onDataSourceChange?: (source: DataSource) => void;
+  onDataAvailabilityChange?: (hasMarket: boolean, hasPolling: boolean) => void;
 }
 
 interface SeatProjection {
@@ -120,7 +121,7 @@ const generateMockHistoricalData = (currentDemOdds: number, raceType: RaceType, 
   return data;
 };
 
-export const ChamberForecast = ({ races, raceType, compact = false, dataSource: externalDataSource, onDataSourceChange }: ChamberForecastProps) => {
+export const ChamberForecast = ({ races, raceType, compact = false, dataSource: externalDataSource, onDataSourceChange, onDataAvailabilityChange }: ChamberForecastProps) => {
   const [internalDataSource, setInternalDataSource] = useState<DataSource>('combined');
   const dataSource = externalDataSource ?? internalDataSource;
   const setDataSource = onDataSourceChange ?? setInternalDataSource;
@@ -285,6 +286,11 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
       chamberMarketOdds: chamberMarketOdds,
     };
   }, [races, raceType, dataSource, detailedForecasts, chamberMarketOdds]);
+
+  // Notify parent of data availability changes
+  useEffect(() => {
+    onDataAvailabilityChange?.(hasMarketData, hasPollingData);
+  }, [hasMarketData, hasPollingData, onDataAvailabilityChange]);
 
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
   const chamberName = raceType === RaceType.Senate ? 'Senate' : raceType === RaceType.House ? 'House' : 'Governors';

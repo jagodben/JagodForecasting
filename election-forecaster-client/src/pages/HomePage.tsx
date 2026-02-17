@@ -14,6 +14,8 @@ export const HomePage = () => {
   const [activeView, setActiveView] = useState<MapView>('senate');
   const [dataSource, setDataSource] = useState<DataSource>('combined');
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>('map');
+  const [hasMarketData, setHasMarketData] = useState(false);
+  const [hasPollingData, setHasPollingData] = useState(false);
 
   const { data: states, isLoading: statesLoading } = useQuery({
     queryKey: ['states'],
@@ -118,15 +120,21 @@ export const HomePage = () => {
             <div className="forecast-sidebar__section">
               <div className="forecast-sidebar__label">Data Source</div>
               <div className="forecast-sidebar__sources">
-                {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => (
-                  <button
-                    key={source}
-                    onClick={() => setDataSource(source)}
-                    className={`forecast-sidebar__source-btn ${dataSource === source ? 'forecast-sidebar__source-btn--active' : ''}`}
-                  >
-                    {source === 'combined' ? 'Combined' : source === 'markets' ? 'Public Op.' : 'Polling'}
-                  </button>
-                ))}
+                {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
+                  const isDisabled =
+                    (source === 'markets' && !hasMarketData) ||
+                    (source === 'polling' && !hasPollingData);
+                  return (
+                    <button
+                      key={source}
+                      onClick={() => !isDisabled && setDataSource(source)}
+                      disabled={isDisabled}
+                      className={`forecast-sidebar__source-btn ${dataSource === source ? 'forecast-sidebar__source-btn--active' : ''}`}
+                    >
+                      {source === 'combined' ? 'Combined' : source === 'markets' ? 'Public Op.' : 'Polling'}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -140,6 +148,10 @@ export const HomePage = () => {
               compact
               dataSource={dataSource}
               onDataSourceChange={setDataSource}
+              onDataAvailabilityChange={(hasMarket, hasPolling) => {
+                setHasMarketData(hasMarket);
+                setHasPollingData(hasPolling);
+              }}
             />
           </div>
         )}
