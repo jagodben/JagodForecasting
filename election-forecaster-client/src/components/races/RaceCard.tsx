@@ -16,22 +16,22 @@ const getRatingLabel = (rating: RaceRating): string => {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#0044CC';
+    case RaceRating.SolidDem: return '#0033AA';
     case RaceRating.LikelyDem: return '#2266DD';
     case RaceRating.LeanDem: return '#5599EE';
     case RaceRating.TiltDem: return '#99CCFF';
     case RaceRating.TiltRep: return '#FFCC99';
     case RaceRating.LeanRep: return '#EE8855';
     case RaceRating.LikelyRep: return '#DD4422';
-    case RaceRating.SolidRep: return '#CC0000';
+    case RaceRating.SolidRep: return '#AA0000';
     default: return '#E0E0E0';
   }
 };
 
 const getPartyColor = (party: Party): string => {
   switch (party) {
-    case Party.Democrat: return '#0044CC';
-    case Party.Republican: return '#CC0000';
+    case Party.Democrat: return '#0033AA';
+    case Party.Republican: return '#AA0000';
     case Party.Independent: return '#808080';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';

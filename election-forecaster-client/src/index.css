@@ -7,14 +7,14 @@
   --font-body: 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Political Colors - High Contrast */
-  --dem-solid: #0044CC;
+  --dem-solid: #0033AA;
   --dem-likely: #2266DD;
   --dem-lean: #5599EE;
   --dem-tilt: #99CCFF;
   --rep-tilt: #FFCC99;
   --rep-lean: #EE8855;
   --rep-likely: #DD4422;
-  --rep-solid: #CC0000;
+  --rep-solid: #AA0000;
 
   /* UI Colors */
   --text-primary: #121212;
