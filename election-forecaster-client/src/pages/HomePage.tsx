@@ -84,20 +84,33 @@ export const HomePage = () => {
         </div>
       </header>
 
-      {/* Mobile toggle for Map/Data */}
-      <div className="mobile-panel-toggle">
-        <button
-          className={`mobile-panel-btn ${mobilePanel === 'map' ? 'mobile-panel-btn--active' : ''}`}
-          onClick={() => setMobilePanel('map')}
-        >
-          Map
-        </button>
-        <button
-          className={`mobile-panel-btn ${mobilePanel === 'data' ? 'mobile-panel-btn--active' : ''}`}
-          onClick={() => setMobilePanel('data')}
-        >
-          Forecast
-        </button>
+      {/* Mobile controls */}
+      <div className="mobile-controls">
+        <div className="mobile-panel-toggle">
+          <button
+            className={`mobile-panel-btn ${mobilePanel === 'map' ? 'mobile-panel-btn--active' : ''}`}
+            onClick={() => setMobilePanel('map')}
+          >
+            Map
+          </button>
+          <button
+            className={`mobile-panel-btn ${mobilePanel === 'data' ? 'mobile-panel-btn--active' : ''}`}
+            onClick={() => setMobilePanel('data')}
+          >
+            Forecast
+          </button>
+        </div>
+        <div className="mobile-source-toggle">
+          {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => (
+            <button
+              key={source}
+              className={`mobile-source-btn ${dataSource === source ? 'mobile-source-btn--active' : ''}`}
+              onClick={() => setDataSource(source)}
+            >
+              {source === 'combined' ? 'Combined' : source === 'markets' ? 'Markets' : 'Polling'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Main content: map + sidebar */}
