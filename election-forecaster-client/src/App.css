@@ -614,6 +614,12 @@
     background: var(--bg-page);
   }
 
+  .mobile-data-source .forecast-sidebar__source-btn--active {
+    background: var(--bg-dark);
+    color: white;
+    border-color: var(--bg-dark);
+  }
+
   .mobile-hidden {
     display: none !important;
   }
@@ -626,13 +632,14 @@
 
   .dashboard-map {
     flex: none;
-    height: 60vh;
     min-height: 0;
     padding: 12px;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     padding-top: 8px;
+    overflow-y: auto;
   }
 
   .dashboard-map .us-map-container {
