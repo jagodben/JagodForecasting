@@ -275,12 +275,13 @@
   letter-spacing: 0.05em;
 }
 
-.forecast-sidebar__source-btn:hover:not(:disabled) {
+.forecast-sidebar__source-btn:hover:not(:disabled):not(.forecast-sidebar__source-btn--active) {
   background: #e8e8e8;
   border-color: #ccc;
 }
 
-.forecast-sidebar__source-btn--active {
+.forecast-sidebar__source-btn--active,
+.forecast-sidebar__source-btn--active:hover {
   background: var(--bg-dark);
   color: white;
   border-color: var(--bg-dark);
