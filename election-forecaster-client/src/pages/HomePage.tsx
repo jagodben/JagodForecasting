@@ -84,33 +84,20 @@ export const HomePage = () => {
         </div>
       </header>
 
-      {/* Mobile controls */}
-      <div className="mobile-controls">
-        <div className="mobile-panel-toggle">
-          <button
-            className={`mobile-panel-btn ${mobilePanel === 'map' ? 'mobile-panel-btn--active' : ''}`}
-            onClick={() => setMobilePanel('map')}
-          >
-            Map
-          </button>
-          <button
-            className={`mobile-panel-btn ${mobilePanel === 'data' ? 'mobile-panel-btn--active' : ''}`}
-            onClick={() => setMobilePanel('data')}
-          >
-            Forecast
-          </button>
-        </div>
-        <div className="mobile-source-toggle">
-          {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => (
-            <button
-              key={source}
-              className={`mobile-source-btn ${dataSource === source ? 'mobile-source-btn--active' : ''}`}
-              onClick={() => setDataSource(source)}
-            >
-              {source === 'combined' ? 'Combined' : source === 'markets' ? 'Markets' : 'Polling'}
-            </button>
-          ))}
-        </div>
+      {/* Mobile panel toggle */}
+      <div className="mobile-panel-toggle">
+        <button
+          className={`mobile-panel-btn ${mobilePanel === 'map' ? 'mobile-panel-btn--active' : ''}`}
+          onClick={() => setMobilePanel('map')}
+        >
+          Map
+        </button>
+        <button
+          className={`mobile-panel-btn ${mobilePanel === 'data' ? 'mobile-panel-btn--active' : ''}`}
+          onClick={() => setMobilePanel('data')}
+        >
+          Forecast
+        </button>
       </div>
 
       {/* Main content: map + sidebar */}
@@ -125,6 +112,24 @@ export const HomePage = () => {
           {activeView === 'house' && houseRaces && (
             <USDistrictMap races={houseRaces} dataSource={dataSource} />
           )}
+
+          {/* Data source control - mobile only (same as in forecast sidebar) */}
+          <div className="mobile-data-source">
+            <div className="forecast-sidebar__section">
+              <div className="forecast-sidebar__label">Data Source</div>
+              <div className="forecast-sidebar__sources">
+                {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => (
+                  <button
+                    key={source}
+                    onClick={() => setDataSource(source)}
+                    className={`forecast-sidebar__source-btn ${dataSource === source ? 'forecast-sidebar__source-btn--active' : ''}`}
+                  >
+                    {source === 'combined' ? 'Combined' : source === 'markets' ? 'Public Op.' : 'Polling'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {forecastRaces && (

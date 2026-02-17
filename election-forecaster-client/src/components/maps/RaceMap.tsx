@@ -42,7 +42,7 @@ const getRatingColor = (rating: RaceRating): string => {
     case RaceRating.LeanDem: return '#5599EE';
     case RaceRating.TiltDem: return '#99CCFF';
     case RaceRating.TiltRep: return '#FFCC99';
-    case RaceRating.LeanRep: return '#EE8855';
+    case RaceRating.LeanRep: return '#E07070';
     case RaceRating.LikelyRep: return '#DD4422';
     case RaceRating.SolidRep: return '#AA0000';
     default: return '#E0E0E0';

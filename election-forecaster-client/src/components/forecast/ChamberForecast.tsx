@@ -16,14 +16,14 @@ const RATING_ORDER: RaceRating[] = [
 ];
 
 const RATING_COLORS: Record<RaceRating, string> = {
-  [RaceRating.SolidDem]: '#0044CC',
+  [RaceRating.SolidDem]: '#0033AA',
   [RaceRating.LikelyDem]: '#2266DD',
   [RaceRating.LeanDem]: '#5599EE',
   [RaceRating.TiltDem]: '#99CCFF',
   [RaceRating.TiltRep]: '#FFCC99',
-  [RaceRating.LeanRep]: '#EE8855',
+  [RaceRating.LeanRep]: '#E07070',
   [RaceRating.LikelyRep]: '#DD4422',
-  [RaceRating.SolidRep]: '#CC0000',
+  [RaceRating.SolidRep]: '#AA0000',
 };
 
 // Convert probability to rating
