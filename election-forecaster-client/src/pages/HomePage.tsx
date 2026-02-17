@@ -8,10 +8,12 @@ import { RaceType } from '../types';
 
 type MapView = 'senate' | 'house' | 'governors';
 type DataSource = 'combined' | 'markets' | 'polling';
+type MobilePanel = 'map' | 'data';
 
 export const HomePage = () => {
   const [activeView, setActiveView] = useState<MapView>('senate');
   const [dataSource, setDataSource] = useState<DataSource>('combined');
+  const [mobilePanel, setMobilePanel] = useState<MobilePanel>('map');
 
   const { data: states, isLoading: statesLoading } = useQuery({
     queryKey: ['states'],
@@ -47,7 +49,9 @@ export const HomePage = () => {
   if (!states) {
     return (
       <div className="error-container">
-        <p>jagodforecasting.com is currently undergoing maintenance, please try again later</p>
+        <h2>Error loading data</h2>
+        <p>Please make sure the API server is running at http://localhost:5000</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     );
   }
@@ -66,7 +70,7 @@ export const HomePage = () => {
     <div className="dashboard">
       {/* Header row */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">Jagod Forecasting</h1>
+        <h1 className="dashboard-title">2026 Election Forecast</h1>
         <div className="dashboard-tabs">
           {(['senate', 'house', 'governors'] as MapView[]).map((view) => (
             <button
@@ -80,9 +84,25 @@ export const HomePage = () => {
         </div>
       </header>
 
+      {/* Mobile toggle for Map/Data */}
+      <div className="mobile-panel-toggle">
+        <button
+          className={`mobile-panel-btn ${mobilePanel === 'map' ? 'mobile-panel-btn--active' : ''}`}
+          onClick={() => setMobilePanel('map')}
+        >
+          Map
+        </button>
+        <button
+          className={`mobile-panel-btn ${mobilePanel === 'data' ? 'mobile-panel-btn--active' : ''}`}
+          onClick={() => setMobilePanel('data')}
+        >
+          Forecast
+        </button>
+      </div>
+
       {/* Main content: map + sidebar */}
       <div className="dashboard-main">
-        <div className="dashboard-map">
+        <div className={`dashboard-map ${mobilePanel === 'data' ? 'mobile-hidden' : ''}`}>
           {activeView === 'senate' && senateRaces && (
             <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} dataSource={dataSource} />
           )}
@@ -95,7 +115,7 @@ export const HomePage = () => {
         </div>
 
         {forecastRaces && (
-          <div className="dashboard-sidebar">
+          <div className={`dashboard-sidebar ${mobilePanel === 'map' ? 'mobile-hidden' : ''}`}>
             <ChamberForecast
               races={forecastRaces}
               raceType={forecastRaceType}

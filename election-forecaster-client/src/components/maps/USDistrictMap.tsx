@@ -322,7 +322,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
 
   return (
     <div className="us-map-container">
-      <div style={{ width: '85%', height: '85%', position: 'relative', margin: '0 auto' }}>
+      <div className="district-map-wrapper">
         {districtFeatures.length === 0 ? (
           <div style={{
             display: 'flex',
