@@ -672,11 +672,13 @@
     width: 100%;
     height: auto;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .district-map-wrapper svg {
-    max-height: 55vh;
+    width: 100%;
+    max-height: 50vh;
   }
 }

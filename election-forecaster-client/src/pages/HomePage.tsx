@@ -49,8 +49,8 @@ export const HomePage = () => {
   if (!states) {
     return (
       <div className="error-container">
-        <h2>Error loading data</h2>
-        <p>Please make sure the API server is running at http://localhost:5000</p>
+        <h2>JagodForecasting.com is undergoing maintenance</h2>
+        <p>Check back later</p>
         <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     );
