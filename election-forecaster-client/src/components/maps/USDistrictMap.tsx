@@ -417,7 +417,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
         )}
 
         {/* Instructions */}
-        <div style={{
+        <div className="map-instructions" style={{
           textAlign: 'center',
           fontSize: '12px',
           color: '#888',

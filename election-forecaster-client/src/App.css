@@ -681,4 +681,9 @@
     width: 100%;
     max-height: 50vh;
   }
+
+  /* Hide map instructions on mobile */
+  .map-instructions {
+    display: none;
+  }
 }

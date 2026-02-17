@@ -309,7 +309,7 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
         )}
 
         {/* Instructions */}
-        <div style={{
+        <div className="map-instructions" style={{
           textAlign: 'center',
           fontSize: '12px',
           color: '#888',
