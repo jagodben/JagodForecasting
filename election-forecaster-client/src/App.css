@@ -281,9 +281,9 @@
 }
 
 .forecast-sidebar__source-btn--active {
-  background: var(--text-primary);
+  background: var(--bg-dark);
   color: white;
-  border-color: var(--text-primary);
+  border-color: var(--bg-dark);
   font-weight: 700;
 }
 
@@ -612,12 +612,6 @@
     width: 100%;
     padding: 12px 16px;
     background: var(--bg-page);
-  }
-
-  .mobile-data-source .forecast-sidebar__source-btn--active {
-    background: var(--bg-dark);
-    color: white;
-    border-color: var(--bg-dark);
   }
 
   .mobile-hidden {
