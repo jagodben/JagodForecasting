@@ -326,10 +326,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
         {/* Win Probability */}
         <div className="forecast-sidebar__section">
-          <div className="forecast-sidebar__party-labels">
-            <img src="/democrat.png" alt="Democrat" style={{ width: '32px', height: '32px' }} />
-            <img src="/republican.png" alt="Republican" style={{ width: '32px', height: '32px' }} />
-          </div>
+          <div className="forecast-sidebar__label">Win Probability</div>
           <div className="forecast-sidebar__seats">
             <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
             <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
@@ -338,10 +335,15 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044CC' }} />
             <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#CC0000' }} />
           </div>
+          <div className="forecast-sidebar__party-labels">
+            <span>Democrats</span>
+            <span>Republicans</span>
+          </div>
         </div>
 
         {/* Projected Seats */}
         <div className="forecast-sidebar__section">
+          <div className="forecast-sidebar__label">Projected Seats</div>
           <div className="forecast-sidebar__seats">
             <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
             <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
@@ -353,21 +355,18 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
                 backgroundColor: seg.color,
               }} />
             ))}
-            {raceType !== RaceType.Governor && (
-              <div className="forecast-sidebar__majority-line" style={{
-                left: `${(majorityNeeded / totalSeats) * 100}%`,
-              }} />
-            )}
+            <div className="forecast-sidebar__majority-line" style={{
+              left: `${(majorityNeeded / totalSeats) * 100}%`,
+            }} />
           </div>
-          {raceType !== RaceType.Governor && (
-            <div className="forecast-sidebar__majority-label">
-              {majorityNeeded} needed for majority
-            </div>
-          )}
+          <div className="forecast-sidebar__majority-label">
+            {majorityNeeded} needed for majority
+          </div>
         </div>
 
         {/* Data Source Toggle */}
         <div className="forecast-sidebar__section">
+          <div className="forecast-sidebar__label">Data Source</div>
           <div className="forecast-sidebar__sources">
             {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
               const isDisabled =
