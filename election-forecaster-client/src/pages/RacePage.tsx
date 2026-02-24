@@ -13,9 +13,9 @@ interface HistoricalOdds {
 
 const getSourceLabel = (source: DataSource) => {
   switch (source) {
-    case 'combined': return 'Combined Forecast';
-    case 'markets': return 'Public Opinion';
-    case 'polling': return 'Polling Data';
+    case 'combined': return 'Forecast';
+    case 'markets': return 'Polymarket';
+    case 'polling': return 'Polls';
   }
 };
 

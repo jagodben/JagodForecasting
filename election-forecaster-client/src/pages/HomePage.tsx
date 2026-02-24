@@ -140,7 +140,7 @@ export const HomePage = () => {
                       disabled={isDisabled}
                       className={`forecast-sidebar__source-btn ${dataSource === source ? 'forecast-sidebar__source-btn--active' : ''}`}
                     >
-                      {source === 'combined' ? 'Combined' : source === 'markets' ? 'Public Op.' : 'Polling'}
+                      {source === 'combined' ? 'Forecast' : source === 'markets' ? 'Polymarket' : 'Polls'}
                     </button>
                   );
                 })}

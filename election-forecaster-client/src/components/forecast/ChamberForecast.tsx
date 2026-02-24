@@ -315,9 +315,9 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
   const getSourceLabel = (source: DataSource) => {
     switch (source) {
-      case 'combined': return 'Combined';
-      case 'markets': return 'Public Op.';
-      case 'polling': return 'Polling';
+      case 'combined': return 'Forecast';
+      case 'markets': return 'Polymarket';
+      case 'polling': return 'Polls';
     }
   };
 
