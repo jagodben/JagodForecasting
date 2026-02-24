@@ -330,22 +330,24 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           {chamberName} Forecast
         </h3>
 
-        {/* Win Probability */}
-        <div className="forecast-sidebar__section">
-          <div className="forecast-sidebar__label">Win Probability</div>
-          <div className="forecast-sidebar__seats">
-            <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
-            <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
+        {/* Win Probability - hide for governors */}
+        {raceType !== RaceType.Governor && (
+          <div className="forecast-sidebar__section">
+            <div className="forecast-sidebar__label">Win Probability</div>
+            <div className="forecast-sidebar__seats">
+              <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
+              <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
+            </div>
+            <div className="forecast-sidebar__seat-bar">
+              <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044CC' }} />
+              <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#CC0000' }} />
+            </div>
+            <div className="forecast-sidebar__party-labels">
+              <span>Democrats</span>
+              <span>Republicans</span>
+            </div>
           </div>
-          <div className="forecast-sidebar__seat-bar">
-            <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044CC' }} />
-            <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#CC0000' }} />
-          </div>
-          <div className="forecast-sidebar__party-labels">
-            <span>Democrats</span>
-            <span>Republicans</span>
-          </div>
-        </div>
+        )}
 
         {/* Projected Seats */}
         <div className="forecast-sidebar__section">
@@ -469,76 +471,78 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         })}
       </div>
 
-      {/* Victory Odds */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
-          {chamberName} Forecast - Chance of Winning Majority
-        </h3>
-        <div style={{
-          textAlign: 'center',
-          fontSize: '13px',
-          color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
-          marginBottom: '16px',
-          fontWeight: 500,
-        }}>
-          {activeSource === 'markets' && 'Based on Polymarket prediction market odds'}
-          {activeSource === 'polling' && 'Based on polling averages'}
-          {activeSource === 'combined' && 'Combined forecast (markets + polling + fundamentals)'}
-          {dataSource !== activeSource && dataSource !== 'combined' && (
-            <span style={{ color: '#9ca3af', fontStyle: 'italic', marginLeft: '8px' }}>
-              (insufficient {dataSource === 'markets' ? 'market' : 'polling'} data - using combined)
-            </span>
-          )}
+      {/* Victory Odds - hide for governors */}
+      {raceType !== RaceType.Governor && (
+        <div style={{ marginBottom: '32px' }}>
+          <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
+            {chamberName} Forecast - Chance of Winning Majority
+          </h3>
+          <div style={{
+            textAlign: 'center',
+            fontSize: '13px',
+            color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
+            marginBottom: '16px',
+            fontWeight: 500,
+          }}>
+            {activeSource === 'markets' && 'Based on Polymarket prediction market odds'}
+            {activeSource === 'polling' && 'Based on polling averages'}
+            {activeSource === 'combined' && 'Combined forecast (markets + polling + fundamentals)'}
+            {dataSource !== activeSource && dataSource !== 'combined' && (
+              <span style={{ color: '#9ca3af', fontStyle: 'italic', marginLeft: '8px' }}>
+                (insufficient {dataSource === 'markets' ? 'market' : 'polling'} data - using combined)
+              </span>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {/* Democrat odds */}
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0044CC' }}>
+                {demVictoryOdds}%
+              </div>
+              <div style={{ fontSize: '16px', color: '#666' }}>Democrats</div>
+            </div>
+
+            {/* Visual bar */}
+            <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{
+                width: `${demVictoryOdds}%`,
+                backgroundColor: '#0044CC',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '16px',
+                transition: 'width 0.3s ease',
+              }}>
+                {demVictoryOdds > 20 && 'D'}
+              </div>
+              <div style={{
+                width: `${repVictoryOdds}%`,
+                backgroundColor: '#CC0000',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: '16px',
+                transition: 'width 0.3s ease',
+              }}>
+                {repVictoryOdds > 20 && 'R'}
+              </div>
+            </div>
+
+            {/* Republican odds */}
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#CC0000' }}>
+                {repVictoryOdds}%
+              </div>
+              <div style={{ fontSize: '16px', color: '#666' }}>Republicans</div>
+            </div>
+          </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Democrat odds */}
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0044CC' }}>
-              {demVictoryOdds}%
-            </div>
-            <div style={{ fontSize: '16px', color: '#666' }}>Democrats</div>
-          </div>
-
-          {/* Visual bar */}
-          <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
-            <div style={{
-              width: `${demVictoryOdds}%`,
-              backgroundColor: '#0044CC',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '16px',
-              transition: 'width 0.3s ease',
-            }}>
-              {demVictoryOdds > 20 && 'D'}
-            </div>
-            <div style={{
-              width: `${repVictoryOdds}%`,
-              backgroundColor: '#CC0000',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '16px',
-              transition: 'width 0.3s ease',
-            }}>
-              {repVictoryOdds > 20 && 'R'}
-            </div>
-          </div>
-
-          {/* Republican odds */}
-          <div style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#CC0000' }}>
-              {repVictoryOdds}%
-            </div>
-            <div style={{ fontSize: '16px', color: '#666' }}>Republicans</div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Seat Projections */}
       <div style={{ marginBottom: '32px' }}>
@@ -579,25 +583,27 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         </div>
       </div>
 
-      {/* Historical Trend Chart */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
-          Win Probability Over Time
-        </h3>
-        <div style={{
-          textAlign: 'center',
-          fontSize: '13px',
-          color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
-          marginBottom: '16px',
-          fontWeight: 500,
-        }}>
-          {activeSource === 'markets' && 'Polymarket odds history'}
-          {activeSource === 'polling' && 'Polling average history'}
-          {activeSource === 'combined' && 'Combined forecast history'}
-        </div>
+      {/* Historical Trend Chart - hide for governors */}
+      {raceType !== RaceType.Governor && (
+        <div style={{ marginBottom: '32px' }}>
+          <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
+            Win Probability Over Time
+          </h3>
+          <div style={{
+            textAlign: 'center',
+            fontSize: '13px',
+            color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
+            marginBottom: '16px',
+            fontWeight: 500,
+          }}>
+            {activeSource === 'markets' && 'Polymarket odds history'}
+            {activeSource === 'polling' && 'Polling average history'}
+            {activeSource === 'combined' && 'Combined forecast history'}
+          </div>
 
-        <OddsChart data={historicalData} />
-      </div>
+          <OddsChart data={historicalData} />
+        </div>
+      )}
     </div>
   );
 };
