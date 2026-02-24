@@ -363,13 +363,17 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
                 backgroundColor: seg.color,
               }} />
             ))}
-            <div className="forecast-sidebar__majority-line" style={{
-              left: `${(majorityNeeded / totalSeats) * 100}%`,
-            }} />
+            {raceType !== RaceType.Governor && (
+              <div className="forecast-sidebar__majority-line" style={{
+                left: `${(majorityNeeded / totalSeats) * 100}%`,
+              }} />
+            )}
           </div>
-          <div className="forecast-sidebar__majority-label">
-            {majorityNeeded} needed for majority
-          </div>
+          {raceType !== RaceType.Governor && (
+            <div className="forecast-sidebar__majority-label">
+              {majorityNeeded} needed for majority
+            </div>
+          )}
         </div>
 
         {/* Data Source Toggle */}
@@ -572,14 +576,16 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             }} />
           ))}
           {/* Majority line */}
-          <div style={{
-            position: 'absolute',
-            left: `${(majorityNeeded / totalSeats) * 100}%`,
-            top: 0,
-            bottom: 0,
-            width: '3px',
-            backgroundColor: '#333',
-          }} />
+          {raceType !== RaceType.Governor && (
+            <div style={{
+              position: 'absolute',
+              left: `${(majorityNeeded / totalSeats) * 100}%`,
+              top: 0,
+              bottom: 0,
+              width: '3px',
+              backgroundColor: '#333',
+            }} />
+          )}
         </div>
       </div>
 
