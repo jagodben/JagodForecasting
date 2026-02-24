@@ -63,12 +63,23 @@ const getRatingLabel = (rating: RaceRating): string => {
   }
 };
 
+export interface SelectedStateData {
+  stateName: string;
+  stateId: string;
+  raceType: string;
+  rating: RaceRating | null;
+  demProb: number | null;
+}
+
 interface RaceMapProps {
   states: StateSummary[];
   races: Race[];
   raceType: RaceType;
   dataSource?: DataSource;
+  onStateSelect?: (data: SelectedStateData | null) => void;
 }
+
+export { getRatingColor, getRatingLabel };
 
 interface TooltipData {
   stateName: string;
@@ -78,10 +89,11 @@ interface TooltipData {
   rating: RaceRating | null;
 }
 
-export const RaceMap = ({ states, races, raceType, dataSource = 'combined' }: RaceMapProps) => {
+export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onStateSelect }: RaceMapProps) => {
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+  const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
 
   // Fetch detailed forecasts for all races
   const { data: detailedForecasts } = useQuery({
@@ -146,6 +158,17 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined' }: Ra
         rating: ratingData?.rating ?? null,
       });
       setTooltipPosition({ x: event.clientX, y: event.clientY });
+
+      // Notify parent for mobile display
+      if (onStateSelect) {
+        onStateSelect({
+          stateName: state.name,
+          stateId: stateId,
+          raceType: raceTypeLabel,
+          rating: ratingData?.rating ?? null,
+          demProb: ratingData?.demProb ?? null,
+        });
+      }
     }
   };
 
@@ -170,8 +193,6 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined' }: Ra
       }
     }
   };
-
-  const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
 
   return (
     <div className="us-map-container" style={{ position: 'relative' }}>
@@ -261,6 +282,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined' }: Ra
 
       {tooltipData && (
         <div
+          className="map-tooltip"
           style={{
             position: 'fixed',
             left: tooltipPosition.x + 15,

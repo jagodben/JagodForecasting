@@ -701,4 +701,63 @@
   .map-instructions {
     display: none;
   }
+
+  /* Hide tooltip on mobile */
+  .map-tooltip {
+    display: none !important;
+  }
+
+  /* Mobile state info - visible on mobile */
+  .mobile-state-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+  }
+
+  .mobile-state-info__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-state-info__name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .mobile-state-info__rating {
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+  }
+
+  .mobile-state-info__probs {
+    display: flex;
+    gap: 12px;
+  }
+
+  .mobile-state-info__prob {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mobile-state-info__logo {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+  }
+
+  .mobile-state-info__value {
+    font-weight: 600;
+    font-size: 13px;
+  }
 }

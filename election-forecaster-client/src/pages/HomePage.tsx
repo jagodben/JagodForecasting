@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
-import { RaceMap } from '../components/maps/RaceMap';
+import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
 import { USDistrictMap } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
@@ -16,6 +16,7 @@ export const HomePage = () => {
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>('map');
   const [hasMarketData, setHasMarketData] = useState(false);
   const [hasPollingData, setHasPollingData] = useState(false);
+  const [selectedState, setSelectedState] = useState<SelectedStateData | null>(null);
 
   const { data: states, isLoading: statesLoading } = useQuery({
     queryKey: ['states'],
@@ -77,7 +78,10 @@ export const HomePage = () => {
           {(['senate', 'house', 'governors'] as MapView[]).map((view) => (
             <button
               key={view}
-              onClick={() => setActiveView(view)}
+              onClick={() => {
+                setActiveView(view);
+                setSelectedState(null);
+              }}
               className={`dashboard-tab ${activeView === view ? 'dashboard-tab--active' : ''}`}
             >
               {view === 'senate' ? 'Senate' : view === 'house' ? 'House' : 'Governors'}
@@ -106,10 +110,10 @@ export const HomePage = () => {
       <div className="dashboard-main">
         <div className={`dashboard-map ${mobilePanel === 'data' ? 'mobile-hidden' : ''}`}>
           {activeView === 'senate' && senateRaces && (
-            <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} dataSource={dataSource} />
+            <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} dataSource={dataSource} onStateSelect={setSelectedState} />
           )}
           {activeView === 'governors' && govRaces && (
-            <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} dataSource={dataSource} />
+            <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} dataSource={dataSource} onStateSelect={setSelectedState} />
           )}
           {activeView === 'house' && houseRaces && (
             <USDistrictMap races={houseRaces} dataSource={dataSource} />
@@ -127,7 +131,12 @@ export const HomePage = () => {
                   return (
                     <button
                       key={source}
-                      onClick={() => !isDisabled && setDataSource(source)}
+                      onClick={() => {
+                        if (!isDisabled) {
+                          setDataSource(source);
+                          setSelectedState(null);
+                        }
+                      }}
                       disabled={isDisabled}
                       className={`forecast-sidebar__source-btn ${dataSource === source ? 'forecast-sidebar__source-btn--active' : ''}`}
                     >
@@ -137,6 +146,35 @@ export const HomePage = () => {
                 })}
               </div>
             </div>
+
+            {/* Selected state info - mobile only */}
+            {selectedState && activeView !== 'house' && (
+              <div className="mobile-state-info">
+                <div className="mobile-state-info__header">
+                  <span className="mobile-state-info__name">{selectedState.stateName}</span>
+                  {selectedState.rating && (
+                    <span
+                      className="mobile-state-info__rating"
+                      style={{ backgroundColor: getRatingColor(selectedState.rating) }}
+                    >
+                      {getRatingLabel(selectedState.rating)}
+                    </span>
+                  )}
+                </div>
+                {selectedState.demProb !== null && (
+                  <div className="mobile-state-info__probs">
+                    <div className="mobile-state-info__prob">
+                      <img src="/democrat.png" alt="D" className="mobile-state-info__logo" />
+                      <span className="mobile-state-info__value">{(selectedState.demProb * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="mobile-state-info__prob">
+                      <img src="/republican.png" alt="R" className="mobile-state-info__logo" />
+                      <span className="mobile-state-info__value">{((1 - selectedState.demProb) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
