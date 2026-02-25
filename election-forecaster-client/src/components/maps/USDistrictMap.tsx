@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceRating, DetailedForecast } from '../../types';
 import { forecastApi } from '../../services/api';
@@ -109,7 +108,6 @@ interface TooltipData {
 }
 
 export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect }: USDistrictMapProps) => {
-  const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [districtFeatures, setDistrictFeatures] = useState<DistrictFeature[]>([]);
