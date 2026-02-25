@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
 import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
-import { USDistrictMap } from '../components/maps/USDistrictMap';
+import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 
@@ -17,6 +17,7 @@ export const HomePage = () => {
   const [hasMarketData, setHasMarketData] = useState(false);
   const [hasPollingData, setHasPollingData] = useState(false);
   const [selectedState, setSelectedState] = useState<SelectedStateData | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<SelectedDistrictData | null>(null);
 
   const { data: states, isLoading: statesLoading } = useQuery({
     queryKey: ['states'],
@@ -81,6 +82,7 @@ export const HomePage = () => {
               onClick={() => {
                 setActiveView(view);
                 setSelectedState(null);
+                setSelectedDistrict(null);
               }}
               className={`dashboard-tab ${activeView === view ? 'dashboard-tab--active' : ''}`}
             >
@@ -116,7 +118,7 @@ export const HomePage = () => {
             <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} dataSource={dataSource} onStateSelect={setSelectedState} />
           )}
           {activeView === 'house' && houseRaces && (
-            <USDistrictMap races={houseRaces} dataSource={dataSource} />
+            <USDistrictMap races={houseRaces} dataSource={dataSource} onDistrictSelect={setSelectedDistrict} />
           )}
 
           {/* Data source control - mobile only (same as in forecast sidebar) */}
@@ -135,6 +137,7 @@ export const HomePage = () => {
                         if (!isDisabled) {
                           setDataSource(source);
                           setSelectedState(null);
+                          setSelectedDistrict(null);
                         }
                       }}
                       disabled={isDisabled}
@@ -147,7 +150,7 @@ export const HomePage = () => {
               </div>
             </div>
 
-            {/* Selected state info - mobile only */}
+            {/* Selected state info - mobile only (Senate/Governors) */}
             {selectedState && activeView !== 'house' && (
               <div className="mobile-state-info">
                 <div className="mobile-state-info__header">
@@ -170,6 +173,35 @@ export const HomePage = () => {
                     <div className="mobile-state-info__prob">
                       <img src="/republican.png" alt="R" className="mobile-state-info__logo" />
                       <span className="mobile-state-info__value">{((1 - selectedState.demProb) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Selected district info - mobile only (House) */}
+            {selectedDistrict && activeView === 'house' && (
+              <div className="mobile-state-info">
+                <div className="mobile-state-info__header">
+                  <span className="mobile-state-info__name">{selectedDistrict.stateName} - {selectedDistrict.districtLabel}</span>
+                  {selectedDistrict.rating && (
+                    <span
+                      className="mobile-state-info__rating"
+                      style={{ backgroundColor: getRatingColor(selectedDistrict.rating) }}
+                    >
+                      {getRatingLabel(selectedDistrict.rating)}
+                    </span>
+                  )}
+                </div>
+                {selectedDistrict.demProb !== null && (
+                  <div className="mobile-state-info__probs">
+                    <div className="mobile-state-info__prob">
+                      <img src="/democrat.png" alt="D" className="mobile-state-info__logo" />
+                      <span className="mobile-state-info__value">{(selectedDistrict.demProb * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="mobile-state-info__prob">
+                      <img src="/republican.png" alt="R" className="mobile-state-info__logo" />
+                      <span className="mobile-state-info__value">{((1 - selectedDistrict.demProb) * 100).toFixed(1)}%</span>
                     </div>
                   </div>
                 )}

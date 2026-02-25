@@ -76,9 +76,19 @@ const probabilityToRating = (demProb: number): RaceRating => {
   return RaceRating.SolidRep;
 };
 
+export interface SelectedDistrictData {
+  stateName: string;
+  stateId: string;
+  districtNum: number;
+  districtLabel: string;
+  rating: RaceRating | null;
+  demProb: number | null;
+}
+
 interface USDistrictMapProps {
   races: Race[];
   dataSource?: DataSource;
+  onDistrictSelect?: (data: SelectedDistrictData | null) => void;
 }
 
 interface DistrictFeature {
@@ -98,7 +108,7 @@ interface TooltipData {
   race: Race | null;
 }
 
-export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapProps) => {
+export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect }: USDistrictMapProps) => {
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -313,10 +323,42 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
       r.stateId.toLowerCase() === stateId.toLowerCase() &&
       r.districtNumber === districtNum
     );
-    if (race) {
-      navigate(`/race/${race.id}`);
-    } else {
-      navigate(`/state/${stateId}`);
+
+    // Call onDistrictSelect callback if provided
+    if (onDistrictSelect) {
+      if (race) {
+        const detailed = detailedForecasts?.find(f => f.raceId === race.id);
+        let demProb: number | null = null;
+
+        if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
+          demProb = detailed.inputs.marketOdds;
+        } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
+          demProb = detailed.inputs.pollingAverage / 100;
+        } else {
+          // Get dem probability from forecasts
+          const demForecast = race.forecasts.find(f => {
+            const candidate = race.candidates.find(c => c.id === f.candidateId);
+            return candidate?.party === 'Democrat';
+          });
+          demProb = demForecast?.winProbability ?? null;
+        }
+
+        const rating = raceRatings?.get(race.id) ?? race.rating;
+        const districtLabel = districtNum === 1 && !race.districtNumber
+          ? 'At-Large'
+          : `District ${districtNum}`;
+
+        onDistrictSelect({
+          stateName: stateNames[stateId] || stateId,
+          stateId,
+          districtNum,
+          districtLabel,
+          rating,
+          demProb,
+        });
+      } else {
+        onDistrictSelect(null);
+      }
     }
   };
 
@@ -429,6 +471,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
 
       {tooltipData && !isPanning && (
         <div
+          className="map-tooltip"
           style={{
             position: 'fixed',
             left: tooltipPosition.x + 15,
