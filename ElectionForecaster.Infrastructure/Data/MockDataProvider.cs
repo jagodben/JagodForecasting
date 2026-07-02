@@ -122,7 +122,7 @@ public static class MockDataProvider
     {
         const string demName = "Democratic Nominee";
         const string repName = "Republican Nominee";
-        var demIncumbent = IsDemocratIncumbentSenate(stateId);
+        var (demIncumbent, repIncumbent) = GetSenateIncumbency(stateId);
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
@@ -135,7 +135,7 @@ public static class MockDataProvider
             Candidates = new List<Candidate>
             {
                 new() { Id = $"{stateId}-SEN-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
-                new() { Id = $"{stateId}-SEN-R", Name = repName, Party = Party.Republican, IsIncumbent = !demIncumbent }
+                new() { Id = $"{stateId}-SEN-R", Name = repName, Party = Party.Republican, IsIncumbent = repIncumbent }
             },
             Forecasts = new List<Forecast>
             {
@@ -149,7 +149,7 @@ public static class MockDataProvider
     {
         const string demName = "Democratic Nominee";
         const string repName = "Republican Nominee";
-        var demIncumbent = IsDemocratIncumbentGovernor(stateId);
+        var (demIncumbent, repIncumbent) = GetGovernorIncumbency(stateId);
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
@@ -162,7 +162,7 @@ public static class MockDataProvider
             Candidates = new List<Candidate>
             {
                 new() { Id = $"{stateId}-GOV-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
-                new() { Id = $"{stateId}-GOV-R", Name = repName, Party = Party.Republican, IsIncumbent = !demIncumbent }
+                new() { Id = $"{stateId}-GOV-R", Name = repName, Party = Party.Republican, IsIncumbent = repIncumbent }
             },
             Forecasts = new List<Forecast>
             {
@@ -200,56 +200,95 @@ public static class MockDataProvider
         };
     }
 
-    private static bool IsDemocratIncumbentSenate(string stateId)
+    // Class 2 Senate seats currently held by a Democrat (as of 2026).
+    private static readonly HashSet<string> SenateDemHeld = new()
     {
-        // Class 2 Senate seats with Democratic incumbents (as of 2026)
-        var demIncumbentStates = new HashSet<string>
-        {
-            "CO", // Hickenlooper
-            "DE", // Coons
-            "GA", // Ossoff
-            "IL", // Durbin
-            "MA", // Markey
-            "MI", // Peters
-            "MN", // Smith
-            "NH", // Shaheen
-            "NJ", // Booker
-            "NM", // Lujan
-            "OR", // Merkley
-            "RI", // Reed
-            "VA"  // Warner
-        };
-        return demIncumbentStates.Contains(stateId);
+        "CO", // Hickenlooper
+        "DE", // Coons
+        "GA", // Ossoff
+        "IL", // Durbin
+        "MA", // Markey
+        "MI", // Peters
+        "MN", // Smith
+        "NH", // Shaheen
+        "NJ", // Booker
+        "NM", // Lujan
+        "OR", // Merkley
+        "RI", // Reed
+        "VA"  // Warner
+    };
+
+    // 2026 Senate seats with NO incumbent seeking re-election (retirement or running for
+    // another office) — i.e. open seats where neither nominee is an incumbent.
+    // Best-effort as of early 2026; review as the cycle develops.
+    private static readonly HashSet<string> SenateOpenSeats = new()
+    {
+        "MI", // Peters (D) retiring
+        "MN", // Smith (D) retiring
+        "NH", // Shaheen (D) retiring
+        "IL", // Durbin (D) retiring
+        "KY", // McConnell (R) retiring
+        "NC", // Tillis (R) retiring
+        "AL"  // Tuberville (R) running for governor
+    };
+
+    /// <summary>
+    /// Returns (demIncumbent, repIncumbent) for a state's 2026 Senate race.
+    /// Open seats return (false, false); otherwise the party holding the seat is the incumbent.
+    /// </summary>
+    private static (bool dem, bool rep) GetSenateIncumbency(string stateId)
+    {
+        if (SenateOpenSeats.Contains(stateId)) return (false, false);
+        bool demHeld = SenateDemHeld.Contains(stateId);
+        return (demHeld, !demHeld);
     }
 
-    private static bool IsDemocratIncumbentGovernor(string stateId)
+    // States whose governorship is currently held by a Democrat (among 2026 races).
+    // (NV excluded — Lombardo is a Republican.)
+    private static readonly HashSet<string> GovernorDemHeld = new()
     {
-        // States with Democratic governors up in 2026
-        var demIncumbentStates = new HashSet<string>
-        {
-            "AZ", // Hobbs
-            "CA", // Newsom (term-limited)
-            "CO", // Polis (term-limited)
-            "CT", // Lamont
-            "HI", // Green
-            "IL", // Pritzker
-            "KS", // Kelly
-            "KY", // Beshear (term-limited)
-            "ME", // Mills
-            "MD", // Moore
-            "MA", // Healey
-            "MI", // Whitmer (term-limited)
-            "MN", // Walz
-            "NV", // Lombardo is R
-            "NM", // Lujan Grisham (term-limited)
-            "NY", // Hochul
-            "NC", // Cooper (term-limited) -> 2024 winner
-            "OR", // Kotek
-            "PA", // Shapiro
-            "RI", // McKee
-            "WI"  // Evers
-        };
-        return demIncumbentStates.Contains(stateId);
+        "AZ", // Hobbs
+        "CA", // Newsom
+        "CO", // Polis
+        "CT", // Lamont
+        "HI", // Green
+        "IL", // Pritzker
+        "KS", // Kelly
+        "KY", // Beshear
+        "ME", // Mills
+        "MD", // Moore
+        "MA", // Healey
+        "MI", // Whitmer
+        "MN", // Walz
+        "NM", // Lujan Grisham
+        "NY", // Hochul
+        "NC", // Stein
+        "OR", // Kotek
+        "PA", // Shapiro
+        "RI", // McKee
+        "WI"  // Evers
+    };
+
+    // 2026 governor races with no incumbent on the ballot (term-limited or not seeking
+    // re-election) — open seats. Best-effort as of early 2026; review as the cycle develops.
+    private static readonly HashSet<string> GovernorOpenSeats = new()
+    {
+        "CA", // Newsom (D) term-limited
+        "CO", // Polis (D) term-limited
+        "MI", // Whitmer (D) term-limited
+        "NM", // Lujan Grisham (D) term-limited
+        "KS", // Kelly (D) term-limited
+    };
+
+    /// <summary>
+    /// Returns (demIncumbent, repIncumbent) for a state's 2026 Governor race.
+    /// Open seats return (false, false); otherwise the party holding the office is the incumbent.
+    /// </summary>
+    private static (bool dem, bool rep) GetGovernorIncumbency(string stateId)
+    {
+        if (GovernorOpenSeats.Contains(stateId)) return (false, false);
+        bool demHeld = GovernorDemHeld.Contains(stateId);
+        return (demHeld, !demHeld);
     }
 
     private static RaceRating GetDistrictRating(RaceRating stateRating, int districtNumber, int totalDistricts)

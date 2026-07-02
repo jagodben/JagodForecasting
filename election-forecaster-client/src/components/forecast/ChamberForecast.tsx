@@ -366,11 +366,6 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
               }} />
             )}
           </div>
-          {raceType !== RaceType.Governor && (
-            <div className="forecast-sidebar__majority-label">
-              {majorityNeeded} needed for majority
-            </div>
-          )}
         </div>
 
         {/* Data Source Toggle */}

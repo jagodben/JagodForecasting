@@ -208,26 +208,24 @@ export const RacePage = () => {
 
       {/* Win Probability Section */}
       <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
-      <div style={{
-        textAlign: 'center',
-        fontSize: '13px',
-        color: dataSource === 'markets' ? '#059669' : dataSource === 'polling' ? '#2563eb' : '#6b7280',
-        marginBottom: '16px',
-        fontWeight: 500,
-      }}>
-        {dataSource === 'markets' && 'Based on Polymarket prediction market odds'}
-        {dataSource === 'polling' && 'Based on polling averages'}
-        {dataSource === 'combined' && 'Combined forecast (markets + polling + fundamentals)'}
-      </div>
+      {dataSource !== 'combined' && (
+        <div style={{
+          textAlign: 'center',
+          fontSize: '13px',
+          color: dataSource === 'markets' ? '#059669' : '#2563eb',
+          marginBottom: '16px',
+          fontWeight: 500,
+        }}>
+          {dataSource === 'markets' && 'Based on Polymarket prediction market odds'}
+          {dataSource === 'polling' && 'Based on polling averages'}
+        </div>
+      )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px' }}>
         {/* Democrat */}
         <div style={{ flex: 1, textAlign: 'center' }}>
           <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0044CC' }}>
             {(demProb * 100).toFixed(1)}%
-          </div>
-          <div style={{ fontSize: '14px', color: '#666' }}>
-            {demCandidate?.name || 'Democrat'}
           </div>
           {demCandidate?.isIncumbent && (
             <div style={{ fontSize: '12px', color: '#999' }}>Incumbent</div>
@@ -267,39 +265,34 @@ export const RacePage = () => {
           <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#CC0000' }}>
             {(repProb * 100).toFixed(1)}%
           </div>
-          <div style={{ fontSize: '14px', color: '#666' }}>
-            {repCandidate?.name || 'Republican'}
-          </div>
           {repCandidate?.isIncumbent && (
             <div style={{ fontSize: '12px', color: '#999' }}>Incumbent</div>
           )}
         </div>
       </div>
 
-      {/* Prediction Over Time Chart */}
-      <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Prediction Over Time</h3>
-      <div style={{
-        textAlign: 'center',
-        fontSize: '13px',
-        color: dataSource === 'markets' ? '#059669' : '#6b7280',
-        marginBottom: '16px',
-        fontWeight: 500,
-      }}>
-        {dataSource === 'markets' ? 'Polymarket odds history' : getSourceLabel(dataSource)}
-      </div>
-      <div style={{ marginBottom: '48px' }}>
-        {dataSource === 'markets' && historicalData.length >= 2 ? (
-          <PredictionChart
-            data={historicalData}
-            demName={demCandidate?.name || 'Democrat'}
-            repName={repCandidate?.name || 'Republican'}
-          />
-        ) : (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#999', fontSize: '14px' }}>
-            No historical data available
+      {/* Prediction Over Time Chart — only shown when there's history to plot */}
+      {dataSource === 'markets' && historicalData.length >= 2 && (
+        <>
+          <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Prediction Over Time</h3>
+          <div style={{
+            textAlign: 'center',
+            fontSize: '13px',
+            color: '#059669',
+            marginBottom: '16px',
+            fontWeight: 500,
+          }}>
+            Polymarket odds history
           </div>
-        )}
-      </div>
+          <div style={{ marginBottom: '48px' }}>
+            <PredictionChart
+              data={historicalData}
+              demName={demCandidate?.name || 'Democrat'}
+              repName={repCandidate?.name || 'Republican'}
+            />
+          </div>
+        </>
+      )}
 
       {/* Polls Section */}
       {dataSource === 'polling' && (
@@ -316,7 +309,6 @@ export const RacePage = () => {
               <InputCard
                 label="Prediction Markets"
                 value={`${(forecast.inputs.marketOdds * 100).toFixed(1)}%`}
-                sublabel={forecast.inputs.marketLastUpdated ? `Updated: ${new Date(forecast.inputs.marketLastUpdated).toLocaleDateString()}` : undefined}
                 color="#059669"
               />
             )}
@@ -325,7 +317,6 @@ export const RacePage = () => {
               <InputCard
                 label="Polling Average"
                 value={`${forecast.inputs.pollingAverage.toFixed(1)}%`}
-                sublabel={forecast.inputs.pollCount ? `${forecast.inputs.pollCount} polls` : undefined}
                 color="#2563eb"
               />
             )}
@@ -337,11 +328,6 @@ export const RacePage = () => {
                 color="#7c3aed"
               />
             )}
-          </div>
-
-          <div style={{ marginTop: '16px', fontSize: '13px', color: '#666', textAlign: 'center' }}>
-            Confidence: {(forecast.confidence * 100).toFixed(0)}% |
-            Last Updated: {new Date(forecast.lastUpdated).toLocaleString()}
           </div>
         </div>
       )}
