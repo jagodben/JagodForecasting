@@ -103,8 +103,10 @@ export const RacePage = () => {
       const margin = avg ? avg.demPercent - avg.repPercent : 0;
       demProbability = normalCdf(margin / 3.5);
     } else {
-      // Combined or fallback
-      demProbability = demForecastData?.winProbability ?? 0.5;
+      // Combined: use the blended forecast (markets + polling + fundamentals + approval),
+      // the same value the home page map shows. Fall back to the fundamentals-only
+      // race forecast only if the blended forecast hasn't loaded.
+      demProbability = forecast?.demWinProbability ?? demForecastData?.winProbability ?? 0.5;
     }
 
     // Use real history from API, filtered from Nov 3 2025 onwards
@@ -349,6 +351,12 @@ export const RacePage = () => {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '32px' }}>
         {race.candidates.map(candidate => {
           const candidateForecast = race.forecasts.find(f => f.candidateId === candidate.id);
+          // Show the same probability as the headline for the two major-party candidates
+          // (reflects the selected data source); fall back to the per-candidate forecast for others.
+          const displayProbability =
+            candidate.party === Party.Democrat ? demProb :
+            candidate.party === Party.Republican ? repProb :
+            candidateForecast?.winProbability;
           return (
             <div
               key={candidate.id}
@@ -387,7 +395,7 @@ export const RacePage = () => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
-                  {candidateForecast ? `${(candidateForecast.winProbability * 100).toFixed(1)}%` : '-'}
+                  {displayProbability != null ? `${(displayProbability * 100).toFixed(1)}%` : '-'}
                 </div>
                 <div style={{ fontSize: '12px', color: '#666' }}>Win Probability</div>
               </div>

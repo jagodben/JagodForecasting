@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating, Party } from '../../types';
+import { forecastApi } from '../../services/api';
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {
@@ -59,6 +61,18 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
   const demForecast = race.forecasts.find(f => f.candidateId === demCandidate?.id);
   const repForecast = race.forecasts.find(f => f.candidateId === repCandidate?.id);
 
+  // Use the blended forecast (markets + polling + fundamentals + approval) — the same
+  // number the home page map and race page show — instead of the fundamentals-only
+  // race.forecasts value. Shares a query cache key with RacePage/RaceMap.
+  const { data: detailed } = useQuery({
+    queryKey: ['forecast', race.id],
+    queryFn: () => forecastApi.getByRaceId(race.id),
+    enabled: !compact && !!race.id,
+  });
+
+  const demProbability = detailed?.demWinProbability ?? demForecast?.winProbability;
+  const repProbability = detailed?.repWinProbability ?? repForecast?.winProbability;
+
   if (compact) {
     return (
       <div className="race-card compact" style={{
@@ -108,20 +122,20 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
       </div>
 
       <div className="candidates" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {demCandidate && demForecast && (
+        {demCandidate && demProbability != null && (
           <CandidateRow
             name={demCandidate.name}
             party={demCandidate.party}
             isIncumbent={demCandidate.isIncumbent}
-            probability={demForecast.winProbability}
+            probability={demProbability}
           />
         )}
-        {repCandidate && repForecast && (
+        {repCandidate && repProbability != null && (
           <CandidateRow
             name={repCandidate.name}
             party={repCandidate.party}
             isIncumbent={repCandidate.isIncumbent}
-            probability={repForecast.winProbability}
+            probability={repProbability}
           />
         )}
       </div>
