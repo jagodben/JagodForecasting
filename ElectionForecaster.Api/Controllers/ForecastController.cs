@@ -1,5 +1,6 @@
 using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Models;
+using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using ElectionForecaster.Infrastructure.Forecasting;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,47 @@ public class ForecastController : ControllerBase
 {
     private readonly IForecastingOrchestrator _orchestrator;
     private readonly PolymarketClient _polymarketClient;
+    private readonly IPollingSource _pollingSource;
     private readonly ILogger<ForecastController> _logger;
 
     public ForecastController(
         IForecastingOrchestrator orchestrator,
         PolymarketClient polymarketClient,
+        IPollingSource pollingSource,
         ILogger<ForecastController> logger)
     {
         _orchestrator = orchestrator;
         _polymarketClient = polymarketClient;
+        _pollingSource = pollingSource;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Gets the individual polls and weighted polling average for a race.
+    /// </summary>
+    [HttpGet("{raceId}/polls")]
+    [ProducesResponseType(typeof(RacePolls), StatusCodes.Status200OK)]
+    public async Task<ActionResult<RacePolls>> GetRacePolls(string raceId, [FromQuery] int days = 120)
+    {
+        var polls = await _pollingSource.GetRecentPollsAsync(raceId, days);
+        var average = await _pollingSource.GetPollingAverageAsync(raceId);
+
+        return Ok(new RacePolls
+        {
+            RaceId = raceId,
+            Average = average,
+            Polls = polls.Select(p => new PollDto
+            {
+                Pollster = p.Pollster,
+                Date = p.Date,
+                SampleSize = p.SampleSize,
+                Population = p.Population,
+                DemPercent = p.DemPercent,
+                RepPercent = p.RepPercent,
+                Margin = p.Margin,
+                IsPartisan = p.Methodology?.StartsWith("Partisan") ?? false
+            }).ToList()
+        });
     }
 
     /// <summary>
@@ -201,4 +233,29 @@ public class ChamberMarketOdds
     public double RepOdds { get; set; }
     public DateTime Timestamp { get; set; }
     public string Source { get; set; } = "";
+}
+
+/// <summary>
+/// Individual polls plus the weighted average for a race.
+/// </summary>
+public class RacePolls
+{
+    public string RaceId { get; set; } = "";
+    public ElectionForecaster.Infrastructure.DataSources.Models.PollingAverage? Average { get; set; }
+    public List<PollDto> Polls { get; set; } = new();
+}
+
+/// <summary>
+/// A single poll for API responses.
+/// </summary>
+public class PollDto
+{
+    public string Pollster { get; set; } = "";
+    public DateTime Date { get; set; }
+    public int? SampleSize { get; set; }
+    public string? Population { get; set; }
+    public double DemPercent { get; set; }
+    public double RepPercent { get; set; }
+    public double Margin { get; set; }
+    public bool IsPartisan { get; set; }
 }

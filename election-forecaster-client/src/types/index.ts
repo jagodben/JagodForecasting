@@ -110,3 +110,31 @@ export interface DetailedForecast {
   inputs: ForecastInputs;
   history: HistoricalDataPoint[];
 }
+
+export interface PollingAverage {
+  raceId: string;
+  demPercent: number;
+  repPercent: number;
+  margin: number;
+  pollCount: number;
+  latestPollDate: string | null;
+  averageSampleSize: number | null;
+  confidence: number;
+}
+
+export interface Poll {
+  pollster: string;
+  date: string;
+  sampleSize: number | null;
+  population: string | null;
+  demPercent: number;
+  repPercent: number;
+  margin: number;
+  isPartisan: boolean;
+}
+
+export interface RacePolls {
+  raceId: string;
+  average: PollingAverage | null;
+  polls: Poll[];
+}

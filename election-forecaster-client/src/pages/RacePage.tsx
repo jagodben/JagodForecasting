@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
-import { RaceType, Party } from '../types';
+import { RaceType, Party, RacePolls } from '../types';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -29,6 +29,21 @@ const getPartyColor = (party: Party): string => {
     default: return '#808080';
   }
 };
+
+// Standard normal CDF (Abramowitz & Stegun approximation) — matches the backend's
+// polling-to-probability model so the "Polls" win probability is consistent.
+const normalCdf = (x: number): number => {
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+  const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  const z = Math.abs(x) / Math.sqrt(2);
+  const t = 1.0 / (1.0 + p * z);
+  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+  return 0.5 * (1.0 + sign * y);
+};
+
+const formatPollDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
   switch (type) {
@@ -61,6 +76,12 @@ export const RacePage = () => {
     enabled: !!race?.stateId,
   });
 
+  const { data: pollsData } = useQuery({
+    queryKey: ['polls', raceId],
+    queryFn: () => forecastApi.getPolls(raceId!),
+    enabled: !!raceId,
+  });
+
   // Calculate probabilities based on selected data source
   const { demProb, repProb, historicalData, hasMarketData, hasPollingData } = useMemo(() => {
     if (!race) return { demProb: 0.5, repProb: 0.5, historicalData: [], hasMarketData: false, hasPollingData: false };
@@ -70,15 +91,17 @@ export const RacePage = () => {
 
     // Check data availability from forecast inputs
     const marketAvailable = forecast?.inputs?.marketOdds != null;
-    const pollingAvailable = forecast?.inputs?.pollingAverage != null;
+    const pollingAvailable = (forecast?.inputs?.pollingAverage != null) || ((pollsData?.polls?.length ?? 0) > 0);
 
     let demProbability: number;
 
     if (dataSource === 'markets' && marketAvailable) {
       demProbability = forecast!.inputs.marketOdds!;
     } else if (dataSource === 'polling' && pollingAvailable) {
-      // Convert polling average to probability (simplified)
-      demProbability = forecast!.inputs.pollingAverage! / 100;
+      // Derive a win probability from the polling margin (mirrors the backend's ~3.5pt SE model)
+      const avg = pollsData?.average;
+      const margin = avg ? avg.demPercent - avg.repPercent : 0;
+      demProbability = normalCdf(margin / 3.5);
     } else {
       // Combined or fallback
       demProbability = demForecastData?.winProbability ?? 0.5;
@@ -100,7 +123,7 @@ export const RacePage = () => {
       hasMarketData: marketAvailable,
       hasPollingData: pollingAvailable,
     };
-  }, [race, forecast, dataSource]);
+  }, [race, forecast, dataSource, pollsData]);
 
   if (raceLoading) {
     return (
@@ -275,6 +298,11 @@ export const RacePage = () => {
         )}
       </div>
 
+      {/* Polls Section */}
+      {dataSource === 'polling' && (
+        <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
+      )}
+
       {/* Forecast Inputs Section */}
       {forecast?.inputs && (
         <div style={{ marginBottom: '48px' }}>
@@ -390,6 +418,97 @@ const InputCard = ({ label, value, sublabel, color }: InputCardProps) => (
     {sublabel && <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>{sublabel}</div>}
   </div>
 );
+
+// Polls list + weighted average shown when the "Polls" data source is selected
+const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: string; repName?: string }) => {
+  if (!data || data.polls.length === 0) {
+    return (
+      <div style={{ marginBottom: '48px' }}>
+        <h3 style={{ margin: '0 0 8px 0' }}>Polls</h3>
+        <div style={{ textAlign: 'center', padding: '32px', color: '#999', fontSize: '14px' }}>
+          No polling data available for this race yet.
+        </div>
+      </div>
+    );
+  }
+
+  const avg = data.average;
+  const demLead = avg ? avg.margin >= 0 : true;
+
+  return (
+    <div style={{ marginBottom: '48px' }}>
+      <h3 style={{ margin: '0 0 4px 0' }}>Polls</h3>
+      <div style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
+        Weighted average of {data.polls.length} poll{data.polls.length === 1 ? '' : 's'} · recency &amp; sample-size weighted · source: Wikipedia
+      </div>
+
+      {/* Weighted average summary */}
+      {avg && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+          padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', marginBottom: '20px',
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#0044CC' }}>{avg.demPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{demName || 'Democrat'}</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: demLead ? '#0044CC' : '#CC0000' }}>
+              {demLead ? 'D' : 'R'} +{Math.abs(avg.margin).toFixed(1)}
+            </div>
+            <div style={{ fontSize: '11px', color: '#999' }}>avg. margin</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#CC0000' }}>{avg.repPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '12px', color: '#666' }}>{repName || 'Republican'}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Individual polls */}
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left', color: '#666' }}>
+              <th style={{ padding: '8px 12px 8px 0' }}>Pollster</th>
+              <th style={{ padding: '8px 12px' }}>Date</th>
+              <th style={{ padding: '8px 12px', textAlign: 'right' }}>Sample</th>
+              <th style={{ padding: '8px 12px', textAlign: 'right', color: '#0044CC' }}>D</th>
+              <th style={{ padding: '8px 12px', textAlign: 'right', color: '#CC0000' }}>R</th>
+              <th style={{ padding: '8px 0 8px 12px', textAlign: 'right' }}>Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.polls.map((poll, i) => {
+              const leadD = poll.margin >= 0;
+              return (
+                <tr key={i} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                  <td style={{ padding: '10px 12px 10px 0' }}>
+                    {poll.pollster}
+                    {poll.isPartisan && (
+                      <span style={{ marginLeft: '6px', fontSize: '11px', color: '#b45309', backgroundColor: '#fef3c7', padding: '1px 6px', borderRadius: '4px' }}>
+                        partisan
+                      </span>
+                    )}
+                  </td>
+                  <td style={{ padding: '10px 12px', color: '#666' }}>{formatPollDate(poll.date)}</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right', color: '#666' }}>
+                    {poll.sampleSize ? poll.sampleSize.toLocaleString() : '—'}{poll.population ? ` ${poll.population}` : ''}
+                  </td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: leadD ? 'bold' : 'normal' }}>{poll.demPercent.toFixed(0)}%</td>
+                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: !leadD ? 'bold' : 'normal' }}>{poll.repPercent.toFixed(0)}%</td>
+                  <td style={{ padding: '10px 0 10px 12px', textAlign: 'right', color: leadD ? '#0044CC' : '#CC0000', fontWeight: 600 }}>
+                    {leadD ? 'D' : 'R'} +{Math.abs(poll.margin).toFixed(0)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
 // SVG line chart component for prediction history
 const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; demName: string; repName: string }) => {

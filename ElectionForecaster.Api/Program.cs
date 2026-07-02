@@ -37,13 +37,13 @@ builder.Services.AddSingleton<IDistrictService, DistrictService>();
 
 // Register HttpClient for data sources
 builder.Services.AddHttpClient<PolymarketClient>();
-builder.Services.AddHttpClient<FiveThirtyEightClient>();
+builder.Services.AddHttpClient<WikipediaPollingClient>();
 builder.Services.AddHttpClient<ApprovalAggregator>();
 
 // Register data sources
 builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
-builder.Services.AddScoped<FiveThirtyEightClient>();
-builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<FiveThirtyEightClient>());
+builder.Services.AddScoped<WikipediaPollingClient>();
+builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<WikipediaPollingClient>());
 builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
 builder.Services.AddScoped<IApprovalSource, ApprovalAggregator>();
 
