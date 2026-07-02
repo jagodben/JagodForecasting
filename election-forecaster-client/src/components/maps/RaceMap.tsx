@@ -118,8 +118,8 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
       // Get probability based on selected data source
       if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
         demProb = detailed.inputs.marketOdds;
-      } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
-        demProb = detailed.inputs.pollingAverage / 100;
+      } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
+        demProb = detailed.inputs.pollingWinProbability;
       } else if (detailed) {
         demProb = detailed.demWinProbability;
       } else {

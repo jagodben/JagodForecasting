@@ -96,6 +96,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             {
                 MarketOdds = marketOdds?.DemOdds,
                 PollingAverage = polling?.DemPercent,
+                PollingWinProbability = (polling != null && polling.PollCount > 0)
+                    ? polling.GetDemWinProbability()
+                    : null,
                 FundamentalsPrediction = fundamentals?.GetDemWinProbability(),
                 ApprovalAdjustment = approval - 50,
                 MarketWeight = weights.MarketWeight,

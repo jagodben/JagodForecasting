@@ -150,8 +150,8 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
 
       if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
         demProb = detailed.inputs.marketOdds;
-      } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
-        demProb = detailed.inputs.pollingAverage / 100;
+      } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
+        demProb = detailed.inputs.pollingWinProbability;
       }
 
       if (demProb != null) {
@@ -330,8 +330,8 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
 
         if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
           demProb = detailed.inputs.marketOdds;
-        } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
-          demProb = detailed.inputs.pollingAverage / 100;
+        } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
+          demProb = detailed.inputs.pollingWinProbability;
         } else {
           // Get dem probability from forecasts
           const demForecast = race.forecasts.find(f => {

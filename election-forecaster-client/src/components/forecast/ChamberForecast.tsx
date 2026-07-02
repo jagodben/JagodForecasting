@@ -196,9 +196,8 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
       if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
         demProb = detailed.inputs.marketOdds;
-      } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
-        // Convert polling percentage to probability (simplified)
-        demProb = detailed.inputs.pollingAverage / 100;
+      } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
+        demProb = detailed.inputs.pollingWinProbability;
       } else if (detailed) {
         demProb = detailed.demWinProbability;
       } else {
@@ -215,8 +214,8 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         // House map uses race.rating for combined, only overrides with source-specific data
         if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
           barRating = probabilityToRating(detailed.inputs.marketOdds);
-        } else if (dataSource === 'polling' && detailed?.inputs.pollingAverage != null) {
-          barRating = probabilityToRating(detailed.inputs.pollingAverage / 100);
+        } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
+          barRating = probabilityToRating(detailed.inputs.pollingWinProbability);
         } else {
           barRating = race.rating;
         }
@@ -256,15 +255,13 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         demOdds = calculateCombinedOdds(projection, races.length, raceType);
       }
     } else if (dataSource === 'polling' && detailedForecasts) {
-      const pollingOdds = detailedForecasts
-        .filter(f => f.inputs.pollingAverage != null)
-        .map(f => f.inputs.pollingAverage!);
-      if (pollingOdds.length > 0) {
-        demOdds = Math.round((pollingOdds.reduce((a, b) => a + b, 0) / pollingOdds.length) * 10) / 10;
-      } else {
+      // Derive chamber odds from the polling-based seat projection (built above from each
+      // race's polling win probability), consistent with the combined path — not an average
+      // of raw Dem vote-share percentages.
+      if (pollingAvailable === 0) {
         effectiveSource = 'combined';
-        demOdds = calculateCombinedOdds(projection, races.length, raceType);
       }
+      demOdds = calculateCombinedOdds(projection, races.length, raceType);
     } else {
       demOdds = calculateCombinedOdds(projection, races.length, raceType);
     }

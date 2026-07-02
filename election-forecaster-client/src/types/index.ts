@@ -80,6 +80,7 @@ export interface StateSummary {
 export interface ForecastInputs {
   marketOdds: number | null;
   pollingAverage: number | null;
+  pollingWinProbability: number | null;
   fundamentalsPrediction: number | null;
   approvalAdjustment: number | null;
   marketWeight: number;

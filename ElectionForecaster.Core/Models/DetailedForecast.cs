@@ -32,6 +32,8 @@ public class ForecastInputs
     // Raw input values (null if data unavailable)
     public double? MarketOdds { get; set; }
     public double? PollingAverage { get; set; }
+    /// <summary>Dem win probability derived from the polling margin (0..1). Null if no polls.</summary>
+    public double? PollingWinProbability { get; set; }
     public double? FundamentalsPrediction { get; set; }
     public double? ApprovalAdjustment { get; set; }
 

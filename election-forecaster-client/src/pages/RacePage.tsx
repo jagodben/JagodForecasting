@@ -98,10 +98,11 @@ export const RacePage = () => {
     if (dataSource === 'markets' && marketAvailable) {
       demProbability = forecast!.inputs.marketOdds!;
     } else if (dataSource === 'polling' && pollingAvailable) {
-      // Derive a win probability from the polling margin (mirrors the backend's ~3.5pt SE model)
+      // Use the backend's polling win probability (the same value the map shows). Fall back
+      // to computing it from the polls margin if the blended forecast hasn't loaded yet.
       const avg = pollsData?.average;
-      const margin = avg ? avg.demPercent - avg.repPercent : 0;
-      demProbability = normalCdf(margin / 3.5);
+      demProbability = forecast?.inputs?.pollingWinProbability
+        ?? (avg ? normalCdf((avg.demPercent - avg.repPercent) / 3.5) : 0.5);
     } else {
       // Combined: use the blended forecast (markets + polling + fundamentals + approval),
       // the same value the home page map shows. Fall back to the fundamentals-only
