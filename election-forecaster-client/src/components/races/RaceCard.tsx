@@ -41,6 +41,13 @@ const getPartyColor = (party: Party): string => {
   }
 };
 
+// Formats a Dem-margin (points) as a called result, e.g. +5 -> "D+5", -3 -> "R+3".
+const formatMargin = (margin: number): string => {
+  const rounded = Math.round(margin);
+  if (rounded === 0) return 'EVEN';
+  return rounded > 0 ? `D+${rounded}` : `R+${Math.abs(rounded)}`;
+};
+
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
   switch (type) {
     case RaceType.Senate: return 'U.S. Senate';
@@ -139,6 +146,28 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           />
         )}
       </div>
+
+      {detailed && (
+        <div style={{
+          marginTop: '16px',
+          paddingTop: '12px',
+          borderTop: '1px solid #eee',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '13px',
+          color: '#666',
+        }}>
+          <span>Projected result</span>
+          <span style={{
+            fontWeight: 'bold',
+            fontSize: '16px',
+            color: detailed.expectedDemMargin > 0 ? '#0033AA' : detailed.expectedDemMargin < 0 ? '#AA0000' : '#666',
+          }}>
+            {formatMargin(detailed.expectedDemMargin)}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

@@ -45,6 +45,13 @@ const normalCdf = (x: number): number => {
 const formatPollDate = (iso: string): string =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+// Formats a Dem-margin (points) as a called result, e.g. +5 -> "D+5", -3 -> "R+3".
+const formatMargin = (margin: number): string => {
+  const rounded = Math.round(margin);
+  if (rounded === 0) return 'EVEN';
+  return rounded > 0 ? `D+${rounded}` : `R+${Math.abs(rounded)}`;
+};
+
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
   switch (type) {
     case RaceType.Senate: return 'U.S. Senate';
@@ -270,6 +277,20 @@ export const RacePage = () => {
           )}
         </div>
       </div>
+
+      {/* Projected result (the forecast's expected margin) */}
+      {forecast && (
+        <div style={{ textAlign: 'center', marginTop: '-32px', marginBottom: '48px' }}>
+          <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
+          <div style={{
+            fontSize: '26px',
+            fontWeight: 'bold',
+            color: forecast.expectedDemMargin > 0 ? '#0044CC' : forecast.expectedDemMargin < 0 ? '#CC0000' : '#666',
+          }}>
+            {formatMargin(forecast.expectedDemMargin)}
+          </div>
+        </div>
+      )}
 
       {/* Prediction Over Time Chart — only shown when there's history to plot */}
       {dataSource === 'markets' && historicalData.length >= 2 && (

@@ -106,6 +106,8 @@ export interface DetailedForecast {
   repWinProbability: number;
   demVoteShare: number;
   repVoteShare: number;
+  expectedDemMargin: number;
+  marginStdDev: number;
   confidence: number;
   lastUpdated: string;
   inputs: ForecastInputs;
