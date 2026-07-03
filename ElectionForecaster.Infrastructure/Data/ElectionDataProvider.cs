@@ -3,7 +3,7 @@ using ElectionForecaster.Core.Models;
 
 namespace ElectionForecaster.Infrastructure.Data;
 
-public static class MockDataProvider
+public static class ElectionDataProvider
 {
     private static readonly Random _random = new(42); // Fixed seed for consistent data
 
@@ -120,9 +120,9 @@ public static class MockDataProvider
 
     private static Race CreateSenateRace(string stateId, RaceRating stateRating)
     {
-        const string demName = "Democratic Nominee";
-        const string repName = "Republican Nominee";
-        var (demIncumbent, repIncumbent) = GetSenateIncumbency(stateId);
+        SenateNominees.TryGetValue(stateId, out var nominees);
+        var (demName, demIncumbent) = ResolveNominee(nominees.Dem, "Democratic Nominee");
+        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
@@ -147,9 +147,9 @@ public static class MockDataProvider
 
     private static Race CreateGovernorRace(string stateId, RaceRating stateRating)
     {
-        const string demName = "Democratic Nominee";
-        const string repName = "Republican Nominee";
-        var (demIncumbent, repIncumbent) = GetGovernorIncumbency(stateId);
+        GovernorNominees.TryGetValue(stateId, out var nominees);
+        var (demName, demIncumbent) = ResolveNominee(nominees.Dem, "Democratic Nominee");
+        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
@@ -200,96 +200,71 @@ public static class MockDataProvider
         };
     }
 
-    // Class 2 Senate seats currently held by a Democrat (as of 2026).
-    private static readonly HashSet<string> SenateDemHeld = new()
+    /// <summary>A confirmed general-election nominee and whether they are the incumbent.</summary>
+    private sealed record Nominee(string Name, bool IsIncumbent);
+
+    private static (string Name, bool Incumbent) ResolveNominee(Nominee? nominee, string placeholder)
+        => nominee is null ? (placeholder, false) : (nominee.Name, nominee.IsIncumbent);
+
+    // -----------------------------------------------------------------------------------------
+    // 2026 nominees — sourced from Wikipedia as of 2026-07-02. A name is filled in only where
+    // that party's nominating contest has CONCLUDED (primary/runoff held before this date);
+    // races whose primaries are still upcoming (e.g. Michigan Aug 4, Arizona Jul 21, Wyoming
+    // Aug 18, New Hampshire Sep 8) are intentionally left out and fall back to the generic
+    // "Democratic Nominee" / "Republican Nominee" placeholder. Down-ballot challenger names in
+    // safe states are lower-confidence and worth spot-checking. Update as more primaries conclude.
+    // -----------------------------------------------------------------------------------------
+    private static readonly Dictionary<string, (Nominee? Dem, Nominee? Rep)> SenateNominees = new()
     {
-        "CO", // Hickenlooper
-        "DE", // Coons
-        "GA", // Ossoff
-        "IL", // Durbin
-        "MA", // Markey
-        "MI", // Peters
-        "MN", // Smith
-        "NH", // Shaheen
-        "NJ", // Booker
-        "NM", // Lujan
-        "OR", // Merkley
-        "RI", // Reed
-        "VA"  // Warner
+        ["AL"] = (new("Everett Wess", false), new("Barry Moore", false)),        // open (Tuberville → gov)
+        ["AR"] = (new("Hallie Shoffner", false), new("Tom Cotton", true)),
+        ["CO"] = (new("John Hickenlooper", true), new("Mark Baisley", false)),
+        ["GA"] = (new("Jon Ossoff", true), new("Mike Collins", false)),
+        ["ID"] = (new("David Roth", false), new("Jim Risch", true)),
+        ["IL"] = (new("Juliana Stratton", false), new("Don Tracy", false)),      // open (Durbin retiring)
+        ["IA"] = (new("Josh Turek", false), new("Ashley Hinson", false)),        // open (Ernst not running)
+        ["KY"] = (new("Charles Booker", false), new("Andy Barr", false)),        // open (McConnell retiring)
+        ["LA"] = (new("Jamie Davis", false), new("Julia Letlow", false)),        // Cassidy lost primary
+        ["ME"] = (new("Graham Platner", false), new("Susan Collins", true)),
+        ["MS"] = (new("Scott Colom", false), new("Cindy Hyde-Smith", true)),
+        ["MT"] = (new("Alani Bankhead", false), new("Kurt Alme", false)),        // Daines withdrew
+        ["NE"] = (new("Cindy Burbank", false), new("Pete Ricketts", true)),
+        ["NJ"] = (new("Cory Booker", true), new("Justin Murphy", false)),
+        ["NM"] = (new("Ben Ray Luján", true), new("Larry Marker", false)),
+        ["NC"] = (new("Roy Cooper", false), new("Michael Whatley", false)),      // open (Tillis retiring)
+        ["OH"] = (new("Sherrod Brown", false), new("Jon Husted", true)),         // special; Husted appointed
+        ["OK"] = (null, new("Kevin Hern", false)),                               // Dem runoff Aug 25 (open)
+        ["OR"] = (new("Jeff Merkley", true), new("David Brock Smith", false)),
+        ["SC"] = (new("Annie Andrews", false), new("Lindsey Graham", true)),
+        ["SD"] = (new("Julian Beaudion", false), new("Mike Rounds", true)),
+        ["TX"] = (new("James Talarico", false), new("Ken Paxton", false)),       // Cornyn lost runoff
+        ["VA"] = (new("Mark Warner", true), null),                               // Rep primary upcoming
+        ["WV"] = (new("Rachel Fetty Anderson", false), new("Shelley Moore Capito", true)),
     };
 
-    // 2026 Senate seats with NO incumbent seeking re-election (retirement or running for
-    // another office) — i.e. open seats where neither nominee is an incumbent.
-    // Best-effort as of early 2026; review as the cycle develops.
-    private static readonly HashSet<string> SenateOpenSeats = new()
+    private static readonly Dictionary<string, (Nominee? Dem, Nominee? Rep)> GovernorNominees = new()
     {
-        "MI", // Peters (D) retiring
-        "MN", // Smith (D) retiring
-        "NH", // Shaheen (D) retiring
-        "IL", // Durbin (D) retiring
-        "KY", // McConnell (R) retiring
-        "NC", // Tillis (R) retiring
-        "AL"  // Tuberville (R) running for governor
+        ["AL"] = (new("Doug Jones", false), new("Tommy Tuberville", false)),     // open (Ivey term-limited)
+        ["AR"] = (new("Fredrick Love", false), new("Sarah Huckabee Sanders", true)),
+        ["CA"] = (new("Xavier Becerra", false), new("Steve Hilton", false)),     // open (Newsom term-limited)
+        ["CO"] = (new("Phil Weiser", false), new("Barbara Kirkmeyer", false)),   // open (Polis term-limited)
+        ["GA"] = (new("Keisha Lance Bottoms", false), new("Rick Jackson", false)), // open (Kemp term-limited)
+        ["IL"] = (new("JB Pritzker", true), new("Darren Bailey", false)),
+        ["IA"] = (new("Rob Sand", false), new("Zach Lahn", false)),              // open (Reynolds retiring)
+        ["MD"] = (new("Wes Moore", true), new("Dan Cox", false)),
+        ["ME"] = (new("Hannah Pingree", false), new("Robert B. Charles", false)), // open (Mills term-limited)
+        ["NE"] = (new("Lynne Walz", false), new("Jim Pillen", true)),
+        ["NV"] = (new("Aaron Ford", false), new("Joe Lombardo", true)),
+        ["NM"] = (new("Deb Haaland", false), new("Gregg Hull", false)),          // open (Lujan Grisham term-limited)
+        ["NY"] = (new("Kathy Hochul", true), new("Bruce Blakeman", false)),
+        ["OH"] = (new("Amy Acton", false), new("Vivek Ramaswamy", false)),       // open (DeWine term-limited)
+        ["OK"] = (new("Cyndi Munson", false), new("Gentner Drummond", false)),   // open (Stitt term-limited)
+        ["OR"] = (new("Tina Kotek", true), new("Christine Drazan", false)),
+        ["PA"] = (new("Josh Shapiro", true), new("Stacy Garrity", false)),
+        ["SC"] = (new("Jermaine Johnson", false), new("Alan Wilson", false)),    // open (McMaster term-limited)
+        ["SD"] = (new("Dan Ahlers", false), new("Larry Rhoden", true)),
+        ["TX"] = (new("Gina Hinojosa", false), new("Greg Abbott", true)),
     };
-
-    /// <summary>
-    /// Returns (demIncumbent, repIncumbent) for a state's 2026 Senate race.
-    /// Open seats return (false, false); otherwise the party holding the seat is the incumbent.
-    /// </summary>
-    private static (bool dem, bool rep) GetSenateIncumbency(string stateId)
-    {
-        if (SenateOpenSeats.Contains(stateId)) return (false, false);
-        bool demHeld = SenateDemHeld.Contains(stateId);
-        return (demHeld, !demHeld);
-    }
-
-    // States whose governorship is currently held by a Democrat (among 2026 races).
-    // (NV excluded — Lombardo is a Republican.)
-    private static readonly HashSet<string> GovernorDemHeld = new()
-    {
-        "AZ", // Hobbs
-        "CA", // Newsom
-        "CO", // Polis
-        "CT", // Lamont
-        "HI", // Green
-        "IL", // Pritzker
-        "KS", // Kelly
-        "KY", // Beshear
-        "ME", // Mills
-        "MD", // Moore
-        "MA", // Healey
-        "MI", // Whitmer
-        "MN", // Walz
-        "NM", // Lujan Grisham
-        "NY", // Hochul
-        "NC", // Stein
-        "OR", // Kotek
-        "PA", // Shapiro
-        "RI", // McKee
-        "WI"  // Evers
-    };
-
-    // 2026 governor races with no incumbent on the ballot (term-limited or not seeking
-    // re-election) — open seats. Best-effort as of early 2026; review as the cycle develops.
-    private static readonly HashSet<string> GovernorOpenSeats = new()
-    {
-        "CA", // Newsom (D) term-limited
-        "CO", // Polis (D) term-limited
-        "MI", // Whitmer (D) term-limited
-        "NM", // Lujan Grisham (D) term-limited
-        "KS", // Kelly (D) term-limited
-    };
-
-    /// <summary>
-    /// Returns (demIncumbent, repIncumbent) for a state's 2026 Governor race.
-    /// Open seats return (false, false); otherwise the party holding the office is the incumbent.
-    /// </summary>
-    private static (bool dem, bool rep) GetGovernorIncumbency(string stateId)
-    {
-        if (GovernorOpenSeats.Contains(stateId)) return (false, false);
-        bool demHeld = GovernorDemHeld.Contains(stateId);
-        return (demHeld, !demHeld);
-    }
 
     private static RaceRating GetDistrictRating(RaceRating stateRating, int districtNumber, int totalDistricts)
     {

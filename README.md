@@ -47,7 +47,7 @@ ElectionForecaster/
 │       └── IDistrictService.cs
 ├── ElectionForecaster.Infrastructure/   # Data Layer
 │   ├── Data/
-│   │   └── MockDataProvider.cs          # Generates all 50 states mock data
+│   │   └── ElectionDataProvider.cs      # Baseline election data for all 50 states
 │   └── Services/
 │       ├── StateService.cs
 │       ├── RaceService.cs
@@ -129,15 +129,16 @@ npm run dev
 
 The frontend will be available at http://localhost:5173 (or next available port)
 
-## Mock Data
+## Election Data
 
-The `MockDataProvider` generates realistic election data including:
+The `ElectionDataProvider` supplies the baseline election structure that the live
+market, polling, and forecast data layer onto, including:
 
 - All 50 US states with accurate electoral votes and congressional district counts
-- Real 2024 candidate names for Senate and Governor races
-- Procedurally generated House candidates
+- 2026 Senate and Governor nominees where the primary has concluded (placeholders otherwise)
+- Congressional district races
 - Race ratings (Solid D, Likely D, Lean D, Tossup, Lean R, Likely R, Solid R)
-- Win probabilities based on race ratings
+- Baseline fundamentals-based win probabilities (refined by markets/polling in the forecast)
 
 ## Race Rating Color Scheme
 

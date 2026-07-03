@@ -33,7 +33,7 @@ public class RaceService : IRaceService
 
     public RaceService()
     {
-        var states = MockDataProvider.GetAllStates();
+        var states = ElectionDataProvider.GetAllStates();
         _races = states.SelectMany(s => s.Races).ToList();
 
         // Apply real forecasts based on fundamentals

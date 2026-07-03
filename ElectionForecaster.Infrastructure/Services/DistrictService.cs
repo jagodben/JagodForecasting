@@ -10,7 +10,7 @@ public class DistrictService : IDistrictService
 
     public DistrictService()
     {
-        var states = MockDataProvider.GetAllStates();
+        var states = ElectionDataProvider.GetAllStates();
         _districts = states.SelectMany(s => s.Districts).ToList();
     }
 

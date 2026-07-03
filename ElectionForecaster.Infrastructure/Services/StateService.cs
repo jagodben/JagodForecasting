@@ -29,7 +29,7 @@ public class StateService : IStateService
 
     public StateService(IRaceService raceService)
     {
-        _states = MockDataProvider.GetAllStates();
+        _states = ElectionDataProvider.GetAllStates();
 
         // Replace races in each state with the updated forecasted races from RaceService
         var allRaces = raceService.GetAllRacesAsync().Result.ToList();
