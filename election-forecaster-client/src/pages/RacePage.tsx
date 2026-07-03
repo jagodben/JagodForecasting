@@ -299,39 +299,6 @@ export const RacePage = () => {
         <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
       )}
 
-      {/* Forecast Inputs Section */}
-      {forecast?.inputs && (
-        <div style={{ marginBottom: '48px' }}>
-          <h3 style={{ margin: '0 0 20px 0' }}>Forecast Inputs</h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-            {forecast.inputs.marketOdds != null && (
-              <InputCard
-                label="Prediction Markets"
-                value={`${(forecast.inputs.marketOdds * 100).toFixed(1)}%`}
-                color="#059669"
-              />
-            )}
-
-            {forecast.inputs.pollingAverage != null && (
-              <InputCard
-                label="Polling Average"
-                value={`${forecast.inputs.pollingAverage.toFixed(1)}%`}
-                color="#2563eb"
-              />
-            )}
-
-            {forecast.inputs.fundamentalsPrediction != null && (
-              <InputCard
-                label="Fundamentals"
-                value={`${(forecast.inputs.fundamentalsPrediction * 100).toFixed(1)}%`}
-                color="#7c3aed"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Candidates Section */}
       <h3 style={{ margin: '0 0 20px 0' }}>Candidates</h3>
 
@@ -393,26 +360,6 @@ export const RacePage = () => {
     </div>
   );
 };
-
-interface InputCardProps {
-  label: string;
-  value: string;
-  sublabel?: string;
-  color: string;
-}
-
-const InputCard = ({ label, value, sublabel, color }: InputCardProps) => (
-  <div style={{
-    padding: '16px',
-    backgroundColor: '#f9fafb',
-    borderRadius: '8px',
-    borderTop: `3px solid ${color}`,
-  }}>
-    <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>{label}</div>
-    <div style={{ fontSize: '24px', fontWeight: 'bold', color }}>{value}</div>
-    {sublabel && <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>{sublabel}</div>}
-  </div>
-);
 
 // Polls list + weighted average shown when the "Polls" data source is selected
 const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: string; repName?: string }) => {
