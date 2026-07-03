@@ -10,6 +10,13 @@ public class DetailedForecast
     public double RepWinProbability { get; set; }
     public double DemVoteShare { get; set; }
     public double RepVoteShare { get; set; }
+
+    /// <summary>Blended expected Democratic margin in points (D+ positive). Drives the Monte Carlo.</summary>
+    public double ExpectedDemMargin { get; set; }
+
+    /// <summary>Standard error of the margin in points (time- and data-dependent).</summary>
+    public double MarginStdDev { get; set; }
+
     public double Confidence { get; set; }
     public DateTime LastUpdated { get; set; }
 

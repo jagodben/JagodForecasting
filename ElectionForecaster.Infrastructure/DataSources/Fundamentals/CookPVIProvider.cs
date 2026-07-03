@@ -151,13 +151,14 @@ public class CookPVIProvider : IFundamentalsSource
 
     public Task<double> GetIncumbencyAdvantageAsync(RaceType raceType, CancellationToken cancellationToken = default)
     {
-        // Incumbency advantage varies by race type
+        // Incumbency advantage varies by race type. Magnitudes reflect the sharp post-2008
+        // decline in the personal incumbency vote (nationalization / straight-ticket voting).
         var advantage = raceType switch
         {
-            RaceType.Senate => 4.0,    // Senators have strong name recognition
-            RaceType.Governor => 3.5,  // Governors also well-known
-            RaceType.House => 3.0,     // House members have smaller advantage
-            _ => 3.0
+            RaceType.Senate => 3.0,    // strong name rec, but faces well-funded challengers
+            RaceType.Governor => 3.0,  // retains some personal vote
+            RaceType.House => 2.0,     // declined the most — district ≈ partisanship now
+            _ => 2.0
         };
 
         return Task.FromResult(advantage);
@@ -200,20 +201,18 @@ public class CookPVIProvider : IFundamentalsSource
         }
 
         var partisanLean = await GetPartisanLeanAsync(stateId, districtNumber, cancellationToken);
-        var genericBallot = await GetGenericBallotAsync(cancellationToken);
-        var midtermPenalty = await GetMidtermPenaltyAsync(_presidentParty, cancellationToken);
         var incumbencyAdvantage = await GetIncumbencyAdvantageAsync(raceType, cancellationToken);
 
         return new FundamentalsData
         {
             RaceId = raceId,
             PartisanLean = partisanLean,
-            GenericBallot = genericBallot,
-            IncumbentIsDem = null, // Would need to be populated from race data
-            IncumbencyAdvantage = incumbencyAdvantage,
-            IsMidterm = true, // 2026 is a midterm
-            PresidentParty = _presidentParty,
-            MidtermPenalty = midtermPenalty
+            // NationalEnvironment and IncumbentIsDem are cross-cutting: the orchestrator fills them
+            // from the approval source and the race's candidates respectively. Left at defaults here
+            // so this provider stays purely structural (PVI + incumbency magnitude).
+            NationalEnvironment = 0,
+            IncumbentIsDem = null,
+            IncumbencyAdvantage = incumbencyAdvantage
         };
     }
 }

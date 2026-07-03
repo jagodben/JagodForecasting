@@ -15,11 +15,13 @@ public class MonteCarloSimulator
     private const int SenateControlThreshold = 51; // 51 seats needed for control
     private const int HouseControlThreshold = 218; // 218 seats needed for control
 
-    // Current seat baselines (seats not up for election in 2026)
-    // Senate: 34 Class 2 seats up in 2026
-    // Democrats have some seats not up that cycle
-    private const int SenateDemBaseline = 23; // Dem seats not up in 2026 (Class 1 + Class 3)
-    private const int SenateRepBaseline = 43; // Rep seats not up in 2026
+    // Seat baselines: seats NOT up in 2026, by current party. The app models 33 Class 2 races,
+    // so baseline + 33 = 100. Starting from the post-2024 Senate (53R / 47D incl. 2 independents),
+    // the 33 modeled seats are 13 Dem-held and 20 Rep-held → 34 Dem / 33 Rep not up.
+    // NOTE: the FL and OH 2026 specials are not modeled as races and are folded into the Rep
+    // baseline (both currently held by appointed Republicans); ideally add them as races.
+    private const int SenateDemBaseline = 34;
+    private const int SenateRepBaseline = 33;
 
     // House: All 435 seats up every 2 years
     private const int HouseTotalSeats = 435;
@@ -45,24 +47,22 @@ public class MonteCarloSimulator
         int demSeats = chamber == RaceType.Senate ? SenateDemBaseline : 0;
         int repSeats = chamber == RaceType.Senate ? SenateRepBaseline : 0;
 
-        // Add correlation between races (national swing)
-        // This prevents unrealistic scenarios where all close races break one way
-        double nationalSwing = SampleNationalSwing();
+        // One correlated national swing per simulation (margin points), shared across all races —
+        // this is what prevents unrealistic scenarios where every close race breaks the same way.
+        double natSD = UncertaintyModel.NationalErrorStdDev;
+        double nationalSwing = SampleNormal(0, natSD);
 
         foreach (var forecast in forecasts)
         {
-            // Adjust probability based on national swing
-            var adjustedDemProb = AdjustProbability(forecast.DemWinProbability, nationalSwing);
+            var raceSD = forecast.MarginStdDev > 0 ? forecast.MarginStdDev : 6.0;
 
-            // Simulate race outcome
-            if (_random.NextDouble() < adjustedDemProb)
-            {
-                demSeats++;
-            }
-            else
-            {
-                repSeats++;
-            }
+            // Decompose each race's total uncertainty into the shared national component plus an
+            // independent race-specific component, so total per-race variance ≈ raceSD².
+            var idioSD = Math.Sqrt(Math.Max(raceSD * raceSD - natSD * natSD, 1.0));
+            var simMargin = forecast.ExpectedDemMargin + nationalSwing + SampleNormal(0, idioSD);
+
+            if (simMargin > 0) demSeats++;
+            else repSeats++;
         }
 
         return new SimulationResult
@@ -73,25 +73,6 @@ public class MonteCarloSimulator
                 ? demSeats >= SenateControlThreshold
                 : demSeats >= HouseControlThreshold
         };
-    }
-
-    private double SampleNationalSwing()
-    {
-        // National swing follows approximately normal distribution
-        // Standard deviation of ~2-3 points is typical
-        return SampleNormal(0, 0.025); // Mean 0, StdDev 2.5%
-    }
-
-    private double AdjustProbability(double baseProb, double swing)
-    {
-        // Convert probability to margin, apply swing, convert back
-        // Using logit transform for better behavior at extremes
-        double logit = Math.Log(baseProb / (1 - baseProb));
-        double adjustedLogit = logit + swing * 4; // Scale swing to logit space
-        double adjustedProb = 1 / (1 + Math.Exp(-adjustedLogit));
-
-        // Ensure valid probability
-        return Math.Max(0.001, Math.Min(0.999, adjustedProb));
     }
 
     private double SampleNormal(double mean, double stdDev)

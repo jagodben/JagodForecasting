@@ -7,6 +7,7 @@ using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.Models;
 using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ElectionForecaster.Infrastructure.Forecasting;
@@ -25,6 +26,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     private readonly MonteCarloSimulator _simulator;
     private readonly ForecastDbContext _dbContext;
     private readonly ILogger<ForecastingOrchestrator> _logger;
+    private readonly DateTime _electionDate;
 
     public ForecastingOrchestrator(
         IEnumerable<IPredictionMarketSource> marketSources,
@@ -35,6 +37,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         WeightCalculator weightCalculator,
         MonteCarloSimulator simulator,
         ForecastDbContext dbContext,
+        IConfiguration configuration,
         ILogger<ForecastingOrchestrator> logger)
     {
         _marketSources = marketSources;
@@ -46,6 +49,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _simulator = simulator;
         _dbContext = dbContext;
         _logger = logger;
+        _electionDate = DateTime.Parse(configuration.GetValue<string>("Forecasting:ElectionDate") ?? "2026-11-03");
     }
 
     public async Task<DetailedForecast> GenerateForecastAsync(string raceId, CancellationToken cancellationToken = default)
@@ -69,27 +73,40 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var fundamentals = await fundamentalsTask;
         var approval = await approvalTask;
 
-        // 3. Calculate dynamic weights
-        var weights = _weightCalculator.CalculateWeights(
-            marketOdds, polling, fundamentals, approval, raceType);
+        // 3. Inject cross-cutting fundamentals inputs: the national mood (from approval) and
+        //    incumbency direction (from the race's candidates). This is where the old model
+        //    silently failed — incumbency was never set and the mood was hardcoded to zero.
+        if (fundamentals != null)
+        {
+            fundamentals.NationalEnvironment = NationalEnvironmentFromApproval(approval);
+            fundamentals.IncumbentIsDem = GetIncumbentIsDem(race);
+        }
 
-        // 4. Combine inputs into final probability
-        var (demProb, repProb) = CombineInputs(marketOdds, polling, fundamentals, approval, weights);
+        // 4. Dynamic weights + time-varying uncertainty.
+        var weights = _weightCalculator.CalculateWeights(marketOdds, polling, fundamentals, raceType);
+        var daysToElection = (_electionDate - DateTime.UtcNow).TotalDays;
+        var se = UncertaintyModel.MarginStandardError(daysToElection, raceType, polling?.PollCount ?? 0);
 
-        // 5. Calculate vote shares
-        var (demVoteShare, repVoteShare) = EstimateVoteShares(polling, fundamentals);
+        // 5. Blend the signals in MARGIN space, then convert to probability once.
+        var blendedMargin = BlendMargins(marketOdds, polling, fundamentals, weights, se);
+        var demProb = Math.Clamp(ForecastMath.MarginToProbability(blendedMargin, se), 0.02, 0.98);
+        var repProb = 1.0 - demProb;
 
-        // 6. Get historical data (back to Nov 2025)
+        // 6. Vote shares follow directly from the blended margin.
+        var demVoteShare = Math.Clamp(0.50 + blendedMargin / 200.0, 0.30, 0.70);
+
+        // 7. Historical data (back to Nov 2025).
         var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
 
-        // 7. Build the detailed forecast
         var forecast = new DetailedForecast
         {
             RaceId = raceId,
             DemWinProbability = demProb,
             RepWinProbability = repProb,
             DemVoteShare = demVoteShare,
-            RepVoteShare = repVoteShare,
+            RepVoteShare = 1.0 - demVoteShare,
+            ExpectedDemMargin = blendedMargin,
+            MarginStdDev = se,
             Confidence = CalculateConfidence(marketOdds, polling, fundamentals),
             LastUpdated = DateTime.UtcNow,
             Inputs = new ForecastInputs
@@ -99,12 +116,14 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 PollingWinProbability = (polling != null && polling.PollCount > 0)
                     ? polling.GetDemWinProbability()
                     : null,
-                FundamentalsPrediction = fundamentals?.GetDemWinProbability(),
+                FundamentalsPrediction = fundamentals != null
+                    ? ForecastMath.MarginToProbability(fundamentals.GetExpectedDemMargin(), se)
+                    : null,
                 ApprovalAdjustment = approval - 50,
                 MarketWeight = weights.MarketWeight,
                 PollingWeight = weights.PollingWeight,
                 FundamentalsWeight = weights.FundamentalsWeight,
-                ApprovalWeight = weights.ApprovalWeight,
+                ApprovalWeight = 0,
                 MarketLastUpdated = marketOdds?.Timestamp,
                 PollingLastUpdated = polling?.LatestPollDate,
                 PollCount = polling?.PollCount
@@ -337,78 +356,63 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         };
     }
 
-    private (double demProb, double repProb) CombineInputs(
+    /// <summary>
+    /// Blends the available signals into a single expected Dem margin (points). Each source is
+    /// expressed as a margin — polls directly (Dem% − Rep%), fundamentals via their model, and
+    /// the market probability inverted through the same SE so its implied margin round-trips back
+    /// to its probability. Weighting happens here; the probability conversion happens once, later.
+    /// </summary>
+    private static double BlendMargins(
         MarketOdds? market,
         PollingAverage? polling,
         FundamentalsData? fundamentals,
-        double? approval,
-        ForecastWeights weights)
+        ForecastWeights weights,
+        double se)
     {
-        double combinedDemProb = 0;
+        double totalWeight = 0, weightedMargin = 0;
 
-        // Market input
         if (market != null && weights.MarketWeight > 0)
         {
-            combinedDemProb += market.DemOdds * weights.MarketWeight;
+            var marketMargin = ForecastMath.ProbabilityToMargin(market.DemOdds, se);
+            weightedMargin += marketMargin * weights.MarketWeight;
+            totalWeight += weights.MarketWeight;
         }
 
-        // Polling input
         if (polling != null && polling.PollCount > 0 && weights.PollingWeight > 0)
         {
-            combinedDemProb += polling.GetDemWinProbability() * weights.PollingWeight;
+            weightedMargin += polling.Margin * weights.PollingWeight;
+            totalWeight += weights.PollingWeight;
         }
 
-        // Fundamentals input
         if (fundamentals != null && weights.FundamentalsWeight > 0)
         {
-            combinedDemProb += fundamentals.GetDemWinProbability() * weights.FundamentalsWeight;
+            weightedMargin += fundamentals.GetExpectedDemMargin() * weights.FundamentalsWeight;
+            totalWeight += weights.FundamentalsWeight;
         }
 
-        // Approval adjustment
-        if (approval.HasValue && weights.ApprovalWeight > 0)
-        {
-            // Approval affects the president's party
-            // If president is Republican, low approval helps Democrats
-            var approvalEffect = (approval.Value - 50) / 100.0; // -0.5 to +0.5
-            // This shifts probability by a small amount based on approval
-            // Assume Republican president for 2026
-            var demAdjustment = -approvalEffect * 0.1; // Low approval = slight Dem boost
-            combinedDemProb += demAdjustment * weights.ApprovalWeight;
-        }
-
-        // Ensure probabilities are valid
-        combinedDemProb = Math.Max(0.01, Math.Min(0.99, combinedDemProb));
-        var combinedRepProb = 1.0 - combinedDemProb;
-
-        return (combinedDemProb, combinedRepProb);
+        return totalWeight > 0 ? weightedMargin / totalWeight : 0;
     }
 
-    private (double demShare, double repShare) EstimateVoteShares(
-        PollingAverage? polling,
-        FundamentalsData? fundamentals)
+    /// <summary>
+    /// Projects the national environment (Dem margin, points) from presidential approval. In 2026
+    /// the president is Republican, so Democrats are the midterm out-party. Low GOP approval →
+    /// Dem-favorable environment. This already embeds the midterm effect — it is not added on top
+    /// of a separate penalty. When a live generic-ballot average exists, prefer that instead.
+    /// </summary>
+    private static double NationalEnvironmentFromApproval(double approval)
     {
-        if (polling != null && polling.PollCount > 0)
-        {
-            // Normalize to two-party vote share
-            var total = polling.DemPercent + polling.RepPercent;
-            if (total > 0)
-            {
-                return (polling.DemPercent / total, polling.RepPercent / total);
-            }
-            return (polling.DemPercent / 100.0, polling.RepPercent / 100.0);
-        }
+        const double approvalCoefficient = 0.5; // national-margin points per point of net approval
+        const double midtermDrag = 2.5;          // baseline out-party bonus in a midterm
+        var presidentNetApproval = 2 * approval - 100; // approval% → net (e.g. 43% → −14)
+        var environment = -presidentNetApproval * approvalCoefficient + midtermDrag;
+        return Math.Clamp(environment, -15, 15);
+    }
 
-        if (fundamentals != null)
-        {
-            var margin = fundamentals.GetExpectedDemMargin();
-            // Convert margin to vote shares (assuming 50-50 baseline)
-            var demShare = 0.50 + (margin / 100.0);
-            demShare = Math.Max(0.30, Math.Min(0.70, demShare));
-            return (demShare, 1.0 - demShare);
-        }
-
-        // Default to 50-50
-        return (0.50, 0.50);
+    /// <summary>True if the incumbent is a Democrat, false if Republican, null for an open seat.</summary>
+    private static bool? GetIncumbentIsDem(Race? race)
+    {
+        var incumbent = race?.Candidates.FirstOrDefault(c => c.IsIncumbent);
+        return incumbent == null ? null : incumbent.Party == Party.Democrat;
     }
 
     private double CalculateConfidence(
