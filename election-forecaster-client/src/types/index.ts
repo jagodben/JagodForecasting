@@ -114,6 +114,12 @@ export interface DetailedForecast {
   history: HistoricalDataPoint[];
 }
 
+export interface ChamberHistoryPoint {
+  date: string;
+  demControlProbability: number;
+  expectedDemSeats: number;
+}
+
 export interface PollingAverage {
   raceId: string;
   demPercent: number;

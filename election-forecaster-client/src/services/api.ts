@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { State, StateSummary, Race, District, RaceType, DetailedForecast, RacePolls } from '../types';
+import { State, StateSummary, Race, District, RaceType, DetailedForecast, RacePolls, ChamberHistoryPoint } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://api.jagodforecasting.com/api');
@@ -74,6 +74,11 @@ export const forecastApi = {
 
   getAll: async (): Promise<DetailedForecast[]> => {
     const response = await api.get<DetailedForecast[]>('/forecast');
+    return response.data;
+  },
+
+  getChamberHistory: async (chamberType: string): Promise<ChamberHistoryPoint[]> => {
+    const response = await api.get<ChamberHistoryPoint[]>(`/forecast/chamber/${chamberType}/history`);
     return response.data;
   },
 

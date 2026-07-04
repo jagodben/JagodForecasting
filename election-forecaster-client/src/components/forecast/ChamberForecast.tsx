@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Race, RaceType, RaceRating, DetailedForecast } from '../../types';
+import { Race, RaceType, RaceRating, DetailedForecast, ChamberHistoryPoint } from '../../types';
 import { forecastApi } from '../../services/api';
 
 // Rating order from left (Solid D) to right (Solid R)
@@ -80,6 +80,13 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
       raceType === RaceType.Senate ? 'Senate' : raceType === RaceType.House ? 'House' : 'Governor'
     ),
     enabled: raceType === RaceType.Senate, // Only Senate has chamber market for now
+  });
+
+  // Chamber control-over-time (Senate has a backfilled model history series)
+  const { data: chamberHistory } = useQuery({
+    queryKey: ['chamberHistory', raceType],
+    queryFn: () => forecastApi.getChamberHistory('Senate'),
+    enabled: raceType === RaceType.Senate,
   });
 
   // Helper function to calculate combined odds from seat projection
@@ -300,6 +307,14 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           </div>
         </div>
 
+        {/* Dem control probability over time (Senate) */}
+        {chamberHistory && chamberHistory.length >= 2 && (
+          <div className="forecast-sidebar__section">
+            <div className="forecast-sidebar__label">Dem Control Over Time</div>
+            <ControlSparkline data={chamberHistory} />
+          </div>
+        )}
+
         {/* Data Source Toggle */}
         <div className="forecast-sidebar__section">
           <div className="forecast-sidebar__label">Data Source</div>
@@ -513,5 +528,33 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         </div>
       </div>
     </div>
+  );
+};
+
+// Compact line of Democratic chamber-control probability over time.
+const ControlSparkline = ({ data }: { data: ChamberHistoryPoint[] }) => {
+  const width = 300, height = 92;
+  const pad = { top: 10, right: 36, bottom: 16, left: 6 };
+  const cw = width - pad.left - pad.right;
+  const ch = height - pad.top - pad.bottom;
+  const x = (i: number) => pad.left + (data.length === 1 ? 0 : (i / (data.length - 1)) * cw);
+  const y = (v: number) => pad.top + ch - Math.max(0, Math.min(1, v)) * ch;
+  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.demControlProbability)}`).join(' ');
+  const last = data[data.length - 1].demControlProbability;
+  const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+      {/* 50% control line */}
+      <line x1={pad.left} y1={y(0.5)} x2={width - pad.right} y2={y(0.5)} stroke="#ccc" strokeWidth="1" strokeDasharray="3,3" />
+      <text x={width - pad.right + 4} y={y(0.5)} alignmentBaseline="middle" fontSize="8" fill="#bbb">50%</text>
+      <path d={linePath} fill="none" stroke="#0044CC" strokeWidth="2" strokeLinejoin="round" />
+      <circle cx={x(data.length - 1)} cy={y(last)} r="3" fill="#0044CC" />
+      <text x={width - pad.right + 4} y={y(last)} alignmentBaseline="middle" fontSize="11" fontWeight="bold" fill="#0044CC">
+        {Math.round(last * 100)}%
+      </text>
+      <text x={pad.left} y={height - 3} fontSize="9" fill="#999">{fmt(data[0].date)}</text>
+      <text x={width - pad.right} y={height - 3} fontSize="9" fill="#999" textAnchor="end">{fmt(data[data.length - 1].date)}</text>
+    </svg>
   );
 };

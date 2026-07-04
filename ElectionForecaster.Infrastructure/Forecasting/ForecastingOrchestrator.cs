@@ -364,6 +364,58 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         }
 
         _logger.LogInformation("Model history backfill complete: {Rows} day-rows across {Races} races", rowsAdded, races.Count);
+
+        // Chamber control over time follows directly from the per-race history we just wrote.
+        await BackfillChamberHistoryAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Rebuilds Senate control-over-time by running the Monte Carlo over each day's stored per-race
+    /// forecasts. No re-fetch — the per-race margins/SEs already live in ForecastHistory. Senate only;
+    /// House per-race history isn't backfilled (no district markets), so its chamber line isn't either.
+    /// </summary>
+    private async Task BackfillChamberHistoryAsync(CancellationToken cancellationToken)
+    {
+        const RaceType chamber = RaceType.Senate;
+        var chamberName = chamber.ToString();
+
+        var senateRaceIds = (await _raceService.GetAllRacesAsync(RaceType.Senate))
+            .Select(r => r.Id).ToHashSet();
+
+        var history = await _dbContext.ForecastHistory
+            .Where(f => senateRaceIds.Contains(f.RaceId))
+            .ToListAsync(cancellationToken);
+        if (history.Count == 0) return;
+
+        await _dbContext.ChamberHistory.Where(c => c.Chamber == chamberName).ExecuteDeleteAsync(cancellationToken);
+
+        foreach (var day in history.GroupBy(f => f.Date.Date).OrderBy(g => g.Key))
+        {
+            var forecasts = day.Select(f => new DetailedForecast
+            {
+                RaceId = f.RaceId,
+                DemWinProbability = f.DemWinProbability,
+                ExpectedDemMargin = f.ExpectedDemMargin,
+                MarginStdDev = f.MarginStdDev
+            }).ToList();
+
+            var result = _simulator.SimulateChamber(forecasts, chamber);
+            _dbContext.ChamberHistory.Add(new ChamberHistoryEntity
+            {
+                Chamber = chamberName,
+                Date = day.Key,
+                DemControlProbability = result.DemControlProbability,
+                RepControlProbability = result.RepControlProbability,
+                ExpectedDemSeats = result.ExpectedDemSeats,
+                ExpectedRepSeats = result.ExpectedRepSeats,
+                SimulationIterations = result.SimulationIterations,
+                DemSeatsLow = result.DemSeatRange.Low,
+                DemSeatsHigh = result.DemSeatRange.High
+            });
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Chamber (Senate) history backfill complete");
     }
 
     private async Task<MarketOdds?> GetAggregatedMarketOddsAsync(string raceId, CancellationToken cancellationToken)
@@ -532,8 +584,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         return history;
     }
 
-    private async Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(
-        string chamber, int days, CancellationToken cancellationToken)
+    public async Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(
+        string chamber, int days, CancellationToken cancellationToken = default)
     {
         var cutoff = DateTime.UtcNow.AddDays(-days);
 

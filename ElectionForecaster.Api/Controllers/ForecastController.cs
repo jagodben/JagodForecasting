@@ -106,6 +106,17 @@ public class ForecastController : ControllerBase
     }
 
     /// <summary>
+    /// Gets the chamber control-over-time history (cheap DB read; Senate has a backfilled series).
+    /// </summary>
+    [HttpGet("chamber/{chamberType}/history")]
+    [ProducesResponseType(typeof(List<ChamberHistoryPoint>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<ChamberHistoryPoint>>> GetChamberHistory(string chamberType, [FromQuery] int days = 365)
+    {
+        var history = await _orchestrator.GetChamberHistoryAsync(chamberType, days);
+        return Ok(history);
+    }
+
+    /// <summary>
     /// Gets the overall chamber control odds from Polymarket.
     /// </summary>
     [HttpGet("chamber/{chamberType}/market-odds")]
