@@ -76,7 +76,26 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         // 3. Historical data (back to Nov 2025), then blend.
         var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
-        return BuildForecast(raceId, raceType, marketOdds, polling, fundamentals, approval, race, DateTime.UtcNow, history);
+        var forecast = BuildForecast(raceId, raceType, marketOdds, polling, fundamentals, approval, race, DateTime.UtcNow, history);
+
+        // The chart's most-recent point should equal the live headline. Stored history rows are
+        // periodic snapshots (built from the daily market close) that can lag the current market;
+        // replace/append today's point with this live forecast so the two always agree.
+        var today = DateTime.UtcNow.Date;
+        forecast.History = forecast.History
+            .Where(h => h.Date.Date != today)
+            .Append(new HistoricalDataPoint
+            {
+                Date = today,
+                DemWinProbability = forecast.DemWinProbability,
+                RepWinProbability = forecast.RepWinProbability,
+                DemVoteShare = forecast.DemVoteShare,
+                RepVoteShare = forecast.RepVoteShare
+            })
+            .OrderBy(h => h.Date)
+            .ToList();
+
+        return forecast;
     }
 
     /// <summary>

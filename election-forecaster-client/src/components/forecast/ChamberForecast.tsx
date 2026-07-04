@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Race, RaceType, RaceRating, DetailedForecast, ChamberHistoryPoint } from '../../types';
+import { Race, RaceType, RaceRating, DetailedForecast } from '../../types';
 import { forecastApi } from '../../services/api';
+import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
 
 // Rating order from left (Solid D) to right (Solid R)
 const RATING_ORDER: RaceRating[] = [
@@ -108,7 +109,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
     }
   };
 
-  const { seatProjection, seatsByRating, demVictoryOdds, hasMarketData, hasPollingData, activeSource, marketCount, pollingCount } = useMemo(() => {
+  const { seatProjection, seatsByRating, demVictoryOdds: rawDemVictoryOdds, hasMarketData, hasPollingData, activeSource, marketCount, pollingCount } = useMemo(() => {
     // Calculate seat projections based on race forecasts
     const projection: SeatProjection = {
       democrat: 0,
@@ -228,7 +229,18 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
     onDataAvailabilityChange?.(hasMarketData, hasPollingData);
   }, [hasMarketData, hasPollingData, onDataAvailabilityChange]);
 
+  // The model's final chamber prediction is the Monte Carlo control probability (what the chart
+  // plots). Use it for the Senate headline in the combined/model view so the number and the chart
+  // agree — the seat-share heuristic (rawDemVictoryOdds) ignored the not-up baseline and the 51-seat
+  // threshold. Markets/polling modes keep their source-specific number.
+  const modelSenateControl = raceType === RaceType.Senate && chamberHistory && chamberHistory.length > 0
+    ? Math.round(chamberHistory[chamberHistory.length - 1].demControlProbability * 1000) / 10
+    : null;
+  const demVictoryOdds = (raceType === RaceType.Senate && activeSource === 'combined' && modelSenateControl != null)
+    ? modelSenateControl
+    : rawDemVictoryOdds;
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
+
   const chamberName = raceType === RaceType.Senate ? 'Senate' : raceType === RaceType.House ? 'House' : 'Governors';
   const totalSeats = raceType === RaceType.Senate ? 100 : raceType === RaceType.House ? 435 : 50;
   const majorityNeeded = raceType === RaceType.Senate ? 50 : raceType === RaceType.House ? 218 : 26;
@@ -310,8 +322,12 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         {/* Dem control probability over time (Senate) */}
         {chamberHistory && chamberHistory.length >= 2 && (
           <div className="forecast-sidebar__section">
-            <div className="forecast-sidebar__label">Dem Control Over Time</div>
-            <ControlSparkline data={chamberHistory} />
+            <div className="forecast-sidebar__label">Race Timeline</div>
+            <ProbabilityTrendChart
+              data={chamberHistory.map(d => ({ date: d.date, demValue: d.demControlProbability }))}
+              demLabel="Dem"
+              repLabel="Rep"
+            />
           </div>
         )}
 
@@ -528,33 +544,5 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         </div>
       </div>
     </div>
-  );
-};
-
-// Compact line of Democratic chamber-control probability over time.
-const ControlSparkline = ({ data }: { data: ChamberHistoryPoint[] }) => {
-  const width = 300, height = 92;
-  const pad = { top: 10, right: 36, bottom: 16, left: 6 };
-  const cw = width - pad.left - pad.right;
-  const ch = height - pad.top - pad.bottom;
-  const x = (i: number) => pad.left + (data.length === 1 ? 0 : (i / (data.length - 1)) * cw);
-  const y = (v: number) => pad.top + ch - Math.max(0, Math.min(1, v)) * ch;
-  const linePath = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.demControlProbability)}`).join(' ');
-  const last = data[data.length - 1].demControlProbability;
-  const fmt = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-  return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
-      {/* 50% control line */}
-      <line x1={pad.left} y1={y(0.5)} x2={width - pad.right} y2={y(0.5)} stroke="#ccc" strokeWidth="1" strokeDasharray="3,3" />
-      <text x={width - pad.right + 4} y={y(0.5)} alignmentBaseline="middle" fontSize="8" fill="#bbb">50%</text>
-      <path d={linePath} fill="none" stroke="#0044CC" strokeWidth="2" strokeLinejoin="round" />
-      <circle cx={x(data.length - 1)} cy={y(last)} r="3" fill="#0044CC" />
-      <text x={width - pad.right + 4} y={y(last)} alignmentBaseline="middle" fontSize="11" fontWeight="bold" fill="#0044CC">
-        {Math.round(last * 100)}%
-      </text>
-      <text x={pad.left} y={height - 3} fontSize="9" fill="#999">{fmt(data[0].date)}</text>
-      <text x={width - pad.right} y={height - 3} fontSize="9" fill="#999" textAnchor="end">{fmt(data[data.length - 1].date)}</text>
-    </svg>
   );
 };

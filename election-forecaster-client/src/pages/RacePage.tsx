@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
 import { RaceType, Party, RacePolls } from '../types';
+import { ProbabilityTrendChart } from '../components/charts/ProbabilityTrendChart';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -45,11 +46,14 @@ const normalCdf = (x: number): number => {
 const formatPollDate = (iso: string): string =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Formats a Dem-margin (points) as a called result, e.g. +5 -> "D+5", -3 -> "R+3".
+// Formats a Dem-margin (points) as a called result to one decimal (dropping a trailing .0),
+// e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2".
 const formatMargin = (margin: number): string => {
-  const rounded = Math.round(margin);
+  const rounded = Math.round(margin * 10) / 10;
   if (rounded === 0) return 'EVEN';
-  return rounded > 0 ? `D+${rounded}` : `R+${Math.abs(rounded)}`;
+  const abs = Math.abs(rounded);
+  const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
+  return rounded > 0 ? `D+${num}` : `R+${num}`;
 };
 
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
@@ -278,8 +282,8 @@ export const RacePage = () => {
         </div>
       </div>
 
-      {/* Projected result (the forecast's expected margin) */}
-      {forecast && (
+      {/* Projected result (the forecast's expected margin) — Forecast view only */}
+      {forecast && dataSource === 'combined' && (
         <div style={{ textAlign: 'center', marginTop: '-32px', marginBottom: '48px' }}>
           <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
           <div style={{
@@ -306,10 +310,12 @@ export const RacePage = () => {
             Model forecast history
           </div>
           <div style={{ marginBottom: '48px' }}>
-            <PredictionChart
-              data={historicalData}
-              demName={demCandidate?.name || 'Democrat'}
-              repName={repCandidate?.name || 'Republican'}
+            <ProbabilityTrendChart
+              data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
+              demLabel={demCandidate?.name || 'Democrat'}
+              repLabel={repCandidate?.name || 'Republican'}
+              width={760}
+              height={300}
             />
           </div>
         </>
@@ -470,225 +476,5 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
         </table>
       </div>
     </div>
-  );
-};
-
-// SVG line chart component for prediction history
-const PredictionChart = ({ data, demName, repName }: { data: HistoricalOdds[]; demName: string; repName: string }) => {
-  const [hoveredPoint, setHoveredPoint] = useState<{ index: number; party: 'dem' | 'rep' } | null>(null);
-
-  const width = 900;
-  const height = 400;
-  const padding = { top: 35, right: 65, bottom: 45, left: 55 };
-
-  const chartWidth = width - padding.left - padding.right;
-  const chartHeight = height - padding.top - padding.bottom;
-
-  const xScale = (index: number) => padding.left + (index / (data.length - 1)) * chartWidth;
-  const yScale = (value: number) => padding.top + chartHeight - ((value / 100) * chartHeight);
-
-  const demLinePath = data.map((d, i) => {
-    const x = xScale(i);
-    const y = yScale(d.demOdds);
-    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-  }).join(' ');
-
-  const repLinePath = data.map((d, i) => {
-    const x = xScale(i);
-    const y = yScale(100 - d.demOdds);
-    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
-  }).join(' ');
-
-  const dateIndices = [0, Math.floor(data.length / 4), Math.floor(data.length / 2), Math.floor(3 * data.length / 4), data.length - 1];
-  const dateLabels = dateIndices.map(i => ({
-    index: i,
-    label: new Date(data[i].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-  }));
-
-  const currentDemOdds = data[data.length - 1].demOdds;
-  const currentRepOdds = Math.round((100 - currentDemOdds) * 10) / 10;
-
-  const getTooltipData = () => {
-    if (!hoveredPoint) return null;
-    const d = data[hoveredPoint.index];
-    const date = new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const odds = hoveredPoint.party === 'dem' ? d.demOdds : Math.round((100 - d.demOdds) * 10) / 10;
-    const party = hoveredPoint.party === 'dem' ? demName : repName;
-    const color = hoveredPoint.party === 'dem' ? '#0044CC' : '#CC0000';
-    const x = xScale(hoveredPoint.index);
-    const y = yScale(hoveredPoint.party === 'dem' ? d.demOdds : 100 - d.demOdds);
-    return { date, odds, party, color, x, y };
-  };
-
-  const tooltipData = getTooltipData();
-
-  return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ maxWidth: '100%' }}>
-      {/* Grid lines */}
-      {[20, 40, 60, 80].map(v => (
-        <g key={v}>
-          <line
-            x1={padding.left}
-            y1={yScale(v)}
-            x2={width - padding.right}
-            y2={yScale(v)}
-            stroke="#eee"
-            strokeWidth="1"
-          />
-          <text
-            x={padding.left - 10}
-            y={yScale(v)}
-            textAnchor="end"
-            alignmentBaseline="middle"
-            fontSize="12"
-            fill="#999"
-          >
-            {v}%
-          </text>
-        </g>
-      ))}
-
-      {/* 50% line */}
-      <line
-        x1={padding.left}
-        y1={yScale(50)}
-        x2={width - padding.right}
-        y2={yScale(50)}
-        stroke="#666"
-        strokeWidth="1.5"
-        strokeDasharray="6,4"
-      />
-      <text
-        x={width - padding.right + 8}
-        y={yScale(50)}
-        alignmentBaseline="middle"
-        fontSize="11"
-        fill="#666"
-      >
-        50%
-      </text>
-
-      {/* Democrat line */}
-      <path
-        d={demLinePath}
-        fill="none"
-        stroke="#0044CC"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-      {data.map((d, i) => (
-        <circle
-          key={`dem-${i}`}
-          cx={xScale(i)}
-          cy={yScale(d.demOdds)}
-          r={hoveredPoint?.index === i && hoveredPoint?.party === 'dem' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
-          fill="#0044CC"
-          style={{ cursor: 'pointer' }}
-          onMouseEnter={() => setHoveredPoint({ index: i, party: 'dem' })}
-          onMouseLeave={() => setHoveredPoint(null)}
-        />
-      ))}
-
-      {/* Republican line */}
-      <path
-        d={repLinePath}
-        fill="none"
-        stroke="#CC0000"
-        strokeWidth="3"
-        strokeLinejoin="round"
-      />
-      {data.map((d, i) => (
-        <circle
-          key={`rep-${i}`}
-          cx={xScale(i)}
-          cy={yScale(100 - d.demOdds)}
-          r={hoveredPoint?.index === i && hoveredPoint?.party === 'rep' ? 8 : (i === data.length - 1 ? 7 : 2.5)}
-          fill="#CC0000"
-          style={{ cursor: 'pointer' }}
-          onMouseEnter={() => setHoveredPoint({ index: i, party: 'rep' })}
-          onMouseLeave={() => setHoveredPoint(null)}
-        />
-      ))}
-
-      {/* X-axis labels */}
-      {dateLabels.map(({ index, label }) => (
-        <text
-          key={index}
-          x={xScale(index)}
-          y={height - 12}
-          textAnchor="middle"
-          fontSize="12"
-          fill="#666"
-        >
-          {label}
-        </text>
-      ))}
-
-      {/* Current value labels */}
-      <text
-        x={width - padding.right + 8}
-        y={yScale(currentDemOdds)}
-        alignmentBaseline="middle"
-        fontSize="14"
-        fontWeight="bold"
-        fill="#0044CC"
-      >
-        {currentDemOdds}%
-      </text>
-      <text
-        x={width - padding.right + 8}
-        y={yScale(currentRepOdds)}
-        alignmentBaseline="middle"
-        fontSize="14"
-        fontWeight="bold"
-        fill="#CC0000"
-      >
-        {currentRepOdds}%
-      </text>
-
-      {/* Legend */}
-      <g transform={`translate(${padding.left + 10}, ${padding.top - 18})`}>
-        <circle cx="0" cy="0" r="6" fill="#0044CC" />
-        <text x="12" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">{demName}</text>
-        <circle cx="180" cy="0" r="6" fill="#CC0000" />
-        <text x="192" y="0" alignmentBaseline="middle" fontSize="13" fill="#333">{repName}</text>
-      </g>
-
-      {/* Tooltip */}
-      {tooltipData && (
-        <g transform={`translate(${tooltipData.x}, ${tooltipData.y - 12})`}>
-          <rect
-            x="-50"
-            y="-38"
-            width="100"
-            height="36"
-            rx="6"
-            fill="white"
-            stroke={tooltipData.color}
-            strokeWidth="2"
-            filter="drop-shadow(0 2px 4px rgba(0,0,0,0.2))"
-          />
-          <text
-            x="0"
-            y="-22"
-            textAnchor="middle"
-            fontSize="11"
-            fill="#666"
-          >
-            {tooltipData.date}
-          </text>
-          <text
-            x="0"
-            y="-6"
-            textAnchor="middle"
-            fontSize="15"
-            fontWeight="bold"
-            fill="#333"
-          >
-            {tooltipData.odds}%
-          </text>
-        </g>
-      )}
-    </svg>
   );
 };

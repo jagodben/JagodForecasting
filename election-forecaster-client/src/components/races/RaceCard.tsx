@@ -41,11 +41,14 @@ const getPartyColor = (party: Party): string => {
   }
 };
 
-// Formats a Dem-margin (points) as a called result, e.g. +5 -> "D+5", -3 -> "R+3".
+// Formats a Dem-margin (points) as a called result to one decimal (dropping a trailing .0),
+// e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2".
 const formatMargin = (margin: number): string => {
-  const rounded = Math.round(margin);
+  const rounded = Math.round(margin * 10) / 10;
   if (rounded === 0) return 'EVEN';
-  return rounded > 0 ? `D+${rounded}` : `R+${Math.abs(rounded)}`;
+  const abs = Math.abs(rounded);
+  const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
+  return rounded > 0 ? `D+${num}` : `R+${num}`;
 };
 
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
