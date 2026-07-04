@@ -5,6 +5,7 @@ using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.Data.Entities;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.Models;
+using ElectionForecaster.Infrastructure.DataSources.Polling;
 using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -73,42 +74,48 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var fundamentals = await fundamentalsTask;
         var approval = await approvalTask;
 
-        // 3. Inject cross-cutting fundamentals inputs: the national mood (from approval) and
-        //    incumbency direction (from the race's candidates). This is where the old model
-        //    silently failed — incumbency was never set and the mood was hardcoded to zero.
+        // 3. Historical data (back to Nov 2025), then blend.
+        var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
+        return BuildForecast(raceId, raceType, marketOdds, polling, fundamentals, approval, race, DateTime.UtcNow, history);
+    }
+
+    /// <summary>
+    /// Blends the inputs into a forecast as of <paramref name="asOf"/>. Shared by the live path and
+    /// the retrospective backfill so they can never diverge — the only difference is the date, which
+    /// drives the weights, the time-varying SE, and the timestamp.
+    /// </summary>
+    private DetailedForecast BuildForecast(
+        string raceId, RaceType raceType,
+        MarketOdds? marketOdds, PollingAverage? polling, FundamentalsData? fundamentals,
+        double approval, Race? race, DateTime asOf, List<HistoricalDataPoint> history)
+    {
+        // Inject cross-cutting fundamentals inputs: national mood (from approval) and incumbency
+        // direction (from the race's candidates).
         if (fundamentals != null)
         {
             fundamentals.NationalEnvironment = NationalEnvironmentFromApproval(approval);
             fundamentals.IncumbentIsDem = GetIncumbentIsDem(race);
         }
 
-        // 4. Dynamic weights + time-varying uncertainty.
-        var weights = _weightCalculator.CalculateWeights(marketOdds, polling, fundamentals, raceType);
-        var daysToElection = (_electionDate - DateTime.UtcNow).TotalDays;
+        var weights = _weightCalculator.CalculateWeights(marketOdds, polling, fundamentals, raceType, asOf);
+        var daysToElection = (_electionDate - asOf).TotalDays;
         var se = UncertaintyModel.MarginStandardError(daysToElection, raceType, polling?.PollCount ?? 0);
 
-        // 5. Blend the signals in MARGIN space, then convert to probability once.
         var blendedMargin = BlendMargins(marketOdds, polling, fundamentals, weights, se);
         var demProb = Math.Clamp(ForecastMath.MarginToProbability(blendedMargin, se), 0.02, 0.98);
-        var repProb = 1.0 - demProb;
-
-        // 6. Vote shares follow directly from the blended margin.
         var demVoteShare = Math.Clamp(0.50 + blendedMargin / 200.0, 0.30, 0.70);
 
-        // 7. Historical data (back to Nov 2025).
-        var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
-
-        var forecast = new DetailedForecast
+        return new DetailedForecast
         {
             RaceId = raceId,
             DemWinProbability = demProb,
-            RepWinProbability = repProb,
+            RepWinProbability = 1.0 - demProb,
             DemVoteShare = demVoteShare,
             RepVoteShare = 1.0 - demVoteShare,
             ExpectedDemMargin = blendedMargin,
             MarginStdDev = se,
             Confidence = CalculateConfidence(marketOdds, polling, fundamentals),
-            LastUpdated = DateTime.UtcNow,
+            LastUpdated = asOf,
             Inputs = new ForecastInputs
             {
                 MarketOdds = marketOdds?.DemOdds,
@@ -130,9 +137,28 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             },
             History = history
         };
-
-        return forecast;
     }
+
+    private static ForecastHistoryEntity ToHistoryEntity(DetailedForecast f, DateTime date) => new()
+    {
+        RaceId = f.RaceId,
+        Date = date,
+        DemWinProbability = f.DemWinProbability,
+        RepWinProbability = f.RepWinProbability,
+        DemVoteShare = f.DemVoteShare,
+        RepVoteShare = f.RepVoteShare,
+        Confidence = f.Confidence,
+        ExpectedDemMargin = f.ExpectedDemMargin,
+        MarginStdDev = f.MarginStdDev,
+        MarketWeight = f.Inputs.MarketWeight,
+        PollingWeight = f.Inputs.PollingWeight,
+        FundamentalsWeight = f.Inputs.FundamentalsWeight,
+        ApprovalWeight = f.Inputs.ApprovalWeight,
+        MarketOdds = f.Inputs.MarketOdds,
+        PollingAverage = f.Inputs.PollingAverage,
+        FundamentalsPrediction = f.Inputs.FundamentalsPrediction,
+        ApprovalAdjustment = f.Inputs.ApprovalAdjustment
+    };
 
     public async Task<List<DetailedForecast>> GenerateAllForecastsAsync(RaceType? raceType = null, CancellationToken cancellationToken = default)
     {
@@ -226,27 +252,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 if (exists) continue;
 
                 var forecast = await GenerateForecastAsync(race.Id, cancellationToken);
-
-                var entity = new ForecastHistoryEntity
-                {
-                    RaceId = race.Id,
-                    Date = today,
-                    DemWinProbability = forecast.DemWinProbability,
-                    RepWinProbability = forecast.RepWinProbability,
-                    DemVoteShare = forecast.DemVoteShare,
-                    RepVoteShare = forecast.RepVoteShare,
-                    Confidence = forecast.Confidence,
-                    MarketWeight = forecast.Inputs.MarketWeight,
-                    PollingWeight = forecast.Inputs.PollingWeight,
-                    FundamentalsWeight = forecast.Inputs.FundamentalsWeight,
-                    ApprovalWeight = forecast.Inputs.ApprovalWeight,
-                    MarketOdds = forecast.Inputs.MarketOdds,
-                    PollingAverage = forecast.Inputs.PollingAverage,
-                    FundamentalsPrediction = forecast.Inputs.FundamentalsPrediction,
-                    ApprovalAdjustment = forecast.Inputs.ApprovalAdjustment
-                };
-
-                _dbContext.ForecastHistory.Add(entity);
+                _dbContext.ForecastHistory.Add(ToHistoryEntity(forecast, today));
             }
             catch (Exception ex)
             {
@@ -290,19 +296,74 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _logger.LogInformation("Daily snapshot stored");
     }
 
-    public async Task BackfillHistoryFromMarketsAsync(CancellationToken cancellationToken = default)
+    public async Task BackfillModelHistoryAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Starting forecast history backfill from Polymarket...");
+        var fromDate = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        var today = DateTime.UtcNow.Date;
+        _logger.LogInformation("Backfilling model history {From:d}..{To:d} for statewide races", fromDate, today);
 
-        // Find the PolymarketClient from the registered market sources
-        var polymarketClient = _marketSources.OfType<PolymarketClient>().FirstOrDefault();
-        if (polymarketClient == null)
+        var polymarket = _marketSources.OfType<PolymarketClient>().FirstOrDefault();
+        var approval = await _approvalSource.GetPresidentialApprovalAsync(cancellationToken);
+
+        // Statewide races only (House has no markets and sparse polls; excluded per scope).
+        var races = (await _raceService.GetAllRacesAsync())
+            .Where(r => r.Type == RaceType.Senate || r.Type == RaceType.Governor)
+            .ToList();
+
+        int rowsAdded = 0;
+        foreach (var race in races)
         {
-            _logger.LogWarning("PolymarketClient not found in registered market sources, cannot backfill");
-            return;
+            try
+            {
+                // Reconstruct the daily market series and load all stored polls (with conduct dates).
+                var series = polymarket != null
+                    ? await polymarket.GetDailyOddsSeriesAsync(race.Id, fromDate, cancellationToken)
+                    : new List<(DateTime date, double demProb)>();
+                var marketByDate = series
+                    .GroupBy(s => s.date.Date)
+                    .ToDictionary(g => g.Key, g => g.Last().demProb);
+                var marketDays = marketByDate.Keys.OrderBy(d => d).ToList();
+
+                var polls = await _pollingSource.GetRecentPollsAsync(race.Id, 3650, cancellationToken);
+                var fundamentals = await _fundamentalsSource.GetFundamentalsAsync(race.Id, cancellationToken);
+
+                // Rebuild the whole series from scratch (clears any stale market-only backfill rows).
+                await _dbContext.ForecastHistory.Where(f => f.RaceId == race.Id).ExecuteDeleteAsync(cancellationToken);
+
+                for (var day = fromDate.Date; day <= today; day = day.AddDays(1))
+                {
+                    // Market as of `day`: the exact daily point, else carry the most recent prior point.
+                    double? demProb = marketByDate.TryGetValue(day, out var exact) ? exact : null;
+                    if (demProb == null)
+                    {
+                        var prior = marketDays.LastOrDefault(d => d <= day);
+                        if (prior != default) demProb = marketByDate[prior];
+                    }
+                    var market = demProb.HasValue
+                        ? new MarketOdds { RaceId = race.Id, Source = "Polymarket", DemOdds = demProb.Value, RepOdds = 1 - demProb.Value, Timestamp = day }
+                        : null;
+
+                    // Polling as of `day`: polls conducted on or before that date, decayed to that date.
+                    var pollsAsOf = polls.Where(p => p.Date.Date <= day).ToList();
+                    var polling = pollsAsOf.Count > 0
+                        ? PollingAverageCalculator.Calculate(pollsAsOf, race.Id, day)
+                        : null;
+
+                    var forecast = BuildForecast(race.Id, race.Type, market, polling, fundamentals, approval, race, day, new List<HistoricalDataPoint>());
+                    _dbContext.ForecastHistory.Add(ToHistoryEntity(forecast, day));
+                    rowsAdded++;
+                }
+
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error backfilling model history for {RaceId}", race.Id);
+                _dbContext.ChangeTracker.Clear();
+            }
         }
 
-        await polymarketClient.BackfillHistoricalDataAsync(_dbContext, cancellationToken);
+        _logger.LogInformation("Model history backfill complete: {Rows} day-rows across {Races} races", rowsAdded, races.Count);
     }
 
     private async Task<MarketOdds?> GetAggregatedMarketOddsAsync(string raceId, CancellationToken cancellationToken)

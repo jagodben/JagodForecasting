@@ -71,18 +71,18 @@ public class DataRefreshService : BackgroundService
 
         var now = DateTime.UtcNow;
 
-        // One-time backfill of historical Polymarket data
+        // One-time retrospective backfill of the model's forecast history (statewide, from June 1).
         if (!_backfillComplete)
         {
-            _logger.LogInformation("Running one-time Polymarket historical data backfill...");
+            _logger.LogInformation("Running one-time model history backfill...");
             try
             {
-                await orchestrator.BackfillHistoryFromMarketsAsync(cancellationToken);
+                await orchestrator.BackfillModelHistoryAsync(cancellationToken);
                 _backfillComplete = true;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to backfill historical data");
+                _logger.LogWarning(ex, "Failed to backfill model history");
                 _backfillComplete = true; // Don't retry on failure
             }
         }

@@ -34,7 +34,8 @@ public interface IForecastingOrchestrator
     Task StoreDailySnapshotAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Backfills forecast history from Polymarket CLOB historical price data.
+    /// Backfills the full model's forecast history retrospectively (statewide races), reconstructing
+    /// each day's market and polling inputs so the stored history reflects what the model would have said.
     /// </summary>
-    Task BackfillHistoryFromMarketsAsync(CancellationToken cancellationToken = default);
+    Task BackfillModelHistoryAsync(CancellationToken cancellationToken = default);
 }

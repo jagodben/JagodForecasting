@@ -154,6 +154,18 @@ public class ForecastController : ControllerBase
     }
 
     /// <summary>
+    /// Rebuilds the retrospective model forecast history (statewide races, from June 1). Admin endpoint.
+    /// </summary>
+    [HttpPost("backfill")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> BackfillModelHistory()
+    {
+        _logger.LogInformation("Manual model history backfill triggered");
+        await _orchestrator.BackfillModelHistoryAsync();
+        return Ok(new { message = "Model history backfill completed" });
+    }
+
+    /// <summary>
     /// Gets a summary of all forecasts grouped by race type.
     /// </summary>
     [HttpGet("summary")]

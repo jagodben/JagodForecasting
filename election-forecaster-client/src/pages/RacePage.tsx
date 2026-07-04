@@ -292,18 +292,18 @@ export const RacePage = () => {
         </div>
       )}
 
-      {/* Prediction Over Time Chart — only shown when there's history to plot */}
-      {dataSource === 'markets' && historicalData.length >= 2 && (
+      {/* Prediction Over Time — the model's daily forecast (combined view) */}
+      {dataSource === 'combined' && historicalData.length >= 2 && (
         <>
           <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Prediction Over Time</h3>
           <div style={{
             textAlign: 'center',
             fontSize: '13px',
-            color: '#059669',
+            color: '#6b7280',
             marginBottom: '16px',
             fontWeight: 500,
           }}>
-            Polymarket odds history
+            Model forecast history
           </div>
           <div style={{ marginBottom: '48px' }}>
             <PredictionChart

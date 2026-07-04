@@ -23,6 +23,10 @@ public class ForecastHistoryEntity
     public double RepVoteShare { get; set; }
     public double Confidence { get; set; }
 
+    // Blended expected Dem margin (points) and its standard error at the time of the forecast.
+    public double ExpectedDemMargin { get; set; }
+    public double MarginStdDev { get; set; }
+
     // Weight breakdown for transparency
     public double MarketWeight { get; set; }
     public double PollingWeight { get; set; }

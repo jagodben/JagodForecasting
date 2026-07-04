@@ -530,6 +530,21 @@ public class PolymarketClient : IPredictionMarketSource
         _logger.LogInformation("Historical data backfill complete. {Success}/{Total} races updated.", successCount, RaceIdToMarketId.Count);
     }
 
+    /// <summary>
+    /// Returns the daily Dem win-probability series for a race from Polymarket's CLOB price history,
+    /// back to <paramref name="startDate"/>. Empty if the race has no configured market. Used by the
+    /// retrospective model backfill to reconstruct the market input on each past day.
+    /// </summary>
+    public async Task<List<(DateTime date, double demProb)>> GetDailyOddsSeriesAsync(
+        string raceId, DateTime startDate, CancellationToken cancellationToken = default)
+    {
+        if (!RaceIdToMarketId.TryGetValue(raceId, out var marketId))
+            return new List<(DateTime, double)>();
+
+        return await FetchClobHistoryForRaceAsync(raceId, marketId, startDate, cancellationToken)
+               ?? new List<(DateTime, double)>();
+    }
+
     private async Task<List<(DateTime date, double demProb)>?> FetchClobHistoryForRaceAsync(
         string raceId, string marketId, DateTime startDate, CancellationToken cancellationToken)
     {

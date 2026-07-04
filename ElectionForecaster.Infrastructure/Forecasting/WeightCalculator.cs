@@ -33,9 +33,10 @@ public class WeightCalculator
         MarketOdds? marketOdds,
         PollingAverage? polling,
         FundamentalsData? fundamentals,
-        RaceType raceType)
+        RaceType raceType,
+        DateTime? asOf = null)
     {
-        var daysToElection = (_electionDate - DateTime.UtcNow).TotalDays;
+        var daysToElection = (_electionDate - (asOf ?? DateTime.UtcNow)).TotalDays;
 
         var weights = new ForecastWeights
         {

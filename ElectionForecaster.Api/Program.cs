@@ -93,11 +93,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Ensure database is created
+// Apply migrations (baselining any legacy EnsureCreated database)
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ForecastDbContext>();
-    dbContext.Database.EnsureCreated();
+    ForecastDbInitializer.Initialize(dbContext);
 }
 
 // Configure the HTTP request pipeline

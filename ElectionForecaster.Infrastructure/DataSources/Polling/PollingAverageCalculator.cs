@@ -10,14 +10,18 @@ namespace ElectionForecaster.Infrastructure.DataSources.Polling;
 /// </summary>
 public static class PollingAverageCalculator
 {
-    public static PollingAverage Calculate(IReadOnlyList<PollData> polls, string raceId)
+    /// <summary>
+    /// Weighted polling average. <paramref name="asOf"/> anchors the recency decay — pass a past
+    /// date to reconstruct what the average looked like then (for the retrospective backfill).
+    /// </summary>
+    public static PollingAverage Calculate(IReadOnlyList<PollData> polls, string raceId, DateTime? asOf = null)
     {
         if (polls.Count == 0)
         {
             return new PollingAverage { RaceId = raceId };
         }
 
-        var now = DateTime.UtcNow;
+        var now = asOf ?? DateTime.UtcNow;
         double totalWeight = 0, weightedDem = 0, weightedRep = 0;
         int totalSampleSize = 0, sampleCount = 0;
 
@@ -48,7 +52,7 @@ public static class PollingAverageCalculator
             PollCount = polls.Count,
             LatestPollDate = polls.Max(p => p.Date),
             AverageSampleSize = sampleCount > 0 ? totalSampleSize / sampleCount : null,
-            Confidence = CalculateConfidence(polls)
+            Confidence = CalculateConfidence(polls, now)
         };
     }
 
@@ -56,7 +60,7 @@ public static class PollingAverageCalculator
     /// Confidence in the average based on poll quantity, recency, and quality.
     /// Clamped to [0.3, 1.0].
     /// </summary>
-    private static double CalculateConfidence(IReadOnlyList<PollData> polls)
+    private static double CalculateConfidence(IReadOnlyList<PollData> polls, DateTime asOf)
     {
         double confidence = 0.5;
 
@@ -65,7 +69,7 @@ public static class PollingAverageCalculator
 
         // Recency bonus (up to +0.15)
         var latestPoll = polls.Max(p => p.Date);
-        var daysSinceLatest = (DateTime.UtcNow - latestPoll).TotalDays;
+        var daysSinceLatest = (asOf - latestPoll).TotalDays;
         confidence += Math.Max(0, 0.15 - (daysSinceLatest * 0.01));
 
         // Quality bonus based on ratings (up to +0.15)
