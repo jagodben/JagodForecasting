@@ -31,6 +31,13 @@ const getPartyColor = (party: Party): string => {
   }
 };
 
+// Party logo (donkey/elephant) for the major parties; null for others (fall back to a letter badge).
+const getPartyLogo = (party: Party): string | null => {
+  if (party === Party.Democrat) return '/democrat.png';
+  if (party === Party.Republican) return '/republican.png';
+  return null;
+};
+
 // Standard normal CDF (Abramowitz & Stegun approximation) — matches the backend's
 // polling-to-probability model so the "Polls" win probability is consistent.
 const normalCdf = (x: number): number => {
@@ -338,6 +345,7 @@ export const RacePage = () => {
             candidate.party === Party.Democrat ? demProb :
             candidate.party === Party.Republican ? repProb :
             candidateForecast?.winProbability;
+          const partyLogo = getPartyLogo(candidate.party);
           return (
             <div
               key={candidate.id}
@@ -348,21 +356,36 @@ export const RacePage = () => {
                 borderBottom: '1px solid #eee',
               }}
             >
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                backgroundColor: getPartyColor(candidate.party),
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 'bold',
-                fontSize: '20px',
-                marginRight: '16px',
-              }}>
-                {candidate.party === Party.Democrat ? 'D' : candidate.party === Party.Republican ? 'R' : 'I'}
-              </div>
+              {partyLogo ? (
+                <img
+                  src={partyLogo}
+                  alt={candidate.party}
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    objectFit: 'contain',
+                    marginRight: '16px',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  backgroundColor: getPartyColor(candidate.party),
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  fontSize: '20px',
+                  marginRight: '16px',
+                  flexShrink: 0,
+                }}>
+                  I
+                </div>
+              )}
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 'bold', fontSize: '18px' }}>
                   {candidate.name}
