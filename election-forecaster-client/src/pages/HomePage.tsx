@@ -5,6 +5,7 @@ import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../c
 import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
+import { useDocumentTitle } from '../utils/useDocumentTitle';
 
 type MapView = 'senate' | 'house' | 'governors';
 type DataSource = 'combined' | 'markets' | 'polling';
@@ -18,6 +19,10 @@ export const HomePage = () => {
   const [hasPollingData, setHasPollingData] = useState(false);
   const [selectedState, setSelectedState] = useState<SelectedStateData | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<SelectedDistrictData | null>(null);
+
+  useDocumentTitle(
+    `2026 ${activeView === 'senate' ? 'Senate' : activeView === 'house' ? 'House' : 'Governor'} Forecast`
+  );
 
   const { data: states, isLoading: statesLoading } = useQuery({
     queryKey: ['states'],

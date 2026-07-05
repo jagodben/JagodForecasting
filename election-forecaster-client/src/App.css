@@ -1,5 +1,98 @@
 .app {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Reserve space for the fixed 40px site footer so content never hides behind it. */
+  padding-bottom: 40px;
+}
+
+/* Routed page content; the site footer sits below it as the last flex child. */
+.app-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   Race (state) detail page
+   Mobile: single scrolling column (default).
+   Desktop: fills the viewport in two columns — no page scroll.
+   ========================================= */
+.race-page {
+  background: #fff;
+  min-height: 100vh;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.race-page__header-top {
+  margin-bottom: 20px;
+}
+
+.race-page__sources {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.race-page__left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.race-page__right {
+  margin-top: 24px;
+}
+
+@media (min-width: 900px) {
+  .race-page {
+    max-width: 1180px;
+    height: calc(100vh - 40px); /* fill viewport minus the fixed 40px site footer */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 18px 32px;
+  }
+
+  .race-page__header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .race-page__sources {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+
+  .race-page__body {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(320px, 400px) 1fr;
+    gap: 40px;
+  }
+
+  .race-page__left {
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
+  }
+
+  .race-page__right {
+    margin-top: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
 
 /* Loading and Error States */
@@ -33,7 +126,8 @@
    Dashboard Layout - NYT Editorial Style
    ============================================= */
 .dashboard {
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;

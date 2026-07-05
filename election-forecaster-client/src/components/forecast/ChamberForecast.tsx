@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
+import { timeAgo } from '../../utils/time';
 
 // Rating order from left (Solid D) to right (Solid R)
 const RATING_ORDER: RaceRating[] = [
@@ -237,14 +238,31 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
     : rawDemVictoryOdds;
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
 
+  // Most-recent forecast generation time across this chamber's races → a data-freshness label.
+  const lastUpdatedLabel = (() => {
+    if (!detailedForecasts || detailedForecasts.length === 0) return null;
+    const latest = detailedForecasts.reduce((max, f) =>
+      f.lastUpdated > max ? f.lastUpdated : max, detailedForecasts[0].lastUpdated);
+    return timeAgo(latest);
+  })();
+
   const chamberName = raceType === RaceType.Senate ? 'Senate' : raceType === RaceType.House ? 'House' : 'Governors';
   const totalSeats = raceType === RaceType.Senate ? 100 : raceType === RaceType.House ? 435 : 50;
   const majorityNeeded = raceType === RaceType.Senate ? 50 : raceType === RaceType.House ? 218 : 26;
 
-  // For seats not up for election (simplified assumption)
-  const seatsNotUp = totalSeats - races.length;
-  const assumedDemHeld = Math.round(seatsNotUp * 0.48);
-  const assumedRepHeld = seatsNotUp - assumedDemHeld;
+  // Seats NOT up for election in 2026, by the party currently holding them. The Senate figures
+  // match the Monte Carlo baseline that drives the control probability (post-2024 Senate, 33 Class-2
+  // seats modeled as races → 34 D / 33 R not up), so the projected-seat total agrees with the
+  // win-probability simulation instead of a flat 48% guess. All 435 House seats are up (no
+  // holdovers). Governors have no chamber majority; the ~14 non-2026 governorships aren't modeled,
+  // so they're split evenly as a neutral placeholder.
+  const NOT_UP_HELD: Record<'Senate' | 'House' | 'Governors', { dem: number; rep: number }> = {
+    Senate: { dem: 34, rep: 33 },
+    House: { dem: 0, rep: 0 },
+    Governors: { dem: 7, rep: 7 },
+  };
+  const assumedDemHeld = NOT_UP_HELD[chamberName].dem;
+  const assumedRepHeld = NOT_UP_HELD[chamberName].rep;
 
   const totalDemSeats = seatProjection.democrat + assumedDemHeld;
   const totalRepSeats = seatProjection.republican + assumedRepHeld;
@@ -315,8 +333,8 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           </div>
         </div>
 
-        {/* Dem control probability over time (Senate) */}
-        {chamberHistory && chamberHistory.length >= 2 && (
+        {/* Dem control probability over time (Senate) — Forecast view only */}
+        {dataSource === 'combined' && chamberHistory && chamberHistory.length >= 2 && (
           <div className="forecast-sidebar__section">
             <div className="forecast-sidebar__label">Race Timeline</div>
             <ProbabilityTrendChart
@@ -358,6 +376,12 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
         {isLoadingForecasts && (
           <div className="forecast-sidebar__loading">Loading forecast data...</div>
+        )}
+
+        {lastUpdatedLabel && (
+          <div style={{ marginTop: '12px', fontSize: '11px', color: '#9ca3af', textAlign: 'center' }}>
+            Updated {lastUpdatedLabel}
+          </div>
         )}
       </div>
     );
