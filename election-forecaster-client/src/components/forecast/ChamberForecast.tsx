@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Race, RaceType, RaceRating, DetailedForecast } from '../../types';
+import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
 
@@ -62,15 +62,11 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
   const dataSource = externalDataSource ?? internalDataSource;
   const setDataSource = onDataSourceChange ?? setInternalDataSource;
 
-  // Fetch detailed forecasts for all races to get market/polling data
+  // Fetch detailed forecasts for all races of this type in a single batched request
+  // (shares its cache with the map via the same query key).
   const { data: detailedForecasts, isLoading: isLoadingForecasts } = useQuery({
-    queryKey: ['forecasts', races.map(r => r.id)],
-    queryFn: async () => {
-      const forecasts = await Promise.all(
-        races.map(race => forecastApi.getByRaceId(race.id).catch(() => null))
-      );
-      return forecasts.filter((f): f is DetailedForecast => f !== null);
-    },
+    queryKey: ['forecasts', raceType],
+    queryFn: () => forecastApi.getAll(raceType),
     enabled: races.length > 0,
   });
 

@@ -30,6 +30,9 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ForecastDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("ForecastDb")));
 
+// In-memory cache for computed forecasts (shared singleton across request scopes)
+builder.Services.AddMemoryCache();
+
 // Register core services
 builder.Services.AddSingleton<IStateService, StateService>();
 builder.Services.AddSingleton<IRaceService, RaceService>();

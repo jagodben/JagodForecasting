@@ -72,8 +72,9 @@ export const forecastApi = {
     return response.data;
   },
 
-  getAll: async (): Promise<DetailedForecast[]> => {
-    const response = await api.get<DetailedForecast[]>('/forecast');
+  getAll: async (type?: RaceType): Promise<DetailedForecast[]> => {
+    const params = type ? { type } : {};
+    const response = await api.get<DetailedForecast[]>('/forecast', { params });
     return response.data;
   },
 

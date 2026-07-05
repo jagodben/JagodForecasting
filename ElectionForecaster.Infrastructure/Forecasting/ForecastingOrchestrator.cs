@@ -8,7 +8,9 @@ using ElectionForecaster.Infrastructure.DataSources.Models;
 using ElectionForecaster.Infrastructure.DataSources.Polling;
 using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace ElectionForecaster.Infrastructure.Forecasting;
@@ -26,8 +28,22 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     private readonly WeightCalculator _weightCalculator;
     private readonly MonteCarloSimulator _simulator;
     private readonly ForecastDbContext _dbContext;
+    private readonly IMemoryCache _cache;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<ForecastingOrchestrator> _logger;
     private readonly DateTime _electionDate;
+
+    // Computed forecasts are cached for this long. External inputs refresh every ~15 min
+    // (market) / 6 h (polling), so a few minutes of staleness is invisible but spares every
+    // request the DB reads + blend math. Cache is a shared singleton across request scopes.
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
+
+    // Max races forecast concurrently when filling a cold cache — each runs in its own DI scope
+    // (own DbContext) so this is real parallelism, bounded to avoid hammering the upstream APIs.
+    private const int MaxForecastConcurrency = 8;
+
+    private static string ForecastKey(string raceId) => $"forecast:{raceId}";
+    private static string ChamberKey(RaceType chamber) => $"chamber:{chamber}";
 
     public ForecastingOrchestrator(
         IEnumerable<IPredictionMarketSource> marketSources,
@@ -38,6 +54,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         WeightCalculator weightCalculator,
         MonteCarloSimulator simulator,
         ForecastDbContext dbContext,
+        IMemoryCache cache,
+        IServiceScopeFactory scopeFactory,
         IConfiguration configuration,
         ILogger<ForecastingOrchestrator> logger)
     {
@@ -49,11 +67,23 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _weightCalculator = weightCalculator;
         _simulator = simulator;
         _dbContext = dbContext;
+        _cache = cache;
+        _scopeFactory = scopeFactory;
         _logger = logger;
         _electionDate = DateTime.Parse(configuration.GetValue<string>("Forecasting:ElectionDate") ?? "2026-11-03");
     }
 
     public async Task<DetailedForecast> GenerateForecastAsync(string raceId, CancellationToken cancellationToken = default)
+    {
+        if (_cache.TryGetValue(ForecastKey(raceId), out DetailedForecast? cached) && cached != null)
+            return cached;
+
+        var forecast = await BuildLiveForecastAsync(raceId, cancellationToken);
+        _cache.Set(ForecastKey(raceId), forecast, CacheTtl);
+        return forecast;
+    }
+
+    private async Task<DetailedForecast> BuildLiveForecastAsync(string raceId, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Generating forecast for {RaceId}", raceId);
 
@@ -181,51 +211,58 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
     public async Task<List<DetailedForecast>> GenerateAllForecastsAsync(RaceType? raceType = null, CancellationToken cancellationToken = default)
     {
-        var races = await _raceService.GetAllRacesAsync(raceType);
-        var forecasts = new List<DetailedForecast>();
+        var races = (await _raceService.GetAllRacesAsync(raceType)).ToList();
+        var results = new DetailedForecast?[races.Count];
+        var misses = new List<int>();
 
-        foreach (var race in races)
+        // Serve every already-cached race straight from memory; only the misses need computing.
+        for (int i = 0; i < races.Count; i++)
         {
-            try
-            {
-                var forecast = await GenerateForecastAsync(race.Id, cancellationToken);
-                forecasts.Add(forecast);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error generating forecast for {RaceId}", race.Id);
-            }
+            if (_cache.TryGetValue(ForecastKey(races[i].Id), out DetailedForecast? cached) && cached != null)
+                results[i] = cached;
+            else
+                misses.Add(i);
         }
 
-        return forecasts;
+        // Compute the misses in parallel. Each runs in its own DI scope so it gets a private
+        // DbContext (EF Core contexts aren't thread-safe) — sharing this instance's would throw.
+        if (misses.Count > 0)
+        {
+            using var throttle = new SemaphoreSlim(MaxForecastConcurrency);
+            await Task.WhenAll(misses.Select(async i =>
+            {
+                await throttle.WaitAsync(cancellationToken);
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var orchestrator = scope.ServiceProvider.GetRequiredService<IForecastingOrchestrator>();
+                    results[i] = await orchestrator.GenerateForecastAsync(races[i].Id, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error generating forecast for {RaceId}", races[i].Id);
+                }
+                finally
+                {
+                    throttle.Release();
+                }
+            }));
+        }
+
+        return results.Where(f => f != null).Select(f => f!).ToList();
     }
 
     public async Task<ChamberForecast> SimulateChamberAsync(RaceType chamber, CancellationToken cancellationToken = default)
     {
-        // Get all races for this chamber type
-        var races = (await _raceService.GetAllRacesAsync(chamber)).ToList();
+        if (_cache.TryGetValue(ChamberKey(chamber), out ChamberForecast? cached) && cached != null)
+            return cached;
 
-        // Generate forecasts for each race
-        var forecasts = new List<DetailedForecast>();
-        foreach (var race in races)
-        {
-            try
-            {
-                var forecast = await GenerateForecastAsync(race.Id, cancellationToken);
-                forecasts.Add(forecast);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error forecasting {RaceId} for chamber simulation", race.Id);
-            }
-        }
-
-        // Run Monte Carlo simulation
+        // Per-race forecasts (cached + computed in parallel), then the 10k-iteration Monte Carlo.
+        var forecasts = await GenerateAllForecastsAsync(chamber, cancellationToken);
         var chamberResult = _simulator.SimulateChamber(forecasts, chamber);
-
-        // Get historical data
         chamberResult.History = await GetChamberHistoryAsync(chamber.ToString(), 90, cancellationToken);
 
+        _cache.Set(ChamberKey(chamber), chamberResult, CacheTtl);
         return chamberResult;
     }
 
@@ -246,6 +283,14 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         tasks.Add(_approvalSource.RefreshAsync(cancellationToken));
 
         await Task.WhenAll(tasks);
+
+        // Drop cached forecasts so the freshly-pulled inputs take effect immediately rather than
+        // waiting out the TTL. Keys are per-race plus the two chambers.
+        var races = await _raceService.GetAllRacesAsync();
+        foreach (var race in races)
+            _cache.Remove(ForecastKey(race.Id));
+        _cache.Remove(ChamberKey(RaceType.Senate));
+        _cache.Remove(ChamberKey(RaceType.House));
 
         _logger.LogInformation("All data sources refreshed");
     }

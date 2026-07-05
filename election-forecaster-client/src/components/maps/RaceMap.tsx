@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { StateSummary, Race, RaceRating, RaceType, DetailedForecast } from '../../types';
+import { StateSummary, Race, RaceRating, RaceType } from '../../types';
 import { forecastApi } from '../../services/api';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
@@ -95,15 +95,11 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
 
-  // Fetch detailed forecasts for all races
+  // Fetch detailed forecasts for all races of this type in a single batched request
+  // (shares its cache with the sidebar's ChamberForecast via the same query key).
   const { data: detailedForecasts } = useQuery({
-    queryKey: ['forecasts', races.map(r => r.id)],
-    queryFn: async () => {
-      const forecasts = await Promise.all(
-        races.map(race => forecastApi.getByRaceId(race.id).catch(() => null))
-      );
-      return forecasts.filter((f): f is DetailedForecast => f !== null);
-    },
+    queryKey: ['forecasts', raceType],
+    queryFn: () => forecastApi.getAll(raceType),
     enabled: races.length > 0,
   });
 

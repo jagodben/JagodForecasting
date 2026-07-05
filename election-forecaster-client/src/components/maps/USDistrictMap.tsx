@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Race, RaceRating, DetailedForecast } from '../../types';
+import { Race, RaceRating, RaceType } from '../../types';
 import { forecastApi } from '../../services/api';
 import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
@@ -126,15 +126,11 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   zoomRef.current = zoom;
   panRef.current = pan;
 
-  // Fetch detailed forecasts for data-source-aware coloring
+  // Fetch detailed forecasts for data-source-aware coloring in a single batched request
+  // (one call for all House races instead of one per district).
   const { data: detailedForecasts } = useQuery({
-    queryKey: ['forecasts', races.map(r => r.id)],
-    queryFn: async () => {
-      const forecasts = await Promise.all(
-        races.map(race => forecastApi.getByRaceId(race.id).catch(() => null))
-      );
-      return forecasts.filter((f): f is DetailedForecast => f !== null);
-    },
+    queryKey: ['forecasts', RaceType.House],
+    queryFn: () => forecastApi.getAll(RaceType.House),
     enabled: races.length > 0,
   });
 
