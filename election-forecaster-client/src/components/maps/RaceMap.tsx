@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { StateSummary, Race, RaceRating, RaceType } from '../../types';
 import { forecastApi } from '../../services/api';
+import { ratingFill, MapPatternDefs } from './ratingFill';
+import { useAccessibility } from '../../context/AccessibilityContext';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 
@@ -91,6 +93,7 @@ interface TooltipData {
 
 export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onStateSelect }: RaceMapProps) => {
   const navigate = useNavigate();
+  const { patterns } = useAccessibility();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
@@ -193,6 +196,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
   return (
     <div className="us-map-container" style={{ position: 'relative' }}>
       <ComposableMap projection="geoAlbersUsa" projectionConfig={{ scale: 1000 }}>
+        <MapPatternDefs ns="race" colorOf={getRatingColor} />
         <Geographies geography={GEO_URL}>
             {({ geographies }) => {
               const hoveredStateId = tooltipData?.race ? tooltipData.stateId : null;
@@ -207,7 +211,12 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
 
                     const race = raceMap.get(stateId);
                     const ratingData = race ? raceRatings.get(race.id) : null;
-                    const fillColor = ratingData ? getRatingColor(ratingData.rating) : (race ? getRatingColor(race.rating) : '#DDDDDD');
+                    const rating = ratingData?.rating ?? race?.rating ?? null;
+                    const fillColor = !rating
+                      ? '#DDDDDD'
+                      : patterns
+                        ? ratingFill('race', rating, getRatingColor(rating))
+                        : getRatingColor(rating);
 
                     return (
                       <Geography
@@ -236,7 +245,12 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
 
                     const race = raceMap.get(stateId);
                     const ratingData = race ? raceRatings.get(race.id) : null;
-                    const fillColor = ratingData ? getRatingColor(ratingData.rating) : (race ? getRatingColor(race.rating) : '#DDDDDD');
+                    const rating = ratingData?.rating ?? race?.rating ?? null;
+                    const fillColor = !rating
+                      ? '#DDDDDD'
+                      : patterns
+                        ? ratingFill('race', rating, getRatingColor(rating))
+                        : getRatingColor(rating);
 
                     return (
                       <Geography

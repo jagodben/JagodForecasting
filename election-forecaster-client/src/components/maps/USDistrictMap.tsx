@@ -4,6 +4,8 @@ import { Race, RaceRating, RaceType } from '../../types';
 import { forecastApi } from '../../services/api';
 import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
+import { ratingFill, MapPatternDefs } from './ratingFill';
+import { useAccessibility } from '../../context/AccessibilityContext';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -108,6 +110,7 @@ interface TooltipData {
 }
 
 export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect }: USDistrictMapProps) => {
+  const { patterns } = useAccessibility();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [districtFeatures, setDistrictFeatures] = useState<DistrictFeature[]>([]);
@@ -388,6 +391,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
           >
+            <MapPatternDefs ns="dist" colorOf={getRatingColor} />
             <g transform={`translate(${400 + pan.x}, ${250 + pan.y}) scale(${zoom}) translate(${-400}, ${-250})`}>
               {/* Render non-hovered districts first */}
               {districtFeatures.map((feat) => {
@@ -400,7 +404,11 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
                 const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
-                const fillColor = rating ? getRatingColor(rating) : '#CCCCCC';
+                const fillColor = !rating
+                  ? '#CCCCCC'
+                  : patterns
+                    ? ratingFill('dist', rating, getRatingColor(rating))
+                    : getRatingColor(rating);
                 const pathData = paths.get(feat.properties.GEOID) || '';
 
                 return (
@@ -428,7 +436,11 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
                 const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
-                const fillColor = rating ? getRatingColor(rating) : '#CCCCCC';
+                const fillColor = !rating
+                  ? '#CCCCCC'
+                  : patterns
+                    ? ratingFill('dist', rating, getRatingColor(rating))
+                    : getRatingColor(rating);
                 const pathData = paths.get(feat.properties.GEOID) || '';
 
                 return (
