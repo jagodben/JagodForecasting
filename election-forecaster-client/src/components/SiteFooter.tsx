@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AccessibilityToggle } from './AccessibilityToggle';
+import { SocialLinks } from './SocialLinks';
 
 // Slim site-wide bottom bar: about/methodology link, copyright, a light disclaimer, and (only on the
 // map/home page, where it actually does something) the colorblind-pattern accessibility switch.
@@ -35,6 +36,8 @@ export const SiteFooter = () => {
     </Link>
     <span aria-hidden style={{ opacity: 0.4 }}>·</span>
     <span>A personal modeling project — not affiliated with any campaign.</span>
+    <span aria-hidden style={{ opacity: 0.4 }}>·</span>
+    <SocialLinks color="rgba(255,255,255,0.7)" size={15} />
     {onMap && (
       <>
         <span aria-hidden style={{ opacity: 0.4 }}>·</span>

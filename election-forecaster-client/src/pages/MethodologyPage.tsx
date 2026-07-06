@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
+import { SocialLinks } from '../components/SocialLinks';
 
 const Item = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <li style={{ marginBottom: '12px' }}>
@@ -42,8 +43,9 @@ export const MethodologyPage = () => {
         A personal modeling project — not affiliated with any campaign, and not professional guidance.
       </p>
 
-      <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
+      <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
         <Link to="/" style={{ color: '#6366f1', fontWeight: 500 }}>← Back to the map</Link>
+        <SocialLinks color="#4b5563" size={20} />
       </div>
     </div>
   );
