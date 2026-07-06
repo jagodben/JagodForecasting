@@ -50,8 +50,9 @@
 @media (min-width: 900px) {
   .race-page {
     max-width: 1180px;
-    height: calc(100vh - 40px); /* fill viewport minus the fixed 40px site footer */
-    overflow: hidden;
+    /* Fill at least the viewport (minus the fixed 40px footer), but grow with the content so
+       nothing is clipped — the page scrolls when the columns are taller than one screen. */
+    min-height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
     padding: 18px 32px;
@@ -70,28 +71,19 @@
     flex-shrink: 0;
   }
 
+  /* Desktop: 2x2 quadrants — left column (chart + projected), right column (candidates + polls). */
   .race-page__body {
-    flex: 1;
-    min-height: 0;
     display: grid;
-    grid-template-columns: minmax(320px, 400px) 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 40px;
+    align-items: start;
   }
 
-  .race-page__left {
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 6px;
-  }
-
-  .race-page__right {
-    margin-top: 0;
+  .race-page__col {
     min-width: 0;
-    min-height: 0;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    gap: 28px;
   }
 }
 

@@ -2,10 +2,11 @@ import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
-import { RaceType, Party, RacePolls } from '../types';
+import { RaceType, Party, RacePolls, Race, Candidate, DetailedForecast } from '../types';
 import { ProbabilityTrendChart } from '../components/charts/ProbabilityTrendChart';
 import { timeAgo } from '../utils/time';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
+import { useIsDesktop } from '../utils/useMediaQuery';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -77,6 +78,7 @@ const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
 export const RacePage = () => {
   const { raceId } = useParams<{ raceId: string }>();
   const [dataSource, setDataSource] = useState<DataSource>('combined');
+  const isDesktop = useIsDesktop();
 
   const { data: race, isLoading: raceLoading, error: raceError } = useQuery({
     queryKey: ['race', raceId],
@@ -103,7 +105,7 @@ export const RacePage = () => {
   });
 
   // Calculate probabilities based on selected data source
-  const { demProb, repProb, historicalData, hasMarketData, hasPollingData } = useMemo(() => {
+  const { demProb, historicalData, hasMarketData, hasPollingData } = useMemo(() => {
     if (!race) return { demProb: 0.5, repProb: 0.5, historicalData: [], hasMarketData: false, hasPollingData: false };
 
     const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
@@ -176,6 +178,11 @@ export const RacePage = () => {
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);
 
+  // On desktop the toggle is dropped and everything is shown at once, so the headline always uses
+  // the combined forecast; on mobile it follows the selected data source.
+  const headDem = isDesktop ? (forecast?.demWinProbability ?? demProb) : demProb;
+  const headRep = 1 - headDem;
+
   return (
     <div className="race-page">
       <nav className="breadcrumb" style={{ marginBottom: '12px' }}>
@@ -198,7 +205,8 @@ export const RacePage = () => {
           )}
         </div>
 
-        {/* Data Source Toggle */}
+        {/* Data Source Toggle — mobile only; desktop shows every lens at once */}
+        {!isDesktop && (
         <div className="race-page__sources">
           {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
             const isDisabled =
@@ -229,205 +237,173 @@ export const RacePage = () => {
             );
           })}
         </div>
+        )}
       </div>
 
       <div className="race-page__body">
-        {/* Left: win probability, projected result, candidates */}
-        <div className="race-page__left">
-          <div>
-            <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
-            {dataSource !== 'combined' && (
-              <div style={{
-                textAlign: 'center',
-                fontSize: '13px',
-                color: dataSource === 'markets' ? '#059669' : '#2563eb',
-                marginBottom: '12px',
-                fontWeight: 500,
-              }}>
-                {dataSource === 'markets' && 'Based on Polymarket prediction market odds'}
-                {dataSource === 'polling' && 'Based on polling averages'}
-              </div>
-            )}
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              {/* Democrat */}
-              <div style={{ flex: 1, textAlign: 'center' }}>
-                <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#0044CC' }}>
-                  {(demProb * 100).toFixed(1)}%
+        {isDesktop ? (
+          <>
+            {/* Left column: Model chart (top) + projected result (bottom) */}
+            <div className="race-page__col">
+              {historicalData.length >= 2 && (
+                <div style={{ width: '100%' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Model Forecast</div>
+                  <ProbabilityTrendChart
+                    data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
+                    demLabel={demCandidate?.name || 'Democrat'}
+                    repLabel={repCandidate?.name || 'Republican'}
+                    width={520}
+                    height={300}
+                  />
                 </div>
-                {demCandidate?.isIncumbent && (
-                  <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>
-                )}
-              </div>
+              )}
 
-              {/* Bar */}
-              <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
-                <div style={{
-                  width: `${demProb * 100}%`,
-                  backgroundColor: '#0044CC',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  transition: 'width 0.3s ease',
-                }}>
-                  D
-                </div>
-                <div style={{
-                  width: `${repProb * 100}%`,
-                  backgroundColor: '#CC0000',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: 'bold',
-                  transition: 'width 0.3s ease',
-                }}>
-                  R
-                </div>
-              </div>
-
-              {/* Republican */}
-              <div style={{ flex: 1, textAlign: 'center' }}>
-                <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#CC0000' }}>
-                  {(repProb * 100).toFixed(1)}%
-                </div>
-                {repCandidate?.isIncumbent && (
-                  <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>
-                )}
-              </div>
-            </div>
-
-            {/* Projected result (the forecast's expected margin) — Forecast view only */}
-            {forecast && dataSource === 'combined' && (
-              <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                  color: forecast.expectedDemMargin > 0 ? '#0044CC' : forecast.expectedDemMargin < 0 ? '#CC0000' : '#666',
-                }}>
-                  {formatMargin(forecast.expectedDemMargin)}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Candidates */}
-          <div>
-            <h3 style={{ margin: '0 0 12px 0' }}>Candidates</h3>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {race.candidates.map(candidate => {
-                const candidateForecast = race.forecasts.find(f => f.candidateId === candidate.id);
-                // Show the same probability as the headline for the two major-party candidates
-                // (reflects the selected data source); fall back to the per-candidate forecast for others.
-                const displayProbability =
-                  candidate.party === Party.Democrat ? demProb :
-                  candidate.party === Party.Republican ? repProb :
-                  candidateForecast?.winProbability;
-                const partyLogo = getPartyLogo(candidate.party);
-                return (
-                  <div
-                    key={candidate.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '12px 0',
-                      borderBottom: '1px solid #eee',
-                    }}
-                  >
-                    {partyLogo ? (
-                      <img
-                        src={partyLogo}
-                        alt={candidate.party}
-                        style={{
-                          width: '42px',
-                          height: '42px',
-                          objectFit: 'contain',
-                          marginRight: '14px',
-                          flexShrink: 0,
-                        }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '50%',
-                        backgroundColor: getPartyColor(candidate.party),
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '18px',
-                        marginRight: '14px',
-                        flexShrink: 0,
-                      }}>
-                        I
-                      </div>
-                    )}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 'bold', fontSize: '17px' }}>
-                        {candidate.name}
-                        {candidate.isIncumbent && (
-                          <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
-                            (i)
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ color: '#666', fontSize: '14px' }}>{candidate.party}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
-                        {displayProbability != null ? `${(displayProbability * 100).toFixed(1)}%` : '-'}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#666' }}>Win Probability</div>
-                    </div>
+              {forecast && (
+                <div>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
+                  <div style={{
+                    fontSize: '30px',
+                    fontWeight: 'bold',
+                    color: forecast.expectedDemMargin > 0 ? '#0044CC' : forecast.expectedDemMargin < 0 ? '#CC0000' : '#666',
+                  }}>
+                    {formatMargin(forecast.expectedDemMargin)}
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* Right: model-forecast chart (Forecast) or polls (Polls) */}
-        <div className="race-page__right">
-          {dataSource === 'combined' && historicalData.length >= 2 && (
-            <div style={{ width: '100%' }}>
-              <h3 style={{ margin: '0 0 12px 0', textAlign: 'center' }}>Model Forecast</h3>
-              <ProbabilityTrendChart
-                data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
-                demLabel={demCandidate?.name || 'Democrat'}
-                repLabel={repCandidate?.name || 'Republican'}
-                width={760}
-                height={300}
+            {/* Right column: candidates (top) + polls (bottom) */}
+            <div className="race-page__col">
+              <CandidatesList race={race} />
+              <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Mobile: win-probability headline + candidates, then the toggle-selected view */}
+            <div className="race-page__left">
+              <WinProbHeadline
+                headDem={headDem}
+                headRep={headRep}
+                demCandidate={demCandidate}
+                repCandidate={repCandidate}
+                dataSource={dataSource}
+                forecast={forecast}
               />
+              <CandidatesList race={race} />
             </div>
-          )}
 
-          {dataSource === 'polling' && (
-            <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
-          )}
+            <div className="race-page__right">
+              {dataSource === 'combined' && historicalData.length >= 2 && (
+                <div style={{ width: '100%' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Model Forecast</div>
+                  <ProbabilityTrendChart
+                    data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
+                    demLabel={demCandidate?.name || 'Democrat'}
+                    repLabel={repCandidate?.name || 'Republican'}
+                    width={760}
+                    height={300}
+                  />
+                </div>
+              )}
 
-          {dataSource === 'markets' && (
-            <div style={{ textAlign: 'center', color: '#9ca3af', fontSize: '14px', padding: '24px' }}>
-              Showing the Polymarket prediction-market win probability.
+              {dataSource === 'polling' && (
+                <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
+              )}
+
+              {dataSource === 'markets' && (
+                <div style={{ textAlign: 'center', color: '#9ca3af', fontSize: '14px', padding: '24px' }}>
+                  Showing the Polymarket prediction-market win probability.
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-// Polls list + weighted average shown when the "Polls" data source is selected
-const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: string; repName?: string }) => {
+// Win-probability headline (big Dem/Rep % + bar + projected margin). Mobile only — on desktop the
+// candidates list already shows each side's win probability, so the headline is redundant.
+const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, dataSource, forecast }: {
+  headDem: number;
+  headRep: number;
+  demCandidate?: Candidate;
+  repCandidate?: Candidate;
+  dataSource: DataSource;
+  forecast?: DetailedForecast;
+}) => (
+  <div>
+    <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
+    {dataSource !== 'combined' && (
+      <div style={{ textAlign: 'center', fontSize: '13px', color: dataSource === 'markets' ? '#059669' : '#2563eb', marginBottom: '12px', fontWeight: 500 }}>
+        {dataSource === 'markets' && 'Based on Polymarket prediction market odds'}
+        {dataSource === 'polling' && 'Based on polling averages'}
+      </div>
+    )}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ flex: 1, textAlign: 'center' }}>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#0044CC' }}>{(headDem * 100).toFixed(1)}%</div>
+        {demCandidate?.isIncumbent && <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>}
+      </div>
+      <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ width: `${headDem * 100}%`, backgroundColor: '#0044CC', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>D</div>
+        <div style={{ width: `${headRep * 100}%`, backgroundColor: '#CC0000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>R</div>
+      </div>
+      <div style={{ flex: 1, textAlign: 'center' }}>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#CC0000' }}>{(headRep * 100).toFixed(1)}%</div>
+        {repCandidate?.isIncumbent && <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>}
+      </div>
+    </div>
+    {forecast && dataSource === 'combined' && (
+      <div style={{ textAlign: 'center', marginTop: '16px' }}>
+        <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', color: forecast.expectedDemMargin > 0 ? '#0044CC' : forecast.expectedDemMargin < 0 ? '#CC0000' : '#666' }}>
+          {formatMargin(forecast.expectedDemMargin)}
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+// Candidate list — name, party, incumbency. Win probability is omitted (it's already shown by the
+// forecast chart / headline).
+const CandidatesList = ({ race }: { race: Race }) => (
+  <div>
+    <h3 style={{ margin: '0 0 12px 0' }}>Candidates</h3>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      {race.candidates.map(candidate => {
+        const partyLogo = getPartyLogo(candidate.party);
+        return (
+          <div key={candidate.id} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #eee' }}>
+            {partyLogo ? (
+              <img src={partyLogo} alt={candidate.party} style={{ width: '42px', height: '42px', objectFit: 'contain', marginRight: '14px', flexShrink: 0 }} />
+            ) : (
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: getPartyColor(candidate.party), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', marginRight: '14px', flexShrink: 0 }}>I</div>
+            )}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 'bold', fontSize: '17px' }}>
+                {candidate.name}
+                {candidate.isIncumbent && <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(i)</span>}
+              </div>
+              <div style={{ color: '#666', fontSize: '14px' }}>{candidate.party}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+);
+
+// Polls list + weighted average. `maxRows` caps the table (desktop, to keep everything on one
+// screen) and shows a "+N more" note.
+const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; demName?: string; repName?: string; maxRows?: number }) => {
   if (!data || data.polls.length === 0) {
     return (
-      <div style={{ marginBottom: '48px' }}>
+      <div>
         <h3 style={{ margin: '0 0 8px 0' }}>Polls</h3>
-        <div style={{ textAlign: 'center', padding: '32px', color: '#999', fontSize: '14px' }}>
+        <div style={{ textAlign: 'center', padding: '24px', color: '#999', fontSize: '14px' }}>
           No polling data available for this race yet.
         </div>
       </div>
@@ -436,11 +412,13 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
 
   const avg = data.average;
   const demLead = avg ? avg.margin >= 0 : true;
+  const shownPolls = maxRows ? data.polls.slice(0, maxRows) : data.polls;
+  const hiddenCount = data.polls.length - shownPolls.length;
 
   return (
-    <div style={{ marginBottom: '48px' }}>
+    <div style={{ width: '100%' }}>
       <h3 style={{ margin: '0 0 4px 0' }}>Polls</h3>
-      <div style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
+      <div style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
         Weighted average of {data.polls.length} poll{data.polls.length === 1 ? '' : 's'} · recency &amp; sample-size weighted
       </div>
 
@@ -481,7 +459,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
             </tr>
           </thead>
           <tbody>
-            {data.polls.map((poll, i) => {
+            {shownPolls.map((poll, i) => {
               const leadD = poll.margin >= 0;
               return (
                 <tr key={i} style={{ borderBottom: '1px solid #f0f0f0' }}>
@@ -508,6 +486,11 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
           </tbody>
         </table>
       </div>
+      {hiddenCount > 0 && (
+        <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px', textAlign: 'center' }}>
+          + {hiddenCount} more poll{hiddenCount === 1 ? '' : 's'}
+        </div>
+      )}
     </div>
   );
 };

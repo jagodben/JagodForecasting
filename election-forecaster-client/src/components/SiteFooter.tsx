@@ -1,9 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AccessibilityToggle } from './AccessibilityToggle';
 
-// Slim site-wide bottom bar: about/methodology link, copyright, a light disclaimer, and the
-// colorblind-pattern accessibility switch.
-export const SiteFooter = () => (
+// Slim site-wide bottom bar: about/methodology link, copyright, a light disclaimer, and (only on the
+// map/home page, where it actually does something) the colorblind-pattern accessibility switch.
+export const SiteFooter = () => {
+  const onMap = useLocation().pathname === '/';
+  return (
   <footer
     style={{
       position: 'fixed',
@@ -29,11 +31,16 @@ export const SiteFooter = () => (
     <span>© {new Date().getFullYear()} Jagod Forecasting</span>
     <span aria-hidden style={{ opacity: 0.4 }}>·</span>
     <Link to="/methodology" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>
-      About &amp; Methodology
+      About
     </Link>
     <span aria-hidden style={{ opacity: 0.4 }}>·</span>
     <span>A personal modeling project — not affiliated with any campaign.</span>
-    <span aria-hidden style={{ opacity: 0.4 }}>·</span>
-    <AccessibilityToggle />
+    {onMap && (
+      <>
+        <span aria-hidden style={{ opacity: 0.4 }}>·</span>
+        <AccessibilityToggle />
+      </>
+    )}
   </footer>
-);
+  );
+};
