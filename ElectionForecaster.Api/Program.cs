@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Threading.RateLimiting;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Infrastructure.Data;
@@ -9,6 +10,7 @@ using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using ElectionForecaster.Infrastructure.Forecasting;
 using ElectionForecaster.Infrastructure.Services;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,18 @@ builder.Services.AddDbContext<ForecastDbContext>(options =>
 
 // In-memory cache for computed forecasts (shared singleton across request scopes)
 builder.Services.AddMemoryCache();
+
+// Compress the large forecast JSON payloads (the House batch is ~500KB uncompressed).
+// Brotli "Optimal" maps to quality 11 in .NET and is pathologically slow, so both
+// providers run at Fastest — still a ~5x reduction with negligible added latency.
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
 
 // Register core services
 builder.Services.AddSingleton<IStateService, StateService>();
@@ -115,6 +129,9 @@ if (app.Environment.IsDevelopment())
     });
     app.UseHttpsRedirection();
 }
+
+// Compress responses before anything writes to the body
+app.UseResponseCompression();
 
 app.UseCors("ReactApp");
 
