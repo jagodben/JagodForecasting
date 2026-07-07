@@ -18,22 +18,22 @@ const getRatingLabel = (rating: RaceRating): string => {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#0033AA';
-    case RaceRating.LikelyDem: return '#2266DD';
-    case RaceRating.LeanDem: return '#5599EE';
-    case RaceRating.TiltDem: return '#99CCFF';
-    case RaceRating.TiltRep: return '#FFCC99';
-    case RaceRating.LeanRep: return '#E07070';
-    case RaceRating.LikelyRep: return '#DD4422';
-    case RaceRating.SolidRep: return '#AA0000';
+    case RaceRating.SolidDem: return '#123f8f';
+    case RaceRating.LikelyDem: return '#2e63bd';
+    case RaceRating.LeanDem: return '#5a8fd6';
+    case RaceRating.TiltDem: return '#9dbff0';
+    case RaceRating.TiltRep: return '#f4aa9b';
+    case RaceRating.LeanRep: return '#e2694f';
+    case RaceRating.LikelyRep: return '#cf2f1a';
+    case RaceRating.SolidRep: return '#9c150b';
     default: return '#E0E0E0';
   }
 };
 
 const getPartyColor = (party: Party): string => {
   switch (party) {
-    case Party.Democrat: return '#0033AA';
-    case Party.Republican: return '#AA0000';
+    case Party.Democrat: return '#123f8f';
+    case Party.Republican: return '#9c150b';
     case Party.Independent: return '#808080';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';
@@ -89,7 +89,8 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
         padding: '12px',
         borderRadius: '8px',
         backgroundColor: '#fff',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        border: '1px solid #ececec',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
         marginBottom: '8px',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -115,7 +116,8 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
       padding: '20px',
       borderRadius: '12px',
       backgroundColor: '#fff',
-      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+      border: '1px solid #ececec',
+      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
       marginBottom: '16px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -165,7 +167,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           <span style={{
             fontWeight: 'bold',
             fontSize: '16px',
-            color: detailed.expectedDemMargin > 0 ? '#0033AA' : detailed.expectedDemMargin < 0 ? '#AA0000' : '#666',
+            color: detailed.expectedDemMargin > 0 ? '#123f8f' : detailed.expectedDemMargin < 0 ? '#9c150b' : '#666',
           }}>
             {formatMargin(detailed.expectedDemMargin)}
           </span>

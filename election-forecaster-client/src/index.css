@@ -7,14 +7,14 @@
   --font-body: 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Political Colors - High Contrast */
-  --dem-solid: #0033AA;
-  --dem-likely: #2266DD;
-  --dem-lean: #5599EE;
-  --dem-tilt: #99CCFF;
-  --rep-tilt: #FFCC99;
-  --rep-lean: #E07070;
-  --rep-likely: #DD4422;
-  --rep-solid: #AA0000;
+  --dem-solid: #123f8f;
+  --dem-likely: #2e63bd;
+  --dem-lean: #5a8fd6;
+  --dem-tilt: #9dbff0;
+  --rep-tilt: #f4aa9b;
+  --rep-lean: #e2694f;
+  --rep-likely: #cf2f1a;
+  --rep-solid: #9c150b;
 
   /* UI Colors */
   --text-primary: #121212;
@@ -57,10 +57,17 @@ a:hover {
   text-decoration: underline;
 }
 
-h1, h2, h3 {
+h1, h2 {
   font-family: var(--font-headline);
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+/* Small section headers use the body sans — the display serif looks fussy at this size */
+h3 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 h1 {
@@ -80,9 +87,9 @@ h3 {
 }
 
 button {
-  border-radius: 2px;
+  border-radius: 6px;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 20px;
   font-size: 0.875em;
   font-weight: 600;
   font-family: var(--font-body);
@@ -90,8 +97,6 @@ button {
   color: white;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 button:hover {

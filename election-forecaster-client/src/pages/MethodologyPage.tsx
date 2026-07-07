@@ -44,8 +44,8 @@ export const MethodologyPage = () => {
       </p>
 
       <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-        <Link to="/" style={{ color: '#6366f1', fontWeight: 500 }}>← Back to the map</Link>
-        <SocialLinks color="#4b5563" size={20} />
+        <Link to="/" style={{ color: 'var(--dem-solid)', fontWeight: 500 }}>← Back to the map</Link>
+        <SocialLinks color="#555555" size={20} />
       </div>
     </div>
   );

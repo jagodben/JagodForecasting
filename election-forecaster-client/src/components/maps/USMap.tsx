@@ -21,14 +21,14 @@ const stateNameToId: Record<string, string> = {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#0033AA';
-    case RaceRating.LikelyDem: return '#2266DD';
-    case RaceRating.LeanDem: return '#5599EE';
-    case RaceRating.TiltDem: return '#99CCFF';
-    case RaceRating.TiltRep: return '#FFCC99';
-    case RaceRating.LeanRep: return '#E07070';
-    case RaceRating.LikelyRep: return '#DD4422';
-    case RaceRating.SolidRep: return '#AA0000';
+    case RaceRating.SolidDem: return '#123f8f';
+    case RaceRating.LikelyDem: return '#2e63bd';
+    case RaceRating.LeanDem: return '#5a8fd6';
+    case RaceRating.TiltDem: return '#9dbff0';
+    case RaceRating.TiltRep: return '#f4aa9b';
+    case RaceRating.LeanRep: return '#e2694f';
+    case RaceRating.LikelyRep: return '#cf2f1a';
+    case RaceRating.SolidRep: return '#9c150b';
     default: return '#E0E0E0';
   }
 };

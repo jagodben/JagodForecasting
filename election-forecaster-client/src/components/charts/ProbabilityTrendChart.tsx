@@ -13,8 +13,8 @@ interface Props {
   height?: number;
 }
 
-const DEM = '#0033AA';
-const REP = '#AA0000';
+const DEM = '#123f8f';
+const REP = '#9c150b';
 
 /**
  * Two-line probability-over-time chart (Dem vs Rep, which sum to 100%). Shared by the home-page

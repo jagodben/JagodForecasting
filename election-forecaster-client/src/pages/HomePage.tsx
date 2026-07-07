@@ -44,13 +44,20 @@ export const HomePage = () => {
     queryFn: () => racesApi.getAll(RaceType.House),
   });
 
-  const isLoading = statesLoading || senateLoading || govLoading || houseLoading;
+  // Only block the first paint on what the current view actually needs (the state
+  // geography + this chamber's races). The other chambers keep loading in the
+  // background, so switching tabs is instant without gating the initial render on
+  // the 435-race House list.
+  const activeRacesLoading =
+    activeView === 'senate' ? senateLoading :
+    activeView === 'house' ? houseLoading :
+    govLoading;
 
-  if (isLoading) {
+  if (statesLoading) {
     return (
       <div className="loading-container">
         <div className="spinner" />
-        <p>Loading election data...</p>
+        <p>Loading the map…</p>
       </div>
     );
   }
@@ -116,6 +123,11 @@ export const HomePage = () => {
       {/* Main content: map + sidebar */}
       <div className="dashboard-main">
         <div className={`dashboard-map ${mobilePanel === 'data' ? 'mobile-hidden' : ''}`}>
+          {activeRacesLoading && (
+            <div className="loading-container">
+              <div className="spinner" />
+            </div>
+          )}
           {activeView === 'senate' && senateRaces && (
             <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} dataSource={dataSource} onStateSelect={setSelectedState} />
           )}

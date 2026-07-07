@@ -18,14 +18,14 @@ const RATING_ORDER: RaceRating[] = [
 ];
 
 const RATING_COLORS: Record<RaceRating, string> = {
-  [RaceRating.SolidDem]: '#0033AA',
-  [RaceRating.LikelyDem]: '#2266DD',
-  [RaceRating.LeanDem]: '#5599EE',
-  [RaceRating.TiltDem]: '#99CCFF',
-  [RaceRating.TiltRep]: '#FFCC99',
-  [RaceRating.LeanRep]: '#E07070',
-  [RaceRating.LikelyRep]: '#DD4422',
-  [RaceRating.SolidRep]: '#AA0000',
+  [RaceRating.SolidDem]: '#123f8f',
+  [RaceRating.LikelyDem]: '#2e63bd',
+  [RaceRating.LeanDem]: '#5a8fd6',
+  [RaceRating.TiltDem]: '#9dbff0',
+  [RaceRating.TiltRep]: '#f4aa9b',
+  [RaceRating.LeanRep]: '#e2694f',
+  [RaceRating.LikelyRep]: '#cf2f1a',
+  [RaceRating.SolidRep]: '#9c150b',
 };
 
 // Convert probability to rating
@@ -247,19 +247,22 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
   })();
 
   const chamberName = raceType === RaceType.Senate ? 'Senate' : raceType === RaceType.House ? 'House' : 'Governors';
-  const totalSeats = raceType === RaceType.Senate ? 100 : raceType === RaceType.House ? 435 : 50;
+  const isGovernor = raceType === RaceType.Governor;
+  // Governors have no chamber majority, so the "seat" total is just the races up in 2026.
+  const totalSeats = raceType === RaceType.Senate ? 100 : raceType === RaceType.House ? 435 : races.length;
   const majorityNeeded = raceType === RaceType.Senate ? 50 : raceType === RaceType.House ? 218 : 26;
+  const seatLabel = isGovernor ? 'Projected Governorships' : 'Projected Seats';
 
   // Seats NOT up for election in 2026, by the party currently holding them. The Senate figures
   // match the Monte Carlo baseline that drives the control probability (post-2024 Senate, 33 Class-2
   // seats modeled as races → 34 D / 33 R not up), so the projected-seat total agrees with the
   // win-probability simulation instead of a flat 48% guess. All 435 House seats are up (no
-  // holdovers). Governors have no chamber majority; the ~14 non-2026 governorships aren't modeled,
-  // so they're split evenly as a neutral placeholder.
+  // holdovers). Governors have no chamber majority, so only the 2026 races up are shown — no
+  // fabricated not-up holdovers.
   const NOT_UP_HELD: Record<'Senate' | 'House' | 'Governors', { dem: number; rep: number }> = {
     Senate: { dem: 34, rep: 33 },
     House: { dem: 0, rep: 0 },
-    Governors: { dem: 7, rep: 7 },
+    Governors: { dem: 0, rep: 0 },
   };
   const assumedDemHeld = NOT_UP_HELD[chamberName].dem;
   const assumedRepHeld = NOT_UP_HELD[chamberName].rep;
@@ -297,12 +300,12 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           <div className="forecast-sidebar__section">
             <div className="forecast-sidebar__label">Win Probability</div>
             <div className="forecast-sidebar__seats">
-              <span style={{ color: '#0033AA', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
-              <span style={{ color: '#AA0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
+              <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
+              <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
             </div>
             <div className="forecast-sidebar__seat-bar">
-              <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0033AA' }} />
-              <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#AA0000' }} />
+              <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#123f8f' }} />
+              <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#9c150b' }} />
             </div>
             <div className="forecast-sidebar__party-labels">
               <span>Democrats</span>
@@ -313,10 +316,10 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
         {/* Projected Seats */}
         <div className="forecast-sidebar__section">
-          <div className="forecast-sidebar__label">Projected Seats</div>
+          <div className="forecast-sidebar__label">{seatLabel}</div>
           <div className="forecast-sidebar__seats">
-            <span style={{ color: '#0033AA', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
-            <span style={{ color: '#AA0000', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
+            <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
+            <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
           </div>
           <div className="forecast-sidebar__seat-bar">
             {seatSegments.map(seg => (
@@ -424,7 +427,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
                 padding: '10px 20px',
                 fontSize: '14px',
                 fontWeight: dataSource === source ? 'bold' : 'normal',
-                backgroundColor: dataSource === source ? '#6366f1' : isDisabled ? '#e5e7eb' : '#f3f4f6',
+                backgroundColor: dataSource === source ? '#121212' : isDisabled ? '#e5e7eb' : '#f3f4f6',
                 color: dataSource === source ? 'white' : isDisabled ? '#888888' : '#333333',
                 border: 'none',
                 borderRadius: '8px',
@@ -476,7 +479,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {/* Democrat odds */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0033AA' }}>
+              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#123f8f' }}>
                 {demVictoryOdds}%
               </div>
               <div style={{ fontSize: '16px', color: '#666' }}>Democrats</div>
@@ -486,7 +489,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{
                 width: `${demVictoryOdds}%`,
-                backgroundColor: '#0033AA',
+                backgroundColor: '#123f8f',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -499,7 +502,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
               </div>
               <div style={{
                 width: `${repVictoryOdds}%`,
-                backgroundColor: '#AA0000',
+                backgroundColor: '#9c150b',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -514,7 +517,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
             {/* Republican odds */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#AA0000' }}>
+              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#9c150b' }}>
                 {repVictoryOdds}%
               </div>
               <div style={{ fontSize: '16px', color: '#666' }}>Republicans</div>
@@ -526,13 +529,13 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
       {/* Seat Projections */}
       <div style={{ marginBottom: '32px' }}>
         <h3 style={{ margin: '0 0 16px 0', textAlign: 'center' }}>
-          Projected Seats
+          {seatLabel}
         </h3>
 
         {/* Labels above bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#0033AA' }}>{totalDemSeats}</span>
-          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#AA0000' }}>{totalRepSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#123f8f' }}>{totalDemSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#9c150b' }}>{totalRepSeats}</span>
         </div>
 
         {/* Seat bar */}
