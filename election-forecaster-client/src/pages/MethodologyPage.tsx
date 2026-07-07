@@ -21,25 +21,25 @@ export const MethodologyPage = () => {
 
       <header style={{ marginBottom: '20px' }}>
         <h1 style={{ margin: '0 0 8px 0' }}>About</h1>
-        <p style={{ margin: 0, color: '#6b7280', fontSize: '15px', lineHeight: 1.6 }}>
+        <p style={{ margin: 0, color: '#555555', fontSize: '15px', lineHeight: 1.6 }}>
           Each 2026 race gets a single forecast by blending a few inputs. What the model considers:
         </p>
       </header>
 
-      <ul style={{ paddingLeft: '20px', color: '#374151', fontSize: '15px', lineHeight: 1.6 }}>
+      <ul style={{ paddingLeft: '20px', color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         <Item label="Prediction markets">Polymarket odds for the race.</Item>
         <Item label="Polls">recency- and sample-size-weighted average of public polls.</Item>
         <Item label="Fundamentals">state partisan lean (Cook PVI), past results, and incumbency.</Item>
         <Item label="National environment">the midterm climate, set by presidential approval.</Item>
       </ul>
 
-      <p style={{ color: '#374151', fontSize: '15px', lineHeight: 1.6 }}>
+      <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         Inputs are weighted by how much signal each carries, combined into an expected margin, and
         converted to a win probability whose uncertainty shrinks as Election Day nears. Senate control
         comes from a Monte Carlo simulation over all races plus the seats not up this cycle.
       </p>
 
-      <p style={{ color: '#9ca3af', fontSize: '13px', lineHeight: 1.6 }}>
+      <p style={{ color: '#888888', fontSize: '13px', lineHeight: 1.6 }}>
         A personal modeling project — not affiliated with any campaign, and not professional guidance.
       </p>
 

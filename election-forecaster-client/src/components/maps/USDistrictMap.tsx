@@ -527,7 +527,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                   const isDemo = candidate?.party === 'Democrat';
                   return (
                     <div key={forecast.candidateId} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-                      <span style={{ color: isDemo ? '#0044CC' : '#CC0000', fontWeight: 500 }}>
+                      <span style={{ color: isDemo ? '#0033AA' : '#AA0000', fontWeight: 500 }}>
                         {isDemo ? 'D' : 'R'}: {forecast.candidateName}
                       </span>
                       <span style={{ fontWeight: 'bold' }}>{(forecast.winProbability * 100).toFixed(0)}%</span>

@@ -1,5 +1,5 @@
-/* NYT Editorial Style - Vibrant Edition */
-@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
+/* Fonts are loaded via <link rel="preconnect"> + <link rel="stylesheet"> in index.html
+   (avoids a render-blocking CSS @import). */
 
 :root {
   /* Typography */

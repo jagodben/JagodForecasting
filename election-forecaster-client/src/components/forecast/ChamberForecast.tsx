@@ -297,12 +297,12 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           <div className="forecast-sidebar__section">
             <div className="forecast-sidebar__label">Win Probability</div>
             <div className="forecast-sidebar__seats">
-              <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
-              <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
+              <span style={{ color: '#0033AA', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
+              <span style={{ color: '#AA0000', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
             </div>
             <div className="forecast-sidebar__seat-bar">
-              <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044CC' }} />
-              <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#CC0000' }} />
+              <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0033AA' }} />
+              <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#AA0000' }} />
             </div>
             <div className="forecast-sidebar__party-labels">
               <span>Democrats</span>
@@ -315,8 +315,8 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         <div className="forecast-sidebar__section">
           <div className="forecast-sidebar__label">Projected Seats</div>
           <div className="forecast-sidebar__seats">
-            <span style={{ color: '#0044CC', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
-            <span style={{ color: '#CC0000', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
+            <span style={{ color: '#0033AA', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
+            <span style={{ color: '#AA0000', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
           </div>
           <div className="forecast-sidebar__seat-bar">
             {seatSegments.map(seg => (
@@ -379,7 +379,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         )}
 
         {lastUpdatedLabel && (
-          <div style={{ marginTop: '12px', fontSize: '11px', color: '#9ca3af', textAlign: 'center' }}>
+          <div style={{ marginTop: '12px', fontSize: '11px', color: '#888888', textAlign: 'center' }}>
             Updated {lastUpdatedLabel}
           </div>
         )}
@@ -395,7 +395,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
         <div style={{
           textAlign: 'center',
           padding: '8px',
-          color: '#6b7280',
+          color: '#555555',
           fontSize: '13px',
           marginBottom: '8px',
         }}>
@@ -425,7 +425,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
                 fontSize: '14px',
                 fontWeight: dataSource === source ? 'bold' : 'normal',
                 backgroundColor: dataSource === source ? '#6366f1' : isDisabled ? '#e5e7eb' : '#f3f4f6',
-                color: dataSource === source ? 'white' : isDisabled ? '#9ca3af' : '#374151',
+                color: dataSource === source ? 'white' : isDisabled ? '#888888' : '#333333',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: isDisabled ? 'not-allowed' : 'pointer',
@@ -459,7 +459,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           <div style={{
             textAlign: 'center',
             fontSize: '13px',
-            color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#6b7280',
+            color: activeSource === 'markets' ? '#059669' : activeSource === 'polling' ? '#2563eb' : '#555555',
             marginBottom: '16px',
             fontWeight: 500,
           }}>
@@ -467,7 +467,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             {activeSource === 'polling' && 'Based on polling averages'}
             {activeSource === 'combined' && 'Combined forecast (markets + polling + fundamentals)'}
             {dataSource !== activeSource && dataSource !== 'combined' && (
-              <span style={{ color: '#9ca3af', fontStyle: 'italic', marginLeft: '8px' }}>
+              <span style={{ color: '#888888', fontStyle: 'italic', marginLeft: '8px' }}>
                 (insufficient {dataSource === 'markets' ? 'market' : 'polling'} data - using combined)
               </span>
             )}
@@ -476,7 +476,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {/* Democrat odds */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0044CC' }}>
+              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#0033AA' }}>
                 {demVictoryOdds}%
               </div>
               <div style={{ fontSize: '16px', color: '#666' }}>Democrats</div>
@@ -486,7 +486,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
             <div style={{ flex: 2, height: '48px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
               <div style={{
                 width: `${demVictoryOdds}%`,
-                backgroundColor: '#0044CC',
+                backgroundColor: '#0033AA',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -499,7 +499,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
               </div>
               <div style={{
                 width: `${repVictoryOdds}%`,
-                backgroundColor: '#CC0000',
+                backgroundColor: '#AA0000',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -514,7 +514,7 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
             {/* Republican odds */}
             <div style={{ flex: 1, textAlign: 'center' }}>
-              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#CC0000' }}>
+              <div style={{ fontSize: '42px', fontWeight: 'bold', color: '#AA0000' }}>
                 {repVictoryOdds}%
               </div>
               <div style={{ fontSize: '16px', color: '#666' }}>Republicans</div>
@@ -531,8 +531,8 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
 
         {/* Labels above bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#0044CC' }}>{totalDemSeats}</span>
-          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#CC0000' }}>{totalRepSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#0033AA' }}>{totalDemSeats}</span>
+          <span style={{ fontSize: '22px', fontWeight: 'bold', color: '#AA0000' }}>{totalRepSeats}</span>
         </div>
 
         {/* Seat bar */}

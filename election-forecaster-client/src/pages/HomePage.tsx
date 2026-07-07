@@ -58,9 +58,9 @@ export const HomePage = () => {
   if (!states) {
     return (
       <div className="error-container">
-        <h2>JagodForecasting.com is undergoing maintenance</h2>
-        <p>Check back later</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <h2>We couldn&rsquo;t load the forecast</h2>
+        <p>This is usually temporary. Please try again in a moment.</p>
+        <button onClick={() => window.location.reload()}>Try again</button>
       </div>
     );
   }

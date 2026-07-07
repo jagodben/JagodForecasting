@@ -336,11 +336,11 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
               {tooltipData.demProb !== null && (
                 <div style={{ marginBottom: '8px', fontSize: '13px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#0044CC', fontWeight: 500 }}>Democrat</span>
+                    <span style={{ color: '#0033AA', fontWeight: 500 }}>Democrat</span>
                     <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#CC0000', fontWeight: 500 }}>Republican</span>
+                    <span style={{ color: '#AA0000', fontWeight: 500 }}>Republican</span>
                     <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
                   </div>
                 </div>
