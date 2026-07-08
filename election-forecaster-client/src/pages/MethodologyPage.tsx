@@ -30,7 +30,7 @@ export const MethodologyPage = () => {
         <Item label="Prediction markets">Polymarket odds for the race.</Item>
         <Item label="Polls">recency- and sample-size-weighted average of public polls.</Item>
         <Item label="Fundamentals">state partisan lean (Cook PVI), past results, and incumbency.</Item>
-        <Item label="National environment">the midterm climate, set by presidential approval.</Item>
+        <Item label="National environment">the national mood, from the generic congressional ballot average (presidential approval as a fallback).</Item>
       </ul>
 
       <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>

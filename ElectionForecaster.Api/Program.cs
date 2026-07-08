@@ -55,6 +55,7 @@ builder.Services.AddSingleton<IDistrictService, DistrictService>();
 // Register HttpClient for data sources
 builder.Services.AddHttpClient<PolymarketClient>();
 builder.Services.AddHttpClient<WikipediaPollingClient>();
+builder.Services.AddHttpClient<WikipediaGenericBallotClient>();
 builder.Services.AddHttpClient<ApprovalAggregator>();
 
 // Register data sources
@@ -63,6 +64,7 @@ builder.Services.AddScoped<WikipediaPollingClient>();
 builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<WikipediaPollingClient>());
 builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
 builder.Services.AddScoped<IApprovalSource, ApprovalAggregator>();
+builder.Services.AddScoped<IGenericBallotSource, WikipediaGenericBallotClient>();
 
 // Register forecasting components
 builder.Services.AddSingleton<WeightCalculator>();
