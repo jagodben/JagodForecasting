@@ -3,7 +3,7 @@ using ElectionForecaster.Core.Models;
 
 namespace ElectionForecaster.Infrastructure.Data;
 
-public static class ElectionDataProvider
+public static partial class ElectionDataProvider
 {
     private static readonly Random _random = new(42); // Fixed seed for consistent data
 
@@ -174,9 +174,9 @@ public static class ElectionDataProvider
 
     private static Race CreateHouseRace(string stateId, int districtNumber, RaceRating rating)
     {
-        const string demName = "Democratic Nominee";
-        const string repName = "Republican Nominee";
-        var demIncumbent = rating <= RaceRating.LeanDem;
+        HouseNominees.TryGetValue($"{stateId}-{districtNumber:D2}", out var nominees);
+        var (demName, demIncumbent) = ResolveNominee(nominees.Dem, "Democratic Nominee");
+        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
         var (demProb, repProb) = GetProbabilities(rating);
 
         return new Race
@@ -190,7 +190,7 @@ public static class ElectionDataProvider
             Candidates = new List<Candidate>
             {
                 new() { Id = $"{stateId}-{districtNumber:D2}-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
-                new() { Id = $"{stateId}-{districtNumber:D2}-R", Name = repName, Party = Party.Republican, IsIncumbent = !demIncumbent }
+                new() { Id = $"{stateId}-{districtNumber:D2}-R", Name = repName, Party = Party.Republican, IsIncumbent = repIncumbent }
             },
             Forecasts = new List<Forecast>
             {

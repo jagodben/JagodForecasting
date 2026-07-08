@@ -70,13 +70,15 @@ public class RaceService : IRaceService
             pvi = StatePVI.TryGetValue(race.StateId.ToUpperInvariant(), out var statePvi) ? statePvi : 0;
         }
 
-        // Fix incumbency based on 2024 results for House races
         var demCandidate = race.Candidates.FirstOrDefault(c => c.Party == Party.Democrat);
         var repCandidate = race.Candidates.FirstOrDefault(c => c.Party == Party.Republican);
 
-        if (race.Type == RaceType.House && priorMargin.HasValue)
+        // Real per-candidate incumbency now comes from the scraped nominee data, which correctly
+        // reflects open seats (a retired incumbent's party keeps no incumbent). Only fall back to the
+        // 2024-winner heuristic for districts we couldn't resolve — still showing the placeholders.
+        bool unresolved = demCandidate?.Name == "Democratic Nominee" && repCandidate?.Name == "Republican Nominee";
+        if (race.Type == RaceType.House && priorMargin.HasValue && unresolved)
         {
-            // Override incumbency based on actual 2024 winner
             if (demCandidate != null) demCandidate.IsIncumbent = !republicanIncumbent;
             if (repCandidate != null) repCandidate.IsIncumbent = republicanIncumbent;
         }
