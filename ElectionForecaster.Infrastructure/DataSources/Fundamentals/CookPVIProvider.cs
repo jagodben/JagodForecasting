@@ -1,4 +1,5 @@
 using ElectionForecaster.Core.Enums;
+using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.Models;
 using Microsoft.Extensions.Logging;
@@ -33,42 +34,6 @@ public class CookPVIProvider : IFundamentalsSource
         { "WI", 0 }, { "WY", -25 }
     };
 
-    // Congressional district PVI values (sample of competitive districts)
-    // Format: "StateAbbr-DistrictNumber" -> PVI
-    private static readonly Dictionary<string, double> DistrictPVI = new()
-    {
-        // California competitive districts
-        { "CA-13", 4 }, { "CA-22", -4 }, { "CA-27", 1 }, { "CA-41", 2 }, { "CA-45", 2 },
-        // Pennsylvania competitive districts
-        { "PA-01", 3 }, { "PA-07", 1 }, { "PA-08", -2 }, { "PA-10", -7 }, { "PA-17", 1 },
-        // Michigan competitive districts
-        { "MI-03", 2 }, { "MI-07", 1 }, { "MI-08", 3 }, { "MI-10", -3 },
-        // Arizona competitive districts
-        { "AZ-01", 3 }, { "AZ-04", 0 }, { "AZ-06", -3 },
-        // Wisconsin competitive districts
-        { "WI-01", -3 }, { "WI-03", -2 },
-        // Ohio competitive districts
-        { "OH-01", -3 }, { "OH-09", 2 }, { "OH-13", -4 },
-        // New York competitive districts
-        { "NY-01", -3 }, { "NY-03", 2 }, { "NY-04", 4 }, { "NY-17", 4 }, { "NY-19", -1 },
-        // Virginia competitive districts
-        { "VA-02", -1 }, { "VA-07", 3 }, { "VA-10", 8 },
-        // North Carolina competitive districts
-        { "NC-01", 3 }, { "NC-06", -5 },
-        // Georgia competitive districts
-        { "GA-06", 3 }, { "GA-07", 2 },
-        // Nevada competitive districts
-        { "NV-01", 5 }, { "NV-03", 0 }, { "NV-04", 3 },
-        // Texas competitive districts
-        { "TX-15", -1 }, { "TX-23", -3 }, { "TX-28", -1 }, { "TX-34", 1 },
-        // Iowa competitive districts
-        { "IA-01", -3 }, { "IA-02", -5 }, { "IA-03", -4 },
-        // Maine districts
-        { "ME-01", 9 }, { "ME-02", -2 },
-        // Nebraska districts
-        { "NE-02", 1 }
-    };
-
     // Generic ballot tracker (current average)
     private double _genericBallot = 0.0; // Will be updated from polling
 
@@ -85,29 +50,17 @@ public class CookPVIProvider : IFundamentalsSource
     {
         stateId = stateId.ToUpperInvariant();
 
-        // If district specified, try to get district-level PVI
+        // District-level PVI from the real district table. That table stores positive = R-lean,
+        // while this provider uses positive = D-lean, so negate. Districts absent from the table
+        // fall back to the state PVI — no fabricated per-district variation.
         if (districtNumber.HasValue)
         {
-            var districtKey = $"{stateId}-{districtNumber:D2}";
-            if (DistrictPVI.TryGetValue(districtKey, out var districtPvi))
-            {
-                return Task.FromResult(districtPvi);
-            }
+            var districtKey = $"{stateId}-{districtNumber.Value:D2}";
+            if (DistrictElectionData.DistrictPVI.TryGetValue(districtKey, out var rLeanPvi))
+                return Task.FromResult(-rLeanPvi);
 
-            // Also try without leading zero
-            districtKey = $"{stateId}-{districtNumber}";
-            if (DistrictPVI.TryGetValue(districtKey, out districtPvi))
-            {
-                return Task.FromResult(districtPvi);
-            }
-
-            // Fall back to state PVI with district variation
             if (StatePVI.TryGetValue(stateId, out var statePvi))
-            {
-                // Add some variation based on district number
-                var variation = (districtNumber.Value % 5) - 2; // -2 to +2
-                return Task.FromResult(statePvi + variation);
-            }
+                return Task.FromResult(statePvi);
         }
 
         // State-level PVI
@@ -174,31 +127,23 @@ public class CookPVIProvider : IFundamentalsSource
         }
 
         var stateId = parts[0];
-        var raceTypeStr = parts[1];
+        var kind = parts[1];
         int? districtNumber = null;
 
-        // Parse race type
-        var raceType = raceTypeStr.ToUpperInvariant() switch
+        // Race-ID formats: statewide is "PA-SEN-2026" / "GA-GOV-2026"; House is "CA-01-2026",
+        // where the middle segment is the district number (NOT a literal "HOUSE").
+        RaceType raceType;
+        if (kind.Equals("SEN", StringComparison.OrdinalIgnoreCase))
+            raceType = RaceType.Senate;
+        else if (kind.Equals("GOV", StringComparison.OrdinalIgnoreCase))
+            raceType = RaceType.Governor;
+        else if (int.TryParse(kind, out var dist))
         {
-            "SEN" => RaceType.Senate,
-            "GOV" => RaceType.Governor,
-            "HOUSE" => RaceType.House,
-            _ => RaceType.House
-        };
-
-        // Extract district number if present
-        if (raceType == RaceType.House && parts.Length > 2)
-        {
-            // Try to parse district from the format "HOUSE-01" or just get the number
-            if (int.TryParse(parts[2], out var dist))
-            {
-                districtNumber = dist;
-            }
-            else if (raceTypeStr.StartsWith("HOUSE-") && int.TryParse(raceTypeStr.Substring(6), out dist))
-            {
-                districtNumber = dist;
-            }
+            raceType = RaceType.House;
+            districtNumber = dist;
         }
+        else
+            raceType = RaceType.House;
 
         var partisanLean = await GetPartisanLeanAsync(stateId, districtNumber, cancellationToken);
         var incumbencyAdvantage = await GetIncumbencyAdvantageAsync(raceType, cancellationToken);
