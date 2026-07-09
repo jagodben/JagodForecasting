@@ -8,7 +8,6 @@ namespace ElectionForecaster.Infrastructure.Forecasting;
 /// </summary>
 public class MonteCarloSimulator
 {
-    private readonly Random _random = new();
     private const int DefaultIterations = 10000;
 
     // Chamber thresholds for control
@@ -95,11 +94,12 @@ public class MonteCarloSimulator
     // swings and overstating near-certain outcomes.
     private const int ErrorDof = 5;
 
-    private double SampleStandardNormal()
+    private static double SampleStandardNormal()
     {
-        // Box-Muller transform, mean 0 / SD 1.
-        double u1 = 1.0 - _random.NextDouble();
-        double u2 = 1.0 - _random.NextDouble();
+        // Box-Muller transform, mean 0 / SD 1. Random.Shared is thread-safe — this simulator is a
+        // DI singleton, so a shared instance Random could be entered concurrently and corrupt itself.
+        double u1 = 1.0 - Random.Shared.NextDouble();
+        double u2 = 1.0 - Random.Shared.NextDouble();
         return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
     }
 
