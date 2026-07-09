@@ -29,6 +29,16 @@ public interface IForecastingOrchestrator
     Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(string chamber, int days, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Refreshes only the prediction-market sources (short cadence).
+    /// </summary>
+    Task RefreshMarketDataAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Refreshes only the polling and generic-ballot sources (long cadence).
+    /// </summary>
+    Task RefreshPollingDataAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Refreshes all data sources.
     /// </summary>
     Task RefreshAllDataAsync(CancellationToken cancellationToken = default);

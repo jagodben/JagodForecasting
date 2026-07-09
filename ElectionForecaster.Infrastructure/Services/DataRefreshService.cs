@@ -87,13 +87,12 @@ public class DataRefreshService : BackgroundService
             }
         }
 
-        // Check if market refresh is needed
+        // Refresh markets on the short cadence (markets move often).
         if (now - _lastMarketRefresh > _marketRefreshInterval)
         {
-            _logger.LogInformation("Refreshing prediction market data...");
             try
             {
-                await orchestrator.RefreshAllDataAsync(cancellationToken);
+                await orchestrator.RefreshMarketDataAsync(cancellationToken);
                 _lastMarketRefresh = now;
             }
             catch (Exception ex)
@@ -102,13 +101,13 @@ public class DataRefreshService : BackgroundService
             }
         }
 
-        // Check if polling refresh is needed
+        // Refresh polling on the long cadence — separately, so the expensive/rate-limited
+        // Wikipedia fetch isn't re-triggered on every market cycle.
         if (now - _lastPollingRefresh > _pollingRefreshInterval)
         {
-            _logger.LogInformation("Refreshing polling data...");
             try
             {
-                await orchestrator.RefreshAllDataAsync(cancellationToken);
+                await orchestrator.RefreshPollingDataAsync(cancellationToken);
                 _lastPollingRefresh = now;
             }
             catch (Exception ex)

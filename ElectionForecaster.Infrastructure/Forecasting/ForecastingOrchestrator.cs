@@ -306,33 +306,54 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         };
     }
 
+    /// <summary>
+    /// Refreshes only the prediction-market sources. Markets move often, so this runs on a short
+    /// cadence — kept separate from polling so we don't re-hit Wikipedia every market cycle.
+    /// </summary>
+    public async Task RefreshMarketDataAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Refreshing prediction-market data...");
+        await Task.WhenAll(_marketSources.Select(s => s.RefreshAsync(cancellationToken)));
+        await ClearForecastCacheAsync();
+    }
+
+    /// <summary>
+    /// Refreshes the polling and generic-ballot sources. Polls update slowly and the Wikipedia
+    /// fetch is expensive/rate-limited, so this runs on a long cadence.
+    /// </summary>
+    public async Task RefreshPollingDataAsync(CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Refreshing polling and generic-ballot data...");
+        await Task.WhenAll(
+            _pollingSource.RefreshAsync(cancellationToken),
+            _genericBallotSource.RefreshAsync(cancellationToken));
+        await ClearForecastCacheAsync();
+    }
+
     public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Refreshing all forecast data sources...");
 
-        var tasks = new List<Task>();
-
-        // Refresh market sources
-        foreach (var source in _marketSources)
-        {
-            tasks.Add(source.RefreshAsync(cancellationToken));
-        }
-
-        // Refresh other sources
+        var tasks = _marketSources.Select(s => s.RefreshAsync(cancellationToken)).ToList();
         tasks.Add(_pollingSource.RefreshAsync(cancellationToken));
         tasks.Add(_genericBallotSource.RefreshAsync(cancellationToken));
-
         await Task.WhenAll(tasks);
 
-        // Drop cached forecasts so the freshly-pulled inputs take effect immediately rather than
-        // waiting out the TTL. Keys are per-race plus the two chambers.
+        await ClearForecastCacheAsync();
+        _logger.LogInformation("All data sources refreshed");
+    }
+
+    /// <summary>
+    /// Drops cached forecasts so freshly-pulled inputs take effect immediately rather than waiting
+    /// out the TTL. Keys are per-race plus the two chambers.
+    /// </summary>
+    private async Task ClearForecastCacheAsync()
+    {
         var races = await _raceService.GetAllRacesAsync();
         foreach (var race in races)
             _cache.Remove(ForecastKey(race.Id));
         _cache.Remove(ChamberKey(RaceType.Senate));
         _cache.Remove(ChamberKey(RaceType.House));
-
-        _logger.LogInformation("All data sources refreshed");
     }
 
     public async Task StoreDailySnapshotAsync(CancellationToken cancellationToken = default)
