@@ -117,16 +117,22 @@ public class CookPVIProvider : IFundamentalsSource
         var partisanLean = await GetPartisanLeanAsync(stateId, districtNumber, cancellationToken);
         var incumbencyAdvantage = await GetIncumbencyAdvantageAsync(raceType, cancellationToken);
 
+        // Prior statewide result (Senate/Governor), so the fundamentals reflect a seat's demonstrated
+        // lean beyond PVI — crossover incumbents, safe-seat blowouts — not just its presidential PVI.
+        // House races have no entry and stay on district PVI + incumbency.
+        var priorMargin = StatewidePriorResults.GetPriorMargin(raceId);
+
         return new FundamentalsData
         {
             RaceId = raceId,
             PartisanLean = partisanLean,
             // NationalEnvironment and IncumbentIsDem are cross-cutting: the orchestrator fills them
-            // from the approval source and the race's candidates respectively. Left at defaults here
-            // so this provider stays purely structural (PVI + incumbency magnitude).
+            // from the generic ballot and the race's candidates respectively. Left at defaults here
+            // so this provider stays purely structural (PVI + prior result + incumbency magnitude).
             NationalEnvironment = 0,
             IncumbentIsDem = null,
-            IncumbencyAdvantage = incumbencyAdvantage
+            IncumbencyAdvantage = incumbencyAdvantage,
+            PriorMargin = priorMargin
         };
     }
 }

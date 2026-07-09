@@ -33,15 +33,42 @@ public class FundamentalsData
     public double IncumbencyAdvantage { get; set; }
 
     /// <summary>
-    /// Fundamentals-only expected Democratic margin (points): partisan lean + national
-    /// environment + incumbency, in a uniform-swing framing.
+    /// The seat's most recent comparable Dem margin (points), when known (statewide races). Captures
+    /// the demonstrated lean beyond PVI — a crossover incumbent or a lopsided safe seat — that a pure
+    /// PVI model can't see. Null for races we have no prior for (e.g. House).
+    /// </summary>
+    public double? PriorMargin { get; set; }
+
+    /// <summary>
+    /// How much of a seat's past deviation from its PVI persists to the next election. Landslides
+    /// mean-revert (a new opponent, the incumbent's personal vote fades), so only a fraction carries.
+    /// ~0.45 is mid-range between "sticks entirely" and "reverts fully to PVI".
+    /// </summary>
+    private const double PriorResultRetention = 0.45;
+
+    /// <summary>Keeps a single seat's fundamentals margin from running away on an extreme prior.</summary>
+    private const double MaxFundamentalsMargin = 40.0;
+
+    /// <summary>
+    /// Fundamentals-only expected Democratic margin (points). When a prior result is known, the
+    /// margin is PVI + national environment + a retained fraction of the seat's past deviation from
+    /// PVI — so a crossover incumbent or safe-seat lean is reflected rather than assuming the seat
+    /// votes its presidential PVI. Without a prior, falls back to PVI + national ± flat incumbency.
     /// </summary>
     public double GetExpectedDemMargin()
     {
-        double margin = PartisanLean + NationalEnvironment;
-        if (IncumbentIsDem == true) margin += IncumbencyAdvantage;
-        else if (IncumbentIsDem == false) margin -= IncumbencyAdvantage;
-        return margin;
+        double structural = PartisanLean + NationalEnvironment;
+
+        if (PriorMargin.HasValue)
+        {
+            double overPerformance = PriorMargin.Value - PartisanLean;
+            double margin = structural + PriorResultRetention * overPerformance;
+            return Math.Clamp(margin, -MaxFundamentalsMargin, MaxFundamentalsMargin);
+        }
+
+        if (IncumbentIsDem == true) structural += IncumbencyAdvantage;
+        else if (IncumbentIsDem == false) structural -= IncumbencyAdvantage;
+        return structural;
     }
 
     /// <summary>Fundamentals-only Dem win probability at the given margin standard error.</summary>
