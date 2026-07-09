@@ -89,6 +89,18 @@ const getRatingLabel = (rating: RaceRating, independent = false): string => {
 const hasIndependentChallenger = (race: Race | null | undefined): boolean =>
   race?.candidates.some(c => c.party === Party.Independent) ?? false;
 
+// Projected-result label + color for a race's expected Dem margin (points): D+/R+, or I+ (gold) when
+// a viable independent is the one ahead. e.g. +5.3 → "D+5.3", -3 → "R+3", 0 → "EVEN".
+const marginLabel = (margin: number, independentChallenger: boolean): { text: string; color: string } => {
+  const rounded = Math.round(margin * 10) / 10;
+  if (rounded === 0) return { text: 'EVEN', color: '#666' };
+  const num = Number.isInteger(Math.abs(rounded)) ? Math.abs(rounded).toString() : Math.abs(rounded).toFixed(1);
+  if (rounded > 0) {
+    return independentChallenger ? { text: `I+${num}`, color: '#b8860b' } : { text: `D+${num}`, color: '#123f8f' };
+  }
+  return { text: `R+${num}`, color: '#9c150b' };
+};
+
 export interface SelectedStateData {
   stateName: string;
   stateId: string;
@@ -334,9 +346,17 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
             maxWidth: '300px',
           }}
         >
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-            {tooltipData.stateName}
-          </h4>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', margin: '0 0 8px 0', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '14px' }}>{tooltipData.stateName}</h4>
+            {(() => {
+              // Projected result (D+/R+/I+) for the hovered race, from the blended forecast's margin.
+              const race = tooltipData.race;
+              const margin = race ? detailedForecasts?.find(f => f.raceId === race.id)?.expectedDemMargin : null;
+              if (margin == null) return null;
+              const { text, color } = marginLabel(margin, hasIndependentChallenger(race));
+              return <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap', color }}>{text}</span>;
+            })()}
+          </div>
 
           {tooltipData.race ? (() => {
             const race = tooltipData.race!;
