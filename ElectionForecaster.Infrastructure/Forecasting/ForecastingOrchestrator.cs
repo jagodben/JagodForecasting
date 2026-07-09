@@ -157,6 +157,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var daysToElection = (_electionDate - asOf).TotalDays;
         var se = UncertaintyModel.MarginStandardError(daysToElection, raceType, polling?.PollCount ?? 0);
 
+        // Safety net: if a liquid market sharply disagrees with the structural blend, lean on the
+        // market — it usually knows something PVI/priors/polls-so-far can't (the VT-GOV class).
+        ApplyMarketDisagreementGuard(weights, marketOdds, polling, fundamentals, se, raceId);
+
         var blendedMargin = BlendMargins(marketOdds, polling, fundamentals, weights, se);
         var demProb = Math.Clamp(ForecastMath.MarginToProbability(blendedMargin, se), 0.02, 0.98);
         var demVoteShare = Math.Clamp(0.50 + blendedMargin / 200.0, 0.30, 0.70);
@@ -643,6 +647,57 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         }
 
         return totalWeight > 0 ? weightedMargin / totalWeight : 0;
+    }
+
+    // --- Market-disagreement guard ---------------------------------------------------------------
+    // A liquid prediction market that diverges sharply from the structural (poll + fundamentals)
+    // blend usually reflects something the structural model can't see — candidate-specific strength,
+    // a scandal, a crossover incumbent the PVI/prior understates. When that gap is large, lean toward
+    // the market by ramping its weight up. Never to full dominance: the structural blend still checks
+    // a thin or manipulated market, and only markets above a liquidity floor are allowed to override.
+    private const double LiquidMarketConfidence = 0.5;  // below this the market is too thin to override
+    private const double DisagreementThreshold = 10.0;  // margin points of gap before the guard engages
+    private const double DisagreementSpan = 20.0;       // further points over which it ramps to the cap
+    private const double MaxGuardedMarketWeight = 0.70; // ceiling on the market's post-guard share
+
+    /// <summary>
+    /// Boosts the market weight (in place) when a liquid market's implied margin disagrees sharply
+    /// with the poll+fundamentals blend. No-op for thin markets or small disagreements.
+    /// </summary>
+    private void ApplyMarketDisagreementGuard(
+        ForecastWeights weights, MarketOdds? market, PollingAverage? polling,
+        FundamentalsData? fundamentals, double se, string raceId)
+    {
+        if (market == null || weights.MarketWeight <= 0 || market.Confidence < LiquidMarketConfidence)
+            return;
+
+        double structuralWeight = weights.PollingWeight + weights.FundamentalsWeight;
+        if (structuralWeight <= 0) return; // market is already the only signal
+
+        double structuralMargin = 0;
+        if (polling != null && polling.PollCount > 0)
+            structuralMargin += polling.TwoPartyMargin * weights.PollingWeight;
+        if (fundamentals != null)
+            structuralMargin += fundamentals.GetExpectedDemMargin() * weights.FundamentalsWeight;
+        structuralMargin /= structuralWeight;
+
+        double marketMargin = ForecastMath.ProbabilityToMargin(market.DemOdds, se);
+        double disagreement = Math.Abs(marketMargin - structuralMargin);
+        if (disagreement <= DisagreementThreshold) return;
+
+        double t = Math.Clamp((disagreement - DisagreementThreshold) / DisagreementSpan, 0, 1);
+        double targetMarketWeight = weights.MarketWeight + t * (MaxGuardedMarketWeight - weights.MarketWeight);
+        if (targetMarketWeight <= weights.MarketWeight) return;
+
+        // Rescale polling+fundamentals to fill the remainder, preserving their relative split.
+        double scale = (1 - targetMarketWeight) / structuralWeight;
+        weights.MarketWeight = targetMarketWeight;
+        weights.PollingWeight *= scale;
+        weights.FundamentalsWeight *= scale;
+
+        _logger.LogInformation(
+            "Market-disagreement guard on {RaceId}: market {Market:+0.0;-0.0} vs structural {Structural:+0.0;-0.0} ({Gap:0.0} pts) -> market weight {Weight:0.00}",
+            raceId, marketMargin, structuralMargin, disagreement, targetMarketWeight);
     }
 
     /// <summary>True if the incumbent is a Democrat, false if Republican, null for an open seat.</summary>
