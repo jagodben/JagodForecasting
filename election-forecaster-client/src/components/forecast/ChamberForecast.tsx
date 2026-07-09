@@ -253,14 +253,15 @@ export const ChamberForecast = ({ races, raceType, compact = false, dataSource: 
   const majorityNeeded = raceType === RaceType.Senate ? 50 : raceType === RaceType.House ? 218 : 26;
   const seatLabel = isGovernor ? 'Projected Governorships' : 'Projected Seats';
 
-  // Seats NOT up for election in 2026, by the party currently holding them. The Senate figures
-  // match the Monte Carlo baseline that drives the control probability (post-2024 Senate, 33 Class-2
-  // seats modeled as races → 34 D / 33 R not up), so the projected-seat total agrees with the
-  // win-probability simulation instead of a flat 48% guess. All 435 House seats are up (no
-  // holdovers). Governors have no chamber majority, so only the 2026 races up are shown — no
-  // fabricated not-up holdovers.
+  // Seats NOT up for election in 2026, by the party currently holding them. These must match the
+  // Monte Carlo baselines that drive the control probability, or the projected-seat total won't sum
+  // to 100. The app models 35 Senate races (33 Class-2 seats + the FL and OH specials, both held by
+  // appointed Republicans), so the not-up pool is 34 D / 31 R = 65; 65 + 35 races = 100. (The two
+  // Republican specials moved from the not-up baseline into the modeled races, which is why this is
+  // 31, not 33.) All 435 House seats are up (no holdovers). Governors have no chamber majority, so
+  // only the 2026 races up are shown — no fabricated not-up holdovers.
   const NOT_UP_HELD: Record<'Senate' | 'House' | 'Governors', { dem: number; rep: number }> = {
-    Senate: { dem: 34, rep: 33 },
+    Senate: { dem: 34, rep: 31 },
     House: { dem: 0, rep: 0 },
     Governors: { dem: 0, rep: 0 },
   };
