@@ -166,20 +166,32 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const totalDemSeats = senateModel ? Math.round(senateModel.expectedDemSeats) : seatProjection.democrat + assumedDemHeld;
   const totalRepSeats = senateModel ? totalSeats - totalDemSeats : seatProjection.republican + assumedRepHeld;
 
-  // Seat bar. For the Senate (expected-seats mode) a clean two-color split at the projected totals,
-  // so the bar, the number, and the win probability all agree. Otherwise the Solid D → Solid R rating
-  // composition (with assumed-held folded into the Solid ends).
-  const seatSegments = senateModel
-    ? [
-        { rating: RaceRating.SolidDem, count: totalDemSeats, color: '#123f8f' },
-        { rating: RaceRating.SolidRep, count: totalRepSeats, color: '#9c150b' },
-      ].filter(s => s.count > 0)
-    : RATING_ORDER.map(rating => {
-        let count = seatsByRating.get(rating) || 0;
-        if (rating === RaceRating.SolidDem) count += assumedDemHeld;
-        if (rating === RaceRating.SolidRep) count += assumedRepHeld;
-        return { rating, count, color: RATING_COLORS[rating] };
-      }).filter(s => s.count > 0);
+  // Seat bar: the familiar Solid D → Solid R rating gradient (assumed-held folded into the Solid ends).
+  const ratingSegments = RATING_ORDER.map(rating => {
+    let count = seatsByRating.get(rating) || 0;
+    if (rating === RaceRating.SolidDem) count += assumedDemHeld;
+    if (rating === RaceRating.SolidRep) count += assumedRepHeld;
+    return { rating, count, color: RATING_COLORS[rating] };
+  });
+
+  // For the Senate, rescale the D-side and R-side of the gradient so the blue/red boundary lands at
+  // the Monte Carlo's expected seats — the gradient stays, but the bar agrees with the seat number
+  // and the win probability rather than the cruder favored-race tally (which put the boundary 2 seats
+  // off, showing R across the majority line while D was actually favored to control).
+  const DEM_RATINGS = new Set([RaceRating.SolidDem, RaceRating.LikelyDem, RaceRating.LeanDem, RaceRating.TiltDem]);
+  const seatSegments = (() => {
+    if (!senateModel) return ratingSegments.filter(s => s.count > 0);
+    const demRaw = ratingSegments.filter(s => DEM_RATINGS.has(s.rating)).reduce((a, s) => a + s.count, 0);
+    const repRaw = ratingSegments.filter(s => !DEM_RATINGS.has(s.rating)).reduce((a, s) => a + s.count, 0);
+    return ratingSegments
+      .map(s => {
+        const scale = DEM_RATINGS.has(s.rating)
+          ? (demRaw > 0 ? totalDemSeats / demRaw : 0)
+          : (repRaw > 0 ? totalRepSeats / repRaw : 0);
+        return { ...s, count: s.count * scale };
+      })
+      .filter(s => s.count > 0);
+  })();
 
   return (
     <div className="forecast-sidebar">
