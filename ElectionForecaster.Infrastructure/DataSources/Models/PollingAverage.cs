@@ -1,3 +1,5 @@
+using ElectionForecaster.Infrastructure.Forecasting;
+
 namespace ElectionForecaster.Infrastructure.DataSources.Models;
 
 /// <summary>
@@ -46,35 +48,13 @@ public class PollingAverage
     public double Confidence { get; set; }
 
     /// <summary>
-    /// Converts polling average to win probability using a simple model.
+    /// Win probability implied by the polling margin at the given margin standard error. Pass the
+    /// race's model SE so the "Polls" lens isn't shown as more confident than the blended forecast:
+    /// a D+3 margin is ~69% at SE 6, not the ~80% the old hardcoded SE 3.5 produced. Defaults to a
+    /// typical statewide SE.
     /// </summary>
-    public double GetDemWinProbability()
-    {
-        // Use a normal distribution approximation
-        // Assume ~3.5% standard error for polling
-        const double standardError = 3.5;
-        double zScore = Margin / standardError;
-        return NormalCdf(zScore);
-    }
+    public double GetDemWinProbability(double standardError = 6.0)
+        => ForecastMath.MarginToProbability(Margin, standardError);
 
-    public double GetRepWinProbability() => 1.0 - GetDemWinProbability();
-
-    private static double NormalCdf(double x)
-    {
-        // Approximation of the cumulative distribution function
-        const double a1 = 0.254829592;
-        const double a2 = -0.284496736;
-        const double a3 = 1.421413741;
-        const double a4 = -1.453152027;
-        const double a5 = 1.061405429;
-        const double p = 0.3275911;
-
-        int sign = x < 0 ? -1 : 1;
-        x = Math.Abs(x) / Math.Sqrt(2);
-
-        double t = 1.0 / (1.0 + p * x);
-        double y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.Exp(-x * x);
-
-        return 0.5 * (1.0 + sign * y);
-    }
+    public double GetRepWinProbability(double standardError = 6.0) => 1.0 - GetDemWinProbability(standardError);
 }

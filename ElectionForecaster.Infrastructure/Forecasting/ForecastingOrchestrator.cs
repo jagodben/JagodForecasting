@@ -178,7 +178,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 MarketOdds = marketOdds?.DemOdds,
                 PollingAverage = polling?.DemPercent,
                 PollingWinProbability = (polling != null && polling.PollCount > 0)
-                    ? polling.GetDemWinProbability()
+                    ? polling.GetDemWinProbability(se)
                     : null,
                 FundamentalsPrediction = fundamentals != null
                     ? ForecastMath.MarginToProbability(fundamentals.GetExpectedDemMargin(), se)

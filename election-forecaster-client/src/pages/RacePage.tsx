@@ -41,8 +41,9 @@ const getPartyLogo = (party: Party): string | null => {
   return null;
 };
 
-// Standard normal CDF (Abramowitz & Stegun approximation) — matches the backend's
-// polling-to-probability model so the "Polls" win probability is consistent.
+// Standard normal CDF (Abramowitz & Stegun approximation). Only a fallback if the blended
+// forecast hasn't loaded; uses SE 6 to match the backend's polling-to-probability model (not an
+// overconfident SE ~3.5), so the "Polls" win probability stays consistent.
 const normalCdf = (x: number): number => {
   const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
   const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
@@ -124,7 +125,7 @@ export const RacePage = () => {
       // to computing it from the polls margin if the blended forecast hasn't loaded yet.
       const avg = pollsData?.average;
       demProbability = forecast?.inputs?.pollingWinProbability
-        ?? (avg ? normalCdf((avg.demPercent - avg.repPercent) / 3.5) : 0.5);
+        ?? (avg ? normalCdf((avg.demPercent - avg.repPercent) / 6) : 0.5);
     } else {
       // Combined: use the blended forecast (markets + polling + fundamentals + approval),
       // the same value the home page map shows. Fall back to the fundamentals-only
