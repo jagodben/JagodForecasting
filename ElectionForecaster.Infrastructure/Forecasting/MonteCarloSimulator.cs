@@ -15,13 +15,13 @@ public class MonteCarloSimulator
     private const int SenateControlThreshold = 51; // 51 seats needed for control
     private const int HouseControlThreshold = 218; // 218 seats needed for control
 
-    // Seat baselines: seats NOT up in 2026, by current party. The app models 33 Class 2 races,
-    // so baseline + 33 = 100. Starting from the post-2024 Senate (53R / 47D incl. 2 independents),
-    // the 33 modeled seats are 13 Dem-held and 20 Rep-held → 34 Dem / 33 Rep not up.
-    // NOTE: the FL and OH 2026 specials are not modeled as races and are folded into the Rep
-    // baseline (both currently held by appointed Republicans); ideally add them as races.
+    // Seat baselines: seats NOT up in 2026, by current party. The app models 33 Class 2 races plus
+    // the FL and OH 2026 specials (appointed R incumbents) = 35 Senate races, so baseline + 35 = 100.
+    // Starting from the post-2024 Senate (53R / 47D incl. 2 independents), the 33 Class 2 seats are
+    // 13 Dem-held / 20 Rep-held; removing the two now-modeled Rep specials from the not-up pool
+    // leaves 34 Dem / 31 Rep.
     private const int SenateDemBaseline = 34;
-    private const int SenateRepBaseline = 33;
+    private const int SenateRepBaseline = 31;
 
     // House: All 435 seats up every 2 years
     private const int HouseTotalSeats = 435;

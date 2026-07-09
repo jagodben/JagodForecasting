@@ -22,7 +22,7 @@ public static partial class ElectionDataProvider
             ("CO", "Colorado", 10, 8, RaceRating.LikelyDem, true, true),
             ("CT", "Connecticut", 7, 5, RaceRating.SolidDem, false, true),
             ("DE", "Delaware", 3, 1, RaceRating.SolidDem, true, false),
-            ("FL", "Florida", 30, 28, RaceRating.LeanRep, false, true),
+            ("FL", "Florida", 30, 28, RaceRating.LeanRep, true, true),
             ("GA", "Georgia", 16, 14, RaceRating.TiltDem, true, true),
             ("HI", "Hawaii", 4, 2, RaceRating.SolidDem, false, true),
             ("ID", "Idaho", 4, 2, RaceRating.SolidRep, true, true),
@@ -48,7 +48,7 @@ public static partial class ElectionDataProvider
             ("NY", "New York", 28, 26, RaceRating.SolidDem, false, true),
             ("NC", "North Carolina", 16, 14, RaceRating.TiltDem, true, false),
             ("ND", "North Dakota", 3, 1, RaceRating.SolidRep, false, false),
-            ("OH", "Ohio", 17, 15, RaceRating.LeanRep, false, true),
+            ("OH", "Ohio", 17, 15, RaceRating.LeanRep, true, true),
             ("OK", "Oklahoma", 7, 5, RaceRating.SolidRep, true, true),
             ("OR", "Oregon", 8, 6, RaceRating.LikelyDem, true, true),
             ("PA", "Pennsylvania", 19, 17, RaceRating.TiltDem, false, true),
@@ -132,6 +132,7 @@ public static partial class ElectionDataProvider
             Type = RaceType.Senate,
             Rating = stateRating,
             Year = 2026,
+            IsSpecialElection = SpecialSenateStates.Contains(stateId),
             Candidates = new List<Candidate>
             {
                 new() { Id = $"{stateId}-SEN-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
@@ -214,11 +215,16 @@ public static partial class ElectionDataProvider
     // "Democratic Nominee" / "Republican Nominee" placeholder. Down-ballot challenger names in
     // safe states are lower-confidence and worth spot-checking. Update as more primaries conclude.
     // -----------------------------------------------------------------------------------------
+    // The 2026 FL and OH U.S. Senate contests are special elections — Rubio (FL) left for Secretary
+    // of State and Vance (OH) for Vice President, and both seats are held by appointed Republicans.
+    private static readonly HashSet<string> SpecialSenateStates = new() { "FL", "OH" };
+
     private static readonly Dictionary<string, (Nominee? Dem, Nominee? Rep)> SenateNominees = new()
     {
         ["AL"] = (new("Everett Wess", false), new("Barry Moore", false)),        // open (Tuberville → gov)
         ["AR"] = (new("Hallie Shoffner", false), new("Tom Cotton", true)),
         ["CO"] = (new("John Hickenlooper", true), new("Mark Baisley", false)),
+        ["FL"] = (null, new("Ashley Moody", true)),                              // special; Moody appointed, Dem primary Aug 18
         ["GA"] = (new("Jon Ossoff", true), new("Mike Collins", false)),
         ["ID"] = (new("David Roth", false), new("Jim Risch", true)),
         ["IL"] = (new("Juliana Stratton", false), new("Don Tracy", false)),      // open (Durbin retiring)

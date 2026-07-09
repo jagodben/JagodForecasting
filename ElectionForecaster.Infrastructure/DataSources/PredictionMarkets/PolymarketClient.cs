@@ -68,6 +68,10 @@ public class PolymarketClient : IPredictionMarketSource
         { "VA-SEN-2026", "630976" },
         { "WV-SEN-2026", "630989" },
         { "WY-SEN-2026", "631002" },
+        // 2026 Senate special elections (appointed R incumbents): the "Will the Democrats win …"
+        // party-level markets, same shape as the regular Senate mappings above.
+        { "FL-SEN-2026", "631044" },
+        { "OH-SEN-2026", "631057" },
         // AK-SEN is a top-four ranked-choice race with no "which party wins" market on Polymarket,
         // only per-candidate markets — intentionally unmapped so it falls back to fundamentals+polling.
 
