@@ -116,15 +116,20 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
     return { seatProjection: projection, seatsByRating: ratingCounts, demVictoryOdds: demOdds };
   }, [races, raceType, detailedForecasts]);
 
-  // The model's final chamber prediction is the Monte Carlo control probability (what the chart
-  // plots). Use it for the Senate headline so the number and the chart agree — the seat-share
-  // heuristic ignored the not-up baseline and the 51-seat threshold.
-  const modelSenateControl = raceType === RaceType.Senate && chamberHistory && chamberHistory.length > 0
-    ? Math.round(chamberHistory[chamberHistory.length - 1].demControlProbability * 1000) / 10
+  // The model's final Senate prediction is the Monte Carlo (what the chart plots): its control
+  // probability AND its expected seat count come from the same 10k-simulation run. Use BOTH so the
+  // "Win Probability" and "Projected Seats" agree — otherwise the seat number is a cruder favored-race
+  // tally that counts every sub-50% near-tie (OH, IA, TX) wholly for the other side and can disagree
+  // with the control probability (e.g. R "ahead" 51-49 on the tally while D is favored 58% to control).
+  // Require a populated expectedDemSeats: if the history point is missing seat data, fall back to the
+  // favored-race tally for BOTH the control number and the seats, so they stay consistent (rather than
+  // showing a valid control probability next to 0 seats).
+  const lastSenatePoint = raceType === RaceType.Senate && chamberHistory && chamberHistory.length > 0
+    ? chamberHistory[chamberHistory.length - 1]
     : null;
-  const demVictoryOdds = (raceType === RaceType.Senate && modelSenateControl != null)
-    ? modelSenateControl
-    : rawDemVictoryOdds;
+  const senateModel = lastSenatePoint && lastSenatePoint.expectedDemSeats > 0 ? lastSenatePoint : null;
+  const modelSenateControl = senateModel ? Math.round(senateModel.demControlProbability * 1000) / 10 : null;
+  const demVictoryOdds = modelSenateControl != null ? modelSenateControl : rawDemVictoryOdds;
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
 
   // Most-recent forecast generation time across this chamber's races → a data-freshness label.
@@ -156,16 +161,25 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const assumedDemHeld = NOT_UP_HELD[chamberName].dem;
   const assumedRepHeld = NOT_UP_HELD[chamberName].rep;
 
-  const totalDemSeats = seatProjection.democrat + assumedDemHeld;
-  const totalRepSeats = seatProjection.republican + assumedRepHeld;
+  // Senate: take the seat totals from the Monte Carlo's expected seats (rounded), so they're
+  // consistent with the control probability above. Other chambers use the favored-race tally.
+  const totalDemSeats = senateModel ? Math.round(senateModel.expectedDemSeats) : seatProjection.democrat + assumedDemHeld;
+  const totalRepSeats = senateModel ? totalSeats - totalDemSeats : seatProjection.republican + assumedRepHeld;
 
-  // Build seat bar segments: Solid D → ... → Solid R, with assumed-held folded into the Solid ends.
-  const seatSegments = RATING_ORDER.map(rating => {
-    let count = seatsByRating.get(rating) || 0;
-    if (rating === RaceRating.SolidDem) count += assumedDemHeld;
-    if (rating === RaceRating.SolidRep) count += assumedRepHeld;
-    return { rating, count, color: RATING_COLORS[rating] };
-  }).filter(s => s.count > 0);
+  // Seat bar. For the Senate (expected-seats mode) a clean two-color split at the projected totals,
+  // so the bar, the number, and the win probability all agree. Otherwise the Solid D → Solid R rating
+  // composition (with assumed-held folded into the Solid ends).
+  const seatSegments = senateModel
+    ? [
+        { rating: RaceRating.SolidDem, count: totalDemSeats, color: '#123f8f' },
+        { rating: RaceRating.SolidRep, count: totalRepSeats, color: '#9c150b' },
+      ].filter(s => s.count > 0)
+    : RATING_ORDER.map(rating => {
+        let count = seatsByRating.get(rating) || 0;
+        if (rating === RaceRating.SolidDem) count += assumedDemHeld;
+        if (rating === RaceRating.SolidRep) count += assumedRepHeld;
+        return { rating, count, color: RATING_COLORS[rating] };
+      }).filter(s => s.count > 0);
 
   return (
     <div className="forecast-sidebar">
