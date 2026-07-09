@@ -15,25 +15,6 @@ public class CookPVIProvider : IFundamentalsSource
 {
     private readonly ILogger<CookPVIProvider> _logger;
 
-    // 2024 Cook PVI values (based on 2020+2024 presidential results)
-    // Positive = Dem lean (D+X), Negative = Rep lean (R+X)
-    private static readonly Dictionary<string, double> StatePVI = new()
-    {
-        { "AL", -15 }, { "AK", -9 }, { "AZ", -2 }, { "AR", -16 },
-        { "CA", 14 }, { "CO", 6 }, { "CT", 8 }, { "DE", 7 },
-        { "FL", -6 }, { "GA", 0 }, { "HI", 15 }, { "ID", -19 },
-        { "IL", 8 }, { "IN", -10 }, { "IA", -6 }, { "KS", -10 },
-        { "KY", -16 }, { "LA", -13 }, { "ME", 3 }, { "MD", 14 },
-        { "MA", 16 }, { "MI", 1 }, { "MN", 2 }, { "MS", -10 },
-        { "MO", -10 }, { "MT", -11 }, { "NE", -12 }, { "NV", 0 },
-        { "NH", 1 }, { "NJ", 7 }, { "NM", 5 }, { "NY", 10 },
-        { "NC", -3 }, { "ND", -20 }, { "OH", -6 }, { "OK", -20 },
-        { "OR", 6 }, { "PA", 0 }, { "RI", 10 }, { "SC", -8 },
-        { "SD", -16 }, { "TN", -14 }, { "TX", -5 }, { "UT", -11 },
-        { "VT", 16 }, { "VA", 4 }, { "WA", 8 }, { "WV", -23 },
-        { "WI", 0 }, { "WY", -25 }
-    };
-
     // Generic ballot tracker (current average)
     private double _genericBallot = 0.0; // Will be updated from polling
 
@@ -50,24 +31,12 @@ public class CookPVIProvider : IFundamentalsSource
     {
         stateId = stateId.ToUpperInvariant();
 
-        // District-level PVI from the real district table. That table stores positive = R-lean,
-        // while this provider uses positive = D-lean, so negate. Districts absent from the table
-        // fall back to the state PVI — no fabricated per-district variation.
+        // Cook PVI as a Dem lean (district table falls back to state; see CookPvi).
         if (districtNumber.HasValue)
-        {
-            var districtKey = $"{stateId}-{districtNumber.Value:D2}";
-            if (DistrictElectionData.DistrictPVI.TryGetValue(districtKey, out var rLeanPvi))
-                return Task.FromResult(-rLeanPvi);
+            return Task.FromResult(CookPvi.GetDistrictLean(stateId, districtNumber.Value));
 
-            if (StatePVI.TryGetValue(stateId, out var statePvi))
-                return Task.FromResult(statePvi);
-        }
-
-        // State-level PVI
-        if (StatePVI.TryGetValue(stateId, out var pvi))
-        {
+        if (CookPvi.StateLean.TryGetValue(stateId, out var pvi))
             return Task.FromResult(pvi);
-        }
 
         _logger.LogWarning("No PVI data for state {StateId}", stateId);
         return Task.FromResult(0.0);

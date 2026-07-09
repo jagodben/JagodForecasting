@@ -2,30 +2,13 @@ using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Core.Models;
 using ElectionForecaster.Infrastructure.Data;
+using ElectionForecaster.Infrastructure.Forecasting;
 
 namespace ElectionForecaster.Infrastructure.Services;
 
 public class RaceService : IRaceService
 {
     private readonly List<Race> _races;
-
-    // Cook PVI data for fundamentals-based forecasting
-    private static readonly Dictionary<string, double> StatePVI = new()
-    {
-        { "AL", -15 }, { "AK", -9 }, { "AZ", -2 }, { "AR", -16 },
-        { "CA", 14 }, { "CO", 6 }, { "CT", 8 }, { "DE", 7 },
-        { "FL", -6 }, { "GA", 0 }, { "HI", 15 }, { "ID", -19 },
-        { "IL", 8 }, { "IN", -10 }, { "IA", -6 }, { "KS", -10 },
-        { "KY", -16 }, { "LA", -13 }, { "ME", 3 }, { "MD", 14 },
-        { "MA", 16 }, { "MI", 1 }, { "MN", 2 }, { "MS", -10 },
-        { "MO", -10 }, { "MT", -11 }, { "NE", -12 }, { "NV", 0 },
-        { "NH", 1 }, { "NJ", 7 }, { "NM", 5 }, { "NY", 10 },
-        { "NC", -3 }, { "ND", -20 }, { "OH", -6 }, { "OK", -20 },
-        { "OR", 6 }, { "PA", 0 }, { "RI", 10 }, { "SC", -8 },
-        { "SD", -16 }, { "TN", -14 }, { "TX", -5 }, { "UT", -11 },
-        { "VT", 16 }, { "VA", 4 }, { "WA", 8 }, { "WV", -23 },
-        { "WI", 0 }, { "WY", -25 }
-    };
 
     // Midterm penalty for president's party (assumed Republican president 2025-2029)
     private const double MidtermPenalty = 4.0; // Points shift toward Dems
@@ -52,8 +35,8 @@ public class RaceService : IRaceService
         // For House races, use real district-level data
         if (race.Type == RaceType.House && race.DistrictNumber.HasValue)
         {
-            // Get real district PVI (positive = Republican lean)
-            pvi = -DistrictElectionData.GetDistrictPVI(race.StateId, race.DistrictNumber.Value);
+            // District Cook PVI as a Dem lean (falls back to state lean for unlisted districts).
+            pvi = CookPvi.GetDistrictLean(race.StateId, race.DistrictNumber.Value);
 
             // Get 2024 results (positive margin = Republican won)
             var result2024 = DistrictElectionData.GetResult2024(race.StateId, race.DistrictNumber.Value);
@@ -66,8 +49,8 @@ public class RaceService : IRaceService
         }
         else
         {
-            // For Senate/Governor, use state PVI
-            pvi = StatePVI.TryGetValue(race.StateId.ToUpperInvariant(), out var statePvi) ? statePvi : 0;
+            // For Senate/Governor, use state PVI.
+            pvi = CookPvi.GetStateLean(race.StateId);
         }
 
         var demCandidate = race.Candidates.FirstOrDefault(c => c.Party == Party.Democrat);
@@ -115,7 +98,7 @@ public class RaceService : IRaceService
             _ => 7.0
         };
 
-        double demProb = NormalCdf(demMargin / standardError);
+        double demProb = ForecastMath.MarginToProbability(demMargin, standardError);
         double repProb = 1.0 - demProb;
 
         // Ensure reasonable bounds
@@ -155,24 +138,6 @@ public class RaceService : IRaceService
             >= 0.10 => RaceRating.LikelyRep,
             _ => RaceRating.SolidRep
         };
-    }
-
-    private static double NormalCdf(double x)
-    {
-        const double a1 = 0.254829592;
-        const double a2 = -0.284496736;
-        const double a3 = 1.421413741;
-        const double a4 = -1.453152027;
-        const double a5 = 1.061405429;
-        const double p = 0.3275911;
-
-        int sign = x < 0 ? -1 : 1;
-        x = Math.Abs(x) / Math.Sqrt(2);
-
-        double t = 1.0 / (1.0 + p * x);
-        double y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.Exp(-x * x);
-
-        return 0.5 * (1.0 + sign * y);
     }
 
     public Task<IEnumerable<Race>> GetAllRacesAsync(RaceType? type = null)
