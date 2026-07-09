@@ -50,7 +50,7 @@ public class MonteCarloSimulator
         // One correlated national swing per simulation (margin points), shared across all races —
         // this is what prevents unrealistic scenarios where every close race breaks the same way.
         double natSD = UncertaintyModel.NationalErrorStdDev;
-        double nationalSwing = SampleNormal(0, natSD);
+        double nationalSwing = SampleTError(natSD);
 
         foreach (var forecast in forecasts)
         {
@@ -59,7 +59,7 @@ public class MonteCarloSimulator
             // Decompose each race's total uncertainty into the shared national component plus an
             // independent race-specific component, so total per-race variance ≈ raceSD².
             var idioSD = Math.Sqrt(Math.Max(raceSD * raceSD - natSD * natSD, 1.0));
-            var simMargin = forecast.ExpectedDemMargin + nationalSwing + SampleNormal(0, idioSD);
+            var simMargin = forecast.ExpectedDemMargin + nationalSwing + SampleTError(idioSD);
 
             if (simMargin > 0) demSeats++;
             else repSeats++;
@@ -75,13 +75,36 @@ public class MonteCarloSimulator
         };
     }
 
-    private double SampleNormal(double mean, double stdDev)
+    // Degrees of freedom for the t-distributed error terms. Fewer dof = fatter tails; ~5 reflects
+    // that real polling misses have heavier tails than a normal, so the sim stops underpricing big
+    // swings and overstating near-certain outcomes.
+    private const int ErrorDof = 5;
+
+    private double SampleStandardNormal()
     {
-        // Box-Muller transform for normal distribution
+        // Box-Muller transform, mean 0 / SD 1.
         double u1 = 1.0 - _random.NextDouble();
         double u2 = 1.0 - _random.NextDouble();
-        double normalRandom = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-        return mean + stdDev * normalRandom;
+        return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+    }
+
+    /// <summary>
+    /// Mean-0 error with standard deviation <paramref name="stdDev"/>, drawn from a Student-t with
+    /// <see cref="ErrorDof"/> degrees of freedom. t = Z / sqrt(W/dof) with W ~ chi-squared(dof); a
+    /// standard t has variance dof/(dof-2), so rescale by sqrt((dof-2)/dof) to unit variance before
+    /// scaling to <paramref name="stdDev"/> — same spread as the old normal, but with fatter tails.
+    /// </summary>
+    private double SampleTError(double stdDev)
+    {
+        double z = SampleStandardNormal();
+        double chiSq = 0;
+        for (int i = 0; i < ErrorDof; i++)
+        {
+            double n = SampleStandardNormal();
+            chiSq += n * n;
+        }
+        double standardT = z / Math.Sqrt(chiSq / ErrorDof);
+        return stdDev * standardT * Math.Sqrt((ErrorDof - 2.0) / ErrorDof);
     }
 
     private ChamberForecast AggregateResults(
