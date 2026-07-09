@@ -166,13 +166,14 @@ public class ForecastController : ControllerBase
 
     /// <summary>
     /// Rebuilds the retrospective model forecast history (statewide races, from June 1). Admin endpoint.
+    /// Destructive: forces a full rebuild even when history already exists.
     /// </summary>
     [HttpPost("backfill")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> BackfillModelHistory()
     {
-        _logger.LogInformation("Manual model history backfill triggered");
-        await _orchestrator.BackfillModelHistoryAsync();
+        _logger.LogInformation("Manual model history backfill triggered (forced rebuild)");
+        await _orchestrator.BackfillModelHistoryAsync(force: true);
         return Ok(new { message = "Model history backfill completed" });
     }
 

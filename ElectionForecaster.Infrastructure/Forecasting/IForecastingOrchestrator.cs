@@ -41,6 +41,8 @@ public interface IForecastingOrchestrator
     /// <summary>
     /// Backfills the full model's forecast history retrospectively (statewide races), reconstructing
     /// each day's market and polling inputs so the stored history reflects what the model would have said.
+    /// Destructive (deletes and rebuilds), so it only runs when history is empty unless <paramref name="force"/>
+    /// is set — this keeps the automatic startup call from wiping the genuine daily snapshots on every restart.
     /// </summary>
-    Task BackfillModelHistoryAsync(CancellationToken cancellationToken = default);
+    Task BackfillModelHistoryAsync(bool force = false, CancellationToken cancellationToken = default);
 }

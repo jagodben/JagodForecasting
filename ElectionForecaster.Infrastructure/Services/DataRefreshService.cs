@@ -77,7 +77,7 @@ public class DataRefreshService : BackgroundService
             _logger.LogInformation("Running one-time model history backfill...");
             try
             {
-                await orchestrator.BackfillModelHistoryAsync(cancellationToken);
+                await orchestrator.BackfillModelHistoryAsync(force: false, cancellationToken);
                 _backfillComplete = true;
             }
             catch (Exception ex)

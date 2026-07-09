@@ -369,8 +369,18 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _logger.LogInformation("Daily snapshot stored");
     }
 
-    public async Task BackfillModelHistoryAsync(CancellationToken cancellationToken = default)
+    public async Task BackfillModelHistoryAsync(bool force = false, CancellationToken cancellationToken = default)
     {
+        // This deletes and rebuilds every statewide race's history from *today's* inputs, so re-running
+        // it on each restart would wipe the genuine daily snapshots (StoreDailySnapshotAsync) and
+        // retro-stamp today's national mood across all past days. Only seed when there's no history
+        // yet; the manual admin endpoint passes force to rebuild deliberately.
+        if (!force && await _dbContext.ForecastHistory.AnyAsync(cancellationToken))
+        {
+            _logger.LogInformation("Model history already present — skipping automatic backfill (POST /api/forecast/backfill to force a rebuild)");
+            return;
+        }
+
         var fromDate = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
         var today = DateTime.UtcNow.Date;
         _logger.LogInformation("Backfilling model history {From:d}..{To:d} for statewide races", fromDate, today);
