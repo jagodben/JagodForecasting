@@ -65,6 +65,15 @@ const getRatingLabel = (rating: RaceRating): string => {
   }
 };
 
+// Formats a Dem margin (points) as a called result, e.g. +5.3 → "D+5.3", -3 → "R+3", 0 → "EVEN".
+const formatMargin = (margin: number): string => {
+  const rounded = Math.round(margin * 10) / 10;
+  if (rounded === 0) return 'EVEN';
+  const abs = Math.abs(rounded);
+  const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
+  return rounded > 0 ? `D+${num}` : `R+${num}`;
+};
+
 // Convert probability to rating
 const probabilityToRating = (demProb: number): RaceRating => {
   if (demProb >= 0.90) return RaceRating.SolidDem;
@@ -493,12 +502,24 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
             maxWidth: '300px',
           }}
         >
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-            {stateNames[tooltipData.stateId] || tooltipData.stateId}
-            {tooltipData.districtNum === 1 && !tooltipData.race?.districtNumber
-              ? ' - At-Large'
-              : ` - District ${tooltipData.districtNum}`}
-          </h4>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', margin: '0 0 8px 0', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '14px' }}>
+              {stateNames[tooltipData.stateId] || tooltipData.stateId}
+              {tooltipData.districtNum === 1 && !tooltipData.race?.districtNumber
+                ? ' - At-Large'
+                : ` - District ${tooltipData.districtNum}`}
+            </h4>
+            {(() => {
+              // Projected result (D+/R+) for the hovered district, from the blended forecast's margin.
+              const margin = detailedForecasts?.find(f => f.raceId === tooltipData.race?.id)?.expectedDemMargin;
+              if (margin == null) return null;
+              return (
+                <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap', color: margin > 0 ? '#123f8f' : margin < 0 ? '#9c150b' : '#666' }}>
+                  {formatMargin(margin)}
+                </span>
+              );
+            })()}
+          </div>
 
           {tooltipData.race ? (
             <div>
