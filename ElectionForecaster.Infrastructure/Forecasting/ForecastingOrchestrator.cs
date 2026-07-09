@@ -265,13 +265,50 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (_cache.TryGetValue(ChamberKey(chamber), out ChamberForecast? cached) && cached != null)
             return cached;
 
-        // Per-race forecasts (cached + computed in parallel), then the 10k-iteration Monte Carlo.
+        // Per-race forecasts (cached + computed in parallel).
         var forecasts = await GenerateAllForecastsAsync(chamber, cancellationToken);
-        var chamberResult = _simulator.SimulateChamber(forecasts, chamber);
+
+        // Every seat must be counted. A race whose forecast failed is dropped by the batch above,
+        // which would shrink the seat total against the fixed control threshold (e.g. <435 House
+        // seats vs the 218 majority line) and deflate BOTH parties' control odds. Backfill any gap
+        // with the race's RaceService prior so the seat is still simulated with the right lean.
+        var allRaces = (await _raceService.GetAllRacesAsync(chamber)).ToList();
+        var byId = forecasts.ToDictionary(f => f.RaceId);
+        var complete = allRaces
+            .Select(r => byId.TryGetValue(r.Id, out var f) ? f : FallbackForecast(r))
+            .ToList();
+        var missing = allRaces.Count - byId.Count;
+        if (missing > 0)
+            _logger.LogWarning("{Chamber} sim: {Missing} race(s) missing a forecast — used the RaceService prior to keep the seat total complete", chamber, missing);
+
+        var chamberResult = _simulator.SimulateChamber(complete, chamber);
         chamberResult.History = await GetChamberHistoryAsync(chamber.ToString(), 90, cancellationToken);
 
         _cache.Set(ChamberKey(chamber), chamberResult, CacheTtl);
         return chamberResult;
+    }
+
+    /// <summary>
+    /// A minimal forecast reconstructed from a race's fundamentals-only RaceService prior. Used only
+    /// to keep the chamber Monte Carlo's seat total complete when a race's full forecast is missing —
+    /// never surfaced to the API.
+    /// </summary>
+    private static DetailedForecast FallbackForecast(Race race)
+    {
+        var demCand = race.Candidates.FirstOrDefault(c => c.Party == Party.Democrat);
+        var repCand = race.Candidates.FirstOrDefault(c => c.Party == Party.Republican);
+        var demForecast = race.Forecasts.FirstOrDefault(f => f.CandidateId == demCand?.Id);
+        var repForecast = race.Forecasts.FirstOrDefault(f => f.CandidateId == repCand?.Id);
+        var demVoteShare = demForecast?.ProjectedVoteShare ?? 0.5;
+        return new DetailedForecast
+        {
+            RaceId = race.Id,
+            DemWinProbability = demForecast?.WinProbability ?? 0.5,
+            RepWinProbability = repForecast?.WinProbability ?? 0.5,
+            // RaceService sets demVoteShare = 0.5 + margin/100, so invert to recover its margin.
+            ExpectedDemMargin = (demVoteShare - 0.5) * 100.0,
+            MarginStdDev = race.Type == RaceType.House ? 8.0 : 6.0
+        };
     }
 
     public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
