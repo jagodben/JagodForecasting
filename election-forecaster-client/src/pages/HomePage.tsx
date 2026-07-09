@@ -8,15 +8,15 @@ import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 
 type MapView = 'senate' | 'house' | 'governors';
-type DataSource = 'combined' | 'markets' | 'polling';
 type MobilePanel = 'map' | 'data';
+
+// The forecast now surfaces only the combined model — no Polymarket/Polls lens selector. The maps
+// still take a dataSource prop, so keep passing the fixed 'combined' value.
+const dataSource = 'combined' as const;
 
 export const HomePage = () => {
   const [activeView, setActiveView] = useState<MapView>('senate');
-  const [dataSource, setDataSource] = useState<DataSource>('combined');
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>('map');
-  const [hasMarketData, setHasMarketData] = useState(false);
-  const [hasPollingData, setHasPollingData] = useState(false);
   const [selectedState, setSelectedState] = useState<SelectedStateData | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<SelectedDistrictData | null>(null);
 
@@ -138,35 +138,8 @@ export const HomePage = () => {
             <USDistrictMap races={houseRaces} dataSource={dataSource} onDistrictSelect={setSelectedDistrict} />
           )}
 
-          {/* Data source control - mobile only (same as in forecast sidebar) */}
+          {/* Selected race info - mobile only */}
           <div className="mobile-data-source">
-            <div className="forecast-sidebar__section">
-              <div className="forecast-sidebar__label">Data Source</div>
-              <div className="forecast-sidebar__sources">
-                {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
-                  const isDisabled =
-                    (source === 'markets' && !hasMarketData) ||
-                    (source === 'polling' && !hasPollingData);
-                  return (
-                    <button
-                      key={source}
-                      onClick={() => {
-                        if (!isDisabled) {
-                          setDataSource(source);
-                          setSelectedState(null);
-                          setSelectedDistrict(null);
-                        }
-                      }}
-                      disabled={isDisabled}
-                      className={`forecast-sidebar__source-btn ${dataSource === source ? 'forecast-sidebar__source-btn--active' : ''}`}
-                    >
-                      {source === 'combined' ? 'Forecast' : source === 'markets' ? 'Polymarket' : 'Polls'}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Selected state info - mobile only (Senate/Governors) */}
             {selectedState && activeView !== 'house' && (
               <div className="mobile-state-info">
@@ -232,13 +205,6 @@ export const HomePage = () => {
             <ChamberForecast
               races={forecastRaces}
               raceType={forecastRaceType}
-              compact
-              dataSource={dataSource}
-              onDataSourceChange={setDataSource}
-              onDataAvailabilityChange={(hasMarket, hasPolling) => {
-                setHasMarketData(hasMarket);
-                setHasPollingData(hasPolling);
-              }}
             />
           </div>
         )}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
@@ -8,20 +8,10 @@ import { timeAgo } from '../utils/time';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
 
-type DataSource = 'combined' | 'markets' | 'polling';
-
 interface HistoricalOdds {
   date: string;
   demOdds: number;
 }
-
-const getSourceLabel = (source: DataSource) => {
-  switch (source) {
-    case 'combined': return 'Forecast';
-    case 'markets': return 'Polymarket';
-    case 'polling': return 'Polls';
-  }
-};
 
 const getPartyColor = (party: Party): string => {
   switch (party) {
@@ -39,19 +29,6 @@ const getPartyLogo = (party: Party): string | null => {
   if (party === Party.Democrat) return '/democrat.png';
   if (party === Party.Republican) return '/republican.png';
   return null;
-};
-
-// Standard normal CDF (Abramowitz & Stegun approximation). Only a fallback if the blended
-// forecast hasn't loaded; uses SE 6 to match the backend's polling-to-probability model (not an
-// overconfident SE ~3.5), so the "Polls" win probability stays consistent.
-const normalCdf = (x: number): number => {
-  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
-  const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
-  const sign = x < 0 ? -1 : 1;
-  const z = Math.abs(x) / Math.sqrt(2);
-  const t = 1.0 / (1.0 + p * z);
-  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
-  return 0.5 * (1.0 + sign * y);
 };
 
 const formatPollDate = (iso: string): string =>
@@ -78,7 +55,6 @@ const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
 
 export const RacePage = () => {
   const { raceId } = useParams<{ raceId: string }>();
-  const [dataSource, setDataSource] = useState<DataSource>('combined');
   const isDesktop = useIsDesktop();
 
   const { data: race, isLoading: raceLoading, error: raceError } = useQuery({
@@ -105,35 +81,19 @@ export const RacePage = () => {
     enabled: !!raceId,
   });
 
-  // Calculate probabilities based on selected data source
-  const { demProb, historicalData, hasMarketData, hasPollingData } = useMemo(() => {
-    if (!race) return { demProb: 0.5, repProb: 0.5, historicalData: [], hasMarketData: false, hasPollingData: false };
+  // Combined blended forecast (markets + polling + fundamentals + national environment) — the same
+  // value the home page map shows. The per-source lens selector was removed; only the model forecast
+  // is surfaced now. The actual polls still appear below in their own section.
+  const { demProb, historicalData } = useMemo(() => {
+    if (!race) return { demProb: 0.5, historicalData: [] };
 
     const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
     const demForecastData = race.forecasts.find(f => f.candidateId === demCandidate?.id);
 
-    // Check data availability from forecast inputs
-    const marketAvailable = forecast?.inputs?.marketOdds != null;
-    const pollingAvailable = (forecast?.inputs?.pollingAverage != null) || ((pollsData?.polls?.length ?? 0) > 0);
+    // Fall back to the fundamentals-only race forecast only if the blended forecast hasn't loaded.
+    const demProbability = forecast?.demWinProbability ?? demForecastData?.winProbability ?? 0.5;
 
-    let demProbability: number;
-
-    if (dataSource === 'markets' && marketAvailable) {
-      demProbability = forecast!.inputs.marketOdds!;
-    } else if (dataSource === 'polling' && pollingAvailable) {
-      // Use the backend's polling win probability (the same value the map shows). Fall back
-      // to computing it from the polls margin if the blended forecast hasn't loaded yet.
-      const avg = pollsData?.average;
-      demProbability = forecast?.inputs?.pollingWinProbability
-        ?? (avg ? normalCdf((avg.demPercent - avg.repPercent) / 6) : 0.5);
-    } else {
-      // Combined: use the blended forecast (markets + polling + fundamentals + national environment),
-      // the same value the home page map shows. Fall back to the fundamentals-only
-      // race forecast only if the blended forecast hasn't loaded.
-      demProbability = forecast?.demWinProbability ?? demForecastData?.winProbability ?? 0.5;
-    }
-
-    // Use real history from API, filtered from Nov 3 2025 onwards
+    // Real history from the API, filtered from Nov 3 2025 onwards.
     const startDate = new Date('2025-11-03');
     const historical: HistoricalOdds[] = (forecast?.history ?? [])
       .filter(h => new Date(h.date) >= startDate)
@@ -142,14 +102,8 @@ export const RacePage = () => {
         demOdds: Math.round(h.demWinProbability * 1000) / 10,
       }));
 
-    return {
-      demProb: demProbability,
-      repProb: 1 - demProbability,
-      historicalData: historical,
-      hasMarketData: marketAvailable,
-      hasPollingData: pollingAvailable,
-    };
-  }, [race, forecast, dataSource, pollsData]);
+    return { demProb: demProbability, historicalData: historical };
+  }, [race, forecast]);
 
   const pageTitle = race
     ? `${state?.name || race.stateId} ${getRaceTypeLabel(race.type, race.districtNumber)} 2026`
@@ -184,9 +138,8 @@ export const RacePage = () => {
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);
 
-  // On desktop the toggle is dropped and everything is shown at once, so the headline always uses
-  // the combined forecast; on mobile it follows the selected data source.
-  const headDem = isDesktop ? (forecast?.demWinProbability ?? demProb) : demProb;
+  // Headline always uses the combined blended forecast (falling back to the useMemo demProb).
+  const headDem = forecast?.demWinProbability ?? demProb;
   const headRep = 1 - headDem;
 
   return (
@@ -210,40 +163,6 @@ export const RacePage = () => {
             </div>
           )}
         </div>
-
-        {/* Data Source Toggle — mobile only; desktop shows every lens at once */}
-        {!isDesktop && (
-        <div className="race-page__sources">
-          {(['combined', 'markets', 'polling'] as DataSource[]).map((source) => {
-            const isDisabled =
-              (source === 'markets' && !hasMarketData) ||
-              (source === 'polling' && !hasPollingData);
-
-            return (
-              <button
-                key={source}
-                onClick={() => !isDisabled && setDataSource(source)}
-                disabled={isDisabled}
-                style={{
-                  padding: '9px 18px',
-                  fontSize: '14px',
-                  fontWeight: dataSource === source ? 'bold' : 'normal',
-                  backgroundColor: dataSource === source ? '#121212' : isDisabled ? '#e5e7eb' : '#f3f4f6',
-                  color: dataSource === source ? 'white' : isDisabled ? '#888888' : '#333333',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: isDisabled ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  opacity: isDisabled ? 0.6 : 1,
-                }}
-                title={isDisabled ? `No ${source === 'markets' ? 'market' : 'polling'} data available` : ''}
-              >
-                {getSourceLabel(source)}
-              </button>
-            );
-          })}
-        </div>
-        )}
       </div>
 
       <div className="race-page__body">
@@ -293,14 +212,13 @@ export const RacePage = () => {
                 headRep={headRep}
                 demCandidate={demCandidate}
                 repCandidate={repCandidate}
-                dataSource={dataSource}
                 forecast={forecast}
               />
               <CandidatesList race={race} />
             </div>
 
             <div className="race-page__right">
-              {dataSource === 'combined' && historicalData.length >= 2 && (
+              {historicalData.length >= 2 && (
                 <div style={{ width: '100%' }}>
                   <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Model Forecast</div>
                   <ProbabilityTrendChart
@@ -313,15 +231,7 @@ export const RacePage = () => {
                 </div>
               )}
 
-              {dataSource === 'polling' && (
-                <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
-              )}
-
-              {dataSource === 'markets' && (
-                <div style={{ textAlign: 'center', color: '#888888', fontSize: '14px', padding: '24px' }}>
-                  Showing the Polymarket prediction-market win probability.
-                </div>
-              )}
+              <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
             </div>
           </>
         )}
@@ -332,22 +242,15 @@ export const RacePage = () => {
 
 // Win-probability headline (big Dem/Rep % + bar + projected margin). Mobile only — on desktop the
 // candidates list already shows each side's win probability, so the headline is redundant.
-const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, dataSource, forecast }: {
+const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, forecast }: {
   headDem: number;
   headRep: number;
   demCandidate?: Candidate;
   repCandidate?: Candidate;
-  dataSource: DataSource;
   forecast?: DetailedForecast;
 }) => (
   <div>
     <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
-    {dataSource !== 'combined' && (
-      <div style={{ textAlign: 'center', fontSize: '13px', color: dataSource === 'markets' ? '#059669' : '#2563eb', marginBottom: '12px', fontWeight: 500 }}>
-        {dataSource === 'markets' && 'Based on Polymarket prediction market odds'}
-        {dataSource === 'polling' && 'Based on polling averages'}
-      </div>
-    )}
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
       <div style={{ flex: 1, textAlign: 'center' }}>
         <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
@@ -362,7 +265,7 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, dataSou
         {repCandidate?.isIncumbent && <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>}
       </div>
     </div>
-    {forecast && dataSource === 'combined' && (
+    {forecast && (
       <div style={{ textAlign: 'center', marginTop: '16px' }}>
         <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
         <div style={{ fontSize: '24px', fontWeight: 'bold', color: forecast.expectedDemMargin > 0 ? '#123f8f' : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666' }}>
