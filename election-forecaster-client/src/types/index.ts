@@ -82,11 +82,9 @@ export interface ForecastInputs {
   pollingAverage: number | null;
   pollingWinProbability: number | null;
   fundamentalsPrediction: number | null;
-  approvalAdjustment: number | null;
   marketWeight: number;
   pollingWeight: number;
   fundamentalsWeight: number;
-  approvalWeight: number;
   marketLastUpdated: string | null;
   pollingLastUpdated: string | null;
   pollCount: number | null;

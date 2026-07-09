@@ -127,7 +127,7 @@ export const RacePage = () => {
       demProbability = forecast?.inputs?.pollingWinProbability
         ?? (avg ? normalCdf((avg.demPercent - avg.repPercent) / 6) : 0.5);
     } else {
-      // Combined: use the blended forecast (markets + polling + fundamentals + approval),
+      // Combined: use the blended forecast (markets + polling + fundamentals + national environment),
       // the same value the home page map shows. Fall back to the fundamentals-only
       // race forecast only if the blended forecast hasn't loaded.
       demProbability = forecast?.demWinProbability ?? demForecastData?.winProbability ?? 0.5;

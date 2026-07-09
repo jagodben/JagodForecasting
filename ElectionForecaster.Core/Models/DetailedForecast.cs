@@ -42,13 +42,11 @@ public class ForecastInputs
     /// <summary>Dem win probability derived from the polling margin (0..1). Null if no polls.</summary>
     public double? PollingWinProbability { get; set; }
     public double? FundamentalsPrediction { get; set; }
-    public double? ApprovalAdjustment { get; set; }
 
     // Weights used for each input
     public double MarketWeight { get; set; }
     public double PollingWeight { get; set; }
     public double FundamentalsWeight { get; set; }
-    public double ApprovalWeight { get; set; }
 
     // Data quality/freshness indicators
     public DateTime? MarketLastUpdated { get; set; }

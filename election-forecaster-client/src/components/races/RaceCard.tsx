@@ -71,7 +71,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
   const demForecast = race.forecasts.find(f => f.candidateId === demCandidate?.id);
   const repForecast = race.forecasts.find(f => f.candidateId === repCandidate?.id);
 
-  // Use the blended forecast (markets + polling + fundamentals + approval) — the same
+  // Use the blended forecast (markets + polling + fundamentals + national environment) — the same
   // number the home page map and race page show — instead of the fundamentals-only
   // race.forecasts value. Shares a query cache key with RacePage/RaceMap.
   const { data: detailed } = useQuery({

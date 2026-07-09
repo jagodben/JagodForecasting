@@ -23,7 +23,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     private readonly IEnumerable<IPredictionMarketSource> _marketSources;
     private readonly IPollingSource _pollingSource;
     private readonly IFundamentalsSource _fundamentalsSource;
-    private readonly IApprovalSource _approvalSource;
     private readonly IGenericBallotSource _genericBallotSource;
     private readonly IRaceService _raceService;
     private readonly WeightCalculator _weightCalculator;
@@ -39,6 +38,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     // request the DB reads + blend math. Cache is a shared singleton across request scopes.
     private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
 
+    // National environment (Dem margin, points) used only when no live generic-ballot average is
+    // available — the baseline out-party bonus in a midterm (2026 has a Republican president).
+    private const double DefaultMidtermEnvironment = 2.5;
+
     // Max races forecast concurrently when filling a cold cache — each runs in its own DI scope
     // (own DbContext) so this is real parallelism, bounded to avoid hammering the upstream APIs.
     private const int MaxForecastConcurrency = 8;
@@ -50,7 +53,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         IEnumerable<IPredictionMarketSource> marketSources,
         IPollingSource pollingSource,
         IFundamentalsSource fundamentalsSource,
-        IApprovalSource approvalSource,
         IGenericBallotSource genericBallotSource,
         IRaceService raceService,
         WeightCalculator weightCalculator,
@@ -64,7 +66,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _marketSources = marketSources;
         _pollingSource = pollingSource;
         _fundamentalsSource = fundamentalsSource;
-        _approvalSource = approvalSource;
         _genericBallotSource = genericBallotSource;
         _raceService = raceService;
         _weightCalculator = weightCalculator;
@@ -98,20 +99,18 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var marketTask = GetAggregatedMarketOddsAsync(raceId, cancellationToken);
         var pollingTask = _pollingSource.GetPollingAverageAsync(raceId, cancellationToken);
         var fundamentalsTask = _fundamentalsSource.GetFundamentalsAsync(raceId, cancellationToken);
-        var approvalTask = _approvalSource.GetPresidentialApprovalAsync(cancellationToken);
         var genericBallotTask = _genericBallotSource.GetCurrentMarginAsync(cancellationToken);
 
-        await Task.WhenAll(marketTask, pollingTask, fundamentalsTask, approvalTask, genericBallotTask);
+        await Task.WhenAll(marketTask, pollingTask, fundamentalsTask, genericBallotTask);
 
         var marketOdds = await marketTask;
         var polling = await pollingTask;
         var fundamentals = await fundamentalsTask;
-        var approval = await approvalTask;
         var genericBallot = await genericBallotTask;
 
         // 3. Historical data (back to Nov 2025), then blend.
         var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
-        var forecast = BuildForecast(raceId, raceType, marketOdds, polling, fundamentals, approval, genericBallot, race, DateTime.UtcNow, history);
+        var forecast = BuildForecast(raceId, raceType, marketOdds, polling, fundamentals, genericBallot, race, DateTime.UtcNow, history);
 
         // The chart's most-recent point should equal the live headline. Stored history rows are
         // periodic snapshots (built from the daily market close) that can lag the current market;
@@ -141,16 +140,16 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     private DetailedForecast BuildForecast(
         string raceId, RaceType raceType,
         MarketOdds? marketOdds, PollingAverage? polling, FundamentalsData? fundamentals,
-        double approval, double? genericBallotMargin, Race? race, DateTime asOf, List<HistoricalDataPoint> history)
+        double? genericBallotMargin, Race? race, DateTime asOf, List<HistoricalDataPoint> history)
     {
         // Inject cross-cutting fundamentals inputs: national mood and incumbency direction (from the
-        // race's candidates). Prefer the live generic-ballot average for the national environment,
-        // falling back to the approval-based projection when it isn't available.
+        // race's candidates). The national environment is the live generic-ballot average, falling
+        // back to a fixed baseline midterm out-party bonus only when no average is available.
         if (fundamentals != null)
         {
             fundamentals.NationalEnvironment = genericBallotMargin.HasValue
                 ? Math.Clamp(genericBallotMargin.Value, -15, 15)
-                : NationalEnvironmentFromApproval(approval);
+                : DefaultMidtermEnvironment;
             fundamentals.IncumbentIsDem = GetIncumbentIsDem(race);
         }
 
@@ -183,11 +182,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 FundamentalsPrediction = fundamentals != null
                     ? ForecastMath.MarginToProbability(fundamentals.GetExpectedDemMargin(), se)
                     : null,
-                ApprovalAdjustment = approval - 50,
                 MarketWeight = weights.MarketWeight,
                 PollingWeight = weights.PollingWeight,
                 FundamentalsWeight = weights.FundamentalsWeight,
-                ApprovalWeight = 0,
                 MarketLastUpdated = marketOdds?.Timestamp,
                 PollingLastUpdated = polling?.LatestPollDate,
                 PollCount = polling?.PollCount
@@ -210,11 +207,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         MarketWeight = f.Inputs.MarketWeight,
         PollingWeight = f.Inputs.PollingWeight,
         FundamentalsWeight = f.Inputs.FundamentalsWeight,
-        ApprovalWeight = f.Inputs.ApprovalWeight,
         MarketOdds = f.Inputs.MarketOdds,
         PollingAverage = f.Inputs.PollingAverage,
-        FundamentalsPrediction = f.Inputs.FundamentalsPrediction,
-        ApprovalAdjustment = f.Inputs.ApprovalAdjustment
+        FundamentalsPrediction = f.Inputs.FundamentalsPrediction
     };
 
     public async Task<List<DetailedForecast>> GenerateAllForecastsAsync(RaceType? raceType = null, CancellationToken cancellationToken = default)
@@ -325,7 +320,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         // Refresh other sources
         tasks.Add(_pollingSource.RefreshAsync(cancellationToken));
-        tasks.Add(_approvalSource.RefreshAsync(cancellationToken));
         tasks.Add(_genericBallotSource.RefreshAsync(cancellationToken));
 
         await Task.WhenAll(tasks);
@@ -423,9 +417,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _logger.LogInformation("Backfilling model history {From:d}..{To:d} for statewide races", fromDate, today);
 
         var polymarket = _marketSources.OfType<PolymarketClient>().FirstOrDefault();
-        var approval = await _approvalSource.GetPresidentialApprovalAsync(cancellationToken);
         // Current generic-ballot margin applied across the backfilled days (a single national-mood
-        // value, consistent with how approval is treated in this retrospective reconstruction).
+        // value for this retrospective reconstruction).
         var genericBallot = await _genericBallotSource.GetCurrentMarginAsync(cancellationToken);
 
         // Statewide races only (House has no markets and sparse polls; excluded per scope).
@@ -472,7 +465,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                         ? PollingAverageCalculator.Calculate(pollsAsOf, race.Id, day)
                         : null;
 
-                    var forecast = BuildForecast(race.Id, race.Type, market, polling, fundamentals, approval, genericBallot, race, day, new List<HistoricalDataPoint>());
+                    var forecast = BuildForecast(race.Id, race.Type, market, polling, fundamentals, genericBallot, race, day, new List<HistoricalDataPoint>());
                     _dbContext.ForecastHistory.Add(ToHistoryEntity(forecast, day));
                     rowsAdded++;
                 }
@@ -627,21 +620,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         }
 
         return totalWeight > 0 ? weightedMargin / totalWeight : 0;
-    }
-
-    /// <summary>
-    /// Projects the national environment (Dem margin, points) from presidential approval. In 2026
-    /// the president is Republican, so Democrats are the midterm out-party. Low GOP approval →
-    /// Dem-favorable environment. This already embeds the midterm effect — it is not added on top
-    /// of a separate penalty. When a live generic-ballot average exists, prefer that instead.
-    /// </summary>
-    private static double NationalEnvironmentFromApproval(double approval)
-    {
-        const double approvalCoefficient = 0.5; // national-margin points per point of net approval
-        const double midtermDrag = 2.5;          // baseline out-party bonus in a midterm
-        var presidentNetApproval = 2 * approval - 100; // approval% → net (e.g. 43% → −14)
-        var environment = -presidentNetApproval * approvalCoefficient + midtermDrag;
-        return Math.Clamp(environment, -15, 15);
     }
 
     /// <summary>True if the incumbent is a Democrat, false if Republican, null for an open seat.</summary>

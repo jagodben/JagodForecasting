@@ -8,7 +8,7 @@ public interface IGenericBallotSource
 {
     /// <summary>
     /// Current generic-ballot Democratic margin in points (e.g. +5.8 = D+5.8), or null when
-    /// no data is available (the caller then falls back to the approval-based projection).
+    /// no data is available (the caller then falls back to the baseline midterm environment).
     /// </summary>
     Task<double?> GetCurrentMarginAsync(CancellationToken cancellationToken = default);
 

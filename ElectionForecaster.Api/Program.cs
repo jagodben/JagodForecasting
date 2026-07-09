@@ -2,7 +2,6 @@ using System.IO.Compression;
 using System.Threading.RateLimiting;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Infrastructure.Data;
-using ElectionForecaster.Infrastructure.DataSources.Approval;
 using ElectionForecaster.Infrastructure.DataSources.Fundamentals;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.Polling;
@@ -56,14 +55,12 @@ builder.Services.AddSingleton<IDistrictService, DistrictService>();
 builder.Services.AddHttpClient<PolymarketClient>();
 builder.Services.AddHttpClient<WikipediaPollingClient>();
 builder.Services.AddHttpClient<WikipediaGenericBallotClient>();
-builder.Services.AddHttpClient<ApprovalAggregator>();
 
 // Register data sources
 builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
 builder.Services.AddScoped<WikipediaPollingClient>();
 builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<WikipediaPollingClient>());
 builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
-builder.Services.AddScoped<IApprovalSource, ApprovalAggregator>();
 builder.Services.AddScoped<IGenericBallotSource, WikipediaGenericBallotClient>();
 
 // Register forecasting components

@@ -6,7 +6,7 @@ namespace ElectionForecaster.Infrastructure.DataSources.Models;
 /// Structural (non-poll) factors for a race, expressed so they compose into a single
 /// expected Democratic margin. The national environment is captured by one term
 /// (<see cref="NationalEnvironment"/>) — either the generic-ballot average or, absent
-/// that, an approval-based projection that already includes the midterm effect. It is
+/// that, a baseline midterm out-party bonus that already includes the midterm effect. It is
 /// NOT added on top of a separate midterm penalty (that would double-count the mood).
 /// </summary>
 public class FundamentalsData
@@ -21,8 +21,8 @@ public class FundamentalsData
 
     /// <summary>
     /// The national mood as a Dem margin in points (e.g. +4 = D+4 environment). Sourced from
-    /// the generic ballot when available, otherwise projected from presidential approval and
-    /// the midterm penalty. Already contains the midterm effect — do not add a penalty on top.
+    /// the generic ballot when available, otherwise a baseline midterm out-party bonus.
+    /// Already contains the midterm effect — do not add a penalty on top.
     /// </summary>
     public double NationalEnvironment { get; set; }
 
