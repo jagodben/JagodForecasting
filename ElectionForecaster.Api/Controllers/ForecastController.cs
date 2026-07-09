@@ -1,5 +1,6 @@
 using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Models;
+using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using ElectionForecaster.Infrastructure.Forecasting;
@@ -35,6 +36,12 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(typeof(RacePolls), StatusCodes.Status200OK)]
     public async Task<ActionResult<RacePolls>> GetRacePolls(string raceId, [FromQuery] int days = 120)
     {
+        // Races with a viable independent challenger have no usable polling: the parsed Dem-vs-Rep
+        // tables poll the token Democrat (not the independent), so the forecast drops them. Return
+        // none here too, rather than mislabelling the Democrat's numbers as the independent's.
+        if (IndependentChallengers.Has(raceId))
+            return Ok(new RacePolls { RaceId = raceId, Average = null, Polls = new List<PollDto>() });
+
         var polls = await _pollingSource.GetRecentPollsAsync(raceId, days);
         var average = await _pollingSource.GetPollingAverageAsync(raceId);
 
