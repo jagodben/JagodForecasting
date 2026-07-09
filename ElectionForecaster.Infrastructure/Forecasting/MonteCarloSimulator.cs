@@ -52,14 +52,29 @@ public class MonteCarloSimulator
         double natSD = UncertaintyModel.NationalErrorStdDev;
         double nationalSwing = SampleTError(natSD);
 
+        // A second correlated swing per Census region, drawn once and shared by every race in that
+        // region, so a polling miss in one Midwest state partly carries to the others (but not to the
+        // West). This sits between the fully-shared national swing and the independent race error, and
+        // it's what most tightens the chamber odds — clustered upsets move seat totals together.
+        double regSD = UncertaintyModel.RegionalErrorStdDev;
+        var regionalSwings = new Dictionary<string, double>();
+
         foreach (var forecast in forecasts)
         {
             var raceSD = forecast.MarginStdDev > 0 ? forecast.MarginStdDev : 6.0;
 
-            // Decompose each race's total uncertainty into the shared national component plus an
-            // independent race-specific component, so total per-race variance ≈ raceSD².
-            var idioSD = Math.Sqrt(Math.Max(raceSD * raceSD - natSD * natSD, 1.0));
-            var simMargin = forecast.ExpectedDemMargin + nationalSwing + SampleTError(idioSD);
+            var region = GetRegion(forecast.RaceId);
+            if (!regionalSwings.TryGetValue(region, out var regionalSwing))
+            {
+                regionalSwing = SampleTError(regSD);
+                regionalSwings[region] = regionalSwing;
+            }
+
+            // Decompose each race's total uncertainty into the shared national and regional
+            // components plus an independent race-specific remainder, so total per-race variance
+            // still ≈ raceSD² (natSD² + regSD² + idioSD²).
+            var idioSD = Math.Sqrt(Math.Max(raceSD * raceSD - natSD * natSD - regSD * regSD, 1.0));
+            var simMargin = forecast.ExpectedDemMargin + nationalSwing + regionalSwing + SampleTError(idioSD);
 
             if (simMargin > 0) demSeats++;
             else repSeats++;
@@ -105,6 +120,40 @@ public class MonteCarloSimulator
         }
         double standardT = z / Math.Sqrt(chiSq / ErrorDof);
         return stdDev * standardT * Math.Sqrt((ErrorDof - 2.0) / ErrorDof);
+    }
+
+    // Census regions — the correlation clusters for the regional swing. Coarse enough that every race
+    // lands in a group, fine enough that the Midwest and the South miss in different directions. Any
+    // state not listed (e.g. DC) falls through to its own singleton bucket, which is harmless.
+    private static readonly Dictionary<string, string> StateToRegion = new()
+    {
+        // Northeast
+        ["CT"] = "NE", ["ME"] = "NE", ["MA"] = "NE", ["NH"] = "NE", ["RI"] = "NE", ["VT"] = "NE",
+        ["NJ"] = "NE", ["NY"] = "NE", ["PA"] = "NE",
+        // Midwest
+        ["IL"] = "MW", ["IN"] = "MW", ["MI"] = "MW", ["OH"] = "MW", ["WI"] = "MW", ["IA"] = "MW",
+        ["KS"] = "MW", ["MN"] = "MW", ["MO"] = "MW", ["NE"] = "MW", ["ND"] = "MW", ["SD"] = "MW",
+        // South
+        ["DE"] = "S", ["FL"] = "S", ["GA"] = "S", ["MD"] = "S", ["NC"] = "S", ["SC"] = "S",
+        ["VA"] = "S", ["WV"] = "S", ["DC"] = "S", ["AL"] = "S", ["KY"] = "S", ["MS"] = "S",
+        ["TN"] = "S", ["AR"] = "S", ["LA"] = "S", ["OK"] = "S", ["TX"] = "S",
+        // West
+        ["AZ"] = "W", ["CO"] = "W", ["ID"] = "W", ["MT"] = "W", ["NV"] = "W", ["NM"] = "W",
+        ["UT"] = "W", ["WY"] = "W", ["AK"] = "W", ["CA"] = "W", ["HI"] = "W", ["OR"] = "W",
+        ["WA"] = "W",
+    };
+
+    /// <summary>
+    /// Maps a race to its regional correlation bucket via the state prefix of its id (e.g.
+    /// "OH-SEN-2026" or "CA-01-2026" → the state code before the first '-'). Unknown states get
+    /// their own bucket keyed by the state code, so they simply don't correlate with anything else.
+    /// </summary>
+    private static string GetRegion(string raceId)
+    {
+        if (string.IsNullOrEmpty(raceId)) return "?";
+        var dash = raceId.IndexOf('-');
+        var state = dash > 0 ? raceId[..dash] : raceId;
+        return StateToRegion.TryGetValue(state, out var region) ? region : state;
     }
 
     private ChamberForecast AggregateResults(

@@ -11,8 +11,15 @@ namespace ElectionForecaster.Infrastructure.Forecasting;
 /// </summary>
 public static class UncertaintyModel
 {
-    /// <summary>Systematic (correlated across races) component of the error, in margin points.</summary>
+    /// <summary>Systematic (correlated across every race) component of the error, in margin points.</summary>
     public const double NationalErrorStdDev = 3.0;
+
+    /// <summary>
+    /// Regional component of the error, in margin points — a swing shared only by races in the same
+    /// Census region, sitting between the fully-shared national swing and the independent per-race
+    /// error. Lets a polling miss in one Midwest state partly carry to the others (but not the West).
+    /// </summary>
+    public const double RegionalErrorStdDev = 2.0;
 
     /// <summary>Lowest a race's total SD can go — no race is ever a certainty.</summary>
     private const double FloorStdDev = 3.5;
