@@ -217,8 +217,9 @@
 }
 
 .dashboard-map .us-map-container svg {
-  max-width: 100%;
-  max-height: 100%;
+  /* ~15% smaller than the available area, centered, so the map doesn't dominate the main screen. */
+  max-width: 85%;
+  max-height: 85%;
 }
 
 .dashboard-sidebar {
