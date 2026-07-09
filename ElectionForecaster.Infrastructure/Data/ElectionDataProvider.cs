@@ -121,13 +121,14 @@ public static partial class ElectionDataProvider
     private static Race CreateSenateRace(string stateId, RaceRating stateRating)
     {
         SenateNominees.TryGetValue(stateId, out var nominees);
-        var (demName, demIncumbent) = ResolveNominee(nominees.Dem, "Democratic Nominee");
+        var raceId = $"{stateId}-SEN-2026";
+        var (demName, demParty, demIncumbent) = ResolveChallenger(raceId, nominees.Dem);
         var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
         {
-            Id = $"{stateId}-SEN-2026",
+            Id = raceId,
             StateId = stateId,
             Type = RaceType.Senate,
             Rating = stateRating,
@@ -135,7 +136,7 @@ public static partial class ElectionDataProvider
             IsSpecialElection = SpecialSenateStates.Contains(stateId),
             Candidates = new List<Candidate>
             {
-                new() { Id = $"{stateId}-SEN-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
+                new() { Id = $"{stateId}-SEN-D", Name = demName, Party = demParty, IsIncumbent = demIncumbent },
                 new() { Id = $"{stateId}-SEN-R", Name = repName, Party = Party.Republican, IsIncumbent = repIncumbent }
             },
             Forecasts = new List<Forecast>
@@ -149,20 +150,21 @@ public static partial class ElectionDataProvider
     private static Race CreateGovernorRace(string stateId, RaceRating stateRating)
     {
         GovernorNominees.TryGetValue(stateId, out var nominees);
-        var (demName, demIncumbent) = ResolveNominee(nominees.Dem, "Democratic Nominee");
+        var raceId = $"{stateId}-GOV-2026";
+        var (demName, demParty, demIncumbent) = ResolveChallenger(raceId, nominees.Dem);
         var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
         {
-            Id = $"{stateId}-GOV-2026",
+            Id = raceId,
             StateId = stateId,
             Type = RaceType.Governor,
             Rating = stateRating,
             Year = 2026,
             Candidates = new List<Candidate>
             {
-                new() { Id = $"{stateId}-GOV-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
+                new() { Id = $"{stateId}-GOV-D", Name = demName, Party = demParty, IsIncumbent = demIncumbent },
                 new() { Id = $"{stateId}-GOV-R", Name = repName, Party = Party.Republican, IsIncumbent = repIncumbent }
             },
             Forecasts = new List<Forecast>
@@ -176,13 +178,14 @@ public static partial class ElectionDataProvider
     private static Race CreateHouseRace(string stateId, int districtNumber, RaceRating rating)
     {
         HouseNominees.TryGetValue($"{stateId}-{districtNumber:D2}", out var nominees);
-        var (demName, demIncumbent) = ResolveNominee(nominees.Dem, "Democratic Nominee");
+        var raceId = $"{stateId}-{districtNumber:D2}-2026";
+        var (demName, demParty, demIncumbent) = ResolveChallenger(raceId, nominees.Dem);
         var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
         var (demProb, repProb) = GetProbabilities(rating);
 
         return new Race
         {
-            Id = $"{stateId}-{districtNumber:D2}-2026",
+            Id = raceId,
             StateId = stateId,
             Type = RaceType.House,
             DistrictNumber = districtNumber,
@@ -190,7 +193,7 @@ public static partial class ElectionDataProvider
             Year = 2026,
             Candidates = new List<Candidate>
             {
-                new() { Id = $"{stateId}-{districtNumber:D2}-D", Name = demName, Party = Party.Democrat, IsIncumbent = demIncumbent },
+                new() { Id = $"{stateId}-{districtNumber:D2}-D", Name = demName, Party = demParty, IsIncumbent = demIncumbent },
                 new() { Id = $"{stateId}-{districtNumber:D2}-R", Name = repName, Party = Party.Republican, IsIncumbent = repIncumbent }
             },
             Forecasts = new List<Forecast>
@@ -206,6 +209,22 @@ public static partial class ElectionDataProvider
 
     private static (string Name, bool Incumbent) ResolveNominee(Nominee? nominee, string placeholder)
         => nominee is null ? (placeholder, false) : (nominee.Name, nominee.IsIncumbent);
+
+    /// <summary>
+    /// The challenger-slot candidate for a race: a designated viable independent if one exists for
+    /// this race (displacing the token Democrat), otherwise the Democratic nominee/placeholder. The
+    /// challenger slot keeps its "-D" id and carries the forecast's Dem-side probability regardless of
+    /// party, so the independent flows through the two-way engine while showing its real party in the UI.
+    /// </summary>
+    private static (string Name, Party Party, bool Incumbent) ResolveChallenger(string raceId, Nominee? demNominee)
+    {
+        var independent = IndependentChallengers.Get(raceId);
+        if (independent is { ReplacesDem: true })
+            return (independent.Name, Party.Independent, false);
+
+        var (name, incumbent) = ResolveNominee(demNominee, "Democratic Nominee");
+        return (name, Party.Democrat, incumbent);
+    }
 
     // -----------------------------------------------------------------------------------------
     // 2026 nominees — sourced from Wikipedia as of 2026-07-02. A name is filled in only where

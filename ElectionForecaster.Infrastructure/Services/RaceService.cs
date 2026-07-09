@@ -110,19 +110,20 @@ public class RaceService : IRaceService
         demVoteShare = Math.Max(0.30, Math.Min(0.70, demVoteShare));
         double repVoteShare = 1.0 - demVoteShare;
 
-        // Update forecasts
+        // Update forecasts. The Republican gets the R-side; the challenger slot — a Democrat or a
+        // viable independent — gets the D-side, so an independent challenger flows through unchanged.
+        var repId = race.Candidates.FirstOrDefault(c => c.Party == Party.Republican)?.Id;
         foreach (var forecast in race.Forecasts)
         {
-            var candidate = race.Candidates.FirstOrDefault(c => c.Id == forecast.CandidateId);
-            if (candidate?.Party == Party.Democrat)
-            {
-                forecast.WinProbability = demProb;
-                forecast.ProjectedVoteShare = demVoteShare;
-            }
-            else if (candidate?.Party == Party.Republican)
+            if (forecast.CandidateId == repId)
             {
                 forecast.WinProbability = repProb;
                 forecast.ProjectedVoteShare = repVoteShare;
+            }
+            else
+            {
+                forecast.WinProbability = demProb;
+                forecast.ProjectedVoteShare = demVoteShare;
             }
         }
 

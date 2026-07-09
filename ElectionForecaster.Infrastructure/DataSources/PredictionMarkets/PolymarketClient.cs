@@ -53,7 +53,10 @@ public class PolymarketClient : IPredictionMarketSource
         { "MN-SEN-2026", "630818" },
         { "MS-SEN-2026", "631017" },
         { "MT-SEN-2026", "630831" },
-        { "NE-SEN-2026", "634891" },
+        // NE maps to the "Will the Republicans win" market (634892), not the "Democrat" one: the
+        // viable challenger is independent Dan Osborn, so 1 − P(Republican) is the challenger's win
+        // probability (the Democrat market prices only the token Democrat at ~2%). See IndependentChallengers.
+        { "NE-SEN-2026", "634892" },
         { "NH-SEN-2026", "630844" },
         { "NJ-SEN-2026", "630857" },
         { "NM-SEN-2026", "630870" },

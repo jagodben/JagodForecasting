@@ -119,8 +119,10 @@ public class CookPVIProvider : IFundamentalsSource
 
         // Prior statewide result (Senate/Governor), so the fundamentals reflect a seat's demonstrated
         // lean beyond PVI — crossover incumbents, safe-seat blowouts — not just its presidential PVI.
-        // House races have no entry and stay on district PVI + incumbency.
-        var priorMargin = StatewidePriorResults.GetPriorMargin(raceId);
+        // A viable independent challenger overrides the seat's generic prior with their own realistic
+        // showing (else the generic-Democrat blowout would bury a competitive independent). House
+        // races have no entry and stay on district PVI + incumbency.
+        var priorMargin = IndependentChallengers.GetPriorMargin(raceId) ?? StatewidePriorResults.GetPriorMargin(raceId);
 
         return new FundamentalsData
         {

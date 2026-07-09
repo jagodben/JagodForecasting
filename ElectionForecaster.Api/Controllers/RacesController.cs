@@ -72,8 +72,10 @@ public class RacesController : ControllerBase
     {
         if (f == null) return race;
 
-        var demId = race.Candidates.FirstOrDefault(c => c.Party == Party.Democrat)?.Id;
+        // The Republican holds the R-side; the challenger slot (a Democrat or a viable independent)
+        // carries the forecast's Dem-side probability.
         var repId = race.Candidates.FirstOrDefault(c => c.Party == Party.Republican)?.Id;
+        var demId = race.Candidates.FirstOrDefault(c => c.Id != repId)?.Id;
 
         var forecasts = race.Forecasts.Select(fc => new Forecast
         {

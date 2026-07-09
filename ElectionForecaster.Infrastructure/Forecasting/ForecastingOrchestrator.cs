@@ -142,6 +142,11 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         MarketOdds? marketOdds, PollingAverage? polling, FundamentalsData? fundamentals,
         double? genericBallotMargin, Race? race, DateTime asOf, List<HistoricalDataPoint> history)
     {
+        // A viable independent occupies the challenger slot for this race; the parsed D-vs-R polls
+        // price the token Democrat, not the independent, so they'd badly understate the challenger.
+        // Drop polling here and lean on the market (mapped to price the independent) + fundamentals.
+        if (IndependentChallengers.Has(raceId)) polling = null;
+
         // Inject cross-cutting fundamentals inputs: national mood and incumbency direction (from the
         // race's candidates). The national environment is the live generic-ballot average, falling
         // back to a fixed baseline midterm out-party bonus only when no average is available.
