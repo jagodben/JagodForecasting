@@ -609,7 +609,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         if (polling != null && polling.PollCount > 0 && weights.PollingWeight > 0)
         {
-            weightedMargin += polling.Margin * weights.PollingWeight;
+            // Two-party (undecideds split proportionally) so the poll is on the same final-result
+            // scale as the market and fundamentals margins.
+            weightedMargin += polling.TwoPartyMargin * weights.PollingWeight;
             totalWeight += weights.PollingWeight;
         }
 

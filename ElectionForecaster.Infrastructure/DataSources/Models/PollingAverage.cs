@@ -23,9 +23,19 @@ public class PollingAverage
     public double RepPercent { get; set; }
 
     /// <summary>
-    /// The margin (positive = Dem lead, negative = Rep lead).
+    /// The raw margin (positive = Dem lead, negative = Rep lead). Includes undecideds, so it's the
+    /// figure shown in the polls card, not the one blended into the forecast.
     /// </summary>
     public double Margin => DemPercent - RepPercent;
+
+    /// <summary>
+    /// The two-party Dem margin in points — the raw margin rescaled as if undecideds split
+    /// proportionally (e.g. D45/R43 → +2.3, not +2). Puts the poll on the same final-result scale
+    /// as the market and fundamentals margins it's blended with.
+    /// </summary>
+    public double TwoPartyMargin => (DemPercent + RepPercent) > 0
+        ? (DemPercent - RepPercent) / (DemPercent + RepPercent) * 100.0
+        : Margin;
 
     /// <summary>
     /// Number of polls included in the average.
@@ -54,7 +64,7 @@ public class PollingAverage
     /// typical statewide SE.
     /// </summary>
     public double GetDemWinProbability(double standardError = 6.0)
-        => ForecastMath.MarginToProbability(Margin, standardError);
+        => ForecastMath.MarginToProbability(TwoPartyMargin, standardError);
 
     public double GetRepWinProbability(double standardError = 6.0) => 1.0 - GetDemWinProbability(standardError);
 }
