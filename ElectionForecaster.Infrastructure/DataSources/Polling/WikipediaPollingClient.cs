@@ -27,6 +27,9 @@ public partial class WikipediaPollingClient : IPollingSource
     private (DateTime FetchedAt, Dictionary<string, double> Effects)? _houseEffects;
     private readonly SemaphoreSlim _fetchLock = new(1, 1);
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(6);
+    // A race that resolved to zero polls is cached only briefly, so a transient empty/failed fetch
+    // (rate-limit, maxlag, a temporarily-broken page) is retried soon instead of being stuck for 6h.
+    private static readonly TimeSpan EmptyCacheTtl = TimeSpan.FromMinutes(20);
 
     private const string ApiBase = "https://en.wikipedia.org/w/api.php";
 
@@ -152,27 +155,15 @@ public partial class WikipediaPollingClient : IPollingSource
         if (GetPageTitle(raceId) is null)
             return new List<PollData>();
 
-        lock (_cache)
-        {
-            if (_cache.TryGetValue(raceId, out var entry) &&
-                DateTime.UtcNow - entry.FetchedAt < CacheTtl)
-            {
-                return entry.Polls;
-            }
-        }
+        if (TryGetCached(raceId, out var cachedPolls))
+            return cachedPolls;
 
         await _fetchLock.WaitAsync(cancellationToken);
         try
         {
             // Re-check the cache after acquiring the lock (another caller may have filled it).
-            lock (_cache)
-            {
-                if (_cache.TryGetValue(raceId, out var entry) &&
-                    DateTime.UtcNow - entry.FetchedAt < CacheTtl)
-                {
-                    return entry.Polls;
-                }
-            }
+            if (TryGetCached(raceId, out cachedPolls))
+                return cachedPolls;
 
             List<PollData> polls;
             try
@@ -180,6 +171,18 @@ public partial class WikipediaPollingClient : IPollingSource
                 polls = await FetchAndParseAsync(raceId, cancellationToken);
                 if (polls.Count > 0)
                     await SavePollsToDbAsync(polls, cancellationToken);
+                else
+                {
+                    // A parse that yields no polls (broken page, or an error body that slipped past
+                    // the parse-property check) must not zero out a race that has polls in the DB.
+                    // Fall back to what we've previously persisted.
+                    var dbPolls = await LoadPollsFromDbAsync(raceId, cancellationToken);
+                    if (dbPolls.Count > 0)
+                    {
+                        _logger.LogInformation("Wikipedia returned no polls for {RaceId}; using {Count} from the DB", raceId, dbPolls.Count);
+                        polls = dbPolls;
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -196,6 +199,28 @@ public partial class WikipediaPollingClient : IPollingSource
         }
     }
 
+    /// <summary>
+    /// Returns cached polls if the entry is still fresh. Empty entries expire on the short
+    /// <see cref="EmptyCacheTtl"/> so a transient miss is retried soon; non-empty ones on the full TTL.
+    /// </summary>
+    private bool TryGetCached(string raceId, out List<PollData> polls)
+    {
+        lock (_cache)
+        {
+            if (_cache.TryGetValue(raceId, out var entry))
+            {
+                var ttl = entry.Polls.Count > 0 ? CacheTtl : EmptyCacheTtl;
+                if (DateTime.UtcNow - entry.FetchedAt < ttl)
+                {
+                    polls = entry.Polls;
+                    return true;
+                }
+            }
+        }
+        polls = new List<PollData>();
+        return false;
+    }
+
     private async Task<List<PollData>> FetchAndParseAsync(string raceId, CancellationToken cancellationToken)
     {
         var title = GetPageTitle(raceId)!;
@@ -204,11 +229,17 @@ public partial class WikipediaPollingClient : IPollingSource
         var json = await _httpClient.GetStringAsync(url, cancellationToken);
         using var doc = JsonDocument.Parse(json);
 
+        // A missing "parse" property means the API returned an error body (rate-limit, maxlag, a
+        // missing page) with a 200 status. Treat it as a failure — throw so the caller falls back to
+        // the DB — rather than as "this race has no polls", which would poison the blend.
         if (!doc.RootElement.TryGetProperty("parse", out var parse) ||
             !parse.TryGetProperty("wikitext", out var wt))
         {
-            _logger.LogDebug("No wikitext for {RaceId} (page '{Title}')", raceId, title);
-            return new List<PollData>();
+            var error = doc.RootElement.TryGetProperty("error", out var err) &&
+                        err.TryGetProperty("info", out var info)
+                ? info.GetString()
+                : "no 'parse' content";
+            throw new InvalidOperationException($"MediaWiki parse failed for '{title}': {error}");
         }
 
         var wikitext = wt.GetString() ?? string.Empty;
