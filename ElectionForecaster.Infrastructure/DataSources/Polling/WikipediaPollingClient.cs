@@ -248,6 +248,7 @@ public partial class WikipediaPollingClient : IPollingSource
                 DemPercent = demPct.Value,
                 RepPercent = repPct.Value,
                 Population = population,
+                PollsterRating = PollsterRatings.GetRating(pollster),
                 Methodology = partisan is null ? null : $"Partisan ({partisan})"
             });
         }
