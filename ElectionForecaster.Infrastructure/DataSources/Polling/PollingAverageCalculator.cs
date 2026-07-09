@@ -13,8 +13,14 @@ public static class PollingAverageCalculator
     /// <summary>
     /// Weighted polling average. <paramref name="asOf"/> anchors the recency decay — pass a past
     /// date to reconstruct what the average looked like then (for the retrospective backfill).
+    /// <paramref name="houseEffects"/> optionally maps a pollster to its estimated Dem-favorable
+    /// lean (margin points); each poll's margin is de-biased by that amount before averaging.
     /// </summary>
-    public static PollingAverage Calculate(IReadOnlyList<PollData> polls, string raceId, DateTime? asOf = null)
+    public static PollingAverage Calculate(
+        IReadOnlyList<PollData> polls,
+        string raceId,
+        DateTime? asOf = null,
+        IReadOnlyDictionary<string, double>? houseEffects = null)
     {
         if (polls.Count == 0)
         {
@@ -28,9 +34,20 @@ public static class PollingAverageCalculator
         foreach (var poll in polls)
         {
             var weight = poll.GetWeight(now);
+
+            // De-bias by the pollster's estimated house effect: split the correction evenly across
+            // the two parties so the margin shifts toward neutral while the two-party sum is kept.
+            double demPct = poll.DemPercent, repPct = poll.RepPercent;
+            if (houseEffects != null &&
+                houseEffects.TryGetValue(poll.Pollster, out var effect) && effect != 0)
+            {
+                demPct -= effect / 2.0;
+                repPct += effect / 2.0;
+            }
+
             totalWeight += weight;
-            weightedDem += poll.DemPercent * weight;
-            weightedRep += poll.RepPercent * weight;
+            weightedDem += demPct * weight;
+            weightedRep += repPct * weight;
 
             if (poll.SampleSize.HasValue)
             {

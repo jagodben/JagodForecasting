@@ -23,6 +23,8 @@ public partial class WikipediaPollingClient : IPollingSource
 
     // Per-race cache of parsed polls with the time they were fetched.
     private readonly Dictionary<string, (DateTime FetchedAt, List<PollData> Polls)> _cache = new();
+    // Cross-race pollster house effects, estimated from every persisted poll (see GetHouseEffectsAsync).
+    private (DateTime FetchedAt, Dictionary<string, double> Effects)? _houseEffects;
     private readonly SemaphoreSlim _fetchLock = new(1, 1);
     private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(6);
 
@@ -51,7 +53,8 @@ public partial class WikipediaPollingClient : IPollingSource
     {
         var polls = await GetRecentPollsAsync(raceId, 90, cancellationToken);
         if (polls.Count == 0) return null;
-        return PollingAverageCalculator.Calculate(polls, raceId);
+        var houseEffects = await GetHouseEffectsAsync(cancellationToken);
+        return PollingAverageCalculator.Calculate(polls, raceId, houseEffects: houseEffects);
     }
 
     public async Task<List<PollData>> GetRecentPollsAsync(string raceId, int days = 30, CancellationToken cancellationToken = default)
@@ -67,11 +70,12 @@ public partial class WikipediaPollingClient : IPollingSource
     public async Task<Dictionary<string, PollingAverage>> GetAllPollingAveragesAsync(CancellationToken cancellationToken = default)
     {
         var result = new Dictionary<string, PollingAverage>();
+        var houseEffects = await GetHouseEffectsAsync(cancellationToken);
         foreach (var (raceId, _) in _cache)
         {
             var polls = await GetRecentPollsAsync(raceId, 90, cancellationToken);
             if (polls.Count > 0)
-                result[raceId] = PollingAverageCalculator.Calculate(polls, raceId);
+                result[raceId] = PollingAverageCalculator.Calculate(polls, raceId, houseEffects: houseEffects);
         }
         return result;
     }
@@ -81,8 +85,61 @@ public partial class WikipediaPollingClient : IPollingSource
         // Invalidate the in-memory cache so the next access re-fetches from Wikipedia.
         // We intentionally don't prefetch all ~70 statewide races here to stay polite to
         // the API; each race is fetched lazily (and persisted) on first access after refresh.
-        lock (_cache) _cache.Clear();
+        lock (_cache)
+        {
+            _cache.Clear();
+            _houseEffects = null;
+        }
         await Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Estimates pollster house effects from every poll we've persisted (all races), so a
+    /// pollster's lean is measured across the whole map rather than the single race being averaged.
+    /// Cached for <see cref="CacheTtl"/>; the DB read is guarded by the fetch lock because the
+    /// scoped <see cref="ForecastDbContext"/> isn't safe for concurrent use.
+    /// </summary>
+    private async Task<Dictionary<string, double>> GetHouseEffectsAsync(CancellationToken cancellationToken)
+    {
+        lock (_cache)
+        {
+            if (_houseEffects is { } cached && DateTime.UtcNow - cached.FetchedAt < CacheTtl)
+                return cached.Effects;
+        }
+
+        await _fetchLock.WaitAsync(cancellationToken);
+        try
+        {
+            lock (_cache)
+            {
+                if (_houseEffects is { } cached && DateTime.UtcNow - cached.FetchedAt < CacheTtl)
+                    return cached.Effects;
+            }
+
+            var allPolls = await _dbContext.Polls
+                .AsNoTracking()
+                .Select(e => new PollData
+                {
+                    RaceId = e.RaceId,
+                    Pollster = e.Pollster,
+                    DemPercent = e.DemPercent,
+                    RepPercent = e.RepPercent,
+                    Methodology = e.Methodology
+                })
+                .ToListAsync(cancellationToken);
+
+            var effects = PollsterHouseEffects.Estimate(allPolls);
+            lock (_cache) _houseEffects = (DateTime.UtcNow, effects);
+
+            if (effects.Count > 0)
+                _logger.LogInformation("Estimated house effects for {Count} pollsters from {Polls} polls",
+                    effects.Count, allPolls.Count);
+            return effects;
+        }
+        finally
+        {
+            _fetchLock.Release();
+        }
     }
 
     /// <summary>
