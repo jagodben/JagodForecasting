@@ -136,6 +136,8 @@ export const RacePage = () => {
 
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
   const demCandidate = race.candidates.find(c => c.id !== repCandidate?.id);
+  // Challenger-side color: gold for a viable independent, blue for a Democrat.
+  const demColor = demCandidate ? getPartyColor(demCandidate.party) : '#123f8f';
 
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);
@@ -179,6 +181,7 @@ export const RacePage = () => {
                     data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
                     demLabel={demCandidate?.name || 'Democrat'}
                     repLabel={repCandidate?.name || 'Republican'}
+                    demColor={demColor}
                     width={520}
                     height={300}
                   />
@@ -227,6 +230,7 @@ export const RacePage = () => {
                     data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
                     demLabel={demCandidate?.name || 'Democrat'}
                     repLabel={repCandidate?.name || 'Republican'}
+                    demColor={demColor}
                     width={760}
                     height={300}
                   />
@@ -255,11 +259,11 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, forecas
     <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
         {demCandidate?.isIncumbent && <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>}
       </div>
       <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
-        <div style={{ width: `${headDem * 100}%`, backgroundColor: '#123f8f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>D</div>
+        <div style={{ width: `${headDem * 100}%`, backgroundColor: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demCandidate?.party === Party.Independent ? 'I' : 'D'}</div>
         <div style={{ width: `${headRep * 100}%`, backgroundColor: '#9c150b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>R</div>
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>

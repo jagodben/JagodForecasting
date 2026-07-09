@@ -11,6 +11,8 @@ interface Props {
   repLabel: string;
   width?: number;
   height?: number;
+  // Color of the "dem"/challenger series. Defaults to blue; pass gold for a viable independent.
+  demColor?: string;
 }
 
 const DEM = '#123f8f';
@@ -21,7 +23,7 @@ const REP = '#9c150b';
  * chamber-control chart and each race page. Auto-scales the y-axis to the data range so small
  * day-to-day moves are visible, with a legend, current-value callouts, and a hover crosshair.
  */
-export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, height = 150 }: Props) => {
+export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, height = 150, demColor = DEM }: Props) => {
   const [hover, setHover] = useState<number | null>(null);
   if (data.length < 2) return null;
 
@@ -100,13 +102,13 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
       ))}
 
       <path d={path(rep)} fill="none" stroke={REP} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-      <path d={path(dem)} fill="none" stroke={DEM} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={path(dem)} fill="none" stroke={demColor} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
 
       {/* Current values */}
       <circle cx={x(data.length - 1)} cy={y(lastRep)} r="3.5" fill={REP} stroke="#fff" strokeWidth="1.5" />
       <text x={width - pad.right + 5} y={y(lastRep)} alignmentBaseline="middle" fontSize="12" fontWeight="700" fill={REP}>{(lastRep * 100).toFixed(0)}%</text>
-      <circle cx={x(data.length - 1)} cy={y(lastDem)} r="3.5" fill={DEM} stroke="#fff" strokeWidth="1.5" />
-      <text x={width - pad.right + 5} y={y(lastDem)} alignmentBaseline="middle" fontSize="12" fontWeight="700" fill={DEM}>{(lastDem * 100).toFixed(0)}%</text>
+      <circle cx={x(data.length - 1)} cy={y(lastDem)} r="3.5" fill={demColor} stroke="#fff" strokeWidth="1.5" />
+      <text x={width - pad.right + 5} y={y(lastDem)} alignmentBaseline="middle" fontSize="12" fontWeight="700" fill={demColor}>{(lastDem * 100).toFixed(0)}%</text>
 
       {/* Date axis (hidden while hovering — the crosshair shows the exact date instead) */}
       {hover == null && dateTicks.map((idx, k) => (
@@ -120,9 +122,9 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
       {hover != null && (
         <g>
           <line x1={x(hover)} y1={pad.top} x2={x(hover)} y2={pad.top + chh} stroke="#dfe3e7" strokeWidth="1" strokeDasharray="3,3" />
-          <circle cx={x(hover)} cy={y(dem[hover])} r="4" fill={DEM} stroke="#fff" strokeWidth="1.5" />
+          <circle cx={x(hover)} cy={y(dem[hover])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.5" />
           <circle cx={x(hover)} cy={y(rep[hover])} r="4" fill={REP} stroke="#fff" strokeWidth="1.5" />
-          {renderPill(x(hover), y(dem[hover]), DEM, demLabel, `${(dem[hover] * 100).toFixed(1)}%`)}
+          {renderPill(x(hover), y(dem[hover]), demColor, demLabel, `${(dem[hover] * 100).toFixed(1)}%`)}
           {renderPill(x(hover), y(rep[hover]), REP, repLabel, `${(rep[hover] * 100).toFixed(1)}%`)}
           {renderDateLabel(x(hover), fmtDate(data[hover].date))}
         </g>

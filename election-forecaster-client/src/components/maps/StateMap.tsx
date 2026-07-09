@@ -359,11 +359,14 @@ const DistrictTooltipContent = ({ district, isAtLarge }: DistrictTooltipContentP
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px' }}>
           {race.forecasts.map((forecast) => {
             const candidate = race.candidates.find(c => c.id === forecast.candidateId);
-            const isDemo = candidate?.party === 'Democrat';
+            const party = candidate?.party;
+            // Color/letter by the candidate's actual party — a viable independent (gold "I") is neither D nor R.
+            const partyColor = party === 'Republican' ? '#9c150b' : party === 'Independent' ? '#b8860b' : '#123f8f';
+            const partyLetter = party === 'Republican' ? 'R' : party === 'Independent' ? 'I' : 'D';
             return (
               <div key={forecast.candidateId} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-                <span style={{ color: isDemo ? '#123f8f' : '#9c150b', fontWeight: 500 }}>
-                  {candidate?.party === 'Democrat' ? 'D' : 'R'}: {forecast.candidateName}
+                <span style={{ color: partyColor, fontWeight: 500 }}>
+                  {partyLetter}: {forecast.candidateName}
                 </span>
                 <span style={{ fontWeight: 'bold' }}>{(forecast.winProbability * 100).toFixed(0)}%</span>
               </div>
