@@ -51,7 +51,7 @@ public class ForecastController : ControllerBase
                 DemPercent = p.DemPercent,
                 RepPercent = p.RepPercent,
                 Margin = p.Margin,
-                IsPartisan = p.Methodology?.StartsWith("Partisan") ?? false
+                IsPartisan = p.IsPartisan
             }).ToList()
         });
     }

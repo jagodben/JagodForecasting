@@ -56,6 +56,12 @@ public class PollData
     public string? Population { get; set; }
 
     /// <summary>
+    /// Whether the poll was sponsored by a partisan source (parsed from the Wikipedia "(D)"/"(R)"/"(I)"
+    /// pollster tag into <see cref="Methodology"/>). Such polls systematically favor their sponsor.
+    /// </summary>
+    public bool IsPartisan => Methodology?.StartsWith("Partisan", StringComparison.OrdinalIgnoreCase) ?? false;
+
+    /// <summary>
     /// URL source of the poll data.
     /// </summary>
     public string? SourceUrl { get; set; }
@@ -85,6 +91,11 @@ public class PollData
             weight *= 1.2;
         else if (Population == "A")
             weight *= 0.7;
+
+        // Partisan-sponsored polls lean toward their sponsor, so count them at half weight — a
+        // campaign's internal poll shouldn't move the average as much as an independent one.
+        if (IsPartisan)
+            weight *= 0.5;
 
         return weight;
     }
