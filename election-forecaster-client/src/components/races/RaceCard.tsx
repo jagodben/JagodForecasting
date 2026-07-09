@@ -34,7 +34,7 @@ const getPartyColor = (party: Party): string => {
   switch (party) {
     case Party.Democrat: return '#123f8f';
     case Party.Republican: return '#9c150b';
-    case Party.Independent: return '#808080';
+    case Party.Independent: return '#eab308';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';
     default: return '#808080';
@@ -66,8 +66,10 @@ interface RaceCardProps {
 }
 
 export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
-  const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
+  // The Republican holds the R-side; the challenger is the other candidate — a Democrat, or a viable
+  // independent (e.g. Dan Osborn) that replaced the token Democrat. It carries the Dem-side probability.
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
+  const demCandidate = race.candidates.find(c => c.id !== repCandidate?.id);
   const demForecast = race.forecasts.find(f => f.candidateId === demCandidate?.id);
   const repForecast = race.forecasts.find(f => f.candidateId === repCandidate?.id);
 

@@ -17,7 +17,7 @@ const getPartyColor = (party: Party): string => {
   switch (party) {
     case Party.Democrat: return '#123f8f';
     case Party.Republican: return '#9c150b';
-    case Party.Independent: return '#808080';
+    case Party.Independent: return '#eab308';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';
     default: return '#808080';
@@ -87,7 +87,9 @@ export const RacePage = () => {
   const { demProb, historicalData } = useMemo(() => {
     if (!race) return { demProb: 0.5, historicalData: [] };
 
-    const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
+    // The challenger (non-Republican) holds the Dem-side probability — a Democrat, or a viable
+    // independent that replaced the token Democrat.
+    const demCandidate = race.candidates.find(c => c.party !== Party.Republican);
     const demForecastData = race.forecasts.find(f => f.candidateId === demCandidate?.id);
 
     // Fall back to the fundamentals-only race forecast only if the blended forecast hasn't loaded.
@@ -132,8 +134,8 @@ export const RacePage = () => {
     );
   }
 
-  const demCandidate = race.candidates.find(c => c.party === Party.Democrat);
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
+  const demCandidate = race.candidates.find(c => c.id !== repCandidate?.id);
 
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);

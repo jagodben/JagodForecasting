@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { StateSummary, Race, RaceRating, RaceType } from '../../types';
+import { StateSummary, Race, RaceRating, RaceType, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
@@ -37,7 +37,18 @@ const probabilityToRating = (demProb: number): RaceRating => {
   return RaceRating.SolidRep;
 };
 
-const getRatingColor = (rating: RaceRating): string => {
+// When the challenger is a viable independent (not a Democrat), the "Dem-side" ratings render on a
+// gold ramp instead of blue, so an independent-favored race reads as yellow on the map. The Rep side
+// is unchanged. (Passing independent=false keeps the standard D↔R scale for every other race.)
+const getRatingColor = (rating: RaceRating, independent = false): string => {
+  if (independent) {
+    switch (rating) {
+      case RaceRating.SolidDem: return '#92660a';
+      case RaceRating.LikelyDem: return '#b8860b';
+      case RaceRating.LeanDem: return '#d4a017';
+      case RaceRating.TiltDem: return '#ecc94b';
+    }
+  }
   switch (rating) {
     case RaceRating.SolidDem: return '#123f8f';
     case RaceRating.LikelyDem: return '#2e63bd';
@@ -51,7 +62,15 @@ const getRatingColor = (rating: RaceRating): string => {
   }
 };
 
-const getRatingLabel = (rating: RaceRating): string => {
+const getRatingLabel = (rating: RaceRating, independent = false): string => {
+  if (independent) {
+    switch (rating) {
+      case RaceRating.SolidDem: return 'Solid I';
+      case RaceRating.LikelyDem: return 'Likely I';
+      case RaceRating.LeanDem: return 'Lean I';
+      case RaceRating.TiltDem: return 'Tilt I';
+    }
+  }
   switch (rating) {
     case RaceRating.SolidDem: return 'Solid D';
     case RaceRating.LikelyDem: return 'Likely D';
@@ -64,6 +83,11 @@ const getRatingLabel = (rating: RaceRating): string => {
     default: return 'Unknown';
   }
 };
+
+// True when the race's challenger is a viable independent (the only Independent-party candidate we
+// ever put in a race). Used to switch the map/tooltip to the gold "independent" styling.
+const hasIndependentChallenger = (race: Race | null | undefined): boolean =>
+  race?.candidates.some(c => c.party === Party.Independent) ?? false;
 
 export interface SelectedStateData {
   stateName: string;
@@ -122,9 +146,9 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
       } else if (detailed) {
         demProb = detailed.demWinProbability;
       } else {
-        // Fallback to original forecast
+        // Fallback to the baseline forecast (challenger = non-Republican, i.e. Democrat or independent).
         const demForecast = race.forecasts.find(f =>
-          race.candidates.find(c => c.id === f.candidateId)?.party === 'Democrat'
+          race.candidates.find(c => c.id === f.candidateId)?.party !== 'Republican'
         );
         demProb = demForecast?.winProbability || 0.5;
       }
@@ -212,11 +236,12 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                     const race = raceMap.get(stateId);
                     const ratingData = race ? raceRatings.get(race.id) : null;
                     const rating = ratingData?.rating ?? race?.rating ?? null;
+                    const independent = hasIndependentChallenger(race);
                     const fillColor = !rating
                       ? '#DDDDDD'
                       : patterns
-                        ? ratingFill('race', rating, getRatingColor(rating))
-                        : getRatingColor(rating);
+                        ? ratingFill('race', rating, getRatingColor(rating, independent))
+                        : getRatingColor(rating, independent);
 
                     return (
                       <Geography
@@ -246,11 +271,12 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                     const race = raceMap.get(stateId);
                     const ratingData = race ? raceRatings.get(race.id) : null;
                     const rating = ratingData?.rating ?? race?.rating ?? null;
+                    const independent = hasIndependentChallenger(race);
                     const fillColor = !rating
                       ? '#DDDDDD'
                       : patterns
-                        ? ratingFill('race', rating, getRatingColor(rating))
-                        : getRatingColor(rating);
+                        ? ratingFill('race', rating, getRatingColor(rating, independent))
+                        : getRatingColor(rating, independent);
 
                     return (
                       <Geography
@@ -312,41 +338,52 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
             {tooltipData.stateName}
           </h4>
 
-          {tooltipData.race ? (
-            <div>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '8px',
-              }}>
-                <span style={{ fontWeight: 500 }}>{raceTypeLabel} Race</span>
-                <span style={{
-                  backgroundColor: tooltipData.rating ? getRatingColor(tooltipData.rating) : getRatingColor(tooltipData.race.rating),
-                  color: 'white',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
+          {tooltipData.race ? (() => {
+            const race = tooltipData.race!;
+            const independent = hasIndependentChallenger(race);
+            const rating = tooltipData.rating ?? race.rating;
+            // The challenger (non-Republican) side: a viable independent shows its name in gold,
+            // a Democrat keeps the generic "Democrat" label in blue.
+            const challengerName = independent
+              ? (race.candidates.find(c => c.party === Party.Independent)?.name ?? 'Independent')
+              : 'Democrat';
+            const challengerColor = independent ? '#b8860b' : '#123f8f';
+            return (
+              <div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '8px',
                 }}>
-                  {tooltipData.rating ? getRatingLabel(tooltipData.rating) : getRatingLabel(tooltipData.race.rating)}
-                </span>
-              </div>
-
-              {tooltipData.demProb !== null && (
-                <div style={{ marginBottom: '8px', fontSize: '13px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#123f8f', fontWeight: 500 }}>Democrat</span>
-                    <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#9c150b', fontWeight: 500 }}>Republican</span>
-                    <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
-                  </div>
+                  <span style={{ fontWeight: 500 }}>{raceTypeLabel} Race</span>
+                  <span style={{
+                    backgroundColor: getRatingColor(rating, independent),
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                  }}>
+                    {getRatingLabel(rating, independent)}
+                  </span>
                 </div>
-              )}
-            </div>
-          ) : (
+
+                {tooltipData.demProb !== null && (
+                  <div style={{ marginBottom: '8px', fontSize: '13px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: challengerColor, fontWeight: 500 }}>{challengerName}</span>
+                      <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#9c150b', fontWeight: 500 }}>Republican</span>
+                      <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })() : (
             <div style={{ color: '#666', fontSize: '13px' }}>
               No {raceTypeLabel.toLowerCase()} race in 2026
             </div>
