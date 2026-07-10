@@ -161,10 +161,14 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const assumedDemHeld = NOT_UP_HELD[chamberName].dem;
   const assumedRepHeld = NOT_UP_HELD[chamberName].rep;
 
-  // Senate: take the seat totals from the Monte Carlo's expected seats (rounded), so they're
-  // consistent with the control probability above. Other chambers use the favored-race tally.
-  const totalDemSeats = senateModel ? Math.round(senateModel.expectedDemSeats) : seatProjection.democrat + assumedDemHeld;
-  const totalRepSeats = senateModel ? totalSeats - totalDemSeats : seatProjection.republican + assumedRepHeld;
+  // Senate: take the seat totals from the Monte Carlo's expected seats so they're consistent with
+  // the control probability above. Shown to one decimal — this is the AVERAGE across simulations,
+  // not a tally of who leads each race, so it legitimately differs from counting the map's colors
+  // (a cluster of ~48% near-ties each contribute half a seat here while coloring red there).
+  // Other chambers use the favored-race tally, which does match the map.
+  const totalDemSeats = senateModel ? Math.round(senateModel.expectedDemSeats * 10) / 10 : seatProjection.democrat + assumedDemHeld;
+  const totalRepSeats = senateModel ? Math.round((totalSeats - totalDemSeats) * 10) / 10 : seatProjection.republican + assumedRepHeld;
+  const formatSeats = (n: number) => senateModel ? n.toFixed(1) : String(n);
 
   // Seat bar: the familiar Solid D → Solid R rating gradient (assumed-held folded into the Solid ends).
   const ratingSegments = RATING_ORDER.map(rating => {
@@ -220,8 +224,8 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
       <div className="forecast-sidebar__section">
         <div className="forecast-sidebar__label">{seatLabel}</div>
         <div className="forecast-sidebar__seats">
-          <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{totalDemSeats}</span>
-          <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{totalRepSeats}</span>
+          <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{formatSeats(totalDemSeats)}</span>
+          <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{formatSeats(totalRepSeats)}</span>
         </div>
         <div className="forecast-sidebar__seat-bar">
           {seatSegments.map(seg => (
@@ -236,6 +240,12 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
             }} />
           )}
         </div>
+        {senateModel && (
+          <div style={{ marginTop: '6px', fontSize: '11px', color: '#888888', lineHeight: 1.4 }}>
+            Average of 10,000 simulations. Close races count fractionally toward both
+            parties, so this can differ from tallying each race&rsquo;s current leader on the map.
+          </div>
+        )}
       </div>
 
       {/* Dem control probability over time (Senate) */}
