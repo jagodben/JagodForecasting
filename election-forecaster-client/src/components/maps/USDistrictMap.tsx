@@ -105,7 +105,7 @@ interface DistrictFeature {
   type: string;
   properties: {
     STATEFP: string;
-    CD118FP: string;
+    DISTRICT: string;
     GEOID: string;
     NAMELSAD: string;
   };
@@ -405,7 +405,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
               {/* Render non-hovered districts first */}
               {districtFeatures.map((feat) => {
                 const stateId = fipsToState[feat.properties.STATEFP];
-                const cd = feat.properties.CD118FP;
+                const cd = feat.properties.DISTRICT;
                 const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
                 const isHovered = tooltipData?.stateId === stateId && tooltipData?.districtNum === districtNum;
 
@@ -437,7 +437,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
               {/* Render hovered district on top with highlight effect */}
               {districtFeatures.map((feat) => {
                 const stateId = fipsToState[feat.properties.STATEFP];
-                const cd = feat.properties.CD118FP;
+                const cd = feat.properties.DISTRICT;
                 const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
                 const isHovered = tooltipData?.stateId === stateId && tooltipData?.districtNum === districtNum;
 

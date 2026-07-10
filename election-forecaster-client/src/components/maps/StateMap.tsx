@@ -41,7 +41,7 @@ interface DistrictFeature {
   type: string;
   properties: {
     STATEFP: string;
-    CD118FP: string;
+    DISTRICT: string;
     GEOID: string;
     NAMELSAD: string;
   };
@@ -281,7 +281,7 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
           >
             <g transform={`translate(${250 + pan.x}, ${200 + pan.y}) scale(${zoom}) translate(${-250}, ${-200})`}>
               {districtFeatures.map((feat) => {
-                const cd = feat.properties.CD118FP;
+                const cd = feat.properties.DISTRICT;
                 const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
 
                 const district = districtMap.get(isAtLarge ? 1 : districtNum);
