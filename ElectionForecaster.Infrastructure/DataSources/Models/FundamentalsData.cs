@@ -40,45 +40,40 @@ public class FundamentalsData
     public double? PriorMargin { get; set; }
 
     /// <summary>
-    /// How much of a seat's past deviation from its PVI persists to the next election. Landslides
-    /// mean-revert (a new opponent, the incumbent's personal vote fades), so only a fraction carries.
-    /// ~0.45 is mid-range between "sticks entirely" and "reverts fully to PVI".
+    /// How much of a running incumbent's past overperformance — beyond the flat incumbency term —
+    /// carries to the next election. Backtested on 2018/2022 statewide races
+    /// (ElectionForecaster.Backtest): 0.30–0.40 is the calibrated optimum; this hybrid form beat
+    /// both the flat-incumbency-only model and raw-prior retention on MAE, RMSE, Brier, and
+    /// log-loss. Open seats retain NOTHING (validated: the personal vote leaves with the departing
+    /// incumbent — carried priors made open-seat crossover states like 2022 MA/MD much worse).
     /// </summary>
-    private const double PriorResultRetention = 0.45;
-
-    /// <summary>
-    /// Retention for an open seat (no incumbent running). Most of a seat's past overperformance is
-    /// the departed incumbent's personal vote, which leaves with them — keep only a sliver for the
-    /// seat's residual non-presidential lean (party infrastructure, downballot habits).
-    /// </summary>
-    private const double PriorResultRetentionOpenSeat = 0.25;
+    private const double PriorExcessRetention = 0.35;
 
     /// <summary>Keeps a single seat's fundamentals margin from running away on an extreme prior.</summary>
     private const double MaxFundamentalsMargin = 40.0;
 
     /// <summary>
-    /// Fundamentals-only expected Democratic margin (points). When a prior result is known, the
-    /// margin is PVI + national environment + a retained fraction of the seat's past deviation from
-    /// PVI — so a crossover incumbent or safe-seat lean is reflected rather than assuming the seat
-    /// votes its presidential PVI. The retained fraction is smaller for open seats, where the past
-    /// overperformance was mostly the departed incumbent's personal vote. Without a prior, falls
-    /// back to PVI + national ± flat incumbency.
+    /// Fundamentals-only expected Democratic margin (points): PVI + national environment ± the
+    /// flat incumbency term, plus — when the incumbent is running and the seat has a prior result —
+    /// a retained fraction of their past overperformance BEYOND that flat term, so crossover
+    /// incumbents (a Phil Scott or a Joe Manchin) are reflected rather than assumed to vote the
+    /// seat's PVI. Open seats ignore the prior entirely: the personal vote leaves with the
+    /// departing incumbent (both rules backtested on 2018/2022; see ElectionForecaster.Backtest).
     /// </summary>
     public double GetExpectedDemMargin()
     {
-        double structural = PartisanLean + NationalEnvironment;
+        double incumbency = IncumbentIsDem == true ? IncumbencyAdvantage
+                          : IncumbentIsDem == false ? -IncumbencyAdvantage
+                          : 0.0;
+        double structural = PartisanLean + NationalEnvironment + incumbency;
 
-        if (PriorMargin.HasValue)
+        if (PriorMargin.HasValue && IncumbentIsDem.HasValue)
         {
-            double retention = IncumbentIsDem.HasValue ? PriorResultRetention : PriorResultRetentionOpenSeat;
-            double overPerformance = PriorMargin.Value - PartisanLean;
-            double margin = structural + retention * overPerformance;
-            return Math.Clamp(margin, -MaxFundamentalsMargin, MaxFundamentalsMargin);
+            double excess = PriorMargin.Value - PartisanLean - incumbency;
+            structural += PriorExcessRetention * excess;
         }
 
-        if (IncumbentIsDem == true) structural += IncumbencyAdvantage;
-        else if (IncumbentIsDem == false) structural -= IncumbencyAdvantage;
-        return structural;
+        return Math.Clamp(structural, -MaxFundamentalsMargin, MaxFundamentalsMargin);
     }
 
     /// <summary>Fundamentals-only Dem win probability at the given margin standard error.</summary>

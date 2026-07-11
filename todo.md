@@ -49,6 +49,24 @@ incumbency fallback for unresolved districts). Fixed:
   only time-varying input — so a rebuild also purges rows computed by older code/data; the
   daily snapshot extends it going forward.
 
+### 3b. ✅ DONE — Full-pipeline backtest; retention constants validated and corrected
+Extended `ElectionForecaster.Backtest` to score the complete fundamentals pipeline (priors +
+retention) against 82 known 2018/2022 statewide results, with a curated same-seat prior table
+(`HistoricalPriors`, incl. prior-cycle environments) and a fidelity check asserting the live
+`FundamentalsData` equals the scored variant. Findings, now live:
+- The first-cut constants (0.45 raw / 0.25 open) were WORSE than no priors on margin error;
+  open-seat retention was the culprit (2022 MA/MD: departed crossover governors' landslides).
+- Winner: a hybrid — flat incumbency + **0.35 × overperformance beyond it**, open seats drop
+  the prior entirely. Beats the pre-prior model on every metric (MAE 6.08 vs 6.24, RMSE 8.06
+  vs 8.42, Brier .138 vs .149, log-loss .425 vs .466) while keeping the crossover-seat wins
+  (2018 WV err 14.7→0.7, MN 10.5→0.1) that motivated priors.
+- Env-adjusted priors tested and REJECTED (worse on everything).
+- Exposed + fixed a regression: "no incumbent flag" conflated open seats with unresolved
+  primaries (VT's Scott pre-primary would've lost his prior). New curated
+  `StatewideIncumbents` table (scraped from the 2026 race-summary pages;
+  `tools/scrape_statewide_incumbents.py`) is the fallback when candidate flags are empty.
+Re-run with `dotnet run --project ElectionForecaster.Backtest` after model changes.
+
 ### 4. Hard 90-day poll window silently blinds stale-but-polled races
 MD-GOV (Oct 2025), AL-GOV, IL-GOV, KY-SEN have only pre-2026 polls, so their forecasts run
 market+fundamentals only. The 14-day half-life already down-weights old polls smoothly.

@@ -774,11 +774,18 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             raceId, marketMargin, structuralMargin, disagreement, targetMarketWeight);
     }
 
-    /// <summary>True if the incumbent is a Democrat, false if Republican, null for an open seat.</summary>
+    /// <summary>
+    /// True if the incumbent is a Democrat, false if Republican, null for an open seat.
+    /// Candidate flags first; when no candidate carries the flag (placeholder nominees before a
+    /// primary concludes), fall back to the curated <see cref="StatewideIncumbents"/> table so an
+    /// incumbent who IS running (e.g. VT's Phil Scott pre-primary) isn't miscounted as an open
+    /// seat — that would drop their prior result from the fundamentals.
+    /// </summary>
     private static bool? GetIncumbentIsDem(Race? race)
     {
         var incumbent = race?.Candidates.FirstOrDefault(c => c.IsIncumbent);
-        return incumbent == null ? null : incumbent.Party == Party.Democrat;
+        if (incumbent != null) return incumbent.Party == Party.Democrat;
+        return race != null ? StatewideIncumbents.GetIncumbentIsDem(race.Id) : null;
     }
 
     private double CalculateConfidence(
