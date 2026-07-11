@@ -22,12 +22,11 @@ districts, 42% of the House), and the old `DistrictPVI` table was wrong far beyo
   (97.6% D); AL-02 Figures now an underdog (44.7% D) in his R+7 seat; GA-06 corrected to safe D;
   House sim totals exactly 435; map + state pages render the new lines.
 
-### 2. StatePage still serves the static baseline *(user-facing contradiction)*
-The blended-forecast overlay was added to `RacesController` only; `/api/states/{id}`
-(StateService → StatePage race cards, ratings, district grid) returns RaceService's startup
-baseline. Clicking a state from the (blended) dashboard map lands on a page showing different
-probabilities/ratings for the same race. **Fix:** apply the same `WithBlendedForecast` overlay
-in `StatesController` (or move it into a shared service both controllers use).
+### 2. ✅ DONE — StatePage now serves the blended model
+Extracted the overlay into a shared `ForecastOverlay` helper (Api/Services); `StatesController`
+now applies it to `/api/states/{id}` (races AND the district-grid ratings/house races) and
+`/api/states/{id}/races`, with per-race fallback to the baseline on forecast failure. Verified
+OH: state page Senate probability (0.4945) and district-grid ratings match `/forecast` exactly.
 
 ### 3. House races have no seat-level prior *(model accuracy — same class as the VT fix)*
 `StatewidePriorResults` covers statewide only, but `DistrictElectionData.Results2024` already
