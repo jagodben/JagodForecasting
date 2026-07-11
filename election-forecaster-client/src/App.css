@@ -2,8 +2,6 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* Reserve space for the fixed 40px site footer so content never hides behind it. */
-  padding-bottom: 40px;
 }
 
 /* Social icons: gentle lift on hover. */

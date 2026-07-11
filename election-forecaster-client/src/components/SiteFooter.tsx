@@ -9,11 +9,10 @@ export const SiteFooter = () => {
   return (
   <footer
     style={{
-      position: 'fixed',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      zIndex: 900,
+      // In normal document flow (not fixed): it sits at the bottom of the page, so it's out of
+      // view when scrolled up and reached when you scroll to the bottom. flexShrink:0 keeps its
+      // height inside the app's flex column.
+      flexShrink: 0,
       height: 40,
       display: 'flex',
       flexWrap: 'nowrap',
