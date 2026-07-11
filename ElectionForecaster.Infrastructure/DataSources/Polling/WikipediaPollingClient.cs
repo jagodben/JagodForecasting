@@ -11,9 +11,10 @@ using Microsoft.Extensions.Logging;
 namespace ElectionForecaster.Infrastructure.DataSources.Polling;
 
 /// <summary>
-/// Fetches general-election polling for statewide (Senate/Governor) races by parsing
-/// the poll tables on the corresponding English Wikipedia race article via the
-/// MediaWiki API. House races are not covered (rarely polled at the district level).
+/// Fetches general-election polling by parsing the poll tables on the corresponding English
+/// Wikipedia race article via the MediaWiki API. Covers statewide races (Senate/Governor), the
+/// at-large House states, and multi-district House races (whose polls live in a "District N"
+/// section of the state-wide House article — only the few polled districts have one).
 /// </summary>
 public partial class WikipediaPollingClient : IPollingSource
 {
@@ -244,22 +245,45 @@ public partial class WikipediaPollingClient : IPollingSource
 
         var wikitext = wt.GetString() ?? string.Empty;
 
-        // Isolate the general-election polling section so we don't ingest primary polls.
+        // For a multi-district House race, the state-wide article covers every district; narrow to
+        // this district's "District N" section first. Within it we accept only clean two-way tables
+        // (see ParseTable's twoWayOnly), which excludes party-primary (D-vs-D / R-vs-R) and top-two
+        // jungle-primary (multi-D) tables without needing to guess this state's heading nesting.
+        var twoWayOnly = false;
+        if (IsMultiDistrictHouse(raceId, out var district))
+        {
+            var districtSection = ExtractSectionBlock(
+                wikitext, t => t.Equals($"District {district}", StringComparison.OrdinalIgnoreCase), 2);
+            if (string.IsNullOrWhiteSpace(districtSection))
+            {
+                _logger.LogDebug("No 'District {District}' section for {RaceId}", district, raceId);
+                return new List<PollData>();
+            }
+            wikitext = districtSection;
+            twoWayOnly = true;
+        }
+
+        // Isolate the general-election polling section so we don't ingest primary polls. (For the
+        // House district case above, the two-way guard already does this; there the "Polling"
+        // heading may sit at any depth, so fall through to scanning the whole district section.)
         var geBlock = ExtractSectionBlock(wikitext, t => t.Equals("General election", StringComparison.OrdinalIgnoreCase), 2);
         var pollingBlock = geBlock is not null
             ? ExtractSectionBlock(geBlock, t => t.Equals("Polling", StringComparison.OrdinalIgnoreCase), 3)
             : ExtractSectionBlock(wikitext, t => t.Equals("Polling", StringComparison.OrdinalIgnoreCase), 2);
 
-        if (string.IsNullOrWhiteSpace(pollingBlock))
+        // Fall back to the whole (already district-scoped) block when there's no clean Polling
+        // heading — top-two states file general head-to-heads under an oddly-named subsection.
+        var scanBlock = pollingBlock ?? (twoWayOnly ? wikitext : null);
+        if (string.IsNullOrWhiteSpace(scanBlock))
         {
             _logger.LogDebug("No general-election polling section for {RaceId}", raceId);
             return new List<PollData>();
         }
 
         var polls = new List<PollData>();
-        foreach (var table in ExtractTables(pollingBlock))
+        foreach (var table in ExtractTables(scanBlock))
         {
-            polls.AddRange(ParseTable(table, raceId));
+            polls.AddRange(ParseTable(table, raceId, twoWayOnly));
         }
 
         // A pollster's result is repeated across each hypothetical-matchup table.
@@ -276,7 +300,7 @@ public partial class WikipediaPollingClient : IPollingSource
 
     // ---- Table parsing -----------------------------------------------------
 
-    private List<PollData> ParseTable(string table, string raceId)
+    private List<PollData> ParseTable(string table, string raceId, bool twoWayOnly = false)
     {
         var polls = new List<PollData>();
         var rows = SplitRows(table);
@@ -294,6 +318,13 @@ public partial class WikipediaPollingClient : IPollingSource
         int demCol = headers.FindIndex(h => EndsWithParty(h, 'D'));
         int repCol = headers.FindIndex(h => EndsWithParty(h, 'R'));
         if (demCol < 0 || repCol < 0) return polls; // Not a D-vs-R table.
+
+        // In House district sections we scan the whole section (primary + general tables mixed), so
+        // only trust a clean two-way general matchup — exactly one Dem and one Rep candidate column.
+        // This drops party-primary (D-vs-D / R-vs-R) and top-two jungle-primary (multi-D) tables.
+        if (twoWayOnly &&
+            (headers.Count(h => EndsWithParty(h, 'D')) != 1 || headers.Count(h => EndsWithParty(h, 'R')) != 1))
+            return polls;
 
         int dateCol = headers.FindIndex(h => h.Contains("administered", StringComparison.OrdinalIgnoreCase)
                                           || h.Contains("Date", StringComparison.OrdinalIgnoreCase));
@@ -568,21 +599,28 @@ public partial class WikipediaPollingClient : IPollingSource
         if (kind.Equals("GOV", StringComparison.OrdinalIgnoreCase))
             return $"2026 {state} gubernatorial election";
 
-        // House: at-large states use the state-wide page; multi-district races use the per-district
-        // page. Most district pages don't exist yet — a missing page just yields no polls (harmless).
-        if (int.TryParse(kind, out var district))
+        // House: at-large states have their own single-race page ("...election in {State}", singular).
+        // Multi-district states put every district's polling in one big state-wide article
+        // ("...elections in {State}", plural), under a "District N" section — the per-district
+        // sub-articles mostly don't exist yet. FetchAndParse isolates the right district's section.
+        if (int.TryParse(kind, out _))
         {
             return AtLargeStates.Contains(abbr)
                 ? $"2026 United States House of Representatives election in {state}"
-                : $"2026 {state}'s {Ordinal(district)} congressional district election";
+                : $"2026 United States House of Representatives elections in {state}";
         }
         return null;
     }
 
-    private static string Ordinal(int n)
+    /// <summary>True for a multi-district House race (e.g. "PA-07-2026"), whose polls live in a
+    /// "District N" section of the state-wide article; sets <paramref name="district"/> to N.</summary>
+    private static bool IsMultiDistrictHouse(string raceId, out int district)
     {
-        if (n % 100 is >= 11 and <= 13) return $"{n}th";
-        return (n % 10) switch { 1 => $"{n}st", 2 => $"{n}nd", 3 => $"{n}rd", _ => $"{n}th" };
+        district = 0;
+        var parts = raceId.Split('-');
+        return parts.Length >= 3
+            && int.TryParse(parts[1], out district)
+            && !AtLargeStates.Contains(parts[0]);
     }
 
     [GeneratedRegex(@"^(={2,6})\s*(.*?)\s*\1\s*$")]
