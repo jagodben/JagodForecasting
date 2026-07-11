@@ -89,7 +89,7 @@ const probabilityToRating = (demProb: number): RaceRating => {
 
 export interface SelectedDistrictData {
   stateId: string;
-  districtLabel: string;
+  districtNumber: number;
   rating: RaceRating | null;
   demProb: number | null;
   raceId: string | null;
@@ -431,7 +431,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
     const margin = detailed?.expectedDemMargin;
     onDistrictSelect({
       stateId,
-      districtLabel: `District ${districtNum}`,
+      districtNumber: districtNum,
       rating: raceRatings?.get(race.id) ?? race.rating,
       demProb,
       raceId: race.id,

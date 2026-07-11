@@ -190,7 +190,7 @@ export const HomePage = () => {
                 >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">
-                      {selectedDistrict.stateId} — {selectedDistrict.districtLabel}
+                      {selectedDistrict.stateId}-{selectedDistrict.districtNumber}
                     </span>
                     {selectedDistrict.rating && (
                       <span
