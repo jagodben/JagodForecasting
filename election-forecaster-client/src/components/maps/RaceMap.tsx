@@ -107,6 +107,9 @@ export interface SelectedStateData {
   raceType: string;
   rating: RaceRating | null;
   demProb: number | null;
+  // Projected result (e.g. "D+5.3" / "R+3" / "I+2"), pre-formatted with its color.
+  marginText: string | null;
+  marginColor: string;
 }
 
 interface RaceMapProps {
@@ -196,12 +199,16 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
 
       // Notify parent for mobile display
       if (onStateSelect) {
+        const margin = race ? detailedForecasts?.find(f => f.raceId === race.id)?.expectedDemMargin : null;
+        const label = margin != null ? marginLabel(margin, hasIndependentChallenger(race)) : null;
         onStateSelect({
           stateName: state.name,
           stateId: stateId,
           raceType: raceTypeLabel,
           rating: ratingData?.rating ?? null,
           demProb: ratingData?.demProb ?? null,
+          marginText: label?.text ?? null,
+          marginColor: label?.color ?? '#666',
         });
       }
     }

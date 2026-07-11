@@ -839,8 +839,9 @@
   /* Mobile state info - visible on mobile */
   .mobile-state-info {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
     margin-top: 12px;
     padding: 10px 12px;
     background: var(--bg-card);
@@ -890,11 +891,8 @@
     font-size: 13px;
   }
 
-  /* Tappable district panel: stack the info row above a "view forecast" call-to-action. */
+  /* Tappable district panel links to the full race page. */
   .mobile-state-info--tappable {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
     cursor: pointer;
   }
 
@@ -906,6 +904,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .mobile-state-info__margin {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
   }
 
   .mobile-state-info__cta {

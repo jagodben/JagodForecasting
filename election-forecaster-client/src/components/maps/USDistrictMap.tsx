@@ -93,6 +93,9 @@ export interface SelectedDistrictData {
   rating: RaceRating | null;
   demProb: number | null;
   raceId: string | null;
+  // Projected result (e.g. "D+5.3" / "R+3"), pre-formatted with its color.
+  marginText: string | null;
+  marginColor: string;
 }
 
 interface USDistrictMapProps {
@@ -425,12 +428,15 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
       : (race.forecasts.find(f =>
           race.candidates.find(c => c.id === f.candidateId)?.party !== 'Republican'
         )?.winProbability ?? null);
+    const margin = detailed?.expectedDemMargin;
     onDistrictSelect({
       stateName: stateNames[stateId] || stateId,
       districtLabel: `District ${districtNum}`,
       rating: raceRatings?.get(race.id) ?? race.rating,
       demProb,
       raceId: race.id,
+      marginText: margin != null ? formatMargin(margin) : null,
+      marginColor: margin == null ? '#666' : margin > 0 ? '#123f8f' : margin < 0 ? '#9c150b' : '#666',
     });
   };
 

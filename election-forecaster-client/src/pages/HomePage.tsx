@@ -144,27 +144,34 @@ export const HomePage = () => {
           <div className="mobile-data-source">
             {selectedState && activeView !== 'house' && (
               <div className="mobile-state-info">
-                <div className="mobile-state-info__header">
-                  <span className="mobile-state-info__name">{selectedState.stateName}</span>
-                  {selectedState.rating && (
-                    <span
-                      className="mobile-state-info__rating"
-                      style={{ backgroundColor: getRatingColor(selectedState.rating) }}
-                    >
-                      {getRatingLabel(selectedState.rating)}
-                    </span>
+                <div className="mobile-state-info__row">
+                  <div className="mobile-state-info__header">
+                    <span className="mobile-state-info__name">{selectedState.stateName}</span>
+                    {selectedState.rating && (
+                      <span
+                        className="mobile-state-info__rating"
+                        style={{ backgroundColor: getRatingColor(selectedState.rating) }}
+                      >
+                        {getRatingLabel(selectedState.rating)}
+                      </span>
+                    )}
+                  </div>
+                  {selectedState.demProb !== null && (
+                    <div className="mobile-state-info__probs">
+                      <div className="mobile-state-info__prob">
+                        <img src="/democrat.png" alt="D" className="mobile-state-info__logo" />
+                        <span className="mobile-state-info__value">{(selectedState.demProb * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="mobile-state-info__prob">
+                        <img src="/republican.png" alt="R" className="mobile-state-info__logo" />
+                        <span className="mobile-state-info__value">{((1 - selectedState.demProb) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
                   )}
                 </div>
-                {selectedState.demProb !== null && (
-                  <div className="mobile-state-info__probs">
-                    <div className="mobile-state-info__prob">
-                      <img src="/democrat.png" alt="D" className="mobile-state-info__logo" />
-                      <span className="mobile-state-info__value">{(selectedState.demProb * 100).toFixed(1)}%</span>
-                    </div>
-                    <div className="mobile-state-info__prob">
-                      <img src="/republican.png" alt="R" className="mobile-state-info__logo" />
-                      <span className="mobile-state-info__value">{((1 - selectedState.demProb) * 100).toFixed(1)}%</span>
-                    </div>
+                {selectedState.marginText && (
+                  <div className="mobile-state-info__margin">
+                    Projected result: <span style={{ color: selectedState.marginColor }}>{selectedState.marginText}</span>
                   </div>
                 )}
               </div>
@@ -204,6 +211,11 @@ export const HomePage = () => {
                     </div>
                   )}
                 </div>
+                {selectedDistrict.marginText && (
+                  <div className="mobile-state-info__margin">
+                    Projected result: <span style={{ color: selectedDistrict.marginColor }}>{selectedDistrict.marginText}</span>
+                  </div>
+                )}
                 <div className="mobile-state-info__cta">View full forecast →</div>
               </div>
             )}
