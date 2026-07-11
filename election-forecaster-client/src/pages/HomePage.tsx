@@ -7,6 +7,7 @@ import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistri
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
+import { districtCode } from '../utils/districts';
 
 type MapView = 'senate' | 'house' | 'governors';
 type MobilePanel = 'map' | 'data';
@@ -190,7 +191,7 @@ export const HomePage = () => {
                 >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">
-                      {selectedDistrict.stateId}-{selectedDistrict.districtNumber}
+                      {districtCode(selectedDistrict.stateId, selectedDistrict.districtNumber)}
                     </span>
                     {selectedDistrict.rating && (
                       <span

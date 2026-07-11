@@ -7,6 +7,7 @@ import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
+import { isAtLargeState } from '../../utils/districts';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -614,7 +615,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', margin: '0 0 8px 0', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
             <h4 style={{ margin: 0, fontSize: '14px' }}>
               {stateNames[tooltipData.stateId] || tooltipData.stateId}
-              {tooltipData.districtNum === 1 && !tooltipData.race?.districtNumber
+              {isAtLargeState(tooltipData.stateId)
                 ? ' - At-Large'
                 : ` - District ${tooltipData.districtNum}`}
             </h4>
