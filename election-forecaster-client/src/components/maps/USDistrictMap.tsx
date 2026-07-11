@@ -87,9 +87,22 @@ const probabilityToRating = (demProb: number): RaceRating => {
   return RaceRating.SolidRep;
 };
 
+export interface SelectedDistrictData {
+  stateId: string;
+  districtLabel: string;
+  rating: RaceRating | null;
+  demProb: number | null;
+  raceId: string | null;
+  // Projected result (e.g. "D+5.3" / "R+3"), pre-formatted with its color.
+  marginText: string | null;
+  marginColor: string;
+}
+
 interface USDistrictMapProps {
   races: Race[];
   dataSource?: DataSource;
+  // Fires when a district is tapped/hovered, so the parent can show a mobile info panel.
+  onDistrictSelect?: (data: SelectedDistrictData | null) => void;
 }
 
 interface DistrictFeature {
@@ -109,7 +122,7 @@ interface TooltipData {
   race: Race | null;
 }
 
-export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapProps) => {
+export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect }: USDistrictMapProps) => {
   const { patterns } = useAccessibility();
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
@@ -129,6 +142,10 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
   const pointerDownRef = useRef(false);
   const downPosRef = useRef({ x: 0, y: 0 });
   const draggedRef = useRef(false);
+  // Two-finger pinch state, and whether the last interaction came from touch (so a tap selects the
+  // district for the mobile panel instead of navigating the way a desktop click does).
+  const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
+  const wasTouchRef = useRef(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const zoomRef = useRef(zoom);
   const panRef = useRef(pan);
@@ -265,6 +282,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.button === 0) {
       e.preventDefault();
+      wasTouchRef.current = false;
       setIsPanning(true);
       pointerDownRef.current = true;
       draggedRef.current = false;
@@ -317,27 +335,129 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
     setTooltipData(null);
   }, []);
 
-  const handleDistrictMouseEnter = (stateId: string, districtNum: number) => {
-    if (isPanning) return;
+  // Zoom toward the map center by a factor, keeping the centered point stable. Used by the on-screen
+  // +/- buttons (the reliable way to zoom on mobile, where there's no scroll wheel).
+  const zoomBy = useCallback((factor: number) => {
+    setZoom(z => {
+      const nz = Math.min(Math.max(z * factor, 1), 10);
+      const ratio = nz / z;
+      setPan(p => {
+        const maxPanX = nz > 1 ? 400 * nz * 0.8 : 0;
+        const maxPanY = nz > 1 ? 250 * nz * 0.8 : 0;
+        return {
+          x: Math.max(-maxPanX, Math.min(maxPanX, p.x * ratio)),
+          y: Math.max(-maxPanY, Math.min(maxPanY, p.y * ratio)),
+        };
+      });
+      return nz;
+    });
+  }, []);
+
+  const resetView = useCallback(() => { setZoom(1); setPan({ x: 0, y: 0 }); }, []);
+
+  const touchDistance = (t: React.TouchList) =>
+    Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    wasTouchRef.current = true;
+    const t = e.touches;
+    if (t.length === 1) {
+      pointerDownRef.current = true;
+      draggedRef.current = false;
+      downPosRef.current = { x: t[0].clientX, y: t[0].clientY };
+      setLastMouse({ x: t[0].clientX, y: t[0].clientY });
+      setIsPanning(true);
+    } else if (t.length === 2) {
+      pinchRef.current = { startDist: touchDistance(t), startZoom: zoomRef.current };
+      draggedRef.current = true; // a pinch is never a tap-to-select
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const t = e.touches;
+    if (t.length === 2 && pinchRef.current) {
+      const ratio = touchDistance(t) / (pinchRef.current.startDist || 1);
+      const nz = Math.min(Math.max(pinchRef.current.startZoom * ratio, 1), 10);
+      const maxPanX = nz > 1 ? 400 * nz * 0.8 : 0;
+      const maxPanY = nz > 1 ? 250 * nz * 0.8 : 0;
+      setZoom(prev => {
+        const r = nz / prev;
+        setPan(p => ({
+          x: Math.max(-maxPanX, Math.min(maxPanX, p.x * r)),
+          y: Math.max(-maxPanY, Math.min(maxPanY, p.y * r)),
+        }));
+        return nz;
+      });
+    } else if (t.length === 1 && isPanning) {
+      const dx = t[0].clientX - lastMouse.x;
+      const dy = t[0].clientY - lastMouse.y;
+      if (Math.abs(t[0].clientX - downPosRef.current.x) + Math.abs(t[0].clientY - downPosRef.current.y) > 3)
+        draggedRef.current = true;
+      const svgElement = svgRef.current;
+      if (svgElement) {
+        const rect = svgElement.getBoundingClientRect();
+        const scaleX = 800 / rect.width;
+        const scaleY = 500 / rect.height;
+        const maxPanX = zoom > 1 ? 400 * zoom * 0.8 : 0;
+        const maxPanY = zoom > 1 ? 250 * zoom * 0.8 : 0;
+        setPan(p => ({
+          x: Math.max(-maxPanX, Math.min(maxPanX, p.x + dx * scaleX)),
+          y: Math.max(-maxPanY, Math.min(maxPanY, p.y + dy * scaleY)),
+        }));
+      }
+      setLastMouse({ x: t[0].clientX, y: t[0].clientY });
+    }
+  }, [isPanning, lastMouse, zoom]);
+
+  const handleTouchEnd = useCallback(() => {
+    setIsPanning(false);
+    pointerDownRef.current = false;
+    pinchRef.current = null;
+    // The tap's synthesized click still fires — handleDistrictClick routes it to selection on touch.
+  }, []);
+
+  // Sets the desktop tooltip and the parent's mobile info panel for a district.
+  const selectDistrict = (stateId: string, districtNum: number) => {
     const race = raceMap.get(`${stateId}-${districtNum}`);
-    setTooltipData({
+    setTooltipData({ stateId, districtNum, race: race || null });
+    if (!onDistrictSelect) return;
+    if (!race) { onDistrictSelect(null); return; }
+    const detailed = detailedForecasts?.find(f => f.raceId === race.id);
+    const demProb = detailed
+      ? detailed.demWinProbability
+      : (race.forecasts.find(f =>
+          race.candidates.find(c => c.id === f.candidateId)?.party !== 'Republican'
+        )?.winProbability ?? null);
+    const margin = detailed?.expectedDemMargin;
+    onDistrictSelect({
       stateId,
-      districtNum,
-      race: race || null,
+      districtLabel: `District ${districtNum}`,
+      rating: raceRatings?.get(race.id) ?? race.rating,
+      demProb,
+      raceId: race.id,
+      marginText: margin != null ? formatMargin(margin) : null,
+      marginColor: margin == null ? '#666' : margin > 0 ? '#123f8f' : margin < 0 ? '#9c150b' : '#666',
     });
   };
 
+  const handleDistrictMouseEnter = (stateId: string, districtNum: number) => {
+    if (pointerDownRef.current) return; // mid pan/pinch — don't hijack the panel
+    selectDistrict(stateId, districtNum);
+  };
+
   const handleDistrictMouseLeave = () => {
-    if (!isPanning) {
-      setTooltipData(null);
-    }
+    if (!isPanning) setTooltipData(null);
   };
 
   const handleDistrictClick = (stateId: string, districtNum: number) => {
-    // Ignore the click that ends a pan/drag.
-    if (draggedRef.current) return;
+    if (draggedRef.current) return; // ended a pan/pinch, not a tap
 
-    // Navigate to the district's race page (matches the Senate/Governor map).
+    // Mobile tap: select the district (fill the info panel) rather than navigate away — the panel
+    // itself links to the full race page. Desktop click: go straight to the race page.
+    if (wasTouchRef.current) {
+      selectDistrict(stateId, districtNum);
+      return;
+    }
     const race = races.find(r =>
       r.stateId.toLowerCase() === stateId.toLowerCase() &&
       r.districtNumber === districtNum
@@ -347,7 +467,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
 
   return (
     <div className="us-map-container">
-      <div className="district-map-wrapper">
+      <div className="district-map-wrapper" style={{ position: 'relative' }}>
         {districtFeatures.length === 0 ? (
           <div style={{
             display: 'flex',
@@ -361,6 +481,13 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
             Loading district map...
           </div>
         ) : (
+          <>
+          {/* Zoom controls — the reliable way to zoom on touch, where there's no scroll wheel. */}
+          <div className="map-zoom-controls">
+            <button type="button" aria-label="Zoom in" onClick={() => zoomBy(1.4)}>+</button>
+            <button type="button" aria-label="Zoom out" onClick={() => zoomBy(1 / 1.4)}>−</button>
+            <button type="button" aria-label="Reset zoom" onClick={resetView}>⟲</button>
+          </div>
           <svg
             ref={svgCallbackRef}
             viewBox="0 0 800 500"
@@ -371,11 +498,15 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
               borderRadius: '8px',
               cursor: isPanning ? 'grabbing' : 'grab',
               userSelect: 'none',
+              touchAction: 'none', // we handle pan/pinch ourselves; stop the page from scrolling/zooming
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             <MapPatternDefs ns="dist" colorOf={getRatingColor} />
             <g transform={`translate(${400 + pan.x}, ${250 + pan.y}) scale(${zoom}) translate(${-400}, ${-250})`}>
@@ -448,6 +579,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
               })}
             </g>
           </svg>
+          </>
         )}
 
         {/* Instructions */}
@@ -457,7 +589,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapP
           color: '#888',
           marginTop: '8px',
         }}>
-          Scroll to zoom • Drag to pan • Click district to view state
+          Scroll or use +/− to zoom • Drag to pan • Click a district for details
         </div>
       </div>
 
