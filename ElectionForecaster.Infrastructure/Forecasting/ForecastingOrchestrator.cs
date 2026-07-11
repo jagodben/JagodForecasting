@@ -35,7 +35,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
     // The site serves a daily-frozen forecast: the map and charts reflect the snapshot taken at
     // 8 AM Eastern that morning and don't move until the next one. Serving from the persisted
-    // snapshot (not a live recompute) is what makes it survive the free-tier server restarts.
+    // snapshot (not a live recompute) keeps that value identical across server restarts (deploys).
     private static readonly TimeZoneInfo EasternZone = ResolveEastern();
     private const int SnapshotHourEastern = 8; // 8 AM Eastern
 
@@ -455,7 +455,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     /// <summary>
     /// The once-a-day update: refresh every data source, then store the 8 AM snapshot that the site
     /// serves all day. No-ops (returns false) if today's snapshot already exists, so it runs exactly
-    /// once per Eastern day even across the free-tier's frequent restarts.
+    /// once per Eastern day even if the server restarts partway through the day.
     /// </summary>
     public async Task<bool> RunDailyUpdateAsync(CancellationToken cancellationToken = default)
     {
