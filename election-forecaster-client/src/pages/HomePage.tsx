@@ -143,8 +143,8 @@ export const HomePage = () => {
           {/* Selected state info - mobile only (Senate/Governors) */}
           <div className="mobile-data-source">
             {selectedState && activeView !== 'house' && (
-              <div className="mobile-state-info">
-                <div className="mobile-state-info__row">
+              <>
+                <div className="mobile-state-info">
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">{selectedState.stateId}</span>
                     {selectedState.rating && (
@@ -170,21 +170,24 @@ export const HomePage = () => {
                   )}
                 </div>
                 {selectedState.marginText && (
-                  <div className="mobile-state-info__margin">
-                    Projected result: <span style={{ color: selectedState.marginColor }}>{selectedState.marginText}</span>
+                  <div className="mobile-projected">
+                    <span className="mobile-projected__label">Projected Result</span>
+                    <span className="mobile-projected__value" style={{ color: selectedState.marginColor }}>
+                      {selectedState.marginText}
+                    </span>
                   </div>
                 )}
-              </div>
+              </>
             )}
 
             {/* Selected district info - mobile only (House). Tap it to open the full race page. */}
             {selectedDistrict && activeView === 'house' && (
-              <div
-                className="mobile-state-info mobile-state-info--tappable"
-                role="button"
-                onClick={() => selectedDistrict.raceId && navigate(`/race/${selectedDistrict.raceId}`)}
-              >
-                <div className="mobile-state-info__row">
+              <>
+                <div
+                  className="mobile-state-info mobile-state-info--tappable"
+                  role="button"
+                  onClick={() => selectedDistrict.raceId && navigate(`/race/${selectedDistrict.raceId}`)}
+                >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">
                       {selectedDistrict.stateId} — {selectedDistrict.districtLabel}
@@ -212,11 +215,14 @@ export const HomePage = () => {
                   )}
                 </div>
                 {selectedDistrict.marginText && (
-                  <div className="mobile-state-info__margin">
-                    Projected result: <span style={{ color: selectedDistrict.marginColor }}>{selectedDistrict.marginText}</span>
+                  <div className="mobile-projected">
+                    <span className="mobile-projected__label">Projected Result</span>
+                    <span className="mobile-projected__value" style={{ color: selectedDistrict.marginColor }}>
+                      {selectedDistrict.marginText}
+                    </span>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
         </div>
