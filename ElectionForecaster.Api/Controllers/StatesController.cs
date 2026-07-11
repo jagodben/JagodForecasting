@@ -12,20 +12,17 @@ public class StatesController : ControllerBase
 {
     private readonly IStateService _stateService;
     private readonly IRaceService _raceService;
-    private readonly IDistrictService _districtService;
     private readonly IForecastingOrchestrator _orchestrator;
     private readonly ILogger<StatesController> _logger;
 
     public StatesController(
         IStateService stateService,
         IRaceService raceService,
-        IDistrictService districtService,
         IForecastingOrchestrator orchestrator,
         ILogger<StatesController> logger)
     {
         _stateService = stateService;
         _raceService = raceService;
-        _districtService = districtService;
         _orchestrator = orchestrator;
         _logger = logger;
     }
@@ -64,17 +61,6 @@ public class StatesController : ControllerBase
 
         var races = (await _raceService.GetRacesByStateAsync(id)).ToList();
         return Ok(await OverlayRacesAsync(races));
-    }
-
-    [HttpGet("{id}/districts")]
-    public async Task<IActionResult> GetStateDistricts(string id)
-    {
-        var state = await _stateService.GetStateByIdAsync(id);
-        if (state == null)
-            return NotFound();
-
-        var districts = await _districtService.GetDistrictsByStateAsync(id);
-        return Ok(districts);
     }
 
     /// <summary>

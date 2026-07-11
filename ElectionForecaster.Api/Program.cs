@@ -49,7 +49,6 @@ builder.Services.Configure<GzipCompressionProviderOptions>(o => o.Level = Compre
 // Register core services
 builder.Services.AddSingleton<IStateService, StateService>();
 builder.Services.AddSingleton<IRaceService, RaceService>();
-builder.Services.AddSingleton<IDistrictService, DistrictService>();
 
 // Register HttpClient for data sources
 builder.Services.AddHttpClient<PolymarketClient>();

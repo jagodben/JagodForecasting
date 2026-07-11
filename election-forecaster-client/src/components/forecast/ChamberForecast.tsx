@@ -117,14 +117,9 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
     return { seatProjection: projection, seatsByRating: ratingCounts, demVictoryOdds: demOdds };
   }, [races, raceType, detailedForecasts]);
 
-  // The model's final Senate/House prediction is the Monte Carlo (what the chart plots): its control
-  // probability AND its expected seat count come from the same 10k-simulation run. Use BOTH so the
-  // "Win Probability" and "Projected Seats" agree — otherwise the seat number is a cruder favored-race
-  // tally that counts every sub-50% near-tie (OH, IA, TX) wholly for the other side and can disagree
-  // with the control probability (e.g. R "ahead" 51-49 on the tally while D is favored 58% to control).
-  // Require a populated expectedDemSeats: if the history point is missing seat data, fall back to the
-  // favored-race tally for BOTH the control number and the seats, so they stay consistent (rather than
-  // showing a valid control probability next to 0 seats). Governors have no chamber sim.
+  // Senate/House headline numbers come from the Monte Carlo (the same run the chart plots), so
+  // "Win Probability" and "Projected Seats" always agree. If the latest history point lacks seat
+  // data, fall back to the favored-race tally for BOTH numbers. Governors have no chamber sim.
   const lastSimPoint = raceType !== RaceType.Governor && chamberHistory && chamberHistory.length > 0
     ? chamberHistory[chamberHistory.length - 1]
     : null;
@@ -147,13 +142,9 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const majorityNeeded = raceType === RaceType.Senate ? 50 : raceType === RaceType.House ? 218 : 26;
   const seatLabel = raceType === RaceType.Governor ? 'Projected Governorships' : 'Projected Seats';
 
-  // Seats NOT up for election in 2026, by the party currently holding them. These must match the
-  // Monte Carlo baselines that drive the control probability, or the projected-seat total won't sum
-  // to 100. The app models 35 Senate races (33 Class-2 seats + the FL and OH specials, both held by
-  // appointed Republicans), so the not-up pool is 34 D / 31 R = 65; 65 + 35 races = 100. (The two
-  // Republican specials moved from the not-up baseline into the modeled races, which is why this is
-  // 31, not 33.) All 435 House seats are up (no holdovers). Governors have no chamber majority, so
-  // only the 2026 races up are shown — no fabricated not-up holdovers.
+  // Senate seats NOT up in 2026, by current party (34 D / 31 R; must match the Monte Carlo
+  // baselines or the total won't sum to 100). All 435 House seats are up; governors have no
+  // chamber majority.
   const NOT_UP_HELD: Record<'Senate' | 'House' | 'Governors', { dem: number; rep: number }> = {
     Senate: { dem: 34, rep: 31 },
     House: { dem: 0, rep: 0 },
@@ -162,11 +153,8 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const assumedDemHeld = NOT_UP_HELD[chamberName].dem;
   const assumedRepHeld = NOT_UP_HELD[chamberName].rep;
 
-  // Senate: take the seat totals from the Monte Carlo's expected seats so they're consistent with
-  // the control probability above. Shown to one decimal — this is the AVERAGE across simulations,
-  // not a tally of who leads each race, so it legitimately differs from counting the map's colors
-  // (a cluster of ~48% near-ties each contribute half a seat here while coloring red there).
-  // Other chambers use the favored-race tally, which does match the map.
+  // Sim path: expected seats to one decimal (an average across simulations, so it legitimately
+  // differs from counting the map's colors). Tally path matches the map.
   const totalDemSeats = simModel ? Math.round(simModel.expectedDemSeats * 10) / 10 : seatProjection.democrat + assumedDemHeld;
   const totalRepSeats = simModel ? Math.round((totalSeats - totalDemSeats) * 10) / 10 : seatProjection.republican + assumedRepHeld;
   const formatSeats = (n: number) => simModel ? n.toFixed(1) : String(n);
@@ -179,10 +167,8 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
     return { rating, count, color: RATING_COLORS[rating] };
   });
 
-  // For the Senate, rescale the D-side and R-side of the gradient so the blue/red boundary lands at
-  // the Monte Carlo's expected seats — the gradient stays, but the bar agrees with the seat number
-  // and the win probability rather than the cruder favored-race tally (which put the boundary 2 seats
-  // off, showing R across the majority line while D was actually favored to control).
+  // Rescale the gradient's two sides so the blue/red boundary lands at the sim's expected seats
+  // (keeps the bar consistent with the headline numbers).
   const DEM_RATINGS = new Set([RaceRating.SolidDem, RaceRating.LikelyDem, RaceRating.LeanDem, RaceRating.TiltDem]);
   const seatSegments = (() => {
     if (!simModel) return ratingSegments.filter(s => s.count > 0);

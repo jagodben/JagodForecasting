@@ -3,11 +3,9 @@ using ElectionForecaster.Infrastructure.Forecasting;
 namespace ElectionForecaster.Infrastructure.DataSources.Models;
 
 /// <summary>
-/// Structural (non-poll) factors for a race, expressed so they compose into a single
-/// expected Democratic margin. The national environment is captured by one term
-/// (<see cref="NationalEnvironment"/>) — either the generic-ballot average or, absent
-/// that, a baseline midterm out-party bonus that already includes the midterm effect. It is
-/// NOT added on top of a separate midterm penalty (that would double-count the mood).
+/// Structural (non-poll) factors for a race, composed into an expected Democratic margin.
+/// The national mood lives in one term (<see cref="NationalEnvironment"/>) — never add a
+/// separate midterm penalty on top, that would double-count it.
 /// </summary>
 public class FundamentalsData
 {
@@ -40,12 +38,9 @@ public class FundamentalsData
     public double? PriorMargin { get; set; }
 
     /// <summary>
-    /// How much of a running incumbent's past overperformance — beyond the flat incumbency term —
-    /// carries to the next election. Backtested on 2018/2022 statewide races
-    /// (ElectionForecaster.Backtest): 0.30–0.40 is the calibrated optimum; this hybrid form beat
-    /// both the flat-incumbency-only model and raw-prior retention on MAE, RMSE, Brier, and
-    /// log-loss. Open seats retain NOTHING (validated: the personal vote leaves with the departing
-    /// incumbent — carried priors made open-seat crossover states like 2022 MA/MD much worse).
+    /// Fraction of a running incumbent's past overperformance (beyond the flat incumbency term)
+    /// that carries forward. Backtested on 2018/2022 statewide races: 0.30–0.40 is the optimum,
+    /// and open seats must retain nothing. See ElectionForecaster.Backtest.
     /// </summary>
     private const double PriorExcessRetention = 0.35;
 
@@ -53,12 +48,10 @@ public class FundamentalsData
     private const double MaxFundamentalsMargin = 40.0;
 
     /// <summary>
-    /// Fundamentals-only expected Democratic margin (points): PVI + national environment ± the
-    /// flat incumbency term, plus — when the incumbent is running and the seat has a prior result —
-    /// a retained fraction of their past overperformance BEYOND that flat term, so crossover
-    /// incumbents (a Phil Scott or a Joe Manchin) are reflected rather than assumed to vote the
-    /// seat's PVI. Open seats ignore the prior entirely: the personal vote leaves with the
-    /// departing incumbent (both rules backtested on 2018/2022; see ElectionForecaster.Backtest).
+    /// Fundamentals-only expected Democratic margin (points): PVI + national environment ± flat
+    /// incumbency, plus a retained slice of a running incumbent's past overperformance (so
+    /// crossover incumbents like Scott or Manchin aren't assumed to vote the seat's PVI).
+    /// Open seats ignore the prior — the personal vote leaves with the departing incumbent.
     /// </summary>
     public double GetExpectedDemMargin()
     {

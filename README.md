@@ -27,7 +27,7 @@ ElectionForecaster/
 │   ├── Controllers/
 │   │   ├── StatesController.cs          # /api/states endpoints
 │   │   ├── RacesController.cs           # /api/races endpoints
-│   │   └── DistrictsController.cs       # /api/districts endpoints
+│   │   └── ForecastController.cs        # /api/forecast endpoints
 │   ├── Program.cs                       # DI, CORS, Swagger config
 │   └── Properties/launchSettings.json
 ├── ElectionForecaster.Core/             # Domain Layer
@@ -43,15 +43,13 @@ ElectionForecaster/
 │   │   └── RaceRating.cs                # SolidDem to SolidRep
 │   └── Interfaces/
 │       ├── IStateService.cs
-│       ├── IRaceService.cs
-│       └── IDistrictService.cs
+│       └── IRaceService.cs
 ├── ElectionForecaster.Infrastructure/   # Data Layer
 │   ├── Data/
 │   │   └── ElectionDataProvider.cs      # Baseline election data for all 50 states
 │   └── Services/
 │       ├── StateService.cs
-│       ├── RaceService.cs
-│       └── DistrictService.cs
+│       └── RaceService.cs
 └── election-forecaster-client/          # React Frontend
     └── src/
         ├── types/index.ts               # TypeScript interfaces
@@ -89,10 +87,8 @@ The frontend uses a component-based architecture with:
 | GET | `/api/states` | All states with summary info |
 | GET | `/api/states/{id}` | State detail with all races |
 | GET | `/api/states/{id}/races` | All races for a state |
-| GET | `/api/states/{id}/districts` | Congressional districts |
 | GET | `/api/races` | All races (filterable by type) |
 | GET | `/api/races/{id}` | Single race detail |
-| GET | `/api/districts/{id}` | Single district detail |
 
 ## Getting Started
 

@@ -1,18 +1,12 @@
 namespace ElectionForecaster.Infrastructure.Data;
 
 /// <summary>
-/// Most-recent comparable statewide result for each modeled 2026 Senate/Governor race, expressed as
-/// a two-party <b>Democratic</b> margin in points (positive = Dem won by that much). This is what
-/// lets the fundamentals see a seat's demonstrated lean beyond its PVI — a crossover incumbent
-/// (e.g. Phil Scott winning deep-blue Vermont by ~50) or a lopsided safe seat — instead of assuming
-/// every race votes its presidential PVI.
-///
-/// Prior race = the last time this seat was on the ballot: 2020 for regular Class-2 Senate seats,
-/// the seat's most recent special for FL/OH/NE, and the last gubernatorial election for governors
-/// (2022 for four-year terms, 2024 for the two-year New England terms). Values are rounded and
-/// capped at ±45; races decided without a major-party opponent use a safe-seat placeholder.
-/// The fundamentals shrink these heavily toward PVI (landslides mean-revert), so approximate
-/// magnitudes are fine.
+/// The last comparable result for each 2026 Senate/Governor seat, as a Democratic margin in
+/// points. Lets the fundamentals see a seat's demonstrated lean beyond PVI (crossover
+/// incumbents, safe-seat blowouts). Prior race = the last time the seat was on the ballot
+/// (2020 for Class-2 Senate, the most recent special for FL/OH/NE, 2022/2024 for governors).
+/// Values rounded, capped at ±45; unopposed races use a placeholder. The model shrinks these
+/// toward PVI, so approximate magnitudes are fine.
 /// </summary>
 public static class StatewidePriorResults
 {

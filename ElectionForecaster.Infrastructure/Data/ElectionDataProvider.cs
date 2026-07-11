@@ -5,8 +5,6 @@ namespace ElectionForecaster.Infrastructure.Data;
 
 public static partial class ElectionDataProvider
 {
-    private static readonly Random _random = new(42); // Fixed seed for consistent data
-
     public static List<State> GetAllStates()
     {
         // 2026 Election Data
@@ -97,19 +95,19 @@ public static partial class ElectionDataProvider
             state.Races.Add(govRace);
         }
 
-        // Add House races for each district
+        // Add House races for each district. Ratings here are placeholders; StateService
+        // replaces them with the real per-district forecasts at startup.
         for (int i = 1; i <= districts; i++)
         {
-            var districtRating = GetDistrictRating(rating, i, districts);
             var district = new District
             {
                 Id = $"{id}-{i:D2}",
                 StateId = id,
                 Number = i,
-                Rating = districtRating
+                Rating = rating
             };
 
-            var houseRace = CreateHouseRace(id, i, districtRating);
+            var houseRace = CreateHouseRace(id, i, rating);
             district.HouseRace = houseRace;
             state.Races.Add(houseRace);
             state.Districts.Add(district);
@@ -290,15 +288,6 @@ public static partial class ElectionDataProvider
         ["SD"] = (new("Dan Ahlers", false), new("Larry Rhoden", true)),
         ["TX"] = (new("Gina Hinojosa", false), new("Greg Abbott", true)),
     };
-
-    private static RaceRating GetDistrictRating(RaceRating stateRating, int districtNumber, int totalDistricts)
-    {
-        // Create variety in district ratings based on state rating
-        var baseOffset = (districtNumber % 3) - 1; // -1, 0, or 1
-        var ratingValue = (int)stateRating + baseOffset;
-        ratingValue = Math.Max(0, Math.Min(6, ratingValue)); // Clamp to valid range
-        return (RaceRating)ratingValue;
-    }
 
     private static (double demProb, double repProb) GetProbabilities(RaceRating rating)
     {

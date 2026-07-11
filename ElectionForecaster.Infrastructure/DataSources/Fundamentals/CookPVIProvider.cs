@@ -7,100 +7,54 @@ using Microsoft.Extensions.Logging;
 namespace ElectionForecaster.Infrastructure.DataSources.Fundamentals;
 
 /// <summary>
-/// Provides Cook Partisan Voting Index (PVI) data for states and districts.
-/// PVI measures how a state/district votes compared to the nation as a whole.
-/// Positive values = Democratic lean, Negative values = Republican lean.
+/// Builds each race's fundamentals from Cook PVI (positive = Dem lean), the seat's prior
+/// result, and an incumbency magnitude.
 /// </summary>
 public class CookPVIProvider : IFundamentalsSource
 {
     private readonly ILogger<CookPVIProvider> _logger;
-
-    // Generic ballot tracker (current average)
-    private double _genericBallot = 0.0; // Will be updated from polling
-
-    // Presidential approval (affects midterm penalty)
-    private readonly Party _presidentParty = Party.Republican; // 2025-2029 presidency
-    private const double BaseMidtermPenalty = 4.0; // Typical points lost by president's party
 
     public CookPVIProvider(ILogger<CookPVIProvider> logger)
     {
         _logger = logger;
     }
 
-    public Task<double> GetPartisanLeanAsync(string stateId, int? districtNumber = null, CancellationToken cancellationToken = default)
+    private double GetPartisanLean(string stateId, int? districtNumber)
     {
         stateId = stateId.ToUpperInvariant();
 
-        // Cook PVI as a Dem lean (district table falls back to state; see CookPvi).
         if (districtNumber.HasValue)
-            return Task.FromResult(CookPvi.GetDistrictLean(stateId, districtNumber.Value));
+            return CookPvi.GetDistrictLean(stateId, districtNumber.Value);
 
         if (CookPvi.StateLean.TryGetValue(stateId, out var pvi))
-            return Task.FromResult(pvi);
+            return pvi;
 
         _logger.LogWarning("No PVI data for state {StateId}", stateId);
-        return Task.FromResult(0.0);
+        return 0.0;
     }
 
-    public Task<double> GetGenericBallotAsync(CancellationToken cancellationToken = default)
+    // Flat incumbency advantage in points. Smaller for the House, where the personal
+    // vote has declined the most.
+    private static double GetIncumbencyAdvantage(RaceType raceType) => raceType switch
     {
-        // This would be updated from polling sources
-        return Task.FromResult(_genericBallot);
-    }
+        RaceType.House => 2.0,
+        _ => 3.0
+    };
 
-    public void UpdateGenericBallot(double margin)
+    public Task<FundamentalsData> GetFundamentalsAsync(string raceId, CancellationToken cancellationToken = default)
     {
-        _genericBallot = margin;
-    }
-
-    public Task<double> GetMidtermPenaltyAsync(Party presidentParty, CancellationToken cancellationToken = default)
-    {
-        // Midterm penalty varies by:
-        // 1. Base historical average (~4 points)
-        // 2. Presidential approval
-        // 3. Economic conditions
-
-        // 2026 is a midterm with a Republican president (assumed)
-        // The penalty applies to the president's party (Republicans)
-        // So a positive penalty means Democrats gain an advantage
-        if (presidentParty == _presidentParty)
-        {
-            return Task.FromResult(BaseMidtermPenalty);
-        }
-
-        return Task.FromResult(0.0);
-    }
-
-    public Task<double> GetIncumbencyAdvantageAsync(RaceType raceType, CancellationToken cancellationToken = default)
-    {
-        // Incumbency advantage varies by race type. Magnitudes reflect the sharp post-2008
-        // decline in the personal incumbency vote (nationalization / straight-ticket voting).
-        var advantage = raceType switch
-        {
-            RaceType.Senate => 3.0,    // strong name rec, but faces well-funded challengers
-            RaceType.Governor => 3.0,  // retains some personal vote
-            RaceType.House => 2.0,     // declined the most — district ≈ partisanship now
-            _ => 2.0
-        };
-
-        return Task.FromResult(advantage);
-    }
-
-    public async Task<FundamentalsData> GetFundamentalsAsync(string raceId, CancellationToken cancellationToken = default)
-    {
-        // Parse race ID (format: "PA-SEN-2026" or "PA-HOUSE-01-2026")
+        // Race-ID formats: "PA-SEN-2026" / "GA-GOV-2026" (statewide), "CA-01-2026" (House,
+        // middle segment = district number).
         var parts = raceId.Split('-');
         if (parts.Length < 3)
         {
-            return new FundamentalsData { RaceId = raceId };
+            return Task.FromResult(new FundamentalsData { RaceId = raceId });
         }
 
         var stateId = parts[0];
         var kind = parts[1];
         int? districtNumber = null;
 
-        // Race-ID formats: statewide is "PA-SEN-2026" / "GA-GOV-2026"; House is "CA-01-2026",
-        // where the middle segment is the district number (NOT a literal "HOUSE").
         RaceType raceType;
         if (kind.Equals("SEN", StringComparison.OrdinalIgnoreCase))
             raceType = RaceType.Senate;
@@ -114,16 +68,9 @@ public class CookPVIProvider : IFundamentalsSource
         else
             raceType = RaceType.House;
 
-        var partisanLean = await GetPartisanLeanAsync(stateId, districtNumber, cancellationToken);
-        var incumbencyAdvantage = await GetIncumbencyAdvantageAsync(raceType, cancellationToken);
-
-        // Prior result, so the fundamentals reflect a seat's demonstrated lean beyond PVI —
-        // crossover incumbents, safe-seat blowouts — not just its presidential PVI. A viable
-        // independent challenger overrides the seat's generic prior with their own realistic
-        // showing (else the generic-Democrat blowout would bury a competitive independent).
-        // Statewide races read the StatewidePriorResults table; House races use the district's
-        // real 2024 result (absent for the ten states redrawn mid-decade — their 2024 results
-        // were earned on lines that no longer exist, so they stay on PVI + incumbency).
+        // Prior result: a designated independent challenger's own showing, else the statewide
+        // table, else the district's real 2024 result. Districts in the ten mid-decade-redrawn
+        // states have no 2024 result on current lines and stay on PVI + incumbency.
         var priorMargin = IndependentChallengers.GetPriorMargin(raceId) ?? StatewidePriorResults.GetPriorMargin(raceId);
         if (priorMargin is null && raceType == RaceType.House && districtNumber.HasValue)
         {
@@ -132,17 +79,16 @@ public class CookPVIProvider : IFundamentalsSource
                 priorMargin = -result2024.Value.Margin; // stored R-positive; flip to Dem margin
         }
 
-        return new FundamentalsData
+        return Task.FromResult(new FundamentalsData
         {
             RaceId = raceId,
-            PartisanLean = partisanLean,
-            // NationalEnvironment and IncumbentIsDem are cross-cutting: the orchestrator fills them
-            // from the generic ballot and the race's candidates respectively. Left at defaults here
-            // so this provider stays purely structural (PVI + prior result + incumbency magnitude).
+            PartisanLean = GetPartisanLean(stateId, districtNumber),
+            // NationalEnvironment and IncumbentIsDem are filled by the orchestrator (from the
+            // generic ballot and the race's candidates); this provider stays purely structural.
             NationalEnvironment = 0,
             IncumbentIsDem = null,
-            IncumbencyAdvantage = incumbencyAdvantage,
+            IncumbencyAdvantage = GetIncumbencyAdvantage(raceType),
             PriorMargin = priorMargin
-        };
+        });
     }
 }

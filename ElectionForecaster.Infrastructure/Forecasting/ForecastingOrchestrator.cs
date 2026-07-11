@@ -272,10 +272,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         // Per-race forecasts (cached + computed in parallel).
         var forecasts = await GenerateAllForecastsAsync(chamber, cancellationToken);
 
-        // Every seat must be counted. A race whose forecast failed is dropped by the batch above,
-        // which would shrink the seat total against the fixed control threshold (e.g. <435 House
-        // seats vs the 218 majority line) and deflate BOTH parties' control odds. Backfill any gap
-        // with the race's RaceService prior so the seat is still simulated with the right lean.
+        // Every seat must be counted: a dropped race would shrink the seat total against the
+        // fixed control threshold and deflate both parties' odds. Fill gaps from the baseline.
         var allRaces = (await _raceService.GetAllRacesAsync(chamber)).ToList();
         var byId = forecasts.ToDictionary(f => f.RaceId);
         var complete = allRaces
@@ -432,10 +430,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
     public async Task BackfillModelHistoryAsync(bool force = false, CancellationToken cancellationToken = default)
     {
-        // This deletes and rebuilds every statewide race's history from *today's* inputs, so re-running
-        // it on each restart would wipe the genuine daily snapshots (StoreDailySnapshotAsync) and
-        // retro-stamp today's national mood across all past days. Only seed when there's no history
-        // yet; the manual admin endpoint passes force to rebuild deliberately.
+        // Rebuilding wipes the genuine daily snapshots, so only seed automatically when history
+        // is empty; the admin endpoint passes force to rebuild deliberately.
         if (!force && await _dbContext.ForecastHistory.AnyAsync(cancellationToken))
         {
             _logger.LogInformation("Model history already present — skipping automatic backfill (POST /api/forecast/backfill to force a rebuild)");
@@ -566,11 +562,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     }
 
     /// <summary>
-    /// Rebuilds House control-over-time from the stored daily generic-ballot series — the House
-    /// model's only time-varying input (no district markets or polls, so each day's forecast is
-    /// fundamentals at that day's national environment and time-to-election SE). The line therefore
-    /// starts when generic-ballot tracking started and is extended daily by the snapshot job.
-    /// Replays the CURRENT model, so a rebuild also purges rows computed by older code/data.
+    /// Rebuilds House control-over-time from the daily generic-ballot series — the House model's
+    /// only time-varying input. Replays the current model, so a rebuild also purges rows written
+    /// by older code; the daily snapshot extends the line going forward.
     /// </summary>
     private async Task BackfillHouseChamberHistoryAsync(CancellationToken cancellationToken)
     {
@@ -685,10 +679,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     }
 
     /// <summary>
-    /// Blends the available signals into a single expected Dem margin (points). Each source is
-    /// expressed as a margin — polls directly (Dem% − Rep%), fundamentals via their model, and
-    /// the market probability inverted through the same SE so its implied margin round-trips back
-    /// to its probability. Weighting happens here; the probability conversion happens once, later.
+    /// Blends the signals into one expected Dem margin. Every source is expressed as a margin
+    /// (the market probability is inverted through the same SE used later, so it round-trips);
+    /// the margin-to-probability conversion happens once, downstream.
     /// </summary>
     private static double BlendMargins(
         MarketOdds? market,
@@ -723,12 +716,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         return totalWeight > 0 ? weightedMargin / totalWeight : 0;
     }
 
-    // --- Market-disagreement guard ---------------------------------------------------------------
-    // A liquid prediction market that diverges sharply from the structural (poll + fundamentals)
-    // blend usually reflects something the structural model can't see — candidate-specific strength,
-    // a scandal, a crossover incumbent the PVI/prior understates. When that gap is large, lean toward
-    // the market by ramping its weight up. Never to full dominance: the structural blend still checks
-    // a thin or manipulated market, and only markets above a liquidity floor are allowed to override.
+    // --- Market-disagreement guard ---
+    // A liquid market that diverges sharply from the poll+fundamentals blend usually knows
+    // something the structural model can't see, so its weight ramps up with the gap — but
+    // never to full dominance, and only above a liquidity floor.
     private const double LiquidMarketConfidence = 0.5;  // below this the market is too thin to override
     private const double DisagreementThreshold = 10.0;  // margin points of gap before the guard engages
     private const double DisagreementSpan = 20.0;       // further points over which it ramps to the cap

@@ -1,15 +1,11 @@
 namespace ElectionForecaster.Infrastructure.Data;
 
 /// <summary>
-/// Whether each 2026 statewide race's incumbent is seeking reelection, independent of whether
-/// the primary has produced a nominee yet: true = Democratic incumbent running, false =
-/// Republican incumbent running, null = open seat (retiring / term-limited / resigned / lost
-/// renomination / seeking another office). The prior-result mechanism needs THIS distinction —
-/// candidate incumbency flags are empty for unresolved primaries (e.g. Vermont's Phil Scott
-/// before the August primary), which would wrongly count those seats as open and drop the
-/// incumbent's prior. Scraped from the race-summary tables of Wikipedia's "2026 United States
-/// Senate elections" / "2026 United States gubernatorial elections" pages (2026-07-11);
-/// regenerate with tools/scrape_statewide_incumbents.py after primaries or retirements.
+/// Whether each 2026 statewide race's incumbent is seeking reelection (true = D, false = R,
+/// null = open seat), independent of whether the primary has produced a nominee yet — candidate
+/// flags are empty pre-primary, which would wrongly drop a running incumbent's prior.
+/// Scraped 2026-07-11 from the Wikipedia race-summary tables; regenerate with
+/// tools/scrape_statewide_incumbents.py after primaries or retirement news.
 /// </summary>
 public static class StatewideIncumbents
 {

@@ -148,12 +148,30 @@ public class ForecastController : ControllerBase
     }
 
     /// <summary>
+    /// Guards the admin POST endpoints. In Development they're open; in Production they require
+    /// the X-Admin-Key header to match the ADMIN_KEY environment variable, and are disabled
+    /// entirely when no key is configured. Keeps public visitors (the routes are visible in the
+    /// public repo) from triggering expensive refreshes/rebuilds.
+    /// </summary>
+    private IActionResult? RequireAdmin()
+    {
+        var env = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
+        if (env.IsDevelopment()) return null;
+
+        var configuredKey = Environment.GetEnvironmentVariable("ADMIN_KEY");
+        if (string.IsNullOrEmpty(configuredKey)) return NotFound();
+
+        return Request.Headers["X-Admin-Key"] == configuredKey ? null : Unauthorized();
+    }
+
+    /// <summary>
     /// Triggers a refresh of all data sources (admin endpoint).
     /// </summary>
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RefreshData()
     {
+        if (RequireAdmin() is { } denied) return denied;
         _logger.LogInformation("Manual data refresh triggered");
         await _orchestrator.RefreshAllDataAsync();
         return Ok(new { message = "Data refresh completed" });
@@ -166,6 +184,7 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> StoreDailySnapshot()
     {
+        if (RequireAdmin() is { } denied) return denied;
         _logger.LogInformation("Manual snapshot storage triggered");
         await _orchestrator.StoreDailySnapshotAsync();
         return Ok(new { message = "Daily snapshot stored" });
@@ -179,6 +198,7 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> BackfillModelHistory()
     {
+        if (RequireAdmin() is { } denied) return denied;
         _logger.LogInformation("Manual model history backfill triggered (forced rebuild)");
         await _orchestrator.BackfillModelHistoryAsync(force: true);
         return Ok(new { message = "Model history backfill completed" });

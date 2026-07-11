@@ -84,12 +84,13 @@ occasionally to catch newly opened Polymarket markets.
 forecast of any race, yet it's the big colored badge atop StatePage. **Fix:** replace with
 per-race rating chips or drop it.
 
-### 7. District endpoints serve fabricated ratings *(public API correctness)*
-`/api/states/{id}/districts` and `/api/districts/{id}` (DistrictService) build their own
-`ElectionDataProvider.GetAllStates()` copy whose ratings come from `GetDistrictRating`
-(state rating + districtNumber % 3 − 1 — a fake pattern). The frontend no longer calls these,
-but they're public API. **Fix:** wire them to real forecasts or delete them (and delete
-`GetDistrictRating` + the unused `_random` while there).
+### 7. ✅ DONE — District endpoints deleted (pre-public cleanup pass)
+Nothing consumed them and they served fabricated modulo ratings; removed
+`/api/states/{id}/districts`, `/api/districts/*`, DistrictService/IDistrictService,
+`GetDistrictRating`, and `_random`. Same pass also removed the dead USMap.tsx,
+PollingAggregator, the unused Polymarket static helpers/backfill, slimmed
+IFundamentalsSource to its one used member, gated the admin POST endpoints behind an
+ADMIN_KEY env var in production, and simplified the wordiest comments.
 
 ### 8. House district landing pages *(feature — completes the map's click-through)*
 Senate/Governor map clicks navigate to a race page; House district clicks only fill the mobile
