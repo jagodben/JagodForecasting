@@ -513,12 +513,13 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         // Chamber control over time follows directly from the per-race history we just wrote.
         await BackfillChamberHistoryAsync(cancellationToken);
+        await BackfillHouseChamberHistoryAsync(cancellationToken);
     }
 
     /// <summary>
     /// Rebuilds Senate control-over-time by running the Monte Carlo over each day's stored per-race
-    /// forecasts. No re-fetch — the per-race margins/SEs already live in ForecastHistory. Senate only;
-    /// House per-race history isn't backfilled (no district markets), so its chamber line isn't either.
+    /// forecasts. No re-fetch — the per-race margins/SEs already live in ForecastHistory. (The House
+    /// line is rebuilt separately from the generic-ballot series; see BackfillHouseChamberHistoryAsync.)
     /// </summary>
     private async Task BackfillChamberHistoryAsync(CancellationToken cancellationToken)
     {
@@ -562,6 +563,74 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Chamber (Senate) history backfill complete");
+    }
+
+    /// <summary>
+    /// Rebuilds House control-over-time from the stored daily generic-ballot series — the House
+    /// model's only time-varying input (no district markets or polls, so each day's forecast is
+    /// fundamentals at that day's national environment and time-to-election SE). The line therefore
+    /// starts when generic-ballot tracking started and is extended daily by the snapshot job.
+    /// Replays the CURRENT model, so a rebuild also purges rows computed by older code/data.
+    /// </summary>
+    private async Task BackfillHouseChamberHistoryAsync(CancellationToken cancellationToken)
+    {
+        var ballotDays = await _dbContext.GenericBallot
+            .OrderBy(g => g.Date)
+            .ToListAsync(cancellationToken);
+        if (ballotDays.Count == 0) return;
+
+        var houseRaces = (await _raceService.GetAllRacesAsync(RaceType.House)).ToList();
+
+        // Per-race structural fundamentals (PVI, prior result, incumbency) are static — fetch once;
+        // only the national environment and the time-to-election SE vary by day.
+        var fundamentalsById = new Dictionary<string, FundamentalsData>();
+        var incumbentById = new Dictionary<string, bool?>();
+        foreach (var race in houseRaces)
+        {
+            fundamentalsById[race.Id] = await _fundamentalsSource.GetFundamentalsAsync(race.Id, cancellationToken);
+            incumbentById[race.Id] = GetIncumbentIsDem(race);
+        }
+
+        var chamberName = RaceType.House.ToString();
+        await _dbContext.ChamberHistory.Where(c => c.Chamber == chamberName).ExecuteDeleteAsync(cancellationToken);
+
+        foreach (var day in ballotDays.GroupBy(g => g.Date.Date).OrderBy(g => g.Key))
+        {
+            var ballot = day.Last();
+            var environment = Math.Clamp(ballot.DemPercent - ballot.RepPercent, -15, 15);
+            var daysToElection = (_electionDate - day.Key).TotalDays;
+            var se = UncertaintyModel.MarginStandardError(daysToElection, RaceType.House, 0);
+
+            var forecasts = houseRaces.Select(race =>
+            {
+                var f = fundamentalsById[race.Id];
+                f.NationalEnvironment = environment;
+                f.IncumbentIsDem = incumbentById[race.Id];
+                return new DetailedForecast
+                {
+                    RaceId = race.Id,
+                    ExpectedDemMargin = f.GetExpectedDemMargin(),
+                    MarginStdDev = se
+                };
+            }).ToList();
+
+            var result = _simulator.SimulateChamber(forecasts, RaceType.House);
+            _dbContext.ChamberHistory.Add(new ChamberHistoryEntity
+            {
+                Chamber = chamberName,
+                Date = day.Key,
+                DemControlProbability = result.DemControlProbability,
+                RepControlProbability = result.RepControlProbability,
+                ExpectedDemSeats = result.ExpectedDemSeats,
+                ExpectedRepSeats = result.ExpectedRepSeats,
+                SimulationIterations = result.SimulationIterations,
+                DemSeatsLow = result.DemSeatRange.Low,
+                DemSeatsHigh = result.DemSeatRange.High
+            });
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Chamber (House) history backfill complete: {Days} days", ballotDays.GroupBy(g => g.Date.Date).Count());
     }
 
     private async Task<MarketOdds?> GetAggregatedMarketOddsAsync(string raceId, CancellationToken cancellationToken)

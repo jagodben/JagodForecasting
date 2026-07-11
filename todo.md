@@ -43,8 +43,11 @@ incumbency fallback for unresolved districts). Fixed:
   are treated as open until their primaries resolve (conservative, self-correcting).
 - Verified both retention paths to the decimal (IA-01 incumbent, ME-02 open); House chamber
   expectation tempered 256.9 → 250.4 D; statewide history re-backfilled on the new methodology.
-- STILL PENDING (small): unify the House sidebar onto the simulation like the Senate one —
-  it currently shows the favored-race tally, which no longer matches the sim's expectation.
+- FOLLOW-UP DONE: the House sidebar now runs off the simulation like the Senate one (control
+  probability + expected seats + a Race Timeline). The House control line is rebuilt from the
+  stored daily generic-ballot series (`BackfillHouseChamberHistoryAsync`) — the House model's
+  only time-varying input — so a rebuild also purges rows computed by older code/data; the
+  daily snapshot extends it going forward.
 
 ### 4. Hard 90-day poll window silently blinds stale-but-polled races
 MD-GOV (Oct 2025), AL-GOV, IL-GOV, KY-SEN have only pre-2026 polls, so their forecasts run

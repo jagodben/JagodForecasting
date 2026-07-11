@@ -61,11 +61,12 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
     enabled: races.length > 0,
   });
 
-  // Chamber control-over-time (Senate has a backfilled model history series).
+  // Chamber control-over-time (Senate and House both have backfilled model history series;
+  // governors have no chamber majority, so no timeline).
   const { data: chamberHistory } = useQuery({
     queryKey: ['chamberHistory', raceType],
-    queryFn: () => forecastApi.getChamberHistory('Senate'),
-    enabled: raceType === RaceType.Senate,
+    queryFn: () => forecastApi.getChamberHistory(raceType),
+    enabled: raceType !== RaceType.Governor,
   });
 
   // Helper: overall chamber Dem win probability from the seat projection.
@@ -116,20 +117,20 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
     return { seatProjection: projection, seatsByRating: ratingCounts, demVictoryOdds: demOdds };
   }, [races, raceType, detailedForecasts]);
 
-  // The model's final Senate prediction is the Monte Carlo (what the chart plots): its control
+  // The model's final Senate/House prediction is the Monte Carlo (what the chart plots): its control
   // probability AND its expected seat count come from the same 10k-simulation run. Use BOTH so the
   // "Win Probability" and "Projected Seats" agree — otherwise the seat number is a cruder favored-race
   // tally that counts every sub-50% near-tie (OH, IA, TX) wholly for the other side and can disagree
   // with the control probability (e.g. R "ahead" 51-49 on the tally while D is favored 58% to control).
   // Require a populated expectedDemSeats: if the history point is missing seat data, fall back to the
   // favored-race tally for BOTH the control number and the seats, so they stay consistent (rather than
-  // showing a valid control probability next to 0 seats).
-  const lastSenatePoint = raceType === RaceType.Senate && chamberHistory && chamberHistory.length > 0
+  // showing a valid control probability next to 0 seats). Governors have no chamber sim.
+  const lastSimPoint = raceType !== RaceType.Governor && chamberHistory && chamberHistory.length > 0
     ? chamberHistory[chamberHistory.length - 1]
     : null;
-  const senateModel = lastSenatePoint && lastSenatePoint.expectedDemSeats > 0 ? lastSenatePoint : null;
-  const modelSenateControl = senateModel ? Math.round(senateModel.demControlProbability * 1000) / 10 : null;
-  const demVictoryOdds = modelSenateControl != null ? modelSenateControl : rawDemVictoryOdds;
+  const simModel = lastSimPoint && lastSimPoint.expectedDemSeats > 0 ? lastSimPoint : null;
+  const modelControl = simModel ? Math.round(simModel.demControlProbability * 1000) / 10 : null;
+  const demVictoryOdds = modelControl != null ? modelControl : rawDemVictoryOdds;
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
 
   // Most-recent forecast generation time across this chamber's races → a data-freshness label.
@@ -166,9 +167,9 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   // not a tally of who leads each race, so it legitimately differs from counting the map's colors
   // (a cluster of ~48% near-ties each contribute half a seat here while coloring red there).
   // Other chambers use the favored-race tally, which does match the map.
-  const totalDemSeats = senateModel ? Math.round(senateModel.expectedDemSeats * 10) / 10 : seatProjection.democrat + assumedDemHeld;
-  const totalRepSeats = senateModel ? Math.round((totalSeats - totalDemSeats) * 10) / 10 : seatProjection.republican + assumedRepHeld;
-  const formatSeats = (n: number) => senateModel ? n.toFixed(1) : String(n);
+  const totalDemSeats = simModel ? Math.round(simModel.expectedDemSeats * 10) / 10 : seatProjection.democrat + assumedDemHeld;
+  const totalRepSeats = simModel ? Math.round((totalSeats - totalDemSeats) * 10) / 10 : seatProjection.republican + assumedRepHeld;
+  const formatSeats = (n: number) => simModel ? n.toFixed(1) : String(n);
 
   // Seat bar: the familiar Solid D → Solid R rating gradient (assumed-held folded into the Solid ends).
   const ratingSegments = RATING_ORDER.map(rating => {
@@ -184,7 +185,7 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   // off, showing R across the majority line while D was actually favored to control).
   const DEM_RATINGS = new Set([RaceRating.SolidDem, RaceRating.LikelyDem, RaceRating.LeanDem, RaceRating.TiltDem]);
   const seatSegments = (() => {
-    if (!senateModel) return ratingSegments.filter(s => s.count > 0);
+    if (!simModel) return ratingSegments.filter(s => s.count > 0);
     const demRaw = ratingSegments.filter(s => DEM_RATINGS.has(s.rating)).reduce((a, s) => a + s.count, 0);
     const repRaw = ratingSegments.filter(s => !DEM_RATINGS.has(s.rating)).reduce((a, s) => a + s.count, 0);
     return ratingSegments
@@ -240,7 +241,7 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
             }} />
           )}
         </div>
-        {senateModel && (
+        {simModel && (
           <div style={{ marginTop: '6px', fontSize: '11px', color: '#888888', lineHeight: 1.4 }}>
             Average of 10,000 simulations. Close races count fractionally toward both
             parties, so this can differ from tallying each race&rsquo;s current leader on the map.
