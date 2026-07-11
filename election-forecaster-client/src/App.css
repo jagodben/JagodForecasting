@@ -451,6 +451,39 @@
   margin: 0 auto;
 }
 
+/* On-screen zoom controls for the district map (top-right of the map). */
+.map-zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-zoom-controls button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border-color, #d0d4d9);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f2937;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-zoom-controls button:active {
+  background: #eef1f4;
+}
+
 .map-legend {
   padding: 20px;
   margin: 0 auto;
@@ -855,5 +888,37 @@
   .mobile-state-info__value {
     font-weight: 600;
     font-size: 13px;
+  }
+
+  /* Tappable district panel: stack the info row above a "view forecast" call-to-action. */
+  .mobile-state-info--tappable {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .mobile-state-info--tappable:active {
+    background: #eef1f4;
+  }
+
+  .mobile-state-info__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-state-info__cta {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2e63bd;
+    text-align: right;
+  }
+
+  /* Smaller zoom buttons on mobile, kept clear of the map edge. */
+  .map-zoom-controls button {
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
   }
 }

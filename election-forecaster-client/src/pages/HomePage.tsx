@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
-import { USDistrictMap } from '../components/maps/USDistrictMap';
+import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
@@ -15,9 +16,11 @@ type MobilePanel = 'map' | 'data';
 const dataSource = 'combined' as const;
 
 export const HomePage = () => {
+  const navigate = useNavigate();
   const [activeView, setActiveView] = useState<MapView>('senate');
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>('map');
   const [selectedState, setSelectedState] = useState<SelectedStateData | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<SelectedDistrictData | null>(null);
 
   useDocumentTitle(
     `2026 ${activeView === 'senate' ? 'Senate' : activeView === 'house' ? 'House' : 'Governor'} Forecast`
@@ -93,6 +96,7 @@ export const HomePage = () => {
               onClick={() => {
                 setActiveView(view);
                 setSelectedState(null);
+                setSelectedDistrict(null);
               }}
               className={`dashboard-tab ${activeView === view ? 'dashboard-tab--active' : ''}`}
             >
@@ -133,7 +137,7 @@ export const HomePage = () => {
             <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} dataSource={dataSource} onStateSelect={setSelectedState} />
           )}
           {activeView === 'house' && houseRaces && (
-            <USDistrictMap races={houseRaces} dataSource={dataSource} />
+            <USDistrictMap races={houseRaces} dataSource={dataSource} onDistrictSelect={setSelectedDistrict} />
           )}
 
           {/* Selected state info - mobile only (Senate/Governors) */}
@@ -163,6 +167,44 @@ export const HomePage = () => {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Selected district info - mobile only (House). Tap it to open the full race page. */}
+            {selectedDistrict && activeView === 'house' && (
+              <div
+                className="mobile-state-info mobile-state-info--tappable"
+                role="button"
+                onClick={() => selectedDistrict.raceId && navigate(`/race/${selectedDistrict.raceId}`)}
+              >
+                <div className="mobile-state-info__row">
+                  <div className="mobile-state-info__header">
+                    <span className="mobile-state-info__name">
+                      {selectedDistrict.stateName} — {selectedDistrict.districtLabel}
+                    </span>
+                    {selectedDistrict.rating && (
+                      <span
+                        className="mobile-state-info__rating"
+                        style={{ backgroundColor: getRatingColor(selectedDistrict.rating) }}
+                      >
+                        {getRatingLabel(selectedDistrict.rating)}
+                      </span>
+                    )}
+                  </div>
+                  {selectedDistrict.demProb !== null && (
+                    <div className="mobile-state-info__probs">
+                      <div className="mobile-state-info__prob">
+                        <img src="/democrat.png" alt="D" className="mobile-state-info__logo" />
+                        <span className="mobile-state-info__value">{(selectedDistrict.demProb * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="mobile-state-info__prob">
+                        <img src="/republican.png" alt="R" className="mobile-state-info__logo" />
+                        <span className="mobile-state-info__value">{((1 - selectedDistrict.demProb) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="mobile-state-info__cta">View full forecast →</div>
               </div>
             )}
           </div>
