@@ -546,21 +546,43 @@ public partial class WikipediaPollingClient : IPollingSource
 
     // ---- Race -> Wikipedia page title -------------------------------------
 
+    // States with a single at-large House district — their House race lives on the state-wide
+    // "...election in {State}" page (Alaska's is the marquee ranked-choice race with real polls).
+    private static readonly HashSet<string> AtLargeStates = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "AK", "DE", "ND", "SD", "VT", "WY"
+    };
+
     private static string? GetPageTitle(string raceId)
     {
-        // e.g. "MI-SEN-2026", "GA-GOV-2026", "PA-07-2026"
+        // Statewide is "MI-SEN-2026" / "GA-GOV-2026"; House is "PA-07-2026", where the middle
+        // segment is the district number.
         var parts = raceId.Split('-');
         if (parts.Length < 3) return null;
         var abbr = parts[0];
         var kind = parts[1];
         if (!StateNames.TryGetValue(abbr, out var state)) return null;
 
-        return kind switch
+        if (kind.Equals("SEN", StringComparison.OrdinalIgnoreCase))
+            return $"2026 United States Senate election in {state}";
+        if (kind.Equals("GOV", StringComparison.OrdinalIgnoreCase))
+            return $"2026 {state} gubernatorial election";
+
+        // House: at-large states use the state-wide page; multi-district races use the per-district
+        // page. Most district pages don't exist yet — a missing page just yields no polls (harmless).
+        if (int.TryParse(kind, out var district))
         {
-            "SEN" => $"2026 United States Senate election in {state}",
-            "GOV" => $"2026 {state} gubernatorial election",
-            _ => null // House and everything else: not covered
-        };
+            return AtLargeStates.Contains(abbr)
+                ? $"2026 United States House of Representatives election in {state}"
+                : $"2026 {state}'s {Ordinal(district)} congressional district election";
+        }
+        return null;
+    }
+
+    private static string Ordinal(int n)
+    {
+        if (n % 100 is >= 11 and <= 13) return $"{n}th";
+        return (n % 10) switch { 1 => $"{n}st", 2 => $"{n}nd", 3 => $"{n}rd", _ => $"{n}th" };
     }
 
     [GeneratedRegex(@"^(={2,6})\s*(.*?)\s*\1\s*$")]
