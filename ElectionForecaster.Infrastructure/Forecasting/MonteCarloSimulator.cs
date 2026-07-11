@@ -89,10 +89,9 @@ public class MonteCarloSimulator
         };
     }
 
-    // Degrees of freedom for the t-distributed error terms. Fewer dof = fatter tails; ~5 reflects
-    // that real polling misses have heavier tails than a normal, so the sim stops underpricing big
-    // swings and overstating near-certain outcomes.
-    private const int ErrorDof = 5;
+    // Degrees of freedom for the t-distributed error terms (fatter tails than normal). Shared
+    // with ForecastMath so per-race probabilities and the simulation describe one distribution.
+    private const int ErrorDof = ForecastMath.ErrorDegreesOfFreedom;
 
     private static double SampleStandardNormal()
     {

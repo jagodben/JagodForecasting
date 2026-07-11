@@ -166,8 +166,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         // market — it usually knows something PVI/priors/polls-so-far can't (the VT-GOV class).
         ApplyMarketDisagreementGuard(weights, marketOdds, polling, fundamentals, se, raceId);
 
+        // Loose display clamp only — the t-distribution's fat tails already keep blowouts
+        // under ~99.9%, and a tighter clamp would skew seat totals vs the chamber sim.
         var blendedMargin = BlendMargins(marketOdds, polling, fundamentals, weights, se);
-        var demProb = Math.Clamp(ForecastMath.MarginToProbability(blendedMargin, se), 0.02, 0.98);
+        var demProb = Math.Clamp(ForecastMath.MarginToProbability(blendedMargin, se), 0.005, 0.995);
         var demVoteShare = Math.Clamp(0.50 + blendedMargin / 200.0, 0.30, 0.70);
 
         return new DetailedForecast

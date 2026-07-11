@@ -3,9 +3,44 @@ namespace ElectionForecaster.Infrastructure.Forecasting;
 /// <summary>
 /// Shared statistical helpers for the forecasting model. Margins are expressed in
 /// points of Democratic two-party lead (e.g. +3 = D+3); probabilities in [0,1].
+/// Margin ↔ probability conversions use the same fat-tailed scaled Student-t the
+/// Monte Carlo draws its errors from, so per-race probabilities and the chamber
+/// simulation describe one distribution.
 /// </summary>
 public static class ForecastMath
 {
+    /// <summary>Degrees of freedom for the model's error distribution (shared with the simulator).</summary>
+    public const int ErrorDegreesOfFreedom = 5;
+
+    // A standard t(5) has variance 5/3; this rescales it to unit variance so "SD" keeps
+    // meaning SD. Must match MonteCarloSimulator.SampleTError.
+    private static readonly double TScale = Math.Sqrt((ErrorDegreesOfFreedom - 2.0) / ErrorDegreesOfFreedom);
+
+    // t(5) pdf normalizing constant: Γ(3) / (√(5π)·Γ(5/2)).
+    private const double TPdfCoefficient = 0.3796066898;
+
+    /// <summary>CDF of the standard Student-t with 5 degrees of freedom (closed form).</summary>
+    public static double TCdf(double x)
+    {
+        var theta = Math.Atan(x / Math.Sqrt(5));
+        var cos = Math.Cos(theta);
+        return 0.5 + (theta + Math.Sin(theta) * (cos + 2.0 / 3.0 * cos * cos * cos)) / Math.PI;
+    }
+
+    /// <summary>Inverse t(5) CDF via Newton's method (normal quantile as the initial guess).</summary>
+    public static double TInverse(double p)
+    {
+        p = Math.Clamp(p, 1e-9, 1 - 1e-9);
+        var x = NormalInverse(p);
+        for (int i = 0; i < 20; i++)
+        {
+            var pdf = TPdfCoefficient * Math.Pow(1 + x * x / 5, -3);
+            var step = (TCdf(x) - p) / pdf;
+            x -= step;
+            if (Math.Abs(step) < 1e-10) break;
+        }
+        return x;
+    }
     /// <summary>Standard normal CDF (Abramowitz &amp; Stegun 7.1.26 approximation).</summary>
     public static double NormalCdf(double x)
     {
@@ -56,9 +91,9 @@ public static class ForecastMath
 
     /// <summary>Converts a Dem win probability into an implied Dem margin, given a margin SD.</summary>
     public static double ProbabilityToMargin(double demProbability, double marginStdDev)
-        => NormalInverse(demProbability) * marginStdDev;
+        => TInverse(demProbability) * marginStdDev * TScale;
 
     /// <summary>Converts a Dem margin (points) into a Dem win probability, given a margin SD.</summary>
     public static double MarginToProbability(double demMargin, double marginStdDev)
-        => NormalCdf(demMargin / marginStdDev);
+        => TCdf(demMargin / (marginStdDev * TScale));
 }
