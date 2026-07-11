@@ -49,6 +49,12 @@ public interface IForecastingOrchestrator
     Task StoreDailySnapshotAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The once-a-day update (refresh all sources + store the 8 AM snapshot the site serves).
+    /// No-ops and returns false if today's Eastern snapshot already exists.
+    /// </summary>
+    Task<bool> RunDailyUpdateAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Backfills the full model's forecast history retrospectively (statewide races), reconstructing
     /// each day's market and polling inputs so the stored history reflects what the model would have said.
     /// Destructive (deletes and rebuilds), so it only runs when history is empty unless <paramref name="force"/>
