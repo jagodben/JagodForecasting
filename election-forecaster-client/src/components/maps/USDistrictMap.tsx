@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceRating, RaceType } from '../../types';
 import { forecastApi } from '../../services/api';
@@ -86,19 +87,9 @@ const probabilityToRating = (demProb: number): RaceRating => {
   return RaceRating.SolidRep;
 };
 
-export interface SelectedDistrictData {
-  stateName: string;
-  stateId: string;
-  districtNum: number;
-  districtLabel: string;
-  rating: RaceRating | null;
-  demProb: number | null;
-}
-
 interface USDistrictMapProps {
   races: Race[];
   dataSource?: DataSource;
-  onDistrictSelect?: (data: SelectedDistrictData | null) => void;
 }
 
 interface DistrictFeature {
@@ -118,8 +109,9 @@ interface TooltipData {
   race: Race | null;
 }
 
-export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect }: USDistrictMapProps) => {
+export const USDistrictMap = ({ races, dataSource = 'combined' }: USDistrictMapProps) => {
   const { patterns } = useAccessibility();
+  const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [districtFeatures, setDistrictFeatures] = useState<DistrictFeature[]>([]);
@@ -130,6 +122,13 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
   const [lastMouse, setLastMouse] = useState({ x: 0, y: 0 });
+  // Pointer-drag tracking, kept in refs (not state) so it's correct within a single event tick:
+  // pointerDownRef marks the button held, downPosRef the press point, draggedRef whether real
+  // movement happened. The click that ends a pan reads draggedRef to avoid counting as a
+  // district selection — isPanning state is already cleared by mouseup and lags a tick besides.
+  const pointerDownRef = useRef(false);
+  const downPosRef = useRef({ x: 0, y: 0 });
+  const draggedRef = useRef(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const zoomRef = useRef(zoom);
   const panRef = useRef(pan);
@@ -267,12 +266,22 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
     if (e.button === 0) {
       e.preventDefault();
       setIsPanning(true);
+      pointerDownRef.current = true;
+      draggedRef.current = false;
+      downPosRef.current = { x: e.clientX, y: e.clientY };
       setLastMouse({ x: e.clientX, y: e.clientY });
     }
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     setTooltipPosition({ x: e.clientX, y: e.clientY });
+
+    // A few pixels of movement while the button is held means panning, not a district click.
+    // Tracked off refs so it's correct even before the isPanning state update lands.
+    if (pointerDownRef.current &&
+        Math.abs(e.clientX - downPosRef.current.x) + Math.abs(e.clientY - downPosRef.current.y) > 3) {
+      draggedRef.current = true;
+    }
 
     if (isPanning) {
       const dx = e.clientX - lastMouse.x;
@@ -299,10 +308,12 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
+    pointerDownRef.current = false;
   }, []);
 
   const handleMouseLeave = useCallback(() => {
     setIsPanning(false);
+    pointerDownRef.current = false;
     setTooltipData(null);
   }, []);
 
@@ -323,49 +334,15 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   };
 
   const handleDistrictClick = (stateId: string, districtNum: number) => {
-    if (isPanning) return;
-    // Find the House race for this district
+    // Ignore the click that ends a pan/drag.
+    if (draggedRef.current) return;
+
+    // Navigate to the district's race page (matches the Senate/Governor map).
     const race = races.find(r =>
       r.stateId.toLowerCase() === stateId.toLowerCase() &&
       r.districtNumber === districtNum
     );
-
-    // Call onDistrictSelect callback if provided
-    if (onDistrictSelect) {
-      if (race) {
-        const detailed = detailedForecasts?.find(f => f.raceId === race.id);
-        let demProb: number | null = null;
-
-        if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
-          demProb = detailed.inputs.marketOdds;
-        } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
-          demProb = detailed.inputs.pollingWinProbability;
-        } else {
-          // Get dem probability from forecasts
-          const demForecast = race.forecasts.find(f => {
-            const candidate = race.candidates.find(c => c.id === f.candidateId);
-            return candidate?.party === 'Democrat';
-          });
-          demProb = demForecast?.winProbability ?? null;
-        }
-
-        const rating = raceRatings?.get(race.id) ?? race.rating;
-        const districtLabel = districtNum === 1 && !race.districtNumber
-          ? 'At-Large'
-          : `District ${districtNum}`;
-
-        onDistrictSelect({
-          stateName: stateNames[stateId] || stateId,
-          stateId,
-          districtNum,
-          districtLabel,
-          rating,
-          demProb,
-        });
-      } else {
-        onDistrictSelect(null);
-      }
-    }
+    if (race) navigate(`/race/${race.id}`);
   };
 
   return (
