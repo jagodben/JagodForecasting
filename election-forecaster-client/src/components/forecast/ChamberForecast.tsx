@@ -62,7 +62,7 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
 
   // Chamber control-over-time (Senate and House both have backfilled model history series;
   // governors have no chamber majority, so no timeline).
-  const { data: chamberHistory } = useQuery({
+  const { data: chamberHistory, isLoading: isLoadingHistory } = useQuery({
     queryKey: ['chamberHistory', raceType],
     queryFn: () => forecastApi.getChamberHistory(raceType),
     enabled: raceType !== RaceType.Governor,
@@ -175,10 +175,19 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
       .filter(s => s.count > 0);
   })();
 
+  // Show the numbers only once their data has loaded. The sim-based headline needs both the
+  // per-race forecasts and the chamber history; until those arrive, computing from the fallback
+  // tally would flash a different (cruder) number that then snaps to the correct one.
+  const notReady = isLoadingForecasts || (raceType !== RaceType.Governor && isLoadingHistory);
+
   return (
     <div className="forecast-sidebar">
       <h3 className="forecast-sidebar__title">{chamberName} Forecast</h3>
 
+      {notReady ? (
+        <div className="forecast-sidebar__loading">Loading forecast…</div>
+      ) : (
+      <>
       {/* Win Probability - hide for governors (no chamber majority) */}
       {raceType !== RaceType.Governor && (
         <div className="forecast-sidebar__section">
@@ -238,13 +247,11 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
         </div>
       )}
 
-      {isLoadingForecasts && (
-        <div className="forecast-sidebar__loading">Loading forecast data...</div>
-      )}
-
       <div style={{ marginTop: '12px', fontSize: '11px', color: '#888888', textAlign: 'center' }}>
         Updated daily at 8:00AM EST
       </div>
+      </>
+      )}
     </div>
   );
 };
