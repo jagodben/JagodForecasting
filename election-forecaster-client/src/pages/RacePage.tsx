@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
 import { RaceType, Party, RacePolls, Race, Candidate, DetailedForecast } from '../types';
 import { ProbabilityTrendChart } from '../components/charts/ProbabilityTrendChart';
-import { timeAgo } from '../utils/time';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
 
@@ -95,8 +94,8 @@ export const RacePage = () => {
     // Fall back to the fundamentals-only race forecast only if the blended forecast hasn't loaded.
     const demProbability = forecast?.demWinProbability ?? demForecastData?.winProbability ?? 0.5;
 
-    // Real history from the API, filtered from Nov 3 2025 onwards.
-    const startDate = new Date('2025-11-03');
+    // Timeline starts July 1, 2026 (the server already floors history to this date).
+    const startDate = new Date('2026-07-01');
     const historical: HistoricalOdds[] = (forecast?.history ?? [])
       .filter(h => new Date(h.date) >= startDate)
       .map(h => ({
@@ -161,9 +160,9 @@ export const RacePage = () => {
             {raceTypeLabel} {race.year}
             {race.isSpecialElection && <span style={{ marginLeft: '8px', color: '#dc2626' }}>(Special Election)</span>}
           </h2>
-          {forecast && timeAgo(forecast.lastUpdated) && (
+          {forecast && (
             <div style={{ fontSize: '12px', color: '#888888', marginTop: '6px' }}>
-              Forecast updated {timeAgo(forecast.lastUpdated)}
+              Updated daily at 8:00AM EST
             </div>
           )}
         </div>

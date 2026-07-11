@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
-import { timeAgo } from '../../utils/time';
 
 // Rating order from left (Solid D) to right (Solid R)
 const RATING_ORDER: RaceRating[] = [
@@ -128,14 +127,6 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   const demVictoryOdds = modelControl != null ? modelControl : rawDemVictoryOdds;
   const repVictoryOdds = Math.round((100 - demVictoryOdds) * 10) / 10;
 
-  // Most-recent forecast generation time across this chamber's races → a data-freshness label.
-  const lastUpdatedLabel = (() => {
-    if (!detailedForecasts || detailedForecasts.length === 0) return null;
-    const latest = detailedForecasts.reduce((max, f) =>
-      f.lastUpdated > max ? f.lastUpdated : max, detailedForecasts[0].lastUpdated);
-    return timeAgo(latest);
-  })();
-
   const chamberName = raceType === RaceType.Senate ? 'Senate' : raceType === RaceType.House ? 'House' : 'Governors';
   // Governors have no chamber majority, so the "seat" total is just the races up in 2026.
   const totalSeats = raceType === RaceType.Senate ? 100 : raceType === RaceType.House ? 435 : races.length;
@@ -251,11 +242,9 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
         <div className="forecast-sidebar__loading">Loading forecast data...</div>
       )}
 
-      {lastUpdatedLabel && (
-        <div style={{ marginTop: '12px', fontSize: '11px', color: '#888888', textAlign: 'center' }}>
-          Updated {lastUpdatedLabel}
-        </div>
-      )}
+      <div style={{ marginTop: '12px', fontSize: '11px', color: '#888888', textAlign: 'center' }}>
+        Updated daily at 8:00AM EST
+      </div>
     </div>
   );
 };

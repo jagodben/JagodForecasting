@@ -97,7 +97,12 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   const lastDem = dem[dem.length - 1], lastRep = rep[rep.length - 1];
   const stepW = cw / (data.length - 1);
-  const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // Parse the YYYY-MM-DD portion as a LOCAL date so a UTC-midnight timestamp doesn't render as
+  // the previous day (which made a July 1 point read "Jun 30").
+  const fmtDate = (iso: string) => {
+    const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   const nTicks = Math.min(4, data.length);
   const dateTicks = Array.from({ length: nTicks }, (_, k) => Math.round((k / (nTicks - 1 || 1)) * (data.length - 1)));

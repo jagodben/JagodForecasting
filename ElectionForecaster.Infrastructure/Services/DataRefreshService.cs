@@ -1,5 +1,4 @@
 using ElectionForecaster.Infrastructure.Forecasting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -7,132 +6,95 @@ using Microsoft.Extensions.Logging;
 namespace ElectionForecaster.Infrastructure.Services;
 
 /// <summary>
-/// Background service that periodically refreshes forecast data from all sources.
+/// Background service that runs the once-a-day update. The site serves a forecast frozen to that
+/// morning's 8 AM Eastern snapshot, so there's no need to refresh between snapshots — this just
+/// wakes up, checks whether it's past 8 AM Eastern and today's snapshot is still missing, and if
+/// so refreshes every source and stores the snapshot (exactly once per Eastern day).
 /// </summary>
 public class DataRefreshService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DataRefreshService> _logger;
-    private readonly TimeSpan _marketRefreshInterval;
-    private readonly TimeSpan _pollingRefreshInterval;
-    private readonly TimeSpan _snapshotInterval;
+    private const int SnapshotHourEastern = 8;
 
-    private DateTime _lastMarketRefresh = DateTime.MinValue;
-    private DateTime _lastPollingRefresh = DateTime.MinValue;
-    private DateTime _lastSnapshot = DateTime.MinValue;
+    private static readonly TimeZoneInfo EasternZone = ResolveEastern();
+    private DateTime _lastSnapshotEasternDate = DateTime.MinValue;
     private bool _backfillComplete = false;
 
-    public DataRefreshService(
-        IServiceProvider serviceProvider,
-        IConfiguration configuration,
-        ILogger<DataRefreshService> logger)
+    public DataRefreshService(IServiceProvider serviceProvider, ILogger<DataRefreshService> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-
-        // Get refresh intervals from configuration
-        var forecastingSection = configuration.GetSection("Forecasting:RefreshIntervals");
-        _marketRefreshInterval = TimeSpan.FromMinutes(
-            forecastingSection.GetValue<int>("PredictionMarketsMinutes", 15));
-        _pollingRefreshInterval = TimeSpan.FromHours(
-            forecastingSection.GetValue<int>("PollingHours", 6));
-        _snapshotInterval = TimeSpan.FromHours(24); // Daily snapshots
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Data refresh service starting...");
-
-        // Initial delay to let the application fully start
-        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // let the app finish starting
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                await RefreshDataAsync(stoppingToken);
+                await TickAsync(stoppingToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in data refresh cycle");
             }
 
-            // Check every minute for refresh needs
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
 
         _logger.LogInformation("Data refresh service stopping...");
     }
 
-    private async Task RefreshDataAsync(CancellationToken cancellationToken)
+    private async Task TickAsync(CancellationToken cancellationToken)
     {
         using var scope = _serviceProvider.CreateScope();
         var orchestrator = scope.ServiceProvider.GetRequiredService<IForecastingOrchestrator>();
 
-        var now = DateTime.UtcNow;
-
-        // One-time retrospective backfill of the model's forecast history (statewide, from June 1).
+        // One-time retrospective backfill of the model's forecast history (only seeds an empty DB).
         if (!_backfillComplete)
         {
-            _logger.LogInformation("Running one-time model history backfill...");
             try
             {
                 await orchestrator.BackfillModelHistoryAsync(force: false, cancellationToken);
-                _backfillComplete = true;
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to backfill model history");
-                _backfillComplete = true; // Don't retry on failure
             }
+            _backfillComplete = true; // don't retry on failure
         }
 
-        // Refresh markets on the short cadence (markets move often).
-        if (now - _lastMarketRefresh > _marketRefreshInterval)
-        {
-            try
-            {
-                await orchestrator.RefreshMarketDataAsync(cancellationToken);
-                _lastMarketRefresh = now;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to refresh market data");
-            }
-        }
+        var nowEastern = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternZone);
+        var easternToday = nowEastern.Date;
 
-        // Refresh polling on the long cadence — separately, so the expensive/rate-limited
-        // Wikipedia fetch isn't re-triggered on every market cycle.
-        if (now - _lastPollingRefresh > _pollingRefreshInterval)
-        {
-            try
-            {
-                await orchestrator.RefreshPollingDataAsync(cancellationToken);
-                _lastPollingRefresh = now;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to refresh polling data");
-            }
-        }
+        // Already handled today this run, or it isn't 8 AM Eastern yet — nothing to do.
+        if (_lastSnapshotEasternDate == easternToday || nowEastern.Hour < SnapshotHourEastern)
+            return;
 
-        // Check if daily snapshot is needed
-        if (now - _lastSnapshot > _snapshotInterval || _lastSnapshot.Date != now.Date)
+        try
         {
-            // Only store one snapshot per day
-            if (_lastSnapshot.Date != now.Date)
-            {
-                _logger.LogInformation("Storing daily forecast snapshot...");
-                try
-                {
-                    await orchestrator.StoreDailySnapshotAsync(cancellationToken);
-                    _lastSnapshot = now;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to store daily snapshot");
-                }
-            }
+            // RunDailyUpdate no-ops if today's snapshot already exists (durable guard across
+            // restarts), so the forecast is genuinely frozen at the morning's 8 AM value.
+            var ran = await orchestrator.RunDailyUpdateAsync(cancellationToken);
+            _lastSnapshotEasternDate = easternToday;
+            _logger.LogInformation(ran
+                ? "Daily 8 AM Eastern update complete for {Date:d}"
+                : "Daily snapshot for {Date:d} already present — serving frozen forecast", easternToday);
         }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to run the daily update");
+        }
+    }
+
+    private static TimeZoneInfo ResolveEastern()
+    {
+        foreach (var id in new[] { "America/New_York", "Eastern Standard Time" })
+            try { return TimeZoneInfo.FindSystemTimeZoneById(id); } catch { }
+        return TimeZoneInfo.Utc;
     }
 }

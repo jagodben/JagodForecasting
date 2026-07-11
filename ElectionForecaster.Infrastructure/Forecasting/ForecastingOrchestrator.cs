@@ -33,10 +33,27 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     private readonly ILogger<ForecastingOrchestrator> _logger;
     private readonly DateTime _electionDate;
 
-    // Computed forecasts are cached for this long. External inputs refresh every ~15 min
-    // (market) / 6 h (polling), so a few minutes of staleness is invisible but spares every
-    // request the DB reads + blend math. Cache is a shared singleton across request scopes.
-    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
+    // The site serves a daily-frozen forecast: the map and charts reflect the snapshot taken at
+    // 8 AM Eastern that morning and don't move until the next one. Serving from the persisted
+    // snapshot (not a live recompute) is what makes it survive the free-tier server restarts.
+    private static readonly TimeZoneInfo EasternZone = ResolveEastern();
+    private const int SnapshotHourEastern = 8; // 8 AM Eastern
+
+    // Charts (and the retrospective history behind them) begin here; earlier snapshots exist in
+    // the DB but aren't shown. The served headline still uses the most recent snapshot regardless.
+    private static readonly DateTime ChartStartDate = new(2026, 7, 1);
+
+    // Served forecasts change once a day, so cache them until the next 8 AM Eastern rather than a
+    // short TTL; the snapshot job also clears the cache when it writes, so the new day shows at once.
+    // Floored to a minute so a cache-fill right at the 8 AM boundary never gets a non-positive TTL.
+    private static TimeSpan CacheTtl
+    {
+        get
+        {
+            var ttl = NextSnapshotUtc() - DateTime.UtcNow;
+            return ttl > TimeSpan.FromMinutes(1) ? ttl : TimeSpan.FromMinutes(1);
+        }
+    }
 
     // National environment (Dem margin, points) used only when no live generic-ballot average is
     // available — the baseline out-party bonus in a midterm (2026 has a Republican president).
@@ -45,6 +62,26 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     // Max races forecast concurrently when filling a cold cache — each runs in its own DI scope
     // (own DbContext) so this is real parallelism, bounded to avoid hammering the upstream APIs.
     private const int MaxForecastConcurrency = 8;
+
+    private static TimeZoneInfo ResolveEastern()
+    {
+        foreach (var id in new[] { "America/New_York", "Eastern Standard Time" })
+            try { return TimeZoneInfo.FindSystemTimeZoneById(id); } catch { }
+        return TimeZoneInfo.Utc;
+    }
+
+    /// <summary>The current calendar date in the Eastern time zone (the "forecast day").</summary>
+    public static DateTime EasternToday()
+        => TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternZone).Date;
+
+    /// <summary>UTC instant of the next 8 AM Eastern (today's if still upcoming, else tomorrow's).</summary>
+    private static DateTime NextSnapshotUtc()
+    {
+        var nowEastern = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternZone);
+        var next = nowEastern.Date.AddHours(SnapshotHourEastern);
+        if (nowEastern >= next) next = next.AddDays(1);
+        return TimeZoneInfo.ConvertTimeToUtc(DateTime.SpecifyKind(next, DateTimeKind.Unspecified), EasternZone);
+    }
 
     private static string ForecastKey(string raceId) => $"forecast:{raceId}";
     private static string ChamberKey(RaceType chamber) => $"chamber:{chamber}";
@@ -82,20 +119,32 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (_cache.TryGetValue(ForecastKey(raceId), out DetailedForecast? cached) && cached != null)
             return cached;
 
-        var forecast = await BuildLiveForecastAsync(raceId, cancellationToken);
+        // Serve the most recent stored daily snapshot (taken at 8 AM Eastern) so the forecast is
+        // frozen for the day and identical across server restarts. Falls back to a live compute
+        // only before the first snapshot exists (fresh DB).
+        var history = await GetForecastHistoryAsync(raceId, cancellationToken);
+        var latest = await _dbContext.ForecastHistory
+            .Where(f => f.RaceId == raceId)
+            .OrderByDescending(f => f.Date)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var forecast = latest != null
+            ? EntityToForecast(latest, history)
+            : await ComputeForecastAsync(raceId, history, cancellationToken);
+
         _cache.Set(ForecastKey(raceId), forecast, CacheTtl);
         return forecast;
     }
 
-    private async Task<DetailedForecast> BuildLiveForecastAsync(string raceId, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Computes a fresh forecast from the current live inputs. Used to produce the daily snapshot
+    /// and as the first-run fallback — never the everyday serving path (that reads the snapshot).
+    /// </summary>
+    private async Task<DetailedForecast> ComputeForecastAsync(string raceId, List<HistoricalDataPoint> history, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Generating forecast for {RaceId}", raceId);
-
-        // 1. Get race info to determine race type
         var race = await _raceService.GetRaceByIdAsync(raceId);
         var raceType = race?.Type ?? RaceType.Senate;
 
-        // 2. Collect all inputs in parallel
         var marketTask = GetAggregatedMarketOddsAsync(raceId, cancellationToken);
         var pollingTask = _pollingSource.GetPollingAverageAsync(raceId, cancellationToken);
         var fundamentalsTask = _fundamentalsSource.GetFundamentalsAsync(raceId, cancellationToken);
@@ -103,34 +152,33 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         await Task.WhenAll(marketTask, pollingTask, fundamentalsTask, genericBallotTask);
 
-        var marketOdds = await marketTask;
-        var polling = await pollingTask;
-        var fundamentals = await fundamentalsTask;
-        var genericBallot = await genericBallotTask;
-
-        // 3. Historical data (back to Nov 2025), then blend.
-        var history = await GetForecastHistoryAsync(raceId, 365, cancellationToken);
-        var forecast = BuildForecast(raceId, raceType, marketOdds, polling, fundamentals, genericBallot, race, DateTime.UtcNow, history);
-
-        // The chart's most-recent point should equal the live headline. Stored history rows are
-        // periodic snapshots (built from the daily market close) that can lag the current market;
-        // replace/append today's point with this live forecast so the two always agree.
-        var today = DateTime.UtcNow.Date;
-        forecast.History = forecast.History
-            .Where(h => h.Date.Date != today)
-            .Append(new HistoricalDataPoint
-            {
-                Date = today,
-                DemWinProbability = forecast.DemWinProbability,
-                RepWinProbability = forecast.RepWinProbability,
-                DemVoteShare = forecast.DemVoteShare,
-                RepVoteShare = forecast.RepVoteShare
-            })
-            .OrderBy(h => h.Date)
-            .ToList();
-
-        return forecast;
+        return BuildForecast(raceId, raceType, await marketTask, await pollingTask,
+            await fundamentalsTask, await genericBallotTask, race, DateTime.UtcNow, history);
     }
+
+    /// <summary>Reconstructs the served forecast from a stored daily-snapshot row.</summary>
+    private static DetailedForecast EntityToForecast(ForecastHistoryEntity e, List<HistoricalDataPoint> history) => new()
+    {
+        RaceId = e.RaceId,
+        DemWinProbability = e.DemWinProbability,
+        RepWinProbability = e.RepWinProbability,
+        DemVoteShare = e.DemVoteShare,
+        RepVoteShare = e.RepVoteShare,
+        ExpectedDemMargin = e.ExpectedDemMargin,
+        MarginStdDev = e.MarginStdDev,
+        Confidence = e.Confidence,
+        LastUpdated = e.Date,
+        Inputs = new ForecastInputs
+        {
+            MarketOdds = e.MarketOdds,
+            PollingAverage = e.PollingAverage,
+            FundamentalsPrediction = e.FundamentalsPrediction,
+            MarketWeight = e.MarketWeight,
+            PollingWeight = e.PollingWeight,
+            FundamentalsWeight = e.FundamentalsWeight,
+        },
+        History = history
+    };
 
     /// <summary>
     /// Blends the inputs into a forecast as of <paramref name="asOf"/>. Shared by the live path and
@@ -271,7 +319,44 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (_cache.TryGetValue(ChamberKey(chamber), out ChamberForecast? cached) && cached != null)
             return cached;
 
-        // Per-race forecasts (cached + computed in parallel).
+        var history = await GetChamberHistoryAsync(chamber.ToString(), 0, cancellationToken);
+
+        // Serve the most recent stored chamber snapshot so control odds are frozen for the day and
+        // stable across restarts; only run the Monte Carlo live before the first snapshot exists.
+        var latest = await _dbContext.ChamberHistory
+            .Where(c => c.Chamber == chamber.ToString())
+            .OrderByDescending(c => c.Date)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var chamberResult = latest != null
+            ? EntityToChamber(latest, chamber, history)
+            : await SimulateChamberLiveAsync(chamber, history, cancellationToken);
+
+        _cache.Set(ChamberKey(chamber), chamberResult, CacheTtl);
+        return chamberResult;
+    }
+
+    /// <summary>Reconstructs the served chamber forecast from a stored daily-snapshot row.</summary>
+    private static ChamberForecast EntityToChamber(ChamberHistoryEntity e, RaceType chamber, List<ChamberHistoryPoint> history) => new()
+    {
+        Chamber = chamber.ToString(),
+        DemControlProbability = e.DemControlProbability,
+        RepControlProbability = e.RepControlProbability,
+        ExpectedDemSeats = e.ExpectedDemSeats,
+        ExpectedRepSeats = e.ExpectedRepSeats,
+        SeatsNeededForControl = chamber == RaceType.Senate ? 51 : 218,
+        SimulationIterations = e.SimulationIterations,
+        DemSeatRange = new SeatRange { Low = e.DemSeatsLow, High = e.DemSeatsHigh, Median = (int)Math.Round(e.ExpectedDemSeats) },
+        LastUpdated = e.Date,
+        History = history
+    };
+
+    /// <summary>
+    /// Runs the chamber Monte Carlo over the current per-race forecasts. Used to produce the daily
+    /// snapshot and as the first-run fallback — not the everyday serving path.
+    /// </summary>
+    private async Task<ChamberForecast> SimulateChamberLiveAsync(RaceType chamber, List<ChamberHistoryPoint> history, CancellationToken cancellationToken)
+    {
         var forecasts = await GenerateAllForecastsAsync(chamber, cancellationToken);
 
         // Every seat must be counted: a dropped race would shrink the seat total against the
@@ -281,14 +366,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var complete = allRaces
             .Select(r => byId.TryGetValue(r.Id, out var f) ? f : FallbackForecast(r))
             .ToList();
-        var missing = allRaces.Count - byId.Count;
-        if (missing > 0)
-            _logger.LogWarning("{Chamber} sim: {Missing} race(s) missing a forecast — used the RaceService prior to keep the seat total complete", chamber, missing);
 
         var chamberResult = _simulator.SimulateChamber(complete, chamber);
-        chamberResult.History = await GetChamberHistoryAsync(chamber.ToString(), 90, cancellationToken);
-
-        _cache.Set(ChamberKey(chamber), chamberResult, CacheTtl);
+        chamberResult.History = history;
         return chamberResult;
     }
 
@@ -365,27 +445,44 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _cache.Remove(ChamberKey(RaceType.House));
     }
 
+    /// <summary>True if today's (Eastern) daily snapshot has already been stored.</summary>
+    public async Task<bool> HasDailySnapshotAsync(CancellationToken cancellationToken = default)
+    {
+        var today = EasternToday();
+        return await _dbContext.ForecastHistory.AnyAsync(f => f.Date == today, cancellationToken);
+    }
+
+    /// <summary>
+    /// The once-a-day update: refresh every data source, then store the 8 AM snapshot that the site
+    /// serves all day. No-ops (returns false) if today's snapshot already exists, so it runs exactly
+    /// once per Eastern day even across the free-tier's frequent restarts.
+    /// </summary>
+    public async Task<bool> RunDailyUpdateAsync(CancellationToken cancellationToken = default)
+    {
+        if (await HasDailySnapshotAsync(cancellationToken))
+            return false;
+
+        await RefreshAllDataAsync(cancellationToken);
+        await StoreDailySnapshotAsync(cancellationToken);
+        return true;
+    }
+
     public async Task StoreDailySnapshotAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateTime.UtcNow.Date;
+        var today = EasternToday();
+        _logger.LogInformation("Storing daily forecast snapshot for {Date:d} (Eastern)", today);
 
-        _logger.LogInformation("Storing daily forecast snapshot for {Date}", today);
-
-        // Get all races
-        var races = await _raceService.GetAllRacesAsync();
-
+        // Per-race snapshots. Compute live for any race missing today's row (idempotent: an already
+        // stored row is never recomputed, so the day stays frozen even if this resumes after a crash).
+        var races = (await _raceService.GetAllRacesAsync()).ToList();
         foreach (var race in races)
         {
             try
             {
-                // Check if we already have a snapshot for today
-                var exists = await _dbContext.ForecastHistory.AnyAsync(
-                    f => f.RaceId == race.Id && f.Date.Date == today,
-                    cancellationToken);
+                if (await _dbContext.ForecastHistory.AnyAsync(f => f.RaceId == race.Id && f.Date == today, cancellationToken))
+                    continue;
 
-                if (exists) continue;
-
-                var forecast = await GenerateForecastAsync(race.Id, cancellationToken);
+                var forecast = await ComputeForecastAsync(race.Id, new List<HistoricalDataPoint>(), cancellationToken);
                 _dbContext.ForecastHistory.Add(ToHistoryEntity(forecast, today));
             }
             catch (Exception ex)
@@ -393,31 +490,41 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 _logger.LogWarning(ex, "Error storing snapshot for {RaceId}", race.Id);
             }
         }
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
-        // Also store chamber forecasts
+        // Chamber snapshots run the Monte Carlo over today's stored per-race rows, so the chamber
+        // and per-race snapshots always describe the same frozen forecast.
         foreach (var chamber in new[] { RaceType.Senate, RaceType.House })
         {
             try
             {
-                var exists = await _dbContext.ChamberHistory.AnyAsync(
-                    c => c.Chamber == chamber.ToString() && c.Date.Date == today,
-                    cancellationToken);
+                if (await _dbContext.ChamberHistory.AnyAsync(c => c.Chamber == chamber.ToString() && c.Date == today, cancellationToken))
+                    continue;
 
-                if (exists) continue;
+                var chamberRaceIds = (await _raceService.GetAllRacesAsync(chamber)).Select(r => r.Id).ToHashSet();
+                var todaysRows = await _dbContext.ForecastHistory
+                    .Where(f => f.Date == today && chamberRaceIds.Contains(f.RaceId))
+                    .ToListAsync(cancellationToken);
+                var forecasts = todaysRows.Select(r => new DetailedForecast
+                {
+                    RaceId = r.RaceId,
+                    ExpectedDemMargin = r.ExpectedDemMargin,
+                    MarginStdDev = r.MarginStdDev
+                }).ToList();
+                if (forecasts.Count == 0) continue;
 
-                var chamberForecast = await SimulateChamberAsync(chamber, cancellationToken);
-
+                var result = _simulator.SimulateChamber(forecasts, chamber);
                 _dbContext.ChamberHistory.Add(new ChamberHistoryEntity
                 {
                     Chamber = chamber.ToString(),
                     Date = today,
-                    DemControlProbability = chamberForecast.DemControlProbability,
-                    RepControlProbability = chamberForecast.RepControlProbability,
-                    ExpectedDemSeats = chamberForecast.ExpectedDemSeats,
-                    ExpectedRepSeats = chamberForecast.ExpectedRepSeats,
-                    SimulationIterations = chamberForecast.SimulationIterations,
-                    DemSeatsLow = chamberForecast.DemSeatRange.Low,
-                    DemSeatsHigh = chamberForecast.DemSeatRange.High
+                    DemControlProbability = result.DemControlProbability,
+                    RepControlProbability = result.RepControlProbability,
+                    ExpectedDemSeats = result.ExpectedDemSeats,
+                    ExpectedRepSeats = result.ExpectedRepSeats,
+                    SimulationIterations = result.SimulationIterations,
+                    DemSeatsLow = result.DemSeatRange.Low,
+                    DemSeatsHigh = result.DemSeatRange.High
                 });
             }
             catch (Exception ex)
@@ -427,6 +534,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+        await ClearForecastCacheAsync();
         _logger.LogInformation("Daily snapshot stored");
     }
 
@@ -817,12 +925,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     }
 
     private async Task<List<HistoricalDataPoint>> GetForecastHistoryAsync(
-        string raceId, int days, CancellationToken cancellationToken)
+        string raceId, CancellationToken cancellationToken)
     {
-        var cutoff = DateTime.UtcNow.AddDays(-days);
-
-        var history = await _dbContext.ForecastHistory
-            .Where(f => f.RaceId == raceId && f.Date >= cutoff)
+        return await _dbContext.ForecastHistory
+            .Where(f => f.RaceId == raceId && f.Date >= ChartStartDate)
             .OrderBy(f => f.Date)
             .Select(f => new HistoricalDataPoint
             {
@@ -833,17 +939,14 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 RepVoteShare = f.RepVoteShare
             })
             .ToListAsync(cancellationToken);
-
-        return history;
     }
 
+    // The `days` parameter is kept for the interface but the chart floor (July 1) always wins.
     public async Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(
         string chamber, int days, CancellationToken cancellationToken = default)
     {
-        var cutoff = DateTime.UtcNow.AddDays(-days);
-
-        var history = await _dbContext.ChamberHistory
-            .Where(c => c.Chamber == chamber && c.Date >= cutoff)
+        return await _dbContext.ChamberHistory
+            .Where(c => c.Chamber == chamber && c.Date >= ChartStartDate)
             .OrderBy(c => c.Date)
             .Select(c => new ChamberHistoryPoint
             {
@@ -852,7 +955,5 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 ExpectedDemSeats = c.ExpectedDemSeats
             })
             .ToListAsync(cancellationToken);
-
-        return history;
     }
 }
