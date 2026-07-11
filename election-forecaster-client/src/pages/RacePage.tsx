@@ -176,7 +176,7 @@ export const RacePage = () => {
             <div className="race-page__col">
               {historicalData.length >= 2 && (
                 <div style={{ width: '100%' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Model Forecast</div>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Race Timeline</div>
                   <ProbabilityTrendChart
                     data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
                     demLabel={demCandidate?.name || 'Democrat'}
@@ -225,7 +225,7 @@ export const RacePage = () => {
             <div className="race-page__right">
               {historicalData.length >= 2 && (
                 <div style={{ width: '100%' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Model Forecast</div>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Race Timeline</div>
                   <ProbabilityTrendChart
                     data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
                     demLabel={demCandidate?.name || 'Democrat'}
