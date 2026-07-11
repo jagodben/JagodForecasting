@@ -912,13 +912,6 @@
     color: var(--text-secondary, #666);
   }
 
-  .mobile-state-info__cta {
-    font-size: 12px;
-    font-weight: 600;
-    color: #2e63bd;
-    text-align: right;
-  }
-
   /* Smaller zoom buttons on mobile, kept clear of the map edge. */
   .map-zoom-controls button {
     width: 38px;

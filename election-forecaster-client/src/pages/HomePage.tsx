@@ -146,7 +146,7 @@ export const HomePage = () => {
               <div className="mobile-state-info">
                 <div className="mobile-state-info__row">
                   <div className="mobile-state-info__header">
-                    <span className="mobile-state-info__name">{selectedState.stateName}</span>
+                    <span className="mobile-state-info__name">{selectedState.stateId}</span>
                     {selectedState.rating && (
                       <span
                         className="mobile-state-info__rating"
@@ -187,7 +187,7 @@ export const HomePage = () => {
                 <div className="mobile-state-info__row">
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">
-                      {selectedDistrict.stateName} — {selectedDistrict.districtLabel}
+                      {selectedDistrict.stateId} — {selectedDistrict.districtLabel}
                     </span>
                     {selectedDistrict.rating && (
                       <span
@@ -216,7 +216,6 @@ export const HomePage = () => {
                     Projected result: <span style={{ color: selectedDistrict.marginColor }}>{selectedDistrict.marginText}</span>
                   </div>
                 )}
-                <div className="mobile-state-info__cta">View full forecast →</div>
               </div>
             )}
           </div>
