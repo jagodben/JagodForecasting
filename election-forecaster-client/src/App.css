@@ -4,6 +4,32 @@
   flex-direction: column;
 }
 
+/* Site footer: in-flow bottom bar. Single centered row on desktop. */
+.site-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0 12px;
+  height: 40px;
+  padding: 0 16px;
+  background: var(--bg-dark);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.site-footer__link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.site-footer__dot {
+  opacity: 0.4;
+}
+
 /* Social icons: gentle lift on hover. */
 .social-link {
   transition: transform 0.15s ease, filter 0.15s ease;
@@ -676,6 +702,21 @@
   .home-page,
   .state-page {
     padding: 16px;
+  }
+
+  /* Footer must fit a phone: let it wrap, grow, and drop the long disclaimer. */
+  .site-footer {
+    flex-wrap: wrap;
+    white-space: normal;
+    height: auto;
+    gap: 4px 10px;
+    padding: 10px 12px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .site-footer__disclaimer {
+    display: none;
   }
 
   .page-header h1 {
