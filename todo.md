@@ -28,11 +28,23 @@ now applies it to `/api/states/{id}` (races AND the district-grid ratings/house 
 `/api/states/{id}/races`, with per-race fallback to the baseline on forecast failure. Verified
 OH: state page Senate probability (0.4945) and district-grid ratings match `/forecast` exactly.
 
-### 3. House races have no seat-level prior *(model accuracy — same class as the VT fix)*
-`StatewidePriorResults` covers statewide only, but `DistrictElectionData.Results2024` already
-holds every district's last result — feed it into `FundamentalsData.PriorMargin` for House
-races so R-held Biden seats / D-held Trump seats aren't treated as generic PVI districts.
-(Old-lines caveat in redrawn states — coordinate with item 1.)
+### 3. ✅ DONE — House seat-level priors (with a rebuilt Results2024)
+The old `Results2024` table turned out to be as fabricated as the old PVI: 187/254 kept rows
+were off by ≥3 pts and **14 districts had the wrong 2024 winner** (also corrupting the
+incumbency fallback for unresolved districts). Fixed:
+- Rebuilt all 254 un-redrawn rows with real 2024 results scraped from Wikipedia's 2024 House
+  elections page (`tools/scrape_house_results.py`; winner cross-checked against the {{Aye}}
+  marker; one-party races get a ±45 placeholder). Redrawn states stay absent.
+- `CookPVIProvider` now feeds the district's real 2024 Dem margin into
+  `FundamentalsData.PriorMargin` for House races (redrawn states stay on PVI + incumbency).
+- Prior retention is now open-seat aware (0.45 when the incumbent runs again, 0.25 when the
+  personal vote leaves with a departing incumbent) — applies to statewide races too, so e.g.
+  term-limited governors' landslides no longer carry at full weight. Placeholder-nominee races
+  are treated as open until their primaries resolve (conservative, self-correcting).
+- Verified both retention paths to the decimal (IA-01 incumbent, ME-02 open); House chamber
+  expectation tempered 256.9 → 250.4 D; statewide history re-backfilled on the new methodology.
+- STILL PENDING (small): unify the House sidebar onto the simulation like the Senate one —
+  it currently shows the favored-race tally, which no longer matches the sim's expectation.
 
 ### 4. Hard 90-day poll window silently blinds stale-but-polled races
 MD-GOV (Oct 2025), AL-GOV, IL-GOV, KY-SEN have only pre-2026 polls, so their forecasts run

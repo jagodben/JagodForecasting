@@ -117,12 +117,20 @@ public class CookPVIProvider : IFundamentalsSource
         var partisanLean = await GetPartisanLeanAsync(stateId, districtNumber, cancellationToken);
         var incumbencyAdvantage = await GetIncumbencyAdvantageAsync(raceType, cancellationToken);
 
-        // Prior statewide result (Senate/Governor), so the fundamentals reflect a seat's demonstrated
-        // lean beyond PVI — crossover incumbents, safe-seat blowouts — not just its presidential PVI.
-        // A viable independent challenger overrides the seat's generic prior with their own realistic
-        // showing (else the generic-Democrat blowout would bury a competitive independent). House
-        // races have no entry and stay on district PVI + incumbency.
+        // Prior result, so the fundamentals reflect a seat's demonstrated lean beyond PVI —
+        // crossover incumbents, safe-seat blowouts — not just its presidential PVI. A viable
+        // independent challenger overrides the seat's generic prior with their own realistic
+        // showing (else the generic-Democrat blowout would bury a competitive independent).
+        // Statewide races read the StatewidePriorResults table; House races use the district's
+        // real 2024 result (absent for the ten states redrawn mid-decade — their 2024 results
+        // were earned on lines that no longer exist, so they stay on PVI + incumbency).
         var priorMargin = IndependentChallengers.GetPriorMargin(raceId) ?? StatewidePriorResults.GetPriorMargin(raceId);
+        if (priorMargin is null && raceType == RaceType.House && districtNumber.HasValue)
+        {
+            var result2024 = DistrictElectionData.GetResult2024(stateId, districtNumber.Value);
+            if (result2024.HasValue)
+                priorMargin = -result2024.Value.Margin; // stored R-positive; flip to Dem margin
+        }
 
         return new FundamentalsData
         {

@@ -20,339 +20,149 @@ public static class DistrictElectionData
         // NOTE: the 10 states redrawn mid-decade for 2026 (AL, CA, FL, LA, MO, NC, OH,
         // TN, TX, UT) are intentionally absent: their 2024 results were earned on lines
         // that no longer exist, so those districts carry no prior result.
-        // Alaska - At-large R
-        { "AK-01", (8.2, true) },
-
-        // Arizona - 6R, 3D
-        { "AZ-01", (-7.5, false) },
-        { "AZ-02", (15.3, true) },
-        { "AZ-03", (-22.1, false) },
-        { "AZ-04", (-8.2, false) },
-        { "AZ-05", (20.1, true) },
-        { "AZ-06", (3.8, true) },
-        { "AZ-07", (-30.2, false) }, // Ruben Gallego won Senate, new rep
-        { "AZ-08", (18.5, true) },
-        { "AZ-09", (14.2, true) },
-
-        // Arkansas - All R
-        { "AR-01", (38.2, true) },
-        { "AR-02", (21.5, true) },
-        { "AR-03", (33.1, true) },
-        { "AR-04", (42.3, true) },
-
-        // Colorado - 5D, 3R
-        { "CO-01", (-42.5, false) },
-        { "CO-02", (-25.8, false) },
-        { "CO-03", (8.5, true) },
-        { "CO-04", (18.2, true) },
-        { "CO-05", (22.1, true) },
-        { "CO-06", (-12.5, false) },
-        { "CO-07", (-18.2, false) },
-        { "CO-08", (-5.2, false) },
-
-        // Connecticut - All D
-        { "CT-01", (-25.8, false) },
-        { "CT-02", (-12.5, false) },
-        { "CT-03", (-22.1, false) },
-        { "CT-04", (-18.5, false) },
-        { "CT-05", (-8.5, false) },
-
-        // Delaware - At-large D
-        { "DE-01", (-18.5, false) },
-
-        // Georgia - 9R, 5D
-        { "GA-01", (28.5, true) },
-        { "GA-02", (-18.5, false) },
-        { "GA-03", (35.2, true) },
-        { "GA-04", (-55.8, false) },
-        { "GA-05", (-58.2, false) },
-        { "GA-06", (15.2, true) },
-        { "GA-07", (-8.5, false) },
-        { "GA-08", (32.1, true) },
-        { "GA-09", (48.5, true) },  // Andrew Clyde - DEEP RED
-        { "GA-10", (28.5, true) },
-        { "GA-11", (30.1, true) },
-        { "GA-12", (25.8, true) },
-        { "GA-13", (-45.2, false) },
-        { "GA-14", (42.5, true) },  // Marjorie Taylor Greene
-
-        // Hawaii - All D
-        { "HI-01", (-35.8, false) },
-        { "HI-02", (-32.1, false) },
-
-        // Idaho - All R
-        { "ID-01", (35.2, true) },
-        { "ID-02", (30.1, true) },
-
-        // Illinois - 14D, 3R
-        { "IL-01", (-55.2, false) },
-        { "IL-02", (-58.5, false) },
-        { "IL-03", (-38.2, false) },
-        { "IL-04", (-62.1, false) },
-        { "IL-05", (-45.8, false) },
-        { "IL-06", (-12.5, false) },
-        { "IL-07", (-68.2, false) },
-        { "IL-08", (-18.5, false) },
-        { "IL-09", (-42.1, false) },
-        { "IL-10", (-22.5, false) },
-        { "IL-11", (-15.8, false) },
-        { "IL-12", (18.5, true) },
-        { "IL-13", (-8.2, false) },
-        { "IL-14", (-12.1, false) },
-        { "IL-15", (42.5, true) },
-        { "IL-16", (25.8, true) },
-        { "IL-17", (-10.5, false) },
-
-        // Indiana - 7R, 2D
-        { "IN-01", (-8.5, false) },
-        { "IN-02", (25.8, true) },
-        { "IN-03", (35.2, true) },
-        { "IN-04", (38.5, true) },
-        { "IN-05", (18.2, true) },
-        { "IN-06", (35.1, true) },
-        { "IN-07", (-35.8, false) },
-        { "IN-08", (32.5, true) },
-        { "IN-09", (28.2, true) },
-
-        // Iowa - 4R
-        { "IA-01", (12.5, true) },
-        { "IA-02", (18.2, true) },
-        { "IA-03", (8.5, true) },
-        { "IA-04", (28.5, true) },
-
-        // Kansas - 3R, 1D
-        { "KS-01", (50.2, true) },
-        { "KS-02", (22.5, true) },
-        { "KS-03", (-5.8, false) },
-        { "KS-04", (30.1, true) },
-
-        // Kentucky - 5R, 1D
-        { "KY-01", (45.2, true) },
-        { "KY-02", (38.5, true) },
-        { "KY-03", (-15.8, false) },
-        { "KY-04", (35.2, true) },
-        { "KY-05", (52.1, true) },
-        { "KY-06", (18.5, true) },
-
-        // Maine - 1D, 1R
-        { "ME-01", (-15.8, false) },
-        { "ME-02", (8.5, true) },
-
-        // Maryland - 7D, 1R
-        { "MD-01", (22.5, true) },
-        { "MD-02", (-35.8, false) },
-        { "MD-03", (-42.1, false) },
-        { "MD-04", (-58.5, false) },
-        { "MD-05", (-38.2, false) },
-        { "MD-06", (-18.5, false) },
-        { "MD-07", (-55.2, false) },
-        { "MD-08", (-32.1, false) },
-
-        // Massachusetts - All D
-        { "MA-01", (-35.8, false) },
-        { "MA-02", (-28.5, false) },
-        { "MA-03", (-32.1, false) },
-        { "MA-04", (-38.5, false) },
-        { "MA-05", (-48.2, false) },
-        { "MA-06", (-25.8, false) },
-        { "MA-07", (-65.2, false) },
-        { "MA-08", (-42.1, false) },
-        { "MA-09", (-30.5, false) },
-
-        // Michigan - 7D, 6R
-        { "MI-01", (15.2, true) },   // Jack Bergman (R)
-        { "MI-02", (18.5, true) },   // John Moolenaar (R)
-        { "MI-03", (-7.5, false) },  // Hillary Scholten (D) - Grand Rapids
-        { "MI-04", (20.1, true) },   // Bill Huizenga (R)
-        { "MI-05", (14.2, true) },   // Tim Walberg (R) - Southern MI
-        { "MI-06", (-10.5, false) }, // Debbie Dingell (D)
-        { "MI-07", (-5.2, false) },  // Curtis Hertel (D) - Open seat
-        { "MI-08", (-4.5, false) },  // Kristen McDonald Rivet (D) - Open seat
-        { "MI-09", (15.8, true) },   // Lisa McClain (R)
-        { "MI-10", (22.1, true) },   // John James (R)
-        { "MI-11", (-18.5, false) }, // Haley Stevens (D)
-        { "MI-12", (-35.2, false) }, // Rashida Tlaib (D)
-        { "MI-13", (-55.8, false) }, // Shri Thanedar (D)
-
-        // Minnesota - 5D, 3R
-        { "MN-01", (12.5, true) },
-        { "MN-02", (-5.8, false) },
-        { "MN-03", (-15.2, false) },
-        { "MN-04", (-32.5, false) },
-        { "MN-05", (-48.2, false) },
-        { "MN-06", (18.5, true) },
-        { "MN-07", (25.8, true) },
-        { "MN-08", (8.5, true) },
-
-        // Mississippi - 3R, 1D
-        { "MS-01", (35.2, true) },
-        { "MS-02", (-28.5, false) },
-        { "MS-03", (38.1, true) },
-        { "MS-04", (42.5, true) },
-
-        // Montana - 2R
-        { "MT-01", (8.5, true) },
-        { "MT-02", (18.2, true) },
-
-        // Nebraska - 3R
-        { "NE-01", (20.5, true) },
-        { "NE-02", (5.2, true) },
-        { "NE-03", (55.8, true) },
-
-        // Nevada - 3D, 1R
-        { "NV-01", (-18.5, false) },
-        { "NV-02", (12.5, true) },
-        { "NV-03", (-5.8, false) },
-        { "NV-04", (-8.2, false) },
-
-        // New Hampshire - 2D
-        { "NH-01", (-5.2, false) },
-        { "NH-02", (-8.5, false) },
-
-        // New Jersey - 9D, 3R
-        { "NJ-01", (-15.8, false) },
-        { "NJ-02", (12.5, true) },
-        { "NJ-03", (-8.5, false) },
-        { "NJ-04", (18.2, true) },
-        { "NJ-05", (-12.5, false) },
-        { "NJ-06", (-22.1, false) },
-        { "NJ-07", (5.8, true) },
-        { "NJ-08", (-35.8, false) },
-        { "NJ-09", (-28.5, false) },
-        { "NJ-10", (-52.1, false) },
-        { "NJ-11", (-15.2, false) },
-        { "NJ-12", (-25.8, false) },
-
-        // New Mexico - 3D
-        { "NM-01", (-12.5, false) },
-        { "NM-02", (-8.5, false) },
-        { "NM-03", (-18.2, false) },
-
-        // New York - 19D, 7R
-        { "NY-01", (8.5, true) },
-        { "NY-02", (15.2, true) },
-        { "NY-03", (-5.2, false) },
-        { "NY-04", (2.5, true) },
-        { "NY-05", (-55.8, false) },
-        { "NY-06", (-42.1, false) },
-        { "NY-07", (-58.2, false) },
-        { "NY-08", (-62.5, false) },
-        { "NY-09", (-45.8, false) },
-        { "NY-10", (-58.1, false) },
-        { "NY-11", (12.5, true) },
-        { "NY-12", (-52.5, false) },
-        { "NY-13", (-55.2, false) },
-        { "NY-14", (-48.5, false) },
-        { "NY-15", (-72.1, false) },
-        { "NY-16", (-42.5, false) },
-        { "NY-17", (-5.8, false) },
-        { "NY-18", (-8.2, false) },
-        { "NY-19", (2.8, true) },
-        { "NY-20", (-25.8, false) },
-        { "NY-21", (18.5, true) },
-        { "NY-22", (8.2, true) },
-        { "NY-23", (22.5, true) },
-        { "NY-24", (15.8, true) },
-        { "NY-25", (-18.5, false) },
-        { "NY-26", (-35.2, false) },
-
-        // North Dakota - At-large R
-        { "ND-01", (32.5, true) },
-
-        // Oklahoma - All R
-        { "OK-01", (35.2, true) },
-        { "OK-02", (42.1, true) },
-        { "OK-03", (50.5, true) },
-        { "OK-04", (40.2, true) },
-        { "OK-05", (22.5, true) },
-
-        // Oregon - 4D, 2R
-        { "OR-01", (-25.8, false) },
-        { "OR-02", (22.5, true) },
-        { "OR-03", (-45.2, false) },
-        { "OR-04", (-12.5, false) },
-        { "OR-05", (5.8, true) },
-        { "OR-06", (-8.5, false) },
-
-        // Pennsylvania - 9D, 8R
-        { "PA-01", (18.5, true) },
-        { "PA-02", (-38.5, false) },
-        { "PA-03", (-52.1, false) },
-        { "PA-04", (-22.5, false) },
-        { "PA-05", (-18.2, false) },
-        { "PA-06", (-12.5, false) },
-        { "PA-07", (-5.8, false) },
-        { "PA-08", (-8.5, false) },
-        { "PA-09", (32.5, true) },
-        { "PA-10", (8.5, true) },
-        { "PA-11", (25.8, true) },
-        { "PA-12", (-15.2, false) },
-        { "PA-13", (30.1, true) },
-        { "PA-14", (22.5, true) },
-        { "PA-15", (28.2, true) },
-        { "PA-16", (20.1, true) },
-        { "PA-17", (-10.5, false) },
-
-        // Rhode Island - 2D
-        { "RI-01", (-25.8, false) },
-        { "RI-02", (-18.5, false) },
-
-        // South Carolina - 6R, 1D
-        { "SC-01", (18.5, true) },
-        { "SC-02", (25.8, true) },
-        { "SC-03", (35.2, true) },
-        { "SC-04", (30.1, true) },
-        { "SC-05", (22.5, true) },
-        { "SC-06", (-28.5, false) },
-        { "SC-07", (15.8, true) },
-
-        // South Dakota - At-large R
-        { "SD-01", (35.2, true) },
-
-        // Vermont - At-large D
-        { "VT-01", (-30.5, false) },
-
-        // Virginia - 6D, 5R
-        { "VA-01", (18.5, true) },
-        { "VA-02", (-5.8, false) },
-        { "VA-03", (-35.8, false) },
-        { "VA-04", (-42.1, false) },
-        { "VA-05", (12.5, true) },
-        { "VA-06", (22.5, true) },
-        { "VA-07", (-8.5, false) },
-        { "VA-08", (-38.5, false) },
-        { "VA-09", (35.2, true) },
-        { "VA-10", (-12.5, false) },
-        { "VA-11", (-35.2, false) },
-
-        // Washington - 8D, 2R
-        { "WA-01", (-18.5, false) },
-        { "WA-02", (-22.1, false) },
-        { "WA-03", (12.5, true) },
-        { "WA-04", (28.5, true) },
-        { "WA-05", (8.5, true) },
-        { "WA-06", (-15.8, false) },
-        { "WA-07", (-58.2, false) },
-        { "WA-08", (-5.2, false) },
-        { "WA-09", (-38.5, false) },
-        { "WA-10", (-25.8, false) },
-
-        // West Virginia - 2R
-        { "WV-01", (45.2, true) },
-        { "WV-02", (48.5, true) },
-
-        // Wisconsin - 4D, 4R
-        { "WI-01", (12.5, true) },
-        { "WI-02", (-32.5, false) },
-        { "WI-03", (-5.2, false) },
-        { "WI-04", (-48.2, false) },
-        { "WI-05", (28.5, true) },
-        { "WI-06", (22.1, true) },
-        { "WI-07", (18.5, true) },
-        { "WI-08", (20.2, true) },
-
-        // Wyoming - At-large R
-        { "WY-01", (55.8, true) }
+        // Values are real 2024 results (top-Dem% minus top-Rep%, negated to R-positive);
+        // one-party races carry a +/-45 safe-seat placeholder. Regenerate with
+        // tools/scrape_house_results.py against the Wikipedia 2024 House elections page.
+        // Alaska
+        { "AK-01", (2.4, true) },
+        // Arizona
+        { "AZ-01", (3.8, true) }, { "AZ-02", (9, true) }, { "AZ-03", (-44.3, false) },
+        { "AZ-04", (-7.2, false) }, { "AZ-05", (20.8, true) }, { "AZ-06", (2.5, true) },
+        { "AZ-07", (-26.8, false) }, { "AZ-08", (13, true) }, { "AZ-09", (30.6, true) },
+        // Arkansas
+        { "AR-01", (48.9, true) }, { "AR-02", (17.8, true) }, { "AR-03", (32, true) },
+        { "AR-04", (45.8, true) },
+        // Colorado
+        { "CO-01", (-55, false) }, { "CO-02", (-39.5, false) }, { "CO-03", (5, true) },
+        { "CO-04", (11.6, true) }, { "CO-05", (13.8, true) }, { "CO-06", (-20.5, false) },
+        { "CO-07", (-14.1, false) }, { "CO-08", (0.8, true) },
+        // Connecticut
+        { "CT-01", (-28.3, false) }, { "CT-02", (-16, false) }, { "CT-03", (-17.8, false) },
+        { "CT-04", (-23.8, false) }, { "CT-05", (-6.8, false) },
+        // Delaware
+        { "DE-01", (-15.8, false) },
+        // Georgia
+        { "GA-01", (24, true) }, { "GA-02", (-12.6, false) }, { "GA-03", (32.6, true) },
+        { "GA-04", (-51.2, false) }, { "GA-05", (-71.4, false) }, { "GA-06", (-49.4, false) },
+        { "GA-07", (29.8, true) }, { "GA-08", (37.8, true) }, { "GA-09", (38, true) },
+        { "GA-10", (26.2, true) }, { "GA-11", (34.6, true) }, { "GA-12", (20.6, true) },
+        { "GA-13", (-43.6, false) }, { "GA-14", (28.8, true) },
+        // Hawaii
+        { "HI-01", (-43.6, false) }, { "HI-02", (-36.3, false) },
+        // Idaho
+        { "ID-01", (45.6, true) }, { "ID-02", (30.4, true) },
+        // Illinois
+        { "IL-01", (-31.8, false) }, { "IL-02", (-35.2, false) }, { "IL-03", (-34.6, false) },
+        { "IL-04", (-40.2, false) }, { "IL-05", (-38, false) }, { "IL-06", (-8.4, false) },
+        { "IL-07", (-66.6, false) }, { "IL-08", (-14.2, false) }, { "IL-09", (-36.8, false) },
+        { "IL-10", (-20, false) }, { "IL-11", (-11.2, false) }, { "IL-12", (48.4, true) },
+        { "IL-13", (-16.2, false) }, { "IL-14", (-10.2, false) }, { "IL-15", (45, true) },
+        { "IL-16", (45, true) }, { "IL-17", (-8.8, false) },
+        // Indiana
+        { "IN-01", (-8.5, false) }, { "IN-02", (28.1, true) }, { "IN-03", (33.6, true) },
+        { "IN-04", (33.9, true) }, { "IN-05", (18.6, true) }, { "IN-06", (32.2, true) },
+        { "IN-07", (-39.3, false) }, { "IN-08", (38.5, true) }, { "IN-09", (31.7, true) },
+        // Iowa
+        { "IA-01", (0.2, true) }, { "IA-02", (15.5, true) }, { "IA-03", (3.8, true) },
+        { "IA-04", (34.4, true) },
+        // Kansas
+        { "KS-01", (38.2, true) }, { "KS-02", (18.9, true) }, { "KS-03", (-10.8, false) },
+        { "KS-04", (30, true) },
+        // Kentucky
+        { "KY-01", (49.4, true) }, { "KY-02", (46.2, true) }, { "KY-03", (-24, false) },
+        { "KY-04", (45, true) }, { "KY-05", (45, true) }, { "KY-06", (26.8, true) },
+        // Maine
+        { "ME-01", (-22.3, false) }, { "ME-02", (-0.6, false) },
+        // Maryland
+        { "MD-01", (22, true) }, { "MD-02", (-18.7, false) }, { "MD-03", (-21.4, false) },
+        { "MD-04", (-77.2, false) }, { "MD-05", (-35.8, false) }, { "MD-06", (-6.4, false) },
+        { "MD-07", (-63.1, false) }, { "MD-08", (-56.3, false) },
+        // Massachusetts
+        { "MA-01", (-45, false) }, { "MA-02", (-45, false) }, { "MA-03", (-45, false) },
+        { "MA-04", (-45, false) }, { "MA-05", (-45, false) }, { "MA-06", (-45, false) },
+        { "MA-07", (-45, false) }, { "MA-08", (-41, false) }, { "MA-09", (-13, false) },
+        // Michigan
+        { "MI-01", (21.2, true) }, { "MI-02", (33.4, true) }, { "MI-03", (-9.9, false) },
+        { "MI-04", (11.7, true) }, { "MI-05", (32.9, true) }, { "MI-06", (-27, false) },
+        { "MI-07", (3.7, true) }, { "MI-08", (-6.6, false) }, { "MI-09", (37.3, true) },
+        { "MI-10", (6.1, true) }, { "MI-11", (-18.6, false) }, { "MI-12", (-44.3, false) },
+        { "MI-13", (-44.1, false) },
+        // Minnesota
+        { "MN-01", (17, true) }, { "MN-02", (-13.5, false) }, { "MN-03", (-17, false) },
+        { "MN-04", (-34.8, false) }, { "MN-05", (-50.4, false) }, { "MN-06", (25, true) },
+        { "MN-07", (41, true) }, { "MN-08", (16, true) },
+        // Mississippi
+        { "MS-01", (39.6, true) }, { "MS-02", (-24, false) }, { "MS-03", (45, true) },
+        { "MS-04", (47.9, true) },
+        // Montana
+        { "MT-01", (7.7, true) }, { "MT-02", (32, true) },
+        // Nebraska
+        { "NE-01", (20.2, true) }, { "NE-02", (1.8, true) }, { "NE-03", (60.8, true) },
+        // Nevada
+        { "NV-01", (-7.5, false) }, { "NV-02", (45, true) }, { "NV-03", (-2.8, false) },
+        { "NV-04", (-8.1, false) },
+        // New Hampshire
+        { "NH-01", (-8, false) }, { "NH-02", (-6, false) },
+        // New Jersey
+        { "NJ-01", (-17.8, false) }, { "NJ-02", (16.9, true) }, { "NJ-03", (-8.6, false) },
+        { "NJ-04", (35.7, true) }, { "NJ-05", (-11.3, false) }, { "NJ-06", (-15.8, false) },
+        { "NJ-07", (5.4, true) }, { "NJ-08", (-24.8, false) }, { "NJ-09", (-4.9, false) },
+        { "NJ-10", (-52.2, false) }, { "NJ-11", (-15.3, false) }, { "NJ-12", (-24.8, false) },
+        // New Mexico
+        { "NM-01", (-12.8, false) }, { "NM-02", (-4.2, false) }, { "NM-03", (-12.6, false) },
+        // New York
+        { "NY-01", (10.4, true) }, { "NY-02", (18.4, true) }, { "NY-03", (-3.6, false) },
+        { "NY-04", (-2.2, false) }, { "NY-05", (-45.8, false) }, { "NY-06", (-23.1, false) },
+        { "NY-07", (-56.2, false) }, { "NY-08", (-50.8, false) }, { "NY-09", (-48.6, false) },
+        { "NY-10", (-67.5, false) }, { "NY-11", (28.2, true) }, { "NY-12", (-61, false) },
+        { "NY-13", (-67, false) }, { "NY-14", (-38.4, false) }, { "NY-15", (-55.1, false) },
+        { "NY-16", (-43.2, false) }, { "NY-17", (6.4, true) }, { "NY-18", (-14.4, false) },
+        { "NY-19", (-2.2, false) }, { "NY-20", (-22.2, false) }, { "NY-21", (24, true) },
+        { "NY-22", (-9.2, false) }, { "NY-23", (31.6, true) }, { "NY-24", (31.4, true) },
+        { "NY-25", (-21.6, false) }, { "NY-26", (-30.4, false) },
+        // North Dakota
+        { "ND-01", (39, true) },
+        // Oklahoma
+        { "OK-01", (25.9, true) }, { "OK-02", (52.8, true) }, { "OK-03", (45, true) },
+        { "OK-04", (36.9, true) }, { "OK-05", (21.4, true) },
+        // Oregon
+        { "OR-01", (-40.6, false) }, { "OR-02", (31.2, true) }, { "OR-03", (-42.6, false) },
+        { "OR-04", (-7.8, false) }, { "OR-05", (-2.7, false) }, { "OR-06", (-6.8, false) },
+        // Pennsylvania
+        { "PA-01", (12.8, true) }, { "PA-02", (-42.9, false) }, { "PA-03", (-45, false) },
+        { "PA-04", (-18.2, false) }, { "PA-05", (-30.6, false) }, { "PA-06", (-12.4, false) },
+        { "PA-07", (1, true) }, { "PA-08", (1.6, true) }, { "PA-09", (41, true) },
+        { "PA-10", (1.2, true) }, { "PA-11", (25.8, true) }, { "PA-12", (-12.8, false) },
+        { "PA-13", (48.4, true) }, { "PA-14", (33.2, true) }, { "PA-15", (43, true) },
+        { "PA-16", (27.2, true) }, { "PA-17", (-7.8, false) },
+        // Rhode Island
+        { "RI-01", (-31.1, false) }, { "RI-02", (-16.8, false) },
+        // South Carolina
+        { "SC-01", (16.6, true) }, { "SC-02", (19.4, true) }, { "SC-03", (46.4, true) },
+        { "SC-04", (22.6, true) }, { "SC-05", (27.2, true) }, { "SC-06", (-22.8, false) },
+        { "SC-07", (30, true) },
+        // South Dakota
+        { "SD-01", (44, true) },
+        // Vermont
+        { "VT-01", (-32.6, false) },
+        // Virginia
+        { "VA-01", (12.8, true) }, { "VA-02", (3.8, true) }, { "VA-03", (-40.2, false) },
+        { "VA-04", (-35, false) }, { "VA-05", (15, true) }, { "VA-06", (28.4, true) },
+        { "VA-07", (-2.6, false) }, { "VA-08", (-47, false) }, { "VA-09", (45.2, true) },
+        { "VA-10", (-4.6, false) }, { "VA-11", (-34, false) },
+        // Washington
+        { "WA-01", (-26.4, false) }, { "WA-02", (-28, false) }, { "WA-03", (-3.8, false) },
+        { "WA-04", (45, true) }, { "WA-05", (21.4, true) }, { "WA-06", (-13.6, false) },
+        { "WA-07", (-68.4, false) }, { "WA-08", (-8.2, false) }, { "WA-09", (-45, false) },
+        { "WA-10", (-17.4, false) },
+        // West Virginia
+        { "WV-01", (42.2, true) }, { "WV-02", (41.6, true) },
+        // Wisconsin
+        { "WI-01", (10.2, true) }, { "WI-02", (-40.2, false) }, { "WI-03", (2.8, true) },
+        { "WI-04", (-52.5, false) }, { "WI-05", (29, true) }, { "WI-06", (22.6, true) },
+        { "WI-07", (27.2, true) }, { "WI-08", (14.6, true) },
+        // Wyoming
+        { "WY-01", (47.6, true) },
     };
 
     /// <summary>

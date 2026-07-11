@@ -46,6 +46,13 @@ public class FundamentalsData
     /// </summary>
     private const double PriorResultRetention = 0.45;
 
+    /// <summary>
+    /// Retention for an open seat (no incumbent running). Most of a seat's past overperformance is
+    /// the departed incumbent's personal vote, which leaves with them — keep only a sliver for the
+    /// seat's residual non-presidential lean (party infrastructure, downballot habits).
+    /// </summary>
+    private const double PriorResultRetentionOpenSeat = 0.25;
+
     /// <summary>Keeps a single seat's fundamentals margin from running away on an extreme prior.</summary>
     private const double MaxFundamentalsMargin = 40.0;
 
@@ -53,7 +60,9 @@ public class FundamentalsData
     /// Fundamentals-only expected Democratic margin (points). When a prior result is known, the
     /// margin is PVI + national environment + a retained fraction of the seat's past deviation from
     /// PVI — so a crossover incumbent or safe-seat lean is reflected rather than assuming the seat
-    /// votes its presidential PVI. Without a prior, falls back to PVI + national ± flat incumbency.
+    /// votes its presidential PVI. The retained fraction is smaller for open seats, where the past
+    /// overperformance was mostly the departed incumbent's personal vote. Without a prior, falls
+    /// back to PVI + national ± flat incumbency.
     /// </summary>
     public double GetExpectedDemMargin()
     {
@@ -61,8 +70,9 @@ public class FundamentalsData
 
         if (PriorMargin.HasValue)
         {
+            double retention = IncumbentIsDem.HasValue ? PriorResultRetention : PriorResultRetentionOpenSeat;
             double overPerformance = PriorMargin.Value - PartisanLean;
-            double margin = structural + PriorResultRetention * overPerformance;
+            double margin = structural + retention * overPerformance;
             return Math.Clamp(margin, -MaxFundamentalsMargin, MaxFundamentalsMargin);
         }
 
