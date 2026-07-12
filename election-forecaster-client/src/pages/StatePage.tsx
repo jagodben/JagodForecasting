@@ -107,7 +107,8 @@ export const StatePage = () => {
         {(senateRaces.length > 0 || govRaces.length > 0) && (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            // min() so the 350px track floor can't push a narrow phone's page past its viewport.
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(350px, 100%), 1fr))',
             gap: '24px',
             marginBottom: '32px'
           }}>
@@ -136,7 +137,7 @@ export const StatePage = () => {
             <h2>House Races</h2>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
               gap: '16px'
             }}>
               {houseRaces.map(race => (

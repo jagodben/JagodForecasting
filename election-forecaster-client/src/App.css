@@ -58,6 +58,11 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+  /* .app-content is a column flex container and the auto margins disable its default stretch,
+     so without an explicit width the page sizes to fit-content — a wide child (the polls
+     table) then blows the layout past the phone's viewport and breaks initial zoom and the
+     footer's span. Full width keeps the page at viewport size; the table scrolls internally. */
+  width: 100%;
 }
 
 .race-page__header-top {
@@ -585,6 +590,7 @@
   padding: 32px;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%; /* same fit-content pitfall as .race-page — see its comment */
 }
 
 .breadcrumb {
@@ -628,13 +634,15 @@
 
 .state-content {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  /* minmax(0, …) lets the columns shrink below their content's min-width on narrow screens —
+     with a bare 1fr a wide race card would push the page past the phone's viewport. */
+  grid-template-columns: minmax(0, 1fr) 400px;
   gap: 40px;
 }
 
 @media (max-width: 1024px) {
   .state-content {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .map-column {

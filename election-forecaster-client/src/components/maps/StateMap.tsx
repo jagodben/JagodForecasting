@@ -249,7 +249,8 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
     <div className="state-map-container">
       <h3>{stateId} Congressional District{districts.length !== 1 ? 's' : ''}</h3>
 
-      <div style={{ width: '70vw', maxWidth: '900px', minWidth: '400px', margin: '0 auto', position: 'relative' }}>
+      {/* min() keeps the desktop floor without forcing a phone-width page past its viewport. */}
+      <div style={{ width: '70vw', maxWidth: '900px', minWidth: 'min(400px, 100%)', margin: '0 auto', position: 'relative' }}>
 
         {districtFeatures.length === 0 ? (
           <div style={{
