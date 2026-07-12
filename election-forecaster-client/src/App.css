@@ -931,9 +931,17 @@
     font-size: 13px;
   }
 
-  /* Tappable district panel links to the full race page. */
+  /* Tappable preview card links to the full race page (a chevron signals it opens). */
   .mobile-state-info--tappable {
     cursor: pointer;
+  }
+
+  .mobile-state-info--tappable::after {
+    content: '›';
+    font-size: 20px;
+    line-height: 1;
+    color: var(--text-muted, #999);
+    margin-left: 10px;
   }
 
   .mobile-state-info--tappable:active {

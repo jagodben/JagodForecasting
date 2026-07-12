@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -110,6 +110,8 @@ export interface SelectedStateData {
   // Projected result (e.g. "D+5.3" / "R+3" / "I+2"), pre-formatted with its color.
   marginText: string | null;
   marginColor: string;
+  // Race id so the mobile preview card can link to the race page (null: no race, link to state).
+  raceId: string | null;
 }
 
 interface RaceMapProps {
@@ -136,6 +138,13 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const raceTypeLabel = raceType === RaceType.Senate ? 'Senate' : 'Governor';
+  // Touch flow: the first tap previews a state (fills the mobile info card); tapping the SAME
+  // state again opens its race page. Desktop clicks navigate immediately (hover already previews).
+  // wasTouchRef marks touch interaction (a tap fires touchstart before its synthetic click);
+  // lastTapRef holds the state previewed by the previous tap — set only by taps, not by the
+  // synthetic mouseenter that precedes each tap's click.
+  const wasTouchRef = useRef(false);
+  const lastTapRef = useRef<string | null>(null);
 
   // Fetch detailed forecasts for all races of this type in a single batched request
   // (shares its cache with the sidebar's ChamberForecast via the same query key).
@@ -209,6 +218,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
           demProb: ratingData?.demProb ?? null,
           marginText: label?.text ?? null,
           marginColor: label?.color ?? '#666',
+          raceId: race?.id ?? null,
         });
       }
     }
@@ -222,22 +232,34 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
     setTooltipData(null);
   };
 
-  const handleClick = (geo: { properties: { name: string } }) => {
+  const handleClick = (geo: { properties: { name: string } }, event?: React.MouseEvent) => {
     const stateName = geo.properties.name;
     const stateId = stateNameToId[stateName];
-    if (stateId) {
-      // Find the race for this state and navigate to the race page
-      const race = races.find(r => r.stateId.toLowerCase() === stateId.toLowerCase());
-      if (race) {
-        navigate(`/race/${race.id}`);
-      } else {
-        navigate(`/state/${stateId}`);
-      }
+    if (!stateId) return;
+
+    // Touch: first tap previews (the tap's synthetic mouseenter already filled the mobile card);
+    // only a second tap on the same state opens the race page.
+    if (wasTouchRef.current && lastTapRef.current !== stateId) {
+      lastTapRef.current = stateId;
+      if (event) handleMouseEnter(geo, event); // ensure the card fills even if mouseenter was missed
+      return;
+    }
+
+    // Find the race for this state and navigate to the race page
+    const race = races.find(r => r.stateId.toLowerCase() === stateId.toLowerCase());
+    if (race) {
+      navigate(`/race/${race.id}`);
+    } else {
+      navigate(`/state/${stateId}`);
     }
   };
 
   return (
-    <div className="us-map-container" style={{ position: 'relative' }}>
+    <div
+      className="us-map-container"
+      style={{ position: 'relative' }}
+      onTouchStart={() => { wasTouchRef.current = true; }}
+    >
       <ComposableMap projection="geoAlbersUsa" projectionConfig={{ scale: 1000 }}>
         <MapPatternDefs ns="race" colorOf={getRatingColor} />
         <Geographies geography={GEO_URL}>
@@ -279,7 +301,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                         onMouseEnter={(e) => handleMouseEnter(geo, e)}
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
-                        onClick={() => handleClick(geo)}
+                        onClick={(e) => handleClick(geo, e)}
                       />
                     );
                   })}

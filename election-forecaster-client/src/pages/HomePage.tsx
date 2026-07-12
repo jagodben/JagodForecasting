@@ -150,7 +150,11 @@ export const HomePage = () => {
             )}
             {selectedState && activeView !== 'house' && (
               <>
-                <div className="mobile-state-info">
+                <div
+                  className="mobile-state-info mobile-state-info--tappable"
+                  role="button"
+                  onClick={() => navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`)}
+                >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">{selectedState.stateId}</span>
                     {selectedState.rating && (

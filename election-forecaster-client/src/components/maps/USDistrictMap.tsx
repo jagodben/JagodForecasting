@@ -147,6 +147,8 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   // district for the mobile panel instead of navigating the way a desktop click does).
   const pinchRef = useRef<{ startDist: number; startZoom: number } | null>(null);
   const wasTouchRef = useRef(false);
+  // The district previewed by the previous tap — tapping it again opens its race page.
+  const lastTapRef = useRef<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const zoomRef = useRef(zoom);
   const panRef = useRef(pan);
@@ -453,9 +455,11 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   const handleDistrictClick = (stateId: string, districtNum: number) => {
     if (draggedRef.current) return; // ended a pan/pinch, not a tap
 
-    // Mobile tap: select the district (fill the info panel) rather than navigate away — the panel
-    // itself links to the full race page. Desktop click: go straight to the race page.
-    if (wasTouchRef.current) {
+    // Mobile: the first tap selects the district (fills the info panel); tapping the SAME district
+    // again — or tapping the panel itself — opens the race page. Desktop click: navigate directly.
+    const tapKey = `${stateId}-${districtNum}`;
+    if (wasTouchRef.current && lastTapRef.current !== tapKey) {
+      lastTapRef.current = tapKey;
       selectDistrict(stateId, districtNum);
       return;
     }
