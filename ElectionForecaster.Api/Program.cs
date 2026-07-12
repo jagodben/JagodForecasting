@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Threading.RateLimiting;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Infrastructure.Data;
+using ElectionForecaster.Infrastructure.DataSources.Candidates;
 using ElectionForecaster.Infrastructure.DataSources.Fundamentals;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.DataSources.Polling;
@@ -54,6 +55,7 @@ builder.Services.AddSingleton<IRaceService, RaceService>();
 builder.Services.AddHttpClient<PolymarketClient>();
 builder.Services.AddHttpClient<WikipediaPollingClient>();
 builder.Services.AddHttpClient<WikipediaGenericBallotClient>();
+builder.Services.AddHttpClient<WikipediaCandidateClient>();
 
 // Register data sources
 builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
@@ -61,6 +63,7 @@ builder.Services.AddScoped<WikipediaPollingClient>();
 builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<WikipediaPollingClient>());
 builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
 builder.Services.AddScoped<IGenericBallotSource, WikipediaGenericBallotClient>();
+builder.Services.AddScoped<CandidateRefreshService>();
 
 // Register forecasting components
 builder.Services.AddSingleton<WeightCalculator>();
@@ -113,6 +116,11 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ForecastDbContext>();
     ForecastDbInitializer.Initialize(dbContext);
+
+    // Re-apply the last scraped nominees to the in-memory races, so a restart doesn't fall back
+    // to the compile-time candidate data until the next daily refresh.
+    var candidateRefresh = scope.ServiceProvider.GetRequiredService<CandidateRefreshService>();
+    await candidateRefresh.ApplyStoredOverridesAsync();
 }
 
 // Configure the HTTP request pipeline

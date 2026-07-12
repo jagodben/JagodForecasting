@@ -75,6 +75,19 @@ public class DataRefreshService : BackgroundService
         if (_lastSnapshotEasternDate == easternToday || nowEastern.Hour < SnapshotHourEastern)
             return;
 
+        // Refresh candidates from Wikipedia first, so today's snapshot (and the site) reflects
+        // current nominees. A scrape failure must never block the snapshot itself.
+        try
+        {
+            var candidateRefresh = scope.ServiceProvider.GetRequiredService<CandidateRefreshService>();
+            var changes = await candidateRefresh.RefreshFromWikipediaAsync(cancellationToken);
+            _logger.LogInformation("Daily candidate check complete — {Changes} candidate update(s)", changes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Daily candidate refresh failed; continuing with existing candidates");
+        }
+
         try
         {
             // RunDailyUpdate no-ops if today's snapshot already exists (durable guard across
