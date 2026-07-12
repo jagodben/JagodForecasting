@@ -11,6 +11,7 @@ public static partial class ElectionDataProvider
 {
     private static readonly Dictionary<string, (Nominee? Dem, Nominee? Rep)> HouseNominees = new()
     {
+        ["AK-01"] = (new("Matt Schultz", false), new("Nick Begich III", true)),  // at-large, RCV; inc Nick Begich III (R)
         ["AL-03"] = (new("Lee McInnis", false), new("Mike Rogers", true)),  // inc Mike Rogers (R)
         ["AL-04"] = (new("Amanda Pusczek", false), new("Robert Aderholt", true)),  // inc Robert Aderholt (R)
         ["AL-05"] = (new("Andrew Sneed", false), new("Dale Strong", true)),  // inc Dale Strong (R)

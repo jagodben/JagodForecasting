@@ -210,6 +210,11 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var daysToElection = (_electionDate - asOf).TotalDays;
         var se = UncertaintyModel.MarginStandardError(daysToElection, raceType, polling?.PollCount ?? 0);
 
+        // Ranked-choice races carry extra final-round / vote-transfer uncertainty on top of the
+        // usual error — the head-to-head polls don't pin down which candidates reach the runoff.
+        if (RankedChoiceVoting.IsRankedChoice(raceId))
+            se = Math.Sqrt(se * se + RankedChoiceVoting.ExtraStandardError * RankedChoiceVoting.ExtraStandardError);
+
         // Safety net: if a liquid market sharply disagrees with the structural blend, lean on the
         // market — it usually knows something PVI/priors/polls-so-far can't (the VT-GOV class).
         ApplyMarketDisagreementGuard(weights, marketOdds, polling, fundamentals, se, raceId);

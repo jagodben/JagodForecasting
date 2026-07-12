@@ -136,9 +136,11 @@ public class WeightCalculator
                 weights.PollingWeight *= 1.05;
                 break;
             case RaceType.House:
-                // Under-polled and illiquid markets → rely on fundamentals (generic ballot + PVI).
+                // Most House races are unpolled, so lean on fundamentals (generic ballot + PVI).
+                // Don't extra-penalize polling: it's already zeroed when absent, so a ×0.7 here would
+                // only ever hurt the rare genuinely-polled House race (e.g. Alaska), which we want to
+                // trust like any other polled race.
                 weights.FundamentalsWeight *= 1.4;
-                weights.PollingWeight *= 0.7;
                 weights.MarketWeight *= 0.6;
                 break;
         }
