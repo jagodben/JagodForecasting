@@ -219,7 +219,6 @@ export const RacePage = () => {
                 headDem={headDem}
                 headRep={headRep}
                 demCandidate={demCandidate}
-                repCandidate={repCandidate}
                 forecast={forecast}
               />
               <CandidatesList race={race} />
@@ -251,11 +250,10 @@ export const RacePage = () => {
 
 // Win-probability headline (big Dem/Rep % + bar + projected margin). Mobile only — on desktop the
 // candidates list already shows each side's win probability, so the headline is redundant.
-const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, forecast }: {
+const WinProbHeadline = ({ headDem, headRep, demCandidate, forecast }: {
   headDem: number;
   headRep: number;
   demCandidate?: Candidate;
-  repCandidate?: Candidate;
   forecast?: DetailedForecast;
 }) => (
   <div>
