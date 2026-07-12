@@ -42,6 +42,10 @@ const probabilityToRating = (demProb: number): RaceRating => {
 interface ChamberForecastProps {
   races: Race[];
   raceType: RaceType.Senate | RaceType.House | RaceType.Governor;
+  // Compact renders a slim summary card (win-odds bar + projected seats) for the mobile
+  // map pane. It reuses the exact same computations and query cache as the full sidebar,
+  // so the two always show the same numbers.
+  compact?: boolean;
 }
 
 interface SeatProjection {
@@ -51,7 +55,7 @@ interface SeatProjection {
   tossup: number;
 }
 
-export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
+export const ChamberForecast = ({ races, raceType, compact = false }: ChamberForecastProps) => {
   // Fetch detailed (blended) forecasts for all races of this type in a single batched request
   // (shares its cache with the map via the same query key).
   const { data: detailedForecasts, isLoading: isLoadingForecasts } = useQuery({
@@ -179,6 +183,43 @@ export const ChamberForecast = ({ races, raceType }: ChamberForecastProps) => {
   // per-race forecasts and the chamber history; until those arrive, computing from the fallback
   // tally would flash a different (cruder) number that then snaps to the correct one.
   const notReady = isLoadingForecasts || (raceType !== RaceType.Governor && isLoadingHistory);
+
+  // Mobile map-pane summary: chamber odds + projected seats at a glance, plus a hint that the
+  // map is tappable. Rendered nothing while loading (same no-flash rule as the sidebar).
+  if (compact) {
+    if (notReady) return null;
+    return (
+      <div className="mobile-chamber-card">
+        <div className="mobile-chamber-card__title">{chamberName} Forecast</div>
+        {raceType !== RaceType.Governor && (
+          <>
+            <div className="mobile-chamber-card__probs">
+              <span style={{ color: '#123f8f' }}>{demVictoryOdds}%</span>
+              <div className="mobile-chamber-card__bar">
+                <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#123f8f' }} />
+                <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#9c150b' }} />
+              </div>
+              <span style={{ color: '#9c150b', textAlign: 'right' }}>{repVictoryOdds}%</span>
+            </div>
+            <div className="mobile-chamber-card__caption">
+              Chance of controlling the {chamberName}
+            </div>
+          </>
+        )}
+        <div className="mobile-chamber-card__seats">
+          <span>{seatLabel}</span>
+          <span>
+            <b style={{ color: '#123f8f' }}>{formatSeats(totalDemSeats)}</b>
+            <span className="mobile-chamber-card__dash">–</span>
+            <b style={{ color: '#9c150b' }}>{formatSeats(totalRepSeats)}</b>
+          </span>
+        </div>
+        <div className="mobile-chamber-card__hint">
+          Tap a {raceType === RaceType.House ? 'district' : 'state'} on the map for details
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="forecast-sidebar">

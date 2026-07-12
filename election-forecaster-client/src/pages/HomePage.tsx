@@ -143,6 +143,11 @@ export const HomePage = () => {
 
           {/* Selected state info - mobile only (Senate/Governors) */}
           <div className="mobile-data-source">
+            {/* Nothing selected yet: fill the pane with the chamber topline instead of dead space,
+                and tell the user the map is tappable. */}
+            {(activeView === 'house' ? !selectedDistrict : !selectedState) && forecastRaces && (
+              <ChamberForecast races={forecastRaces} raceType={forecastRaceType} compact />
+            )}
             {selectedState && activeView !== 'house' && (
               <>
                 <div className="mobile-state-info">
