@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { District, RaceRating } from '../../types';
 import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
+import { districtCode } from '../../utils/districts';
 
 // Local TopoJSON file with 118th Congress districts
 const DISTRICTS_URL = '/data/districts.json';
@@ -335,7 +336,7 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
             minWidth: '220px',
           }}
         >
-          <DistrictTooltipContent district={hoveredDistrict} isAtLarge={isAtLarge} />
+          <DistrictTooltipContent district={hoveredDistrict} stateId={stateId} />
         </div>
       )}
     </div>
@@ -344,16 +345,16 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
 
 interface DistrictTooltipContentProps {
   district: District;
-  isAtLarge: boolean;
+  stateId: string;
 }
 
-const DistrictTooltipContent = ({ district, isAtLarge }: DistrictTooltipContentProps) => {
+const DistrictTooltipContent = ({ district, stateId }: DistrictTooltipContentProps) => {
   const race = district.houseRace;
 
   return (
     <div>
       <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
-        {isAtLarge ? 'At-Large District' : `District ${district.number}`}
+        {districtCode(stateId, district.number)}
       </h4>
       {race ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px' }}>

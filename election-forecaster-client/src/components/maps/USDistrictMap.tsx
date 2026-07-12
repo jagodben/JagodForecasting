@@ -7,7 +7,7 @@ import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
-import { isAtLargeState } from '../../utils/districts';
+import { districtCode } from '../../utils/districts';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
@@ -22,21 +22,6 @@ const fipsToState: Record<string, string> = {
   '37': 'NC', '38': 'ND', '39': 'OH', '40': 'OK', '41': 'OR', '42': 'PA', '44': 'RI', '45': 'SC',
   '46': 'SD', '47': 'TN', '48': 'TX', '49': 'UT', '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV',
   '55': 'WI', '56': 'WY', '11': 'DC', '72': 'PR'
-};
-
-// State names for tooltips
-const stateNames: Record<string, string> = {
-  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
-  'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
-  'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
-  'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
-  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
-  'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
-  'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
-  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
-  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
-  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
-  'DC': 'Washington D.C.', 'PR': 'Puerto Rico'
 };
 
 const getRatingColor = (rating: RaceRating): string => {
@@ -617,10 +602,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '12px', margin: '0 0 8px 0', borderBottom: '1px solid #eee', paddingBottom: '8px' }}>
             <h4 style={{ margin: 0, fontSize: '14px' }}>
-              {stateNames[tooltipData.stateId] || tooltipData.stateId}
-              {isAtLargeState(tooltipData.stateId)
-                ? ' - At-Large'
-                : ` - District ${tooltipData.districtNum}`}
+              {districtCode(tooltipData.stateId, tooltipData.districtNum)}
             </h4>
             {(() => {
               // Projected result (D+/R+) for the hovered district, from the blended forecast's margin.

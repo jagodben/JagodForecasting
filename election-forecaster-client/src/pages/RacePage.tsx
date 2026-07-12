@@ -6,7 +6,7 @@ import { RaceType, Party, RacePolls, Race, Candidate, DetailedForecast } from '.
 import { ProbabilityTrendChart } from '../components/charts/ProbabilityTrendChart';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
-import { isAtLargeState } from '../utils/districts';
+import { districtCode } from '../utils/districts';
 
 interface HistoricalOdds {
   date: string;
@@ -49,8 +49,8 @@ const getRaceTypeLabel = (type: RaceType, districtNumber?: number, stateId?: str
     case RaceType.Senate: return 'U.S. Senate';
     case RaceType.Governor: return 'Governor';
     case RaceType.House:
-      return stateId && isAtLargeState(stateId)
-        ? 'U.S. House (At-Large)'
+      return stateId
+        ? `U.S. House ${districtCode(stateId, districtNumber)}`
         : `U.S. House District ${districtNumber}`;
     default: return 'Unknown Race';
   }

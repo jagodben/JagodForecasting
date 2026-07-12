@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
-import { isAtLargeState } from '../../utils/districts';
+import { districtCode } from '../../utils/districts';
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {
@@ -57,8 +57,8 @@ const getRaceTypeLabel = (type: RaceType, districtNumber?: number, stateId?: str
     case RaceType.Senate: return 'U.S. Senate';
     case RaceType.Governor: return 'Governor';
     case RaceType.House:
-      return stateId && isAtLargeState(stateId)
-        ? 'U.S. House (At-Large)'
+      return stateId
+        ? `U.S. House ${districtCode(stateId, districtNumber)}`
         : `U.S. House District ${districtNumber}`;
     default: return 'Unknown Race';
   }
@@ -102,7 +102,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 'bold' }}>
             {race.type === RaceType.House
-              ? (isAtLargeState(race.stateId) ? 'At-Large' : `District ${race.districtNumber}`)
+              ? districtCode(race.stateId, race.districtNumber)
               : getRaceTypeLabel(race.type)}
           </span>
           <span style={{
