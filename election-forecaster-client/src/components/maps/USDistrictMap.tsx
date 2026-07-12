@@ -511,14 +511,14 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
           >
             <MapPatternDefs ns="dist" colorOf={getRatingColor} />
             <g transform={`translate(${400 + pan.x}, ${250 + pan.y}) scale(${zoom}) translate(${-400}, ${-250})`}>
-              {/* Render non-hovered districts first */}
+              {/* Base layer: every district stays mounted (even the hovered one) so its
+                  mouseenter/mouseleave always fire. The highlighted copy is drawn by the
+                  non-interactive overlay layer below — unmounting the hovered node used to drop
+                  the mouseleave and leave a district stuck highlighted. */}
               {districtFeatures.map((feat) => {
                 const stateId = fipsToState[feat.properties.STATEFP];
                 const cd = feat.properties.DISTRICT;
                 const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
-                const isHovered = tooltipData?.stateId === stateId && tooltipData?.districtNum === districtNum;
-
-                if (isHovered) return null;
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
                 const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
@@ -569,12 +569,11 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                     stroke="#333"
                     strokeWidth={2 / zoom}
                     style={{
-                      cursor: 'pointer',
+                      // Decoration only — pointerEvents: none keeps the base layer underneath in
+                      // charge of hover/click so events are never lost to this transient node.
+                      pointerEvents: 'none',
                       filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5)) brightness(1.15)',
                     }}
-                    onMouseEnter={() => handleDistrictMouseEnter(stateId, districtNum)}
-                    onMouseLeave={handleDistrictMouseLeave}
-                    onClick={() => handleDistrictClick(stateId, districtNum)}
                   />
                 );
               })}

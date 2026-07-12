@@ -250,8 +250,10 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                     const stateName = geo.properties.name;
                     const stateId = stateNameToId[stateName];
 
-                    if (stateId === hoveredStateId) return null;
-
+                    // Every state stays mounted (even the hovered one) so its mouseenter/mouseleave
+                    // always fire. The scaled highlight is drawn by a separate, non-interactive
+                    // overlay layer below — swapping the hovered node in/out used to drop the
+                    // mouseleave and leave a state stuck highlighted.
                     const race = raceMap.get(stateId);
                     const ratingData = race ? raceRatings.get(race.id) : null;
                     const rating = ratingData?.rating ?? race?.rating ?? null;
@@ -297,6 +299,16 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                         ? ratingFill('race', rating, getRatingColor(rating, independent))
                         : getRatingColor(rating, independent);
 
+                    // Decoration only — pointerEvents: none lets the base layer underneath keep
+                    // ownership of hover/click, so events never get lost to this transient node.
+                    const highlightStyle = {
+                      outline: 'none',
+                      transform: 'scale(1.05)',
+                      transformOrigin: 'center',
+                      transformBox: 'fill-box' as const,
+                      filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))',
+                      pointerEvents: 'none' as const,
+                    };
                     return (
                       <Geography
                         key={`hover-${geo.rsmKey}`}
@@ -305,27 +317,10 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                         stroke="#333"
                         strokeWidth={1.5}
                         style={{
-                          default: {
-                            outline: 'none',
-                            transform: 'scale(1.05)',
-                            transformOrigin: 'center',
-                            transformBox: 'fill-box',
-                            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))',
-                          },
-                          hover: {
-                            outline: 'none',
-                            cursor: 'pointer',
-                            transform: 'scale(1.05)',
-                            transformOrigin: 'center',
-                            transformBox: 'fill-box',
-                            filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.4))',
-                          },
-                          pressed: { outline: 'none' },
+                          default: highlightStyle,
+                          hover: highlightStyle,
+                          pressed: highlightStyle,
                         }}
-                        onMouseEnter={(e) => handleMouseEnter(geo, e)}
-                        onMouseMove={handleMouseMove}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={() => handleClick(geo)}
                       />
                     );
                   })}
