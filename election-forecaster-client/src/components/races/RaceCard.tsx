@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
+import { isAtLargeState } from '../../utils/districts';
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {
@@ -51,11 +52,14 @@ const formatMargin = (margin: number): string => {
   return rounded > 0 ? `D+${num}` : `R+${num}`;
 };
 
-const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
+const getRaceTypeLabel = (type: RaceType, districtNumber?: number, stateId?: string): string => {
   switch (type) {
     case RaceType.Senate: return 'U.S. Senate';
     case RaceType.Governor: return 'Governor';
-    case RaceType.House: return `U.S. House District ${districtNumber}`;
+    case RaceType.House:
+      return stateId && isAtLargeState(stateId)
+        ? 'U.S. House (At-Large)'
+        : `U.S. House District ${districtNumber}`;
     default: return 'Unknown Race';
   }
 };
@@ -97,7 +101,9 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 'bold' }}>
-            {race.type === RaceType.House ? `District ${race.districtNumber}` : getRaceTypeLabel(race.type)}
+            {race.type === RaceType.House
+              ? (isAtLargeState(race.stateId) ? 'At-Large' : `District ${race.districtNumber}`)
+              : getRaceTypeLabel(race.type)}
           </span>
           <span style={{
             padding: '4px 8px',
@@ -123,7 +129,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
       marginBottom: '16px',
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h3 style={{ margin: 0 }}>{getRaceTypeLabel(race.type, race.districtNumber)}</h3>
+        <h3 style={{ margin: 0 }}>{getRaceTypeLabel(race.type, race.districtNumber, race.stateId)}</h3>
         <span style={{
           padding: '6px 12px',
           borderRadius: '20px',
@@ -140,7 +146,6 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           <CandidateRow
             name={demCandidate.name}
             party={demCandidate.party}
-            isIncumbent={demCandidate.isIncumbent}
             probability={demProbability}
           />
         )}
@@ -148,7 +153,6 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           <CandidateRow
             name={repCandidate.name}
             party={repCandidate.party}
-            isIncumbent={repCandidate.isIncumbent}
             probability={repProbability}
           />
         )}
@@ -182,11 +186,10 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
 interface CandidateRowProps {
   name: string;
   party: Party;
-  isIncumbent: boolean;
   probability: number;
 }
 
-const CandidateRow = ({ name, party, isIncumbent, probability }: CandidateRowProps) => {
+const CandidateRow = ({ name, party, probability }: CandidateRowProps) => {
   const partyLabel = party === Party.Democrat ? 'D' : party === Party.Republican ? 'R' : 'I';
   const partyColor = getPartyColor(party);
   const percentage = (probability * 100).toFixed(0);
@@ -211,7 +214,6 @@ const CandidateRow = ({ name, party, isIncumbent, probability }: CandidateRowPro
           </span>
           <span style={{ fontWeight: 500 }}>
             {name}
-            {isIncumbent && <span style={{ color: '#666', marginLeft: '4px' }}>(i)</span>}
           </span>
         </div>
         <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{percentage}%</span>

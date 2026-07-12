@@ -6,6 +6,7 @@ import { RaceType, Party, RacePolls, Race, Candidate, DetailedForecast } from '.
 import { ProbabilityTrendChart } from '../components/charts/ProbabilityTrendChart';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
+import { isAtLargeState } from '../utils/districts';
 
 interface HistoricalOdds {
   date: string;
@@ -43,11 +44,14 @@ const formatMargin = (margin: number): string => {
   return rounded > 0 ? `D+${num}` : `R+${num}`;
 };
 
-const getRaceTypeLabel = (type: RaceType, districtNumber?: number): string => {
+const getRaceTypeLabel = (type: RaceType, districtNumber?: number, stateId?: string): string => {
   switch (type) {
     case RaceType.Senate: return 'U.S. Senate';
     case RaceType.Governor: return 'Governor';
-    case RaceType.House: return `U.S. House District ${districtNumber}`;
+    case RaceType.House:
+      return stateId && isAtLargeState(stateId)
+        ? 'U.S. House (At-Large)'
+        : `U.S. House District ${districtNumber}`;
     default: return 'Unknown Race';
   }
 };
@@ -107,7 +111,7 @@ export const RacePage = () => {
   }, [race, forecast]);
 
   const pageTitle = race
-    ? `${state?.name || race.stateId} ${getRaceTypeLabel(race.type, race.districtNumber)} 2026`
+    ? `${state?.name || race.stateId} ${getRaceTypeLabel(race.type, race.districtNumber, race.stateId)} 2026`
     : null;
   useDocumentTitle(pageTitle);
 
@@ -139,7 +143,7 @@ export const RacePage = () => {
   const demColor = demCandidate ? getPartyColor(demCandidate.party) : '#123f8f';
 
   const stateName = state?.name || race.stateId;
-  const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber);
+  const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber, race.stateId);
 
   // Headline always uses the combined blended forecast (falling back to the useMemo demProb).
   const headDem = forecast?.demWinProbability ?? demProb;
@@ -215,7 +219,6 @@ export const RacePage = () => {
                 headDem={headDem}
                 headRep={headRep}
                 demCandidate={demCandidate}
-                repCandidate={repCandidate}
                 forecast={forecast}
               />
               <CandidatesList race={race} />
@@ -247,11 +250,10 @@ export const RacePage = () => {
 
 // Win-probability headline (big Dem/Rep % + bar + projected margin). Mobile only — on desktop the
 // candidates list already shows each side's win probability, so the headline is redundant.
-const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, forecast }: {
+const WinProbHeadline = ({ headDem, headRep, demCandidate, forecast }: {
   headDem: number;
   headRep: number;
   demCandidate?: Candidate;
-  repCandidate?: Candidate;
   forecast?: DetailedForecast;
 }) => (
   <div>
@@ -259,7 +261,6 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, forecas
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
       <div style={{ flex: 1, textAlign: 'center' }}>
         <div style={{ fontSize: '38px', fontWeight: 'bold', color: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
-        {demCandidate?.isIncumbent && <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>}
       </div>
       <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{ width: `${headDem * 100}%`, backgroundColor: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demCandidate?.party === Party.Independent ? 'I' : 'D'}</div>
@@ -267,7 +268,6 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, repCandidate, forecas
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
         <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#9c150b' }}>{(headRep * 100).toFixed(1)}%</div>
-        {repCandidate?.isIncumbent && <div style={{ fontSize: '12px', color: '#999' }}>(i)</div>}
       </div>
     </div>
     {forecast && (
@@ -299,7 +299,6 @@ const CandidatesList = ({ race }: { race: Race }) => (
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', fontSize: '17px' }}>
                 {candidate.name}
-                {candidate.isIncumbent && <span style={{ marginLeft: '8px', fontSize: '12px', color: '#666', fontWeight: 'normal' }}>(i)</span>}
               </div>
               <div style={{ color: '#666', fontSize: '14px' }}>{candidate.party}</div>
             </div>
