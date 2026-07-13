@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { racesApi, forecastApi, statesApi } from '../services/api';
@@ -315,11 +315,15 @@ const CandidatesList = ({ race }: { race: Race }) => (
   </div>
 );
 
-// Polls list + weighted average. `maxRows` caps the table (desktop, to keep everything on one
-// screen) and shows a "+N more" note. On phones the table slims down (no Sample column, compact
-// dates, tighter cells) so it always fits the viewport without horizontal scrolling.
-const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; demName?: string; repName?: string; maxRows?: number }) => {
+// How many polls the table shows before the "show all" toggle expands it.
+const COLLAPSED_POLL_COUNT = 3;
+
+// Polls list + weighted average. Starts collapsed to the newest few polls with a toggle to show
+// the rest. On phones the table slims down (no Sample column, compact dates, tighter cells) so it
+// always fits the viewport without scrolling.
+const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: string; repName?: string }) => {
   const isDesktop = useIsDesktop();
+  const [expanded, setExpanded] = useState(false);
   if (!data || data.polls.length === 0) {
     return (
       <div>
@@ -333,7 +337,7 @@ const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; d
 
   const avg = data.average;
   const demLead = avg ? avg.margin >= 0 : true;
-  const shownPolls = maxRows ? data.polls.slice(0, maxRows) : data.polls;
+  const shownPolls = expanded ? data.polls : data.polls.slice(0, COLLAPSED_POLL_COUNT);
   const hiddenCount = data.polls.length - shownPolls.length;
 
   return (
@@ -366,9 +370,9 @@ const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; d
         </div>
       )}
 
-      {/* Individual polls */}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px' }}>
+      {/* Individual polls — the table fits every viewport (the mobile variant slims down), so it
+          needs no scroll container. */}
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left', color: '#666' }}>
               <th style={{ padding: isDesktop ? '8px 12px 8px 0' : '6px 6px 6px 0' }}>Pollster</th>
@@ -412,11 +416,24 @@ const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; d
             })}
           </tbody>
         </table>
-      </div>
-      {hiddenCount > 0 && (
-        <div style={{ fontSize: '12px', color: '#888888', marginTop: '8px', textAlign: 'center' }}>
-          + {hiddenCount} more poll{hiddenCount === 1 ? '' : 's'}
-        </div>
+      {data.polls.length > COLLAPSED_POLL_COUNT && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          style={{
+            display: 'block',
+            width: '100%',
+            marginTop: '8px',
+            padding: '10px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: 600,
+            color: '#123f8f',
+          }}
+        >
+          {expanded ? 'Show fewer ▲' : `Show ${hiddenCount} more poll${hiddenCount === 1 ? '' : 's'} ▼`}
+        </button>
       )}
     </div>
   );
