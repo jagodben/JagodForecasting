@@ -6,6 +6,7 @@ import { RaceType, Party, RacePolls, Race, Candidate, DetailedForecast } from '.
 import { ProbabilityTrendChart } from '../components/charts/ProbabilityTrendChart';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
+import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
 import { districtCode } from '../utils/districts';
 
 interface HistoricalOdds {
@@ -34,10 +35,10 @@ const getPartyLogo = (party: Party): string | null => {
 const formatPollDate = (iso: string): string =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Chart label for a candidate: the chart abbreviates to the last word, which turns the
-// "Democratic Nominee" placeholder into a bare "Nominee" — use the party name instead.
+// Chart label for a candidate: the chart abbreviates to the last word, so unresolved
+// placeholders ("TBD Democrat") label as the party name instead.
 const chartLabel = (name: string | undefined, party: string): string =>
-  !name || name.endsWith(' Nominee') ? party : name;
+  !name || isTbdCandidate(name) ? party : name;
 
 // Compact form for phones ("6/27/26") — narrow enough that the polls table never scrolls.
 const formatPollDateShort = (iso: string): string => {
@@ -310,6 +311,7 @@ const CandidatesList = ({ race }: { race: Race }) => (
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', fontSize: '17px' }}>
                 {candidate.name}
+                {isTbdCandidate(candidate.name) && <span title={TBD_NOTE.slice(2)}>*</span>}
               </div>
               <div style={{ color: '#666', fontSize: '14px' }}>{candidate.party}</div>
             </div>
@@ -317,6 +319,9 @@ const CandidatesList = ({ race }: { race: Race }) => (
         );
       })}
     </div>
+    {race.candidates.some(c => isTbdCandidate(c.name)) && (
+      <div style={{ marginTop: '10px', fontSize: '12px', color: '#888888' }}>{TBD_NOTE}</div>
+    )}
   </div>
 );
 

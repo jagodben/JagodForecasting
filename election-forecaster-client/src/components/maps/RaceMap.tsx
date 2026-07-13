@@ -6,6 +6,7 @@ import { StateSummary, Race, RaceRating, RaceType, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
+import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 
@@ -417,13 +418,16 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                 {tooltipData.demProb !== null && (
                   <div style={{ marginBottom: '8px', fontSize: '13px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: challengerColor, fontWeight: 500 }}>{challengerName}</span>
+                      <span style={{ color: challengerColor, fontWeight: 500 }}>{challengerName}{isTbdCandidate(challengerName) && '*'}</span>
                       <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#9c150b', fontWeight: 500 }}>{repName}</span>
+                      <span style={{ color: '#9c150b', fontWeight: 500 }}>{repName}{isTbdCandidate(repName) && '*'}</span>
                       <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
                     </div>
+                    {(isTbdCandidate(challengerName) || isTbdCandidate(repName)) && (
+                      <div style={{ marginTop: '6px', fontSize: '11px', color: '#999999' }}>{TBD_NOTE}</div>
+                    )}
                   </div>
                 )}
               </div>

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
+import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {
@@ -214,6 +215,7 @@ const CandidateRow = ({ name, party, probability }: CandidateRowProps) => {
           </span>
           <span style={{ fontWeight: 500 }}>
             {name}
+            {isTbdCandidate(name) && <span title={TBD_NOTE.slice(2)}>*</span>}
           </span>
         </div>
         <span style={{ fontWeight: 'bold', fontSize: '18px' }}>{percentage}%</span>

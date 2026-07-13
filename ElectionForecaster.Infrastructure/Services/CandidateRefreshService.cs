@@ -76,7 +76,7 @@ public class CandidateRefreshService
             }
             else if (nominees.DemExplicitlyUnresolved)
             {
-                row.DemName = "Democratic Nominee";
+                row.DemName = ElectionDataProvider.DemPlaceholder;
                 row.DemIsIncumbent = false;
             }
             if (nominees.Rep is not null)
@@ -86,7 +86,7 @@ public class CandidateRefreshService
             }
             else if (nominees.RepExplicitlyUnresolved)
             {
-                row.RepName = "Republican Nominee";
+                row.RepName = ElectionDataProvider.RepPlaceholder;
                 row.RepIsIncumbent = false;
             }
             row.UpdatedAt = now;
@@ -105,6 +105,14 @@ public class CandidateRefreshService
     {
         var rows = await _db.NomineeOverrides.AsNoTracking().ToListAsync(cancellationToken);
         if (rows.Count == 0) return 0;
+
+        // Rows written before the placeholder rename carry the old strings; normalize in memory
+        // (the next refresh rewrites them on disk).
+        foreach (var row in rows)
+        {
+            if (row.DemName == "Democratic Nominee") row.DemName = ElectionDataProvider.DemPlaceholder;
+            if (row.RepName == "Republican Nominee") row.RepName = ElectionDataProvider.RepPlaceholder;
+        }
 
         // Collect every live Race object per id: RaceService's list (also referenced by each
         // state's Races) plus the separate per-district HouseRace copies inside StateService.

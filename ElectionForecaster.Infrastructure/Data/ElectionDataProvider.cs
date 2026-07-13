@@ -121,7 +121,7 @@ public static partial class ElectionDataProvider
         SenateNominees.TryGetValue(stateId, out var nominees);
         var raceId = $"{stateId}-SEN-2026";
         var (demName, demParty, demIncumbent) = ResolveChallenger(raceId, nominees.Dem);
-        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
+        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, RepPlaceholder);
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
@@ -150,7 +150,7 @@ public static partial class ElectionDataProvider
         GovernorNominees.TryGetValue(stateId, out var nominees);
         var raceId = $"{stateId}-GOV-2026";
         var (demName, demParty, demIncumbent) = ResolveChallenger(raceId, nominees.Dem);
-        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
+        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, RepPlaceholder);
         var (demProb, repProb) = GetProbabilities(stateRating);
 
         return new Race
@@ -178,7 +178,7 @@ public static partial class ElectionDataProvider
         HouseNominees.TryGetValue($"{stateId}-{districtNumber:D2}", out var nominees);
         var raceId = $"{stateId}-{districtNumber:D2}-2026";
         var (demName, demParty, demIncumbent) = ResolveChallenger(raceId, nominees.Dem);
-        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, "Republican Nominee");
+        var (repName, repIncumbent) = ResolveNominee(nominees.Rep, RepPlaceholder);
         var (demProb, repProb) = GetProbabilities(rating);
 
         return new Race
@@ -205,6 +205,13 @@ public static partial class ElectionDataProvider
     /// <summary>A confirmed general-election nominee and whether they are the incumbent.</summary>
     private sealed record Nominee(string Name, bool IsIncumbent);
 
+    /// <summary>
+    /// Display names for a side whose nominee isn't settled yet (primary/convention pending).
+    /// The frontend keys off the "TBD " prefix to add the explanatory asterisk.
+    /// </summary>
+    public const string DemPlaceholder = "TBD Democrat";
+    public const string RepPlaceholder = "TBD Republican";
+
     private static (string Name, bool Incumbent) ResolveNominee(Nominee? nominee, string placeholder)
         => nominee is null ? (placeholder, false) : (nominee.Name, nominee.IsIncumbent);
 
@@ -220,7 +227,7 @@ public static partial class ElectionDataProvider
         if (independent is { ReplacesDem: true })
             return (independent.Name, Party.Independent, false);
 
-        var (name, incumbent) = ResolveNominee(demNominee, "Democratic Nominee");
+        var (name, incumbent) = ResolveNominee(demNominee, DemPlaceholder);
         return (name, Party.Democrat, incumbent);
     }
 

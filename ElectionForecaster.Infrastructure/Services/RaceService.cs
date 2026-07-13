@@ -59,7 +59,8 @@ public class RaceService : IRaceService
         // Real per-candidate incumbency now comes from the scraped nominee data, which correctly
         // reflects open seats (a retired incumbent's party keeps no incumbent). Only fall back to the
         // 2024-winner heuristic for districts we couldn't resolve — still showing the placeholders.
-        bool unresolved = demCandidate?.Name == "Democratic Nominee" && repCandidate?.Name == "Republican Nominee";
+        bool unresolved = demCandidate?.Name == ElectionDataProvider.DemPlaceholder &&
+                          repCandidate?.Name == ElectionDataProvider.RepPlaceholder;
         if (race.Type == RaceType.House && priorMargin.HasValue && unresolved)
         {
             if (demCandidate != null) demCandidate.IsIncumbent = !republicanIncumbent;
