@@ -41,6 +41,9 @@ export const MethodologyPage = () => {
       <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         Inputs are weighted by how much signal each carries, combined into an expected margin, and
         converted to a win probability using a fat-tailed distribution (big polling misses happen).
+      </p>
+
+      <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         Uncertainty shrinks as Election Day nears; ranked-choice races (Alaska, Maine) carry extra.
         Chamber control comes from 10,000 Monte Carlo simulations with correlated national, regional,
         and race-level errors.
