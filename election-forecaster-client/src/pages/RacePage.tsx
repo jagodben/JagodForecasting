@@ -34,6 +34,12 @@ const getPartyLogo = (party: Party): string | null => {
 const formatPollDate = (iso: string): string =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+// Compact form for phones ("6/27/26") — narrow enough that the polls table never scrolls.
+const formatPollDateShort = (iso: string): string => {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
+};
+
 // Formats a Dem-margin (points) as a called result to one decimal (dropping a trailing .0),
 // e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2".
 const formatMargin = (margin: number): string => {
@@ -310,8 +316,10 @@ const CandidatesList = ({ race }: { race: Race }) => (
 );
 
 // Polls list + weighted average. `maxRows` caps the table (desktop, to keep everything on one
-// screen) and shows a "+N more" note.
+// screen) and shows a "+N more" note. On phones the table slims down (no Sample column, compact
+// dates, tighter cells) so it always fits the viewport without horizontal scrolling.
 const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; demName?: string; repName?: string; maxRows?: number }) => {
+  const isDesktop = useIsDesktop();
   if (!data || data.polls.length === 0) {
     return (
       <div>
@@ -360,15 +368,15 @@ const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; d
 
       {/* Individual polls */}
       <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left', color: '#666' }}>
-              <th style={{ padding: '8px 12px 8px 0' }}>Pollster</th>
-              <th style={{ padding: '8px 12px' }}>Date</th>
-              <th style={{ padding: '8px 12px', textAlign: 'right' }}>Sample</th>
-              <th style={{ padding: '8px 12px', textAlign: 'right', color: '#123f8f' }}>D</th>
-              <th style={{ padding: '8px 12px', textAlign: 'right', color: '#9c150b' }}>R</th>
-              <th style={{ padding: '8px 0 8px 12px', textAlign: 'right' }}>Margin</th>
+              <th style={{ padding: isDesktop ? '8px 12px 8px 0' : '6px 6px 6px 0' }}>Pollster</th>
+              <th style={{ padding: isDesktop ? '8px 12px' : '6px' }}>Date</th>
+              {isDesktop && <th style={{ padding: '8px 12px', textAlign: 'right' }}>Sample</th>}
+              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#123f8f' }}>D</th>
+              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#9c150b' }}>R</th>
+              <th style={{ padding: isDesktop ? '8px 0 8px 12px' : '6px 0 6px 6px', textAlign: 'right' }}>Margin</th>
             </tr>
           </thead>
           <tbody>
@@ -376,7 +384,9 @@ const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; d
               const leadD = poll.margin >= 0;
               return (
                 <tr key={i} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '10px 12px 10px 0' }}>
+                  {/* overflowWrap lets slash-joined pollster names ("…University/ReconMR/Siena…")
+                      break on phones — otherwise their unbreakable width forces the table to scroll. */}
+                  <td style={{ padding: isDesktop ? '10px 12px 10px 0' : '8px 6px 8px 0', overflowWrap: isDesktop ? undefined : 'anywhere' }}>
                     {poll.pollster}
                     {poll.isPartisan && (
                       <span style={{ marginLeft: '6px', fontSize: '11px', color: '#b45309', backgroundColor: '#fef3c7', padding: '1px 6px', borderRadius: '4px' }}>
@@ -384,13 +394,17 @@ const PollsSection = ({ data, demName, repName, maxRows }: { data?: RacePolls; d
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: '10px 12px', color: '#666' }}>{formatPollDate(poll.date)}</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', color: '#666' }}>
-                    {poll.sampleSize ? poll.sampleSize.toLocaleString() : '—'}{poll.population ? ` ${poll.population}` : ''}
+                  <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', color: '#666', whiteSpace: 'nowrap' }}>
+                    {isDesktop ? formatPollDate(poll.date) : formatPollDateShort(poll.date)}
                   </td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: leadD ? 'bold' : 'normal' }}>{poll.demPercent.toFixed(0)}%</td>
-                  <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: !leadD ? 'bold' : 'normal' }}>{poll.repPercent.toFixed(0)}%</td>
-                  <td style={{ padding: '10px 0 10px 12px', textAlign: 'right', color: leadD ? '#123f8f' : '#9c150b', fontWeight: 600 }}>
+                  {isDesktop && (
+                    <td style={{ padding: '10px 12px', textAlign: 'right', color: '#666' }}>
+                      {poll.sampleSize ? poll.sampleSize.toLocaleString() : '—'}{poll.population ? ` ${poll.population}` : ''}
+                    </td>
+                  )}
+                  <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: leadD ? 'bold' : 'normal' }}>{poll.demPercent.toFixed(0)}%</td>
+                  <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: !leadD ? 'bold' : 'normal' }}>{poll.repPercent.toFixed(0)}%</td>
+                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: leadD ? '#123f8f' : '#9c150b', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {leadD ? 'D' : 'R'} +{Math.abs(poll.margin).toFixed(0)}
                   </td>
                 </tr>
