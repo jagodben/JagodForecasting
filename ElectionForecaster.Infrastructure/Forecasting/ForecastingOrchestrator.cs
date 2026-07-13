@@ -59,6 +59,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     // available — the baseline out-party bonus in a midterm (2026 has a Republican president).
     private const double DefaultMidtermEnvironment = 2.5;
 
+    // Fraction of the national environment House districts absorb. Uniform full-strength swing
+    // overstates seat change; 0.6 fits the recent seats-votes curve (see BuildForecast comment).
+    private const double HouseEnvironmentDamping = 0.6;
+
     // Max races forecast concurrently when filling a cold cache — each runs in its own DI scope
     // (own DbContext) so this is real parallelism, bounded to avoid hammering the upstream APIs.
     private const int MaxForecastConcurrency = 8;
@@ -200,9 +204,15 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         // back to a fixed baseline midterm out-party bonus only when no average is available.
         if (fundamentals != null)
         {
-            fundamentals.NationalEnvironment = genericBallotMargin.HasValue
+            var environment = genericBallotMargin.HasValue
                 ? Math.Clamp(genericBallotMargin.Value, -15, 15)
                 : DefaultMidtermEnvironment;
+            // House seats absorb only part of the national swing (incumbents resist it, and
+            // challengers underperform the generic ballot in hostile districts) — full-strength
+            // uniform swing turned a D+6 environment into a 252-seat projection, where the
+            // historical seats-votes curve (2018: D+8.6 → 235; 2020: D+3.1 → 222) puts it near 230.
+            if (raceType == RaceType.House) environment *= HouseEnvironmentDamping;
+            fundamentals.NationalEnvironment = environment;
             fundamentals.IncumbentIsDem = GetIncumbentIsDem(race);
         }
 
@@ -706,7 +716,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         foreach (var day in ballotDays.GroupBy(g => g.Date.Date).OrderBy(g => g.Key))
         {
             var ballot = day.Last();
-            var environment = Math.Clamp(ballot.DemPercent - ballot.RepPercent, -15, 15);
+            // Same House environment damping as the live path (see BuildForecast).
+            var environment = Math.Clamp(ballot.DemPercent - ballot.RepPercent, -15, 15) * HouseEnvironmentDamping;
             var daysToElection = (_electionDate - day.Key).TotalDays;
             var se = UncertaintyModel.MarginStandardError(daysToElection, RaceType.House, 0);
 
