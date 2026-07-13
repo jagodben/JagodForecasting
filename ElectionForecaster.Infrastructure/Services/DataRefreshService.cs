@@ -59,7 +59,11 @@ public class DataRefreshService : BackgroundService
         {
             try
             {
-                await orchestrator.BackfillModelHistoryAsync(force: false, cancellationToken);
+                // MODEL_REBACKFILL=1 (set for one deploy after a model change, then removed)
+                // forces the retrospective history to be recomputed under the current model, so
+                // charts don't show an artificial cliff where old-model history meets new points.
+                var force = Environment.GetEnvironmentVariable("MODEL_REBACKFILL") == "1";
+                await orchestrator.BackfillModelHistoryAsync(force, cancellationToken);
             }
             catch (Exception ex)
             {

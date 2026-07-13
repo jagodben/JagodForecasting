@@ -28,15 +28,28 @@ export const MethodologyPage = () => {
 
       <ul style={{ paddingLeft: '20px', color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         <Item label="Prediction markets">Polymarket odds for the race.</Item>
-        <Item label="Polls">recency- and sample-size-weighted average of public polls.</Item>
-        <Item label="Fundamentals">state partisan lean (Cook PVI), past results, and incumbency.</Item>
-        <Item label="National environment">the national mood, from the generic congressional ballot average.</Item>
+        <Item label="Polls">recency- and sample-size-weighted average of public polls — including
+          district-level House polls where they exist. Partisan-sponsored polls count at half weight,
+          and each pollster&rsquo;s measured lean is corrected before averaging.</Item>
+        <Item label="Fundamentals">partisan lean (Cook PVI, district-level for the House), past
+          results, and incumbency.</Item>
+        <Item label="National environment">the generic congressional ballot average. House districts
+          absorb only part of the national swing, matching how votes have translated into seats in
+          recent cycles.</Item>
       </ul>
 
       <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         Inputs are weighted by how much signal each carries, combined into an expected margin, and
-        converted to a win probability whose uncertainty shrinks as Election Day nears. Senate control
-        comes from a Monte Carlo simulation over all races plus the seats not up this cycle.
+        converted to a win probability using a fat-tailed distribution (big polling misses happen).
+        Uncertainty shrinks as Election Day nears; ranked-choice races (Alaska, Maine) carry extra.
+        Chamber control comes from 10,000 Monte Carlo simulations with correlated national, regional,
+        and race-level errors.
+      </p>
+
+      <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
+        Everything updates once a day at 8:00 AM ET — polls, markets, and the candidates themselves,
+        which are checked against Wikipedia so primaries, dropouts, and replacements show up
+        automatically.
       </p>
 
       <p style={{ color: '#888888', fontSize: '13px', lineHeight: 1.6 }}>
