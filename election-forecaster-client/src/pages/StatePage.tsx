@@ -4,6 +4,7 @@ import { statesApi } from '../services/api';
 import { StateMap } from '../components/maps/StateMap';
 import { RaceCard } from '../components/races/RaceCard';
 import { RaceType, RaceRating } from '../types';
+import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {
@@ -145,6 +146,10 @@ export const StatePage = () => {
               ))}
             </div>
           </section>
+        )}
+        {/* The race cards mark unresolved nominees with an asterisk; explain it once per page. */}
+        {state.races.some(r => r.candidates.some(c => isTbdCandidate(c.name))) && (
+          <div style={{ margin: '16px 0 24px', fontSize: '12px', color: '#888888' }}>{TBD_NOTE}</div>
         )}
       </div>
     </div>
