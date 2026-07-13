@@ -4,7 +4,6 @@ import { statesApi, racesApi } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
 import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
-import { MapLegend } from '../components/maps/MapLegend';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
@@ -142,9 +141,6 @@ export const HomePage = () => {
             {activeView === 'house' && houseRaces && (
               <USDistrictMap races={houseRaces} dataSource={dataSource} onDistrictSelect={setSelectedDistrict} />
             )}
-            {/* Every district has a 2026 race, so the gray "no race" chip only applies statewide;
-                the gold independent ramp only appears on the Senate map (NE). */}
-            <MapLegend showNoRace={activeView !== 'house'} />
           </div>
 
           {/* Selected state info - mobile only (Senate/Governors) */}
