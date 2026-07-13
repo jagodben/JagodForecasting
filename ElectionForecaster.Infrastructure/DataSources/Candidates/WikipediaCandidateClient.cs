@@ -177,7 +177,10 @@ public partial class WikipediaCandidateClient
     /// Parses the first {{Infobox election}} in the block into Dem/Rep nominees. Uses the
     /// nominee1..n/party1..n parameters (candidate1..n as a fallback — pre-primary pages use it),
     /// and marks a nominee incumbent when they match the infobox's current officeholder
-    /// (before_election). Returns null when there's no infobox at all.
+    /// (before_election). A side the infobox leaves unfilled (NOT explicitly TBD) falls back to
+    /// the sitting incumbent when they've declared for reelection — an incumbent on the ballot is
+    /// the presumptive nominee, and far better to show than a generic placeholder. Returns null
+    /// when there's no infobox at all.
     /// </summary>
     private RaceNominees? ParseInfoboxNominees(string block)
     {
@@ -185,7 +188,11 @@ public partial class WikipediaCandidateClient
         if (infobox is null) return null;
 
         var args = ParseTemplateArguments(infobox);
+        return FillDeclaredIncumbent(ParseInfoboxCandidates(args), args, block);
+    }
 
+    private static RaceNominees ParseInfoboxCandidates(Dictionary<string, string> args)
+    {
         var incumbentName = CleanValue(args.GetValueOrDefault("before_election") ?? "");
 
         foreach (var prefix in new[] { "nominee", "candidate" })
@@ -232,6 +239,57 @@ public partial class WikipediaCandidateClient
         }
 
         return new RaceNominees(null, null);
+    }
+
+    /// <summary>
+    /// Fills a missing side with the sitting incumbent when the block's candidate sections show
+    /// them as Declared for reelection. Applies only when the infobox left the side blank —
+    /// never over a resolved nominee, and never over an explicit TBD (that's a deliberate
+    /// statement, e.g. a reset nomination the incumbent might be part of).
+    /// </summary>
+    private static RaceNominees FillDeclaredIncumbent(
+        RaceNominees result, Dictionary<string, string> args, string block)
+    {
+        var incumbent = CleanValue(args.GetValueOrDefault("before_election") ?? "");
+        var beforeParty = args.GetValueOrDefault("before_party") ?? "";
+        if (incumbent.Length == 0 || !incumbent.Contains(' ')) return result;
+
+        if (beforeParty.Contains("Democratic", StringComparison.OrdinalIgnoreCase)
+            && result.Dem is null && !result.DemExplicitlyUnresolved
+            && IsDeclaredInBlock(block, incumbent))
+        {
+            return result with { Dem = new ScrapedNominee(incumbent, true) };
+        }
+        if (beforeParty.Contains("Republican", StringComparison.OrdinalIgnoreCase)
+            && result.Rep is null && !result.RepExplicitlyUnresolved
+            && IsDeclaredInBlock(block, incumbent))
+        {
+            return result with { Rep = new ScrapedNominee(incumbent, true) };
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// True when the name appears under a "Declared" candidates heading in the block and NOT
+    /// under a withdrawn/declined/eliminated heading (a mid-race dropout moves them there).
+    /// </summary>
+    private static bool IsDeclaredInBlock(string block, string name)
+    {
+        var headingRe = HeadingRegex();
+        bool declared = false, withdrawn = false;
+        string section = "";
+        foreach (var line in block.Split('\n'))
+        {
+            var m = headingRe.Match(line.Trim());
+            if (m.Success) { section = m.Groups[2].Value; continue; }
+            if (!line.Contains(name, StringComparison.OrdinalIgnoreCase)) continue;
+
+            if (section.Contains("Declared", StringComparison.OrdinalIgnoreCase)) declared = true;
+            else if (section.Contains("Withdrawn", StringComparison.OrdinalIgnoreCase) ||
+                     section.Contains("Declined", StringComparison.OrdinalIgnoreCase) ||
+                     section.Contains("Eliminated", StringComparison.OrdinalIgnoreCase)) withdrawn = true;
+        }
+        return declared && !withdrawn;
     }
 
     /// <summary>Extracts the body of the first {{Infobox election ...}} (balanced braces), or null.</summary>

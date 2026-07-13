@@ -386,11 +386,12 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
             const race = tooltipData.race!;
             const independent = hasIndependentChallenger(race);
             const rating = tooltipData.rating ?? race.rating;
-            // The challenger (non-Republican) side: a viable independent shows its name in gold,
-            // a Democrat keeps the generic "Democrat" label in blue.
-            const challengerName = independent
-              ? (race.candidates.find(c => c.party === Party.Independent)?.name ?? 'Independent')
-              : 'Democrat';
+            // Show actual candidate names (unresolved races carry the readable
+            // "Democratic Nominee"/"Republican Nominee" placeholders). Independents in gold.
+            const challengerName =
+              race.candidates.find(c => c.party !== Party.Republican)?.name ?? 'Democrat';
+            const repName =
+              race.candidates.find(c => c.party === Party.Republican)?.name ?? 'Republican';
             const challengerColor = independent ? '#b8860b' : '#123f8f';
             return (
               <div>
@@ -420,7 +421,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                       <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#9c150b', fontWeight: 500 }}>Republican</span>
+                      <span style={{ color: '#9c150b', fontWeight: 500 }}>{repName}</span>
                       <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
                     </div>
                   </div>

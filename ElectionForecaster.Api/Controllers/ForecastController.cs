@@ -1,4 +1,5 @@
 using ElectionForecaster.Core.Enums;
+using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Core.Models;
 using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
@@ -15,17 +16,20 @@ public class ForecastController : ControllerBase
     private readonly IForecastingOrchestrator _orchestrator;
     private readonly PolymarketClient _polymarketClient;
     private readonly IPollingSource _pollingSource;
+    private readonly IRaceService _raceService;
     private readonly ILogger<ForecastController> _logger;
 
     public ForecastController(
         IForecastingOrchestrator orchestrator,
         PolymarketClient polymarketClient,
         IPollingSource pollingSource,
+        IRaceService raceService,
         ILogger<ForecastController> logger)
     {
         _orchestrator = orchestrator;
         _polymarketClient = polymarketClient;
         _pollingSource = pollingSource;
+        _raceService = raceService;
         _logger = logger;
     }
 
@@ -36,6 +40,10 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(typeof(RacePolls), StatusCodes.Status200OK)]
     public async Task<ActionResult<RacePolls>> GetRacePolls(string raceId, [FromQuery] int days = 120)
     {
+        // Unknown race ids must 404, not trigger Wikipedia fetches for pages that can't exist.
+        if (await _raceService.GetRaceByIdAsync(raceId) is null)
+            return NotFound(new { message = $"Unknown race '{raceId}'" });
+
         // Races with a viable independent challenger have no usable polling: the parsed Dem-vs-Rep
         // tables poll the token Democrat (not the independent), so the forecast drops them. Return
         // none here too, rather than mislabelling the Democrat's numbers as the independent's.
@@ -71,6 +79,11 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DetailedForecast>> GetRaceForecast(string raceId)
     {
+        // Unknown race ids must 404 — without this the orchestrator fabricates a forecast
+        // (defaulting the race type) for any string, and caches/persists the junk.
+        if (await _raceService.GetRaceByIdAsync(raceId) is null)
+            return NotFound(new { message = $"Unknown race '{raceId}'" });
+
         try
         {
             var forecast = await _orchestrator.GenerateForecastAsync(raceId);

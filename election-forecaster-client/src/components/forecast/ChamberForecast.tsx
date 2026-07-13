@@ -289,7 +289,7 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
       )}
 
       <div style={{ marginTop: '12px', fontSize: '11px', color: '#888888', textAlign: 'center' }}>
-        Updated daily at 8:00AM EST
+        Updated daily at 8:00 AM ET
       </div>
       </>
       )}

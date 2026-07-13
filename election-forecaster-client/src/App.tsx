@@ -3,6 +3,7 @@ import { HomePage } from './pages/HomePage';
 import { StatePage } from './pages/StatePage';
 import { RacePage } from './pages/RacePage';
 import { MethodologyPage } from './pages/MethodologyPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import { SiteFooter } from './components/SiteFooter';
 import './App.css';
@@ -18,6 +19,7 @@ function App() {
               <Route path="/state/:stateId" element={<StatePage />} />
               <Route path="/race/:raceId" element={<RacePage />} />
               <Route path="/methodology" element={<MethodologyPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
           <SiteFooter />

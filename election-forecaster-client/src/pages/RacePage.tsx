@@ -34,6 +34,11 @@ const getPartyLogo = (party: Party): string | null => {
 const formatPollDate = (iso: string): string =>
   new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+// Chart label for a candidate: the chart abbreviates to the last word, which turns the
+// "Democratic Nominee" placeholder into a bare "Nominee" — use the party name instead.
+const chartLabel = (name: string | undefined, party: string): string =>
+  !name || name.endsWith(' Nominee') ? party : name;
+
 // Compact form for phones ("6/27/26") — narrow enough that the polls table never scrolls.
 const formatPollDateShort = (iso: string): string => {
   const d = new Date(iso);
@@ -172,7 +177,7 @@ export const RacePage = () => {
           </h2>
           {forecast && (
             <div style={{ fontSize: '12px', color: '#888888', marginTop: '6px' }}>
-              Updated daily at 8:00AM EST
+              Updated daily at 8:00 AM ET
             </div>
           )}
         </div>
@@ -188,8 +193,8 @@ export const RacePage = () => {
                   <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Race Timeline</div>
                   <ProbabilityTrendChart
                     data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
-                    demLabel={demCandidate?.name || 'Democrat'}
-                    repLabel={repCandidate?.name || 'Republican'}
+                    demLabel={chartLabel(demCandidate?.name, 'Democrat')}
+                    repLabel={chartLabel(repCandidate?.name, 'Republican')}
                     demColor={demColor}
                     width={520}
                     height={300}
@@ -236,8 +241,8 @@ export const RacePage = () => {
                   <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Race Timeline</div>
                   <ProbabilityTrendChart
                     data={historicalData.map(h => ({ date: h.date, demValue: h.demOdds / 100 }))}
-                    demLabel={demCandidate?.name || 'Democrat'}
-                    repLabel={repCandidate?.name || 'Republican'}
+                    demLabel={chartLabel(demCandidate?.name, 'Democrat')}
+                    repLabel={chartLabel(repCandidate?.name, 'Republican')}
                     demColor={demColor}
                     width={760}
                     height={300}
