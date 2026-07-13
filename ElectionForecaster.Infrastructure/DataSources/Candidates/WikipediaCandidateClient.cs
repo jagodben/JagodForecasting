@@ -11,8 +11,9 @@ namespace ElectionForecaster.Infrastructure.DataSources.Candidates;
 /// Wikipedia article, so the daily refresh can keep candidates current as primaries conclude or
 /// candidates change. Statewide races have their own article; House nominees come from the
 /// per-district infoboxes inside the state-wide "...elections in {State}" article (at-large
-/// states use their single-race article). An unresolved side (TBD/empty) yields null — the
-/// caller keeps whatever it already has.
+/// states use their single-race article). A side listed with a literal placeholder ("TBD") is
+/// reported as explicitly unresolved — a dropout/reset that callers should act on — while a
+/// missing or unparseable side yields a plain null the caller ignores.
 /// </summary>
 public partial class WikipediaCandidateClient
 {
@@ -38,8 +39,15 @@ public partial class WikipediaCandidateClient
     /// <summary>A scraped nominee; Incumbent is true when they match the infobox's officeholder.</summary>
     public sealed record ScrapedNominee(string Name, bool IsIncumbent);
 
-    /// <summary>Nominees for one race; a null side means Wikipedia lists no resolved nominee.</summary>
-    public sealed record RaceNominees(ScrapedNominee? Dem, ScrapedNominee? Rep);
+    /// <summary>
+    /// Nominees for one race. A null side with its ExplicitlyUnresolved flag SET means the infobox
+    /// parsed fine and deliberately lists that side as TBD — a real editorial statement (a dropout
+    /// or a reset nomination), which callers should treat as "there is no nominee anymore". A null
+    /// side WITHOUT the flag just means nothing parseable was found — keep whatever you had.
+    /// </summary>
+    public sealed record RaceNominees(
+        ScrapedNominee? Dem, ScrapedNominee? Rep,
+        bool DemExplicitlyUnresolved = false, bool RepExplicitlyUnresolved = false);
 
     /// <summary>
     /// Fetches nominees for every given race. Returns a map of raceId → nominees; races whose
@@ -184,30 +192,42 @@ public partial class WikipediaCandidateClient
         {
             var dems = new List<ScrapedNominee>();
             var reps = new List<ScrapedNominee>();
+            bool demTbd = false, repTbd = false;
             for (int i = 1; i <= 9; i++)
             {
                 var rawName = args.GetValueOrDefault($"{prefix}{i}");
                 var rawParty = args.GetValueOrDefault($"party{i}");
                 if (rawName is null || rawParty is null) continue;
 
+                var isDem = rawParty.Contains("Democratic", StringComparison.OrdinalIgnoreCase);
+                var isRep = rawParty.Contains("Republican", StringComparison.OrdinalIgnoreCase);
                 var name = CleanValue(rawName);
+
+                // A literal placeholder ("TBD") on a parsed infobox is a deliberate statement that
+                // this party currently has no nominee — e.g. the named candidate dropped out.
+                if (IsExplicitPlaceholder(name))
+                {
+                    if (isDem) demTbd = true;
+                    else if (isRep) repTbd = true;
+                    continue;
+                }
                 if (!IsResolvedName(name)) continue;
 
                 var incumbent = incumbentName.Length > 0 &&
                                 name.Equals(incumbentName, StringComparison.OrdinalIgnoreCase);
 
-                if (rawParty.Contains("Democratic", StringComparison.OrdinalIgnoreCase))
-                    dems.Add(new ScrapedNominee(name, incumbent));
-                else if (rawParty.Contains("Republican", StringComparison.OrdinalIgnoreCase))
-                    reps.Add(new ScrapedNominee(name, incumbent));
+                if (isDem) dems.Add(new ScrapedNominee(name, incumbent));
+                else if (isRep) reps.Add(new ScrapedNominee(name, incumbent));
             }
 
             // A side is trusted only when the infobox names exactly ONE candidate for that party —
             // two same-party entries means a primary/jungle listing, not a general-election nominee.
-            if (dems.Count > 0 || reps.Count > 0)
+            if (dems.Count > 0 || reps.Count > 0 || demTbd || repTbd)
                 return new RaceNominees(
                     dems.Count == 1 ? dems[0] : null,
-                    reps.Count == 1 ? reps[0] : null);
+                    reps.Count == 1 ? reps[0] : null,
+                    DemExplicitlyUnresolved: demTbd && dems.Count == 0,
+                    RepExplicitlyUnresolved: repTbd && reps.Count == 0);
             // Nothing under nomineeN — fall through and retry with candidateN.
         }
 
@@ -279,6 +299,8 @@ public partial class WikipediaCandidateClient
     {
         if (string.IsNullOrWhiteSpace(s)) return string.Empty;
 
+        // Editor comments first — they may contain '>' and confuse the generic tag stripper.
+        s = Regex.Replace(s, @"<!--.*?-->", "", RegexOptions.Singleline);
         s = Regex.Replace(s, @"<ref[^>]*?/>", "", RegexOptions.IgnoreCase);
         s = Regex.Replace(s, @"<ref[^>]*?>.*?</ref>", "", RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
@@ -301,13 +323,23 @@ public partial class WikipediaCandidateClient
         return Regex.Replace(s, @"\s+", " ").Trim();
     }
 
-    /// <summary>False for placeholder values like "TBD" that mean no nominee yet.</summary>
+    /// <summary>
+    /// True for the literal placeholder values editors use to say "no nominee (currently)" —
+    /// "TBD", "To be determined", … A match on a parsed infobox is a deliberate statement (not a
+    /// parse failure), so it clears a previously-stored nominee (dropouts, reset nominations).
+    /// </summary>
+    private static bool IsExplicitPlaceholder(string name)
+    {
+        if (name.Length == 0) return false; // empty is scaffolding, not a statement
+        var upper = name.ToUpperInvariant();
+        return upper is "TBD" or "TBA" or "N/A" or "NONE" or "PENDING" or "VACANT"
+            || upper.StartsWith("TO BE ");
+    }
+
+    /// <summary>False for anything that doesn't look like an actual candidate name.</summary>
     private static bool IsResolvedName(string name)
     {
-        if (name.Length < 3) return false;
-        var upper = name.ToUpperInvariant();
-        if (upper is "TBD" or "TBA" or "N/A" or "NONE" or "PENDING" or "VACANT") return false;
-        if (upper.StartsWith("TO BE ")) return false;
+        if (name.Length < 3 || IsExplicitPlaceholder(name)) return false;
         // A real name has at least two word parts ("Mike Rogers"); guards against stray markup.
         return name.Contains(' ');
     }

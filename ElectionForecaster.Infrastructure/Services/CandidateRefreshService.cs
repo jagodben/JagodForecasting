@@ -55,7 +55,8 @@ public class CandidateRefreshService
         var now = DateTime.UtcNow;
         foreach (var (raceId, nominees) in scraped)
         {
-            if (nominees.Dem is null && nominees.Rep is null) continue;
+            if (nominees.Dem is null && nominees.Rep is null &&
+                !nominees.DemExplicitlyUnresolved && !nominees.RepExplicitlyUnresolved) continue;
 
             var row = await _db.NomineeOverrides.FindAsync(new object[] { raceId }, cancellationToken);
             if (row is null)
@@ -64,17 +65,29 @@ public class CandidateRefreshService
                 _db.NomineeOverrides.Add(row);
             }
 
-            // Update only the sides Wikipedia resolved: a temporarily-unparseable side must not
-            // wipe a previously-good name.
+            // A resolved side updates the stored nominee. A side the infobox EXPLICITLY lists as
+            // TBD (a dropout / reset nomination) is downgraded to the generic placeholder — the
+            // same names ElectionDataProvider uses — so a stale name can't linger on the site.
+            // A side that's merely missing/unparseable keeps its previous value.
             if (nominees.Dem is not null)
             {
                 row.DemName = nominees.Dem.Name;
                 row.DemIsIncumbent = nominees.Dem.IsIncumbent;
             }
+            else if (nominees.DemExplicitlyUnresolved)
+            {
+                row.DemName = "Democratic Nominee";
+                row.DemIsIncumbent = false;
+            }
             if (nominees.Rep is not null)
             {
                 row.RepName = nominees.Rep.Name;
                 row.RepIsIncumbent = nominees.Rep.IsIncumbent;
+            }
+            else if (nominees.RepExplicitlyUnresolved)
+            {
+                row.RepName = "Republican Nominee";
+                row.RepIsIncumbent = false;
             }
             row.UpdatedAt = now;
         }
