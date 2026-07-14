@@ -166,7 +166,9 @@ export const RacePage = () => {
       <nav className="breadcrumb" style={{ marginBottom: '12px' }}>
         <Link to="/">Map</Link>
         <span> / </span>
-        <span>{stateName} {raceTypeLabel}</span>
+        <Link to={`/state/${race.stateId}`}>{stateName}</Link>
+        <span> / </span>
+        <span>{raceTypeLabel}</span>
       </nav>
 
       <div className="race-page__header-top">
@@ -255,6 +257,14 @@ export const RacePage = () => {
             </div>
           </>
         )}
+      </div>
+
+      {/* Drill-up to the state overview (Senate + Governor + every district in one place) —
+          otherwise state pages are only reachable from no-race gray states on the map. */}
+      <div style={{ textAlign: 'center', margin: '28px 0 8px' }}>
+        <Link to={`/state/${race.stateId}`} style={{ fontSize: '14px', fontWeight: 600 }}>
+          See all {stateName} races →
+        </Link>
       </div>
     </div>
   );

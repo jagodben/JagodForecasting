@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
@@ -71,6 +72,7 @@ interface RaceCardProps {
 }
 
 export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
+  const navigate = useNavigate();
   // The Republican holds the R-side; the challenger is the other candidate — a Democrat, or a viable
   // independent (e.g. Dan Osborn) that replaced the token Democrat. It carries the Dem-side probability.
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
@@ -92,14 +94,19 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
 
   if (compact) {
     return (
-      <div className="race-card compact" style={{
-        padding: '12px',
-        borderRadius: '8px',
-        backgroundColor: '#fff',
-        border: '1px solid #ececec',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-        marginBottom: '8px',
-      }}>
+      <div
+        className="race-card compact race-card--clickable"
+        role="link"
+        onClick={() => navigate(`/race/${race.id}`)}
+        style={{
+          padding: '12px',
+          borderRadius: '8px',
+          backgroundColor: '#fff',
+          border: '1px solid #ececec',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+          marginBottom: '8px',
+          cursor: 'pointer',
+        }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 'bold' }}>
             {race.type === RaceType.House
@@ -121,14 +128,19 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
   }
 
   return (
-    <div className="race-card" style={{
-      padding: '20px',
-      borderRadius: '12px',
-      backgroundColor: '#fff',
-      border: '1px solid #ececec',
-      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-      marginBottom: '16px',
-    }}>
+    <div
+      className="race-card race-card--clickable"
+      role="link"
+      onClick={() => navigate(`/race/${race.id}`)}
+      style={{
+        padding: '20px',
+        borderRadius: '12px',
+        backgroundColor: '#fff',
+        border: '1px solid #ececec',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+        marginBottom: '16px',
+        cursor: 'pointer',
+      }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h3 style={{ margin: 0 }}>{getRaceTypeLabel(race.type, race.districtNumber, race.stateId)}</h3>
         <span style={{
