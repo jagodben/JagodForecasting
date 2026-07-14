@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi } from '../services/api';
 import { StateMap } from '../components/maps/StateMap';
@@ -36,6 +36,7 @@ const getRatingColor = (rating: RaceRating): string => {
 
 export const StatePage = () => {
   const { stateId } = useParams<{ stateId: string }>();
+  const navigate = useNavigate();
 
   const { data: state, isLoading, error } = useQuery({
     queryKey: ['state', stateId],
@@ -100,6 +101,7 @@ export const StatePage = () => {
         <StateMap
           stateId={state.id}
           districts={state.districts}
+          onDistrictClick={d => d.houseRace && navigate(`/race/${d.houseRace.id}`)}
         />
       </div>
 
