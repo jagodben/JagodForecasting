@@ -123,7 +123,7 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
   const PILL_H = 20;
   // Name (left) + gap + value (right); sized so the two can never collide.
-  const pillW = (name: string) => 9 + name.length * 6.5 + 12 + 40 + 8;
+  const pillW = (name: string) => 9 + name.length * 6.5 + 6 + 38 + 8;
   let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
   const minGap = PILL_H + 4;
   if (Math.abs(demPillY - repPillY) < minGap) {
