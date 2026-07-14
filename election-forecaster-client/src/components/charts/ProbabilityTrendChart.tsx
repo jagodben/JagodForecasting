@@ -19,7 +19,6 @@ const DEM = '#123f8f';
 const REP = '#9c150b';
 const INK = '#1f2937';
 const INK_MUTED = '#9aa0a6';
-const GRID = '#eef0f2';
 
 // Builds a smooth SVG path through the points with monotone-cubic interpolation
 // (no overshoot, so a probability series never bulges past its data).
@@ -54,15 +53,16 @@ const smoothPath = (pts: { x: number; y: number }[]): string => {
 /**
  * Two-line probability-over-time chart (Dem vs Rep, which sum to 100%). Shared by the home-page
  * chamber "Race Timeline" and each race page's timeline so the two always look identical.
- * Smoothed lines with soft area fills, round-number gridlines, an emphasized 50% majority line,
- * named end-of-line callouts, and a unified crosshair tooltip.
+ * Market-style presentation: tall plot, dotted gridlines labeled on the right, smoothed lines,
+ * and white value pills (colored tick + name + value) that sit at the line ends and track the
+ * crosshair on hover, with the hovered date shown at the top.
  */
-export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, height = 150, demColor = DEM }: Props) => {
+export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, height = 210, demColor = DEM }: Props) => {
   const uid = useId().replace(/:/g, '');
   const [hover, setHover] = useState<number | null>(null);
   if (data.length < 2) return null;
 
-  const pad = { top: 14, right: 74, bottom: 24, left: 36 };
+  const pad = { top: 24, right: 44, bottom: 22, left: 8 };
   const cw = width - pad.left - pad.right;
   const chh = height - pad.top - pad.bottom;
 
@@ -88,41 +88,26 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   const x = (i: number) => pad.left + (i / (data.length - 1)) * cw;
   const y = (v: number) => pad.top + chh - ((v - lo) / (hi - lo || 1)) * chh;
+  const floorY = pad.top + chh;
 
   const demPts = dem.map((v, i) => ({ x: x(i), y: y(v) }));
   const repPts = rep.map((v, i) => ({ x: x(i), y: y(v) }));
   const demLine = smoothPath(demPts);
   const repLine = smoothPath(repPts);
-  const floorY = pad.top + chh;
 
-  const lastDem = dem[dem.length - 1], lastRep = rep[rep.length - 1];
   const stepW = cw / (data.length - 1);
   // Parse the YYYY-MM-DD portion as a LOCAL date so a UTC-midnight timestamp doesn't render as
   // the previous day (which made a July 1 point read "Jun 30").
   const fmtDate = (iso: string) => {
-    const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const [yy, mm, dd] = iso.slice(0, 10).split('-').map(Number);
+    return new Date(yy, mm - 1, dd).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   const nTicks = Math.min(4, data.length);
   const dateTicks = Array.from({ length: nTicks }, (_, k) => Math.round((k / (nTicks - 1 || 1)) * (data.length - 1)));
 
-  // End-of-line callouts: colored marker + name + value in ink. Nudged apart when the
-  // two lines converge so the labels never collide.
-  let demLabelY = y(lastDem), repLabelY = y(lastRep);
-  const minGap = 15;
-  if (Math.abs(demLabelY - repLabelY) < minGap) {
-    const mid = (demLabelY + repLabelY) / 2;
-    const dir = demLabelY <= repLabelY ? -1 : 1;
-    demLabelY = mid + dir * (minGap / 2);
-    repLabelY = mid - dir * (minGap / 2);
-  }
-  const clampY = (v: number) => Math.min(Math.max(v, pad.top + 5), floorY - 5);
-  demLabelY = clampY(demLabelY); repLabelY = clampY(repLabelY);
-
-  // End labels use the surname ("Jon Husted" -> "Husted") to fit beside the plot; the hover
-  // card keeps full names. When surnames collide (e.g. two "Nominee" placeholders), fall back
-  // to truncating the full labels so the two ends stay distinguishable.
+  // Pills use the surname ("Jon Husted" -> "Husted") to stay compact. When surnames collide
+  // (e.g. two "Nominee" placeholders), fall back to truncating the full labels.
   const lastWord = (s: string) => s.trim().split(/\s+/).pop() ?? s;
   let demShort = lastWord(demLabel), repShort = lastWord(repLabel);
   if (demShort === repShort) {
@@ -130,38 +115,36 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
     demShort = trunc(demLabel); repShort = trunc(repLabel);
   }
 
-  const renderEndLabel = (labelY: number, color: string, name: string, value: number) => (
-    <text x={(width - pad.right + 6).toFixed(1)} y={labelY.toFixed(1)} alignmentBaseline="middle"
-          fontSize="10.5" fontWeight="700" fill={color}>
-      {name} {(value * 100).toFixed(0)}%
-    </text>
-  );
+  // The values/positions the pills reflect: the hovered point, or the latest at rest.
+  const idx = hover ?? data.length - 1;
+  const anchorX = x(idx);
 
-  // Unified hover card: date header + one row per series, flipped left past mid-chart.
-  const renderHoverCard = (i: number) => {
-    const rows = [
-      { color: demColor, name: demLabel, v: dem[i] },
-      { color: REP, name: repLabel, v: rep[i] },
-    ].sort((a, b) => b.v - a.v);
-    const w = 14 + Math.max(...rows.map(r => r.name.length), 8) * 6.2 + 42;
-    const h = 52;
-    const cx = x(i);
-    const px = cx > pad.left + cw * 0.55 ? cx - w - 12 : cx + 12;
-    const py = Math.min(Math.max(Math.min(y(dem[i]), y(rep[i])) - 8, pad.top - 4), floorY - h);
+  // Value pills, market-style: white rounded chip with a colored tick, name, and value.
+  // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
+  const PILL_H = 20;
+  // Name (left) + gap + value (right); sized so the two can never collide.
+  const pillW = (name: string) => 9 + name.length * 6.5 + 6 + 38 + 8;
+  let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
+  const minGap = PILL_H + 4;
+  if (Math.abs(demPillY - repPillY) < minGap) {
+    const mid = (demPillY + repPillY) / 2;
+    const dir = demPillY <= repPillY ? -1 : 1;
+    demPillY = mid + dir * (minGap / 2);
+    repPillY = mid - dir * (minGap / 2);
+  }
+  const clampY = (v: number) => Math.min(Math.max(v, pad.top + PILL_H / 2), floorY - PILL_H / 2);
+  demPillY = clampY(demPillY); repPillY = clampY(repPillY);
+
+  const renderPill = (pillY: number, color: string, name: string, value: number) => {
+    const w = pillW(name);
+    const px = anchorX + 10 + w > width - 2 ? anchorX - w - 10 : anchorX + 10;
     return (
-      <g transform={`translate(${px.toFixed(1)}, ${py.toFixed(1)})`} pointerEvents="none">
-        <rect width={w} height={h} rx="7" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
-        <text x="10" y="14" fontSize="9.5" fontWeight="700" fill={INK_MUTED} letterSpacing="0.06em">
-          {fmtDate(data[i].date).toUpperCase()}
+      <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
+        <rect width={w} height={PILL_H} rx="6" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
+        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={color}>{name}</text>
+        <text x={w - 8} y={PILL_H / 2 + 0.5} textAnchor="end" alignmentBaseline="middle" fontSize="11" fontWeight="700" fill={INK}>
+          {(value * 100).toFixed(1)}%
         </text>
-        {rows.map((r, k) => (
-          <g key={k} transform={`translate(10, ${25 + k * 14})`}>
-            <text y="0.5" alignmentBaseline="middle" fontSize="10.5" fontWeight="600" fill={r.color}>{r.name}</text>
-            <text x={w - 20} y="0.5" textAnchor="end" alignmentBaseline="middle" fontSize="10.5" fontWeight="700" fill={INK}>
-              {(r.v * 100).toFixed(1)}%
-            </text>
-          </g>
-        ))}
       </g>
     );
   };
@@ -180,51 +163,54 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
         </clipPath>
       </defs>
 
-      {/* Recessive gridlines + y-axis labels; the 50% majority line is emphasized */}
+      {/* Dotted gridlines, labeled on the right; the 50% majority line is slightly emphasized */}
       {ticks.map((t, i) => {
         const isHalf = Math.abs(t - 0.5) < 1e-9;
         return (
           <g key={i}>
             <line x1={pad.left} y1={y(t)} x2={width - pad.right} y2={y(t)}
-                  stroke={isHalf ? '#c9ced4' : GRID} strokeWidth="1"
-                  strokeDasharray={isHalf ? '4,3' : undefined} />
-            <text x={pad.left - 6} y={y(t)} textAnchor="end" alignmentBaseline="middle"
-                  fontSize="10" fontWeight={isHalf ? 700 : 400} fill={isHalf ? '#6b7280' : INK_MUTED}>
+                  stroke={isHalf ? '#c2c8cf' : '#e3e6ea'} strokeWidth="1"
+                  strokeDasharray="1.5,3.5" strokeLinecap="round" />
+            <text x={width - pad.right + 8} y={y(t)} alignmentBaseline="middle"
+                  fontSize="10.5" fontWeight={isHalf ? 700 : 400} fill={isHalf ? '#6b7280' : INK_MUTED}>
               {(t * 100).toFixed(0)}%
             </text>
           </g>
         );
       })}
 
-      {/* Soft area fills + smoothed lines */}
+      {/* Smoothed lines */}
       <g clipPath={`url(#plot-${uid})`}>
-        <path d={repLine} fill="none" stroke={REP} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        <path d={demLine} fill="none" stroke={demColor} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={repLine} fill="none" stroke={REP} strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
+        <path d={demLine} fill="none" stroke={demColor} strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
       </g>
 
-      {/* Current values: dot on the line + named callout */}
-      <circle cx={x(data.length - 1)} cy={y(lastRep)} r="3.5" fill={REP} stroke="#fff" strokeWidth="1.5" />
-      <circle cx={x(data.length - 1)} cy={y(lastDem)} r="3.5" fill={demColor} stroke="#fff" strokeWidth="1.5" />
-      {renderEndLabel(repLabelY, REP, repShort, lastRep)}
-      {renderEndLabel(demLabelY, demColor, demShort, lastDem)}
-
       {/* Date axis */}
-      {dateTicks.map((idx, k) => (
-        <text key={k} x={x(idx)} y={height - 6} fontSize="10" fill={INK_MUTED}
+      {dateTicks.map((di, k) => (
+        <text key={k} x={x(di)} y={height - 4} fontSize="10.5" fill={INK_MUTED}
               textAnchor={k === 0 ? 'start' : k === dateTicks.length - 1 ? 'end' : 'middle'}>
-          {fmtDate(data[idx].date)}
+          {fmtDate(data[di].date)}
         </text>
       ))}
 
-      {/* Hover crosshair + unified tooltip card */}
+      {/* Crosshair (hover): vertical line + date readout at the top */}
       {hover != null && (
-        <g>
-          <line x1={x(hover)} y1={pad.top} x2={x(hover)} y2={floorY} stroke="#d3d8dd" strokeWidth="1" strokeDasharray="3,3" />
-          <circle cx={x(hover)} cy={y(dem[hover])} r="4" fill={demColor} stroke="#fff" strokeWidth="2" />
-          <circle cx={x(hover)} cy={y(rep[hover])} r="4" fill={REP} stroke="#fff" strokeWidth="2" />
-          {renderHoverCard(hover)}
+        <g pointerEvents="none">
+          <line x1={anchorX} y1={pad.top - 4} x2={anchorX} y2={floorY} stroke="#d3d8dd" strokeWidth="1" />
+          <text x={Math.min(Math.max(anchorX, pad.left + 26), width - pad.right - 26)} y={pad.top - 10}
+                textAnchor="middle" fontSize="10.5" fontWeight="600" fill={INK_MUTED}>
+            {fmtDate(data[hover].date)}
+          </text>
         </g>
       )}
+
+      {/* Markers at the anchor (line ends at rest, crosshair when hovering) + value pills */}
+      <g pointerEvents="none">
+        <circle cx={anchorX} cy={y(rep[idx])} r="4" fill={REP} stroke="#fff" strokeWidth="1.75" />
+        <circle cx={anchorX} cy={y(dem[idx])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.75" />
+      </g>
+      {renderPill(repPillY, REP, repShort, rep[idx])}
+      {renderPill(demPillY, demColor, demShort, dem[idx])}
 
       {/* Invisible hover targets */}
       {data.map((_, i) => (
