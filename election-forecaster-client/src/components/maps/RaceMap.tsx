@@ -6,7 +6,6 @@ import { StateSummary, Race, RaceRating, RaceType, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
-import { ratingTextColor } from '../../utils/ratings';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
@@ -411,7 +410,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                   <span style={{ fontWeight: 500 }}>{raceTypeLabel} Race</span>
                   <span style={{
                     backgroundColor: getRatingColor(rating, independent),
-                    color: ratingTextColor(rating),
+                    color: 'white',
                     padding: '2px 8px',
                     borderRadius: '4px',
                     fontSize: '12px',

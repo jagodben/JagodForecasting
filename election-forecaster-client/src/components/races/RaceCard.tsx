@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
-import { ratingTextColor } from '../../utils/ratings';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 
 const getRatingLabel = (rating: RaceRating): string => {
@@ -120,7 +119,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
             padding: '4px 8px',
             borderRadius: '4px',
             backgroundColor: getRatingColor(race.rating),
-            color: ratingTextColor(race.rating),
+            color: 'white',
             fontSize: '12px',
           }}>
             {getRatingLabel(race.rating)}
@@ -152,7 +151,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           padding: '6px 12px',
           borderRadius: '20px',
           backgroundColor: getRatingColor(race.rating),
-          color: ratingTextColor(race.rating),
+          color: 'white',
           fontWeight: 'bold',
         }}>
           {getRatingLabel(race.rating)}

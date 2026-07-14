@@ -8,7 +8,6 @@ import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { districtCode } from '../utils/districts';
-import { ratingTextColor } from '../utils/ratings';
 
 type MapView = 'senate' | 'house' | 'governors';
 type MobilePanel = 'map' | 'data';
@@ -175,7 +174,7 @@ export const HomePage = () => {
                     {selectedState.rating && (
                       <span
                         className="mobile-state-info__rating"
-                        style={{ backgroundColor: getRatingColor(selectedState.rating), color: ratingTextColor(selectedState.rating) }}
+                        style={{ backgroundColor: getRatingColor(selectedState.rating)}}
                       >
                         {getRatingLabel(selectedState.rating)}
                       </span>
@@ -222,7 +221,7 @@ export const HomePage = () => {
                     {selectedDistrict.rating && (
                       <span
                         className="mobile-state-info__rating"
-                        style={{ backgroundColor: getRatingColor(selectedDistrict.rating), color: ratingTextColor(selectedDistrict.rating) }}
+                        style={{ backgroundColor: getRatingColor(selectedDistrict.rating)}}
                       >
                         {getRatingLabel(selectedDistrict.rating)}
                       </span>

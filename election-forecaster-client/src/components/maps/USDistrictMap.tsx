@@ -7,7 +7,6 @@ import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
-import { ratingTextColor } from '../../utils/ratings';
 import { districtCode } from '../../utils/districts';
 
 type DataSource = 'combined' | 'markets' | 'polling';
@@ -630,7 +629,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                 <span style={{ fontWeight: 500 }}>House Race</span>
                 <span style={{
                   backgroundColor: getRatingColor(tooltipData.race.rating),
-                  color: ratingTextColor(tooltipData.race.rating),
+                  color: 'white',
                   padding: '2px 8px',
                   borderRadius: '4px',
                   fontSize: '12px',
