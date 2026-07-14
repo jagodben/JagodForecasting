@@ -3,36 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { statesApi } from '../services/api';
 import { StateMap } from '../components/maps/StateMap';
 import { RaceCard } from '../components/races/RaceCard';
-import { RaceType, RaceRating } from '../types';
+import { RaceType } from '../types';
 import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
-
-const getRatingLabel = (rating: RaceRating): string => {
-  switch (rating) {
-    case RaceRating.SolidDem: return 'Solid Democrat';
-    case RaceRating.LikelyDem: return 'Likely Democrat';
-    case RaceRating.LeanDem: return 'Lean Democrat';
-    case RaceRating.TiltDem: return 'Tilt Democrat';
-    case RaceRating.TiltRep: return 'Tilt Republican';
-    case RaceRating.LeanRep: return 'Lean Republican';
-    case RaceRating.LikelyRep: return 'Likely Republican';
-    case RaceRating.SolidRep: return 'Solid Republican';
-    default: return 'Unknown';
-  }
-};
-
-const getRatingColor = (rating: RaceRating): string => {
-  switch (rating) {
-    case RaceRating.SolidDem: return '#123f8f';
-    case RaceRating.LikelyDem: return '#2e63bd';
-    case RaceRating.LeanDem: return '#5a8fd6';
-    case RaceRating.TiltDem: return '#9dbff0';
-    case RaceRating.TiltRep: return '#f4aa9b';
-    case RaceRating.LeanRep: return '#e2694f';
-    case RaceRating.LikelyRep: return '#cf2f1a';
-    case RaceRating.SolidRep: return '#9c150b';
-    default: return '#E0E0E0';
-  }
-};
 
 export const StatePage = () => {
   const { stateId } = useParams<{ stateId: string }>();
@@ -77,18 +49,6 @@ export const StatePage = () => {
       <header className="state-header">
         <div className="state-title">
           <h1>{state.name}</h1>
-          <span
-            className="rating-badge"
-            style={{
-              backgroundColor: getRatingColor(state.overallRating),
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontWeight: 'bold',
-            }}
-          >
-            {getRatingLabel(state.overallRating)}
-          </span>
         </div>
         <div className="state-info">
           <span>{state.congressionalDistricts} Congressional District{state.congressionalDistricts !== 1 ? 's' : ''}</span>
