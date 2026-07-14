@@ -13,7 +13,9 @@ function App() {
     <AccessibilityProvider>
       <BrowserRouter>
         <div className="app">
-          <div className="app-content">
+          {/* Keyboard users jump straight past the header/map chrome. */}
+          <a href="#main" className="skip-link">Skip to content</a>
+          <main id="main" className="app-content">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/state/:stateId" element={<StatePage />} />
@@ -21,7 +23,7 @@ function App() {
               <Route path="/methodology" element={<MethodologyPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
-          </div>
+          </main>
           <SiteFooter />
         </div>
       </BrowserRouter>

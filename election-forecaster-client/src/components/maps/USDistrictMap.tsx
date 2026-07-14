@@ -7,6 +7,7 @@ import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
+import { ratingTextColor } from '../../utils/ratings';
 import { districtCode } from '../../utils/districts';
 
 type DataSource = 'combined' | 'markets' | 'polling';
@@ -481,6 +482,8 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
           <svg
             ref={svgCallbackRef}
             viewBox="0 0 800 500"
+            role="img"
+            aria-label="Map of all 435 House districts colored by forecast rating. For keyboard browsing, open a state page and use its district list and map."
             style={{
               width: '100%',
               height: 'auto',
@@ -575,7 +578,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
         <div className="map-instructions" style={{
           textAlign: 'center',
           fontSize: '12px',
-          color: '#888',
+          color: '#6b6b6b',
           marginTop: '8px',
         }}>
           Scroll or use +/− to zoom • Drag to pan • Click a district for details
@@ -627,7 +630,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                 <span style={{ fontWeight: 500 }}>House Race</span>
                 <span style={{
                   backgroundColor: getRatingColor(tooltipData.race.rating),
-                  color: 'white',
+                  color: ratingTextColor(tooltipData.race.rating),
                   padding: '2px 8px',
                   borderRadius: '4px',
                   fontSize: '12px',

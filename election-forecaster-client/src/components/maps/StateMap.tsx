@@ -299,10 +299,16 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
                     fill={isHovered ? '#FFD700' : fillColor}
                     stroke="#FFFFFF"
                     strokeWidth={1.5 / zoom}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${districtCode(stateId, isAtLarge ? 1 : districtNum)} — open race details`}
                     style={{ cursor: 'pointer', transition: 'fill 0.15s ease' }}
                     onMouseEnter={(e) => handleDistrictMouseEnter(isAtLarge ? 1 : districtNum, e)}
                     onMouseLeave={handleDistrictMouseLeave}
                     onClick={() => handleClick(isAtLarge ? 1 : districtNum)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(isAtLarge ? 1 : districtNum); }
+                    }}
                   />
                 );
               })}
@@ -314,7 +320,7 @@ export const StateMap = ({ stateId, districts, onDistrictClick }: StateMapProps)
         <div className="map-instructions" style={{
           textAlign: 'center',
           fontSize: '12px',
-          color: '#888',
+          color: '#6b6b6b',
           marginTop: '8px',
         }}>
           Scroll to zoom • Drag to pan • Click district for details

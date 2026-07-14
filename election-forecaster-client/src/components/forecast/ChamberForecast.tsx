@@ -195,7 +195,8 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
           <>
             <div className="mobile-chamber-card__probs">
               <span style={{ color: '#123f8f' }}>{demVictoryOdds}%</span>
-              <div className="mobile-chamber-card__bar">
+              <div className="mobile-chamber-card__bar" role="img"
+                   aria-label={`Win probability: Democrats ${demVictoryOdds}%, Republicans ${repVictoryOdds}%`}>
                 <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#123f8f' }} />
                 <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#9c150b' }} />
               </div>
@@ -237,7 +238,8 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
             <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
             <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
           </div>
-          <div className="forecast-sidebar__seat-bar">
+          <div className="forecast-sidebar__seat-bar" role="img"
+               aria-label={`Win probability: Democrats ${demVictoryOdds}%, Republicans ${repVictoryOdds}%`}>
             <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#123f8f' }} />
             <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#9c150b' }} />
           </div>
@@ -269,7 +271,7 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
           )}
         </div>
         {simModel && (
-          <div style={{ marginTop: '6px', fontSize: '11px', color: '#888888', lineHeight: 1.4 }}>
+          <div style={{ marginTop: '6px', fontSize: '11px', color: '#6b6b6b', lineHeight: 1.4 }}>
             Average of 10,000 simulations. Close races count fractionally toward both
             parties, so this can differ from tallying each race&rsquo;s current leader on the map.
           </div>
@@ -288,7 +290,7 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
         </div>
       )}
 
-      <div style={{ marginTop: '12px', fontSize: '11px', color: '#888888', textAlign: 'center' }}>
+      <div style={{ marginTop: '12px', fontSize: '11px', color: '#6b6b6b', textAlign: 'center' }}>
         Updated daily at 8:00 AM ET
       </div>
       </>

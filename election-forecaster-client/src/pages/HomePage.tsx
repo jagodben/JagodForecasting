@@ -8,6 +8,7 @@ import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { districtCode } from '../utils/districts';
+import { ratingTextColor } from '../utils/ratings';
 
 type MapView = 'senate' | 'house' | 'governors';
 type MobilePanel = 'map' | 'data';
@@ -165,14 +166,16 @@ export const HomePage = () => {
                 <div
                   className="mobile-state-info mobile-state-info--tappable"
                   role="button"
+                  tabIndex={0}
                   onClick={() => navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`); } }}
                 >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">{selectedState.stateId}</span>
                     {selectedState.rating && (
                       <span
                         className="mobile-state-info__rating"
-                        style={{ backgroundColor: getRatingColor(selectedState.rating) }}
+                        style={{ backgroundColor: getRatingColor(selectedState.rating), color: ratingTextColor(selectedState.rating) }}
                       >
                         {getRatingLabel(selectedState.rating)}
                       </span>
@@ -208,7 +211,9 @@ export const HomePage = () => {
                 <div
                   className="mobile-state-info mobile-state-info--tappable"
                   role="button"
+                  tabIndex={0}
                   onClick={() => selectedDistrict.raceId && navigate(`/race/${selectedDistrict.raceId}`)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (selectedDistrict.raceId) navigate(`/race/${selectedDistrict.raceId}`); } }}
                 >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">
@@ -217,7 +222,7 @@ export const HomePage = () => {
                     {selectedDistrict.rating && (
                       <span
                         className="mobile-state-info__rating"
-                        style={{ backgroundColor: getRatingColor(selectedDistrict.rating) }}
+                        style={{ backgroundColor: getRatingColor(selectedDistrict.rating), color: ratingTextColor(selectedDistrict.rating) }}
                       >
                         {getRatingLabel(selectedDistrict.rating)}
                       </span>

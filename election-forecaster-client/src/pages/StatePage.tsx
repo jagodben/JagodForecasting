@@ -110,7 +110,7 @@ export const StatePage = () => {
         )}
         {/* The race cards mark unresolved nominees with an asterisk; explain it once per page. */}
         {state.races.some(r => r.candidates.some(c => isTbdCandidate(c.name))) && (
-          <div style={{ margin: '16px 0 24px', fontSize: '12px', color: '#888888' }}>{TBD_NOTE}</div>
+          <div style={{ margin: '16px 0 24px', fontSize: '12px', color: '#6b6b6b' }}>{TBD_NOTE}</div>
         )}
       </div>
     </div>

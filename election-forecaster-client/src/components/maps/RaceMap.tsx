@@ -6,6 +6,7 @@ import { StateSummary, Race, RaceRating, RaceType, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
+import { ratingTextColor } from '../../utils/ratings';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
@@ -294,6 +295,8 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                         fill={fillColor}
                         stroke="#FFFFFF"
                         strokeWidth={0.5}
+                        role="button"
+                        aria-label={`${stateName} — ${rating ? getRatingLabel(rating, independent) : 'no 2026 race'}. Open race details.`}
                         style={{
                           default: { outline: 'none' },
                           hover: { outline: 'none', cursor: 'pointer' },
@@ -303,6 +306,9 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                         onMouseMove={handleMouseMove}
                         onMouseLeave={handleMouseLeave}
                         onClick={(e) => handleClick(geo, e)}
+                        onKeyDown={(e: React.KeyboardEvent) => {
+                          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(geo); }
+                        }}
                       />
                     );
                   })}
@@ -405,7 +411,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                   <span style={{ fontWeight: 500 }}>{raceTypeLabel} Race</span>
                   <span style={{
                     backgroundColor: getRatingColor(rating, independent),
-                    color: 'white',
+                    color: ratingTextColor(rating),
                     padding: '2px 8px',
                     borderRadius: '4px',
                     fontSize: '12px',
@@ -426,7 +432,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                       <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
                     </div>
                     {(isTbdCandidate(challengerName) || isTbdCandidate(repName)) && (
-                      <div style={{ marginTop: '6px', fontSize: '11px', color: '#999999' }}>{TBD_NOTE}</div>
+                      <div style={{ marginTop: '6px', fontSize: '11px', color: '#6b6b6b' }}>{TBD_NOTE}</div>
                     )}
                   </div>
                 )}

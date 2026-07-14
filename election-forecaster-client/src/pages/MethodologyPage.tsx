@@ -55,7 +55,7 @@ export const MethodologyPage = () => {
         automatically.
       </p>
 
-      <p style={{ color: '#888888', fontSize: '13px', lineHeight: 1.6 }}>
+      <p style={{ color: '#6b6b6b', fontSize: '13px', lineHeight: 1.6 }}>
         A personal modeling project — not affiliated with any campaign, and not professional guidance.
       </p>
 

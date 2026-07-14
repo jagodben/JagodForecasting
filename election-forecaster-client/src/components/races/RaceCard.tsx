@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
+import { ratingTextColor } from '../../utils/ratings';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 
 const getRatingLabel = (rating: RaceRating): string => {
@@ -97,7 +98,9 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
       <div
         className="race-card compact race-card--clickable"
         role="link"
+        tabIndex={0}
         onClick={() => navigate(`/race/${race.id}`)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/race/${race.id}`); } }}
         style={{
           padding: '12px',
           borderRadius: '8px',
@@ -117,7 +120,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
             padding: '4px 8px',
             borderRadius: '4px',
             backgroundColor: getRatingColor(race.rating),
-            color: 'white',
+            color: ratingTextColor(race.rating),
             fontSize: '12px',
           }}>
             {getRatingLabel(race.rating)}
@@ -131,7 +134,9 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
     <div
       className="race-card race-card--clickable"
       role="link"
+      tabIndex={0}
       onClick={() => navigate(`/race/${race.id}`)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/race/${race.id}`); } }}
       style={{
         padding: '20px',
         borderRadius: '12px',
@@ -147,7 +152,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           padding: '6px 12px',
           borderRadius: '20px',
           backgroundColor: getRatingColor(race.rating),
-          color: 'white',
+          color: ratingTextColor(race.rating),
           fontWeight: 'bold',
         }}>
           {getRatingLabel(race.rating)}

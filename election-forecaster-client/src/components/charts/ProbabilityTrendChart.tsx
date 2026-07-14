@@ -168,6 +168,8 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   return (
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block', overflow: 'visible' }}
+         role="img"
+         aria-label={`Win probability over time. Latest: ${demLabel} ${(dem[dem.length - 1] * 100).toFixed(0)}%, ${repLabel} ${((1 - dem[dem.length - 1]) * 100).toFixed(0)}%.`}
          onMouseLeave={() => setHover(null)}>
       <defs>
         <filter id={`shadow-${uid}`} x="-20%" y="-40%" width="140%" height="180%">

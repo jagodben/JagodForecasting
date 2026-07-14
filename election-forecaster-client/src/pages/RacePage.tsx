@@ -179,7 +179,7 @@ export const RacePage = () => {
             {race.isSpecialElection && <span style={{ marginLeft: '8px', color: '#dc2626' }}>(Special Election)</span>}
           </h2>
           {forecast && (
-            <div style={{ fontSize: '12px', color: '#888888', marginTop: '6px' }}>
+            <div style={{ fontSize: '12px', color: '#6b6b6b', marginTop: '6px' }}>
               Updated daily at 8:00 AM ET
             </div>
           )}
@@ -330,7 +330,7 @@ const CandidatesList = ({ race }: { race: Race }) => (
       })}
     </div>
     {race.candidates.some(c => isTbdCandidate(c.name)) && (
-      <div style={{ marginTop: '10px', fontSize: '12px', color: '#888888' }}>{TBD_NOTE}</div>
+      <div style={{ marginTop: '10px', fontSize: '12px', color: '#6b6b6b' }}>{TBD_NOTE}</div>
     )}
   </div>
 );
@@ -348,7 +348,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
     return (
       <div>
         <h3 style={{ margin: '0 0 8px 0' }}>Polls</h3>
-        <div style={{ textAlign: 'center', padding: '24px', color: '#999', fontSize: '14px' }}>
+        <div style={{ textAlign: 'center', padding: '24px', color: '#6b6b6b', fontSize: '14px' }}>
           No polling data available for this race yet.
         </div>
       </div>
@@ -381,7 +381,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
             <div style={{ fontSize: '16px', fontWeight: 600, color: demLead ? '#123f8f' : '#9c150b' }}>
               {demLead ? 'D' : 'R'} +{Math.abs(avg.margin).toFixed(1)}
             </div>
-            <div style={{ fontSize: '11px', color: '#999' }}>avg. margin</div>
+            <div style={{ fontSize: '11px', color: '#6b6b6b' }}>avg. margin</div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#9c150b' }}>{avg.repPercent.toFixed(1)}%</div>
