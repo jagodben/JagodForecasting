@@ -125,7 +125,17 @@ export const HomePage = () => {
 
       {/* Main content: map + sidebar */}
       <div className="dashboard-main">
-        <div className={`dashboard-map ${mobilePanel === 'data' ? 'mobile-hidden' : ''}`}>
+        <div
+          className={`dashboard-map ${mobilePanel === 'data' ? 'mobile-hidden' : ''}`}
+          onClick={(e) => {
+            // Clicking off the map (background, not a state/district shape, control, or info
+            // card) returns to the default no-selection view.
+            const el = e.target as Element;
+            if (el.closest('path, button, a, .mobile-state-info, .mobile-projected, .mobile-chamber-card')) return;
+            setSelectedState(null);
+            setSelectedDistrict(null);
+          }}
+        >
           {activeRacesLoading && (
             <div className="loading-container">
               <div className="spinner" />
