@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Static geometry/data files aren't useful search results
+Disallow: /data/
