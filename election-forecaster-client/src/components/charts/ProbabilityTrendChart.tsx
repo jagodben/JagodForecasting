@@ -122,7 +122,8 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   // Value pills, market-style: white rounded chip with a colored tick, name, and value.
   // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
   const PILL_H = 20;
-  const pillW = (name: string) => 26 + name.length * 6.4 + 38;
+  // Name (left) + gap + value (right); sized so the two can never collide.
+  const pillW = (name: string) => 9 + name.length * 6.5 + 12 + 40 + 8;
   let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
   const minGap = PILL_H + 4;
   if (Math.abs(demPillY - repPillY) < minGap) {
@@ -140,8 +141,7 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
         <rect width={w} height={PILL_H} rx="6" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
-        <rect x="8" y="5" width="3.5" height="10" rx="1.75" fill={color} />
-        <text x="17" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={INK}>{name}</text>
+        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={color}>{name}</text>
         <text x={w - 8} y={PILL_H / 2 + 0.5} textAnchor="end" alignmentBaseline="middle" fontSize="11" fontWeight="700" fill={INK}>
           {(value * 100).toFixed(1)}%
         </text>
