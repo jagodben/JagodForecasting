@@ -91,7 +91,6 @@ export const StatePage = () => {
           </span>
         </div>
         <div className="state-info">
-          <span>{state.electoralVotes} Electoral Votes</span>
           <span>{state.congressionalDistricts} Congressional District{state.congressionalDistricts !== 1 ? 's' : ''}</span>
         </div>
       </header>
