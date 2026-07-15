@@ -282,14 +282,14 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, forecast }: {
     <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#1a1a1a' }}>{(headDem * 100).toFixed(1)}%</div>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
       </div>
       <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{ width: `${headDem * 100}%`, backgroundColor: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demCandidate?.party === Party.Independent ? 'I' : 'D'}</div>
         <div style={{ width: `${headRep * 100}%`, backgroundColor: '#9c150b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>R</div>
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#1a1a1a' }}>{(headRep * 100).toFixed(1)}%</div>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#9c150b' }}>{(headRep * 100).toFixed(1)}%</div>
       </div>
     </div>
     {forecast && (
