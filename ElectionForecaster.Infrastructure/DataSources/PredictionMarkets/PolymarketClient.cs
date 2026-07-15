@@ -21,6 +21,13 @@ public class PolymarketClient : IPredictionMarketSource
     private readonly Dictionary<string, MarketOdds> _cachedOdds = new();
     private DateTime _lastRefresh = DateTime.MinValue;
 
+    // Markets discovered from the Gamma API by slug (races the static map predates), and races
+    // that had no market at last look — retried daily rather than on every request.
+    private static readonly Dictionary<string, string> _discoveredMarketIds = new();
+    private static readonly Dictionary<string, DateTime> _discoveryMisses = new();
+    private static readonly object _discoveryLock = new();
+    private static readonly TimeSpan DiscoveryRetry = TimeSpan.FromHours(20);
+
     // Polymarket API endpoint for fetching market data by ID
     private const string MarketsApiBaseUrl = "https://gamma-api.polymarket.com/markets";
     // CLOB API endpoint for historical price data
@@ -136,11 +143,23 @@ public class PolymarketClient : IPredictionMarketSource
     {
         _logger.LogDebug("PolymarketClient.GetRaceOddsAsync called for {RaceId}", raceId);
 
-        // Check if we have a market ID mapping for this race
-        if (!RaceIdToMarketId.TryGetValue(raceId, out var marketId))
+        // Static mapping first, then previously discovered markets, then live slug discovery —
+        // so markets Polymarket lists after this code shipped are picked up automatically.
+        string? marketId;
+        bool haveId;
+        lock (_discoveryLock)
         {
-            _logger.LogDebug("No Polymarket market ID mapping for {RaceId}", raceId);
-            return null;
+            haveId = RaceIdToMarketId.TryGetValue(raceId, out marketId) ||
+                     _discoveredMarketIds.TryGetValue(raceId, out marketId);
+        }
+        if (!haveId)
+        {
+            marketId = await DiscoverMarketIdAsync(raceId, cancellationToken);
+            if (marketId is null)
+            {
+                _logger.LogDebug("No Polymarket market for {RaceId}", raceId);
+                return null;
+            }
         }
 
         // First check cache
@@ -203,10 +222,17 @@ public class PolymarketClient : IPredictionMarketSource
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Refreshing Polymarket data for {Count} configured markets...", RaceIdToMarketId.Count);
+        // Static + discovered mappings both refresh; a new discovery happens lazily on first access.
+        Dictionary<string, string> allMappings;
+        lock (_discoveryLock)
+        {
+            allMappings = new Dictionary<string, string>(RaceIdToMarketId);
+            foreach (var (raceId, id) in _discoveredMarketIds) allMappings.TryAdd(raceId, id);
+        }
+        _logger.LogInformation("Refreshing Polymarket data for {Count} configured markets...", allMappings.Count);
 
         var successCount = 0;
-        foreach (var (raceId, marketId) in RaceIdToMarketId)
+        foreach (var (raceId, marketId) in allMappings)
         {
             try
             {
@@ -226,8 +252,95 @@ public class PolymarketClient : IPredictionMarketSource
 
         _lastRefresh = DateTime.UtcNow;
         _logger.LogInformation("Polymarket refresh complete. {Success}/{Total} markets updated.",
-            successCount, RaceIdToMarketId.Count);
+            successCount, allMappings.Count);
     }
+
+    /// <summary>
+    /// Finds a race's "Will the Democrats win …" market by its predictable slug
+    /// (e.g. will-the-democrats-win-the-georgia-governor-race-in-2026), so markets Polymarket
+    /// adds over the campaign enter the blend without a code change. Misses are retried daily.
+    /// </summary>
+    private async Task<string?> DiscoverMarketIdAsync(string raceId, CancellationToken cancellationToken)
+    {
+        lock (_discoveryLock)
+        {
+            if (_discoveryMisses.TryGetValue(raceId, out var lastMiss) &&
+                DateTime.UtcNow - lastMiss < DiscoveryRetry)
+                return null;
+        }
+
+        foreach (var slug in CandidateSlugs(raceId))
+        {
+            try
+            {
+                var json = await _httpClient.GetStringAsync($"{MarketsApiBaseUrl}?slug={slug}", cancellationToken);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.ValueKind != JsonValueKind.Array) continue;
+                foreach (var m in doc.RootElement.EnumerateArray())
+                {
+                    var closed = m.TryGetProperty("closed", out var c) && c.ValueKind == JsonValueKind.True;
+                    if (closed || !m.TryGetProperty("id", out var idProp)) continue;
+                    var id = idProp.GetString();
+                    if (string.IsNullOrEmpty(id)) continue;
+                    lock (_discoveryLock)
+                    {
+                        _discoveredMarketIds[raceId] = id;
+                        _discoveryMisses.Remove(raceId);
+                    }
+                    _logger.LogInformation("Discovered Polymarket market {MarketId} for {RaceId} (slug {Slug})", id, raceId, slug);
+                    return id;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "Market discovery probe failed for {RaceId} ({Slug})", raceId, slug);
+            }
+        }
+
+        lock (_discoveryLock) _discoveryMisses[raceId] = DateTime.UtcNow;
+        return null;
+    }
+
+    /// <summary>Likely slugs for a race's party market, most specific first.</summary>
+    private static IEnumerable<string> CandidateSlugs(string raceId)
+    {
+        var parts = raceId.Split('-');
+        if (parts.Length < 3 || !SlugStateNames.TryGetValue(parts[0], out var state)) yield break;
+
+        if (parts[1] == "SEN")
+        {
+            yield return $"will-the-democrats-win-the-{state}-senate-race-in-2026";
+        }
+        else if (parts[1] == "GOV")
+        {
+            yield return $"will-the-democrats-win-the-{state}-governor-race-in-2026";
+            yield return $"will-the-democrats-win-the-{state}-governors-race-in-2026";
+        }
+        else if (int.TryParse(parts[1], out var district))
+        {
+            // House party markets are rare; probe the plausible slug forms.
+            var ord = $"{district}{(district % 100 is >= 11 and <= 13 ? "th" : (district % 10) switch { 1 => "st", 2 => "nd", 3 => "rd", _ => "th" })}";
+            yield return $"will-the-democrats-win-{state}s-{ord}-congressional-district-in-2026";
+            yield return $"will-the-democrats-win-the-{state}-{ord}-congressional-district-race-in-2026";
+        }
+    }
+
+    private static readonly Dictionary<string, string> SlugStateNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "AL", "alabama" }, { "AK", "alaska" }, { "AZ", "arizona" }, { "AR", "arkansas" },
+        { "CA", "california" }, { "CO", "colorado" }, { "CT", "connecticut" }, { "DE", "delaware" },
+        { "FL", "florida" }, { "GA", "georgia" }, { "HI", "hawaii" }, { "ID", "idaho" },
+        { "IL", "illinois" }, { "IN", "indiana" }, { "IA", "iowa" }, { "KS", "kansas" },
+        { "KY", "kentucky" }, { "LA", "louisiana" }, { "ME", "maine" }, { "MD", "maryland" },
+        { "MA", "massachusetts" }, { "MI", "michigan" }, { "MN", "minnesota" }, { "MS", "mississippi" },
+        { "MO", "missouri" }, { "MT", "montana" }, { "NE", "nebraska" }, { "NV", "nevada" },
+        { "NH", "new-hampshire" }, { "NJ", "new-jersey" }, { "NM", "new-mexico" }, { "NY", "new-york" },
+        { "NC", "north-carolina" }, { "ND", "north-dakota" }, { "OH", "ohio" }, { "OK", "oklahoma" },
+        { "OR", "oregon" }, { "PA", "pennsylvania" }, { "RI", "rhode-island" }, { "SC", "south-carolina" },
+        { "SD", "south-dakota" }, { "TN", "tennessee" }, { "TX", "texas" }, { "UT", "utah" },
+        { "VT", "vermont" }, { "VA", "virginia" }, { "WA", "washington" }, { "WV", "west-virginia" },
+        { "WI", "wisconsin" }, { "WY", "wyoming" }
+    };
 
     private async Task<MarketOdds?> FetchMarketOddsByIdAsync(string raceId, string marketId, CancellationToken cancellationToken)
     {
