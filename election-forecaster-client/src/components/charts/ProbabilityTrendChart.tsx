@@ -153,13 +153,13 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   const clampY = (v: number) => Math.min(Math.max(v, pad.top + PILL_H / 2), floorY - PILL_H / 2);
   demPillY = clampY(demPillY); repPillY = clampY(repPillY);
 
-  const renderPill = (pillY: number, color: string, name: string, value: number) => {
+  const renderPill = (pillY: number, name: string, value: number) => {
     const w = pillW(name, value);
     const px = anchorX + 10 + w > width - 2 ? anchorX - w - 10 : anchorX + 10;
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
         <rect width={w} height={PILL_H} rx="6" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
-        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={color}>{name}</text>
+        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={INK}>{name}</text>
         <text x={w - 8} y={PILL_H / 2 + 0.5} textAnchor="end" alignmentBaseline="middle" fontSize="11" fontWeight="700" fill={INK}>
           {(value * 100).toFixed(1)}%
         </text>
@@ -227,8 +227,8 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
         <circle cx={anchorX} cy={y(rep[idx])} r="4" fill={REP} stroke="#fff" strokeWidth="1.75" />
         <circle cx={anchorX} cy={y(dem[idx])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.75" />
       </g>
-      {renderPill(repPillY, REP, repShort, rep[idx])}
-      {renderPill(demPillY, demColor, demShort, dem[idx])}
+      {renderPill(repPillY, repShort, rep[idx])}
+      {renderPill(demPillY, demShort, dem[idx])}
 
       {/* Invisible hover targets */}
       {data.map((_, i) => (
