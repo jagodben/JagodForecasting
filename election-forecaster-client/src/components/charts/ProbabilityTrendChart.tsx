@@ -159,7 +159,7 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
         <rect width={w} height={PILL_H} rx="6" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
-        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="500" fill={INK}>{name}</text>
+        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={INK}>{name}</text>
         <text x={w - 8} y={PILL_H / 2 + 0.5} textAnchor="end" alignmentBaseline="middle" fontSize="11" fontWeight="700" fill={INK}>
           {(value * 100).toFixed(1)}%
         </text>
