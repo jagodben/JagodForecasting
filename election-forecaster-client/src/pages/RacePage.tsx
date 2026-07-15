@@ -374,7 +374,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
           padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', marginBottom: '20px',
         }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#123f8f' }}>{avg.demPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a1a' }}>{avg.demPercent.toFixed(1)}%</div>
             <div style={{ fontSize: '12px', color: '#666' }}>{demName || 'Democrat'}</div>
           </div>
           <div style={{ textAlign: 'center' }}>
@@ -384,7 +384,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
             <div style={{ fontSize: '11px', color: '#6b6b6b' }}>avg. margin</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#9c150b' }}>{avg.repPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#1a1a1a' }}>{avg.repPercent.toFixed(1)}%</div>
             <div style={{ fontSize: '12px', color: '#666' }}>{repName || 'Republican'}</div>
           </div>
         </div>
