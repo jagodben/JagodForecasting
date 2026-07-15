@@ -79,10 +79,10 @@ public static class PollingAverageCalculator
     /// </summary>
     private static double CalculateConfidence(IReadOnlyList<PollData> polls, DateTime asOf)
     {
-        double confidence = 0.5;
-
-        // Poll count bonus (up to +0.2)
-        confidence += Math.Min(0.2, polls.Count * 0.02);
+        // Poll count carries the base: a single poll is a fragile average (house effects and
+        // one-off misses can't cancel out), so it caps well below a deep field.
+        // 1 poll → 0.28, 3 → 0.47, 6 → 0.56, 12 → 0.62.
+        double confidence = 0.7 * polls.Count / (polls.Count + 1.5);
 
         // Recency bonus (up to +0.15)
         var latestPoll = polls.Max(p => p.Date);
@@ -97,7 +97,7 @@ public static class PollingAverageCalculator
             confidence += avgRatingScore * 0.15;
         }
 
-        return Math.Min(1.0, Math.Max(0.3, confidence));
+        return Math.Min(1.0, Math.Max(0.2, confidence));
     }
 
     private static double GetRatingScore(string? rating) => rating switch
