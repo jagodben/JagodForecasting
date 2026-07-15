@@ -118,7 +118,14 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   // Pills use the surname ("Jon Husted" -> "Husted") to stay compact. When surnames collide
   // (e.g. two "Nominee" placeholders), fall back to truncating the full labels.
-  const lastWord = (s: string) => s.trim().split(/\s+/).pop() ?? s;
+  // A generational suffix isn't a surname on its own: "Nick Begich III" -> "Begich III".
+  const lastWord = (s: string) => {
+    const parts = s.trim().split(/\s+/);
+    const last = parts[parts.length - 1] ?? s;
+    if (parts.length >= 3 && /^(Jr\.?|Sr\.?|II|III|IV|V)$/i.test(last))
+      return `${parts[parts.length - 2]} ${last}`;
+    return last;
+  };
   let demShort = lastWord(demLabel), repShort = lastWord(repLabel);
   if (demShort === repShort) {
     const trunc = (s: string) => (s.length > 9 ? `${s.slice(0, 8)}…` : s);
