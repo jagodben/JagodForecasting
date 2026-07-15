@@ -20,6 +20,16 @@ const REP = '#9c150b';
 const INK = '#1f2937';
 const INK_MUTED = '#9aa0a6';
 
+// Measures pill text at the site font so name/value spacing is exact (character-count
+// estimates left uneven gaps — long names overestimate, short ones underestimate).
+let measureCtx: CanvasRenderingContext2D | null = null;
+const textWidth = (text: string, weight: number): number => {
+  measureCtx ??= document.createElement('canvas').getContext('2d');
+  if (!measureCtx) return text.length * 6.2;
+  measureCtx.font = `${weight} 11px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
+  return measureCtx.measureText(text).width;
+};
+
 // Builds a smooth SVG path through the points with monotone-cubic interpolation
 // (no overshoot, so a probability series never bulges past its data).
 const smoothPath = (pts: { x: number; y: number }[]): string => {
@@ -122,8 +132,9 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   // Value pills, market-style: white rounded chip with a colored tick, name, and value.
   // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
   const PILL_H = 20;
-  // Name (left) + gap + value (right); sized so the two can never collide.
-  const pillW = (name: string) => 9 + name.length * 6.5 + 6 + 38 + 8;
+  const PILL_GAP = 6; // exact space between the name and the value
+  const pillW = (name: string, value: number) =>
+    9 + textWidth(name, 600) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700) + 8;
   let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
   const minGap = PILL_H + 4;
   if (Math.abs(demPillY - repPillY) < minGap) {
@@ -136,7 +147,7 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   demPillY = clampY(demPillY); repPillY = clampY(repPillY);
 
   const renderPill = (pillY: number, color: string, name: string, value: number) => {
-    const w = pillW(name);
+    const w = pillW(name, value);
     const px = anchorX + 10 + w > width - 2 ? anchorX - w - 10 : anchorX + 10;
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
