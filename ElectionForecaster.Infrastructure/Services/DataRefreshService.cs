@@ -20,6 +20,12 @@ public class DataRefreshService : BackgroundService
     private static readonly TimeZoneInfo EasternZone = ResolveEastern();
     private DateTime _lastSnapshotEasternDate = DateTime.MinValue;
     private bool _backfillComplete = false;
+    private bool _frozenLogged = false;
+
+    // After Election Day's final 8 AM snapshot the model is done: pollsters stop polling and the
+    // markets resolve, so further "updates" would only drift on stale inputs. The daily job stops
+    // and the site permanently serves the final pre-election forecast.
+    private static readonly DateTime ElectionDayEastern = new(2026, 11, 3);
 
     public DataRefreshService(IServiceProvider serviceProvider, ILogger<DataRefreshService> logger)
     {
@@ -74,6 +80,17 @@ public class DataRefreshService : BackgroundService
 
         var nowEastern = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, EasternZone);
         var easternToday = nowEastern.Date;
+
+        // Past Election Day: the Nov 3 8 AM snapshot was the final forecast — freeze there.
+        if (easternToday > ElectionDayEastern)
+        {
+            if (!_frozenLogged)
+            {
+                _logger.LogInformation("Election Day has passed — forecast frozen at the final Nov 3 snapshot; daily updates stopped");
+                _frozenLogged = true;
+            }
+            return;
+        }
 
         // Already handled today this run, or it isn't 8 AM Eastern yet — nothing to do.
         if (_lastSnapshotEasternDate == easternToday || nowEastern.Hour < SnapshotHourEastern)
