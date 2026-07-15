@@ -700,6 +700,16 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
         var houseRaces = (await _raceService.GetAllRacesAsync(RaceType.House)).ToList();
 
+        // Days each House race already has a stored (frozen) snapshot for — never overwritten.
+        var houseIds = houseRaces.Select(r => r.Id).ToHashSet();
+        var existingHouseRows = (await _dbContext.ForecastHistory
+                .Where(f => f.Date >= ChartStartDate)
+                .Select(f => new { f.RaceId, f.Date })
+                .ToListAsync(cancellationToken))
+            .Where(f => houseIds.Contains(f.RaceId))
+            .Select(f => (f.RaceId, f.Date))
+            .ToHashSet();
+
         // Per-race structural fundamentals (PVI, prior result, incumbency) are static — fetch once;
         // only the national environment and the time-to-election SE vary by day.
         var fundamentalsById = new Dictionary<string, FundamentalsData>();
@@ -747,6 +757,24 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 DemSeatsLow = result.DemSeatRange.Low,
                 DemSeatsHigh = result.DemSeatRange.High
             });
+
+            // Also persist the per-race rows this day's sim was built from, so each House race
+            // page gets a timeline (the statewide backfill never covered House). Only fills days
+            // the daily snapshot hasn't already written — stored snapshots stay frozen.
+            if (day.Key >= ChartStartDate)
+            {
+                foreach (var f in forecasts)
+                {
+                    if (existingHouseRows.Contains((f.RaceId, day.Key))) continue;
+                    var demProb = ForecastMath.MarginToProbability(f.ExpectedDemMargin, f.MarginStdDev);
+                    f.DemWinProbability = demProb;
+                    f.RepWinProbability = 1 - demProb;
+                    f.DemVoteShare = Math.Clamp(0.5 + f.ExpectedDemMargin / 200.0, 0.3, 0.7);
+                    f.RepVoteShare = 1 - f.DemVoteShare;
+                    _dbContext.ForecastHistory.Add(ToHistoryEntity(f, day.Key));
+                    existingHouseRows.Add((f.RaceId, day.Key));
+                }
+            }
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
