@@ -35,8 +35,8 @@ public class RaceService : IRaceService
         // For House races, use real district-level data
         if (race.Type == RaceType.House && race.DistrictNumber.HasValue)
         {
-            // District Cook PVI as a Dem lean (falls back to state lean for unlisted districts).
-            pvi = CookPvi.GetDistrictLean(race.StateId, race.DistrictNumber.Value);
+            // District partisan lean index as a Dem lean (falls back to state lean for unlisted districts).
+            pvi = PartisanLean.GetDistrictLean(race.StateId, race.DistrictNumber.Value);
 
             // Get 2024 results (positive margin = Republican won)
             var result2024 = DistrictElectionData.GetResult2024(race.StateId, race.DistrictNumber.Value);
@@ -50,7 +50,7 @@ public class RaceService : IRaceService
         else
         {
             // For Senate/Governor, use state PVI.
-            pvi = CookPvi.GetStateLean(race.StateId);
+            pvi = PartisanLean.GetStateLean(race.StateId);
         }
 
         var demCandidate = race.Candidates.FirstOrDefault(c => c.Party == Party.Democrat);

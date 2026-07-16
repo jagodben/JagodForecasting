@@ -8,7 +8,7 @@ Every unfinished item across all reviews/audits, ranked. Work top to bottom.
 The redraw wave turned out to be TEN states (AL, CA, FL, LA, MO, NC, OH, TN, TX, UT — 181
 districts, 42% of the House), and the old `DistrictPVI` table was wrong far beyond them
 (298/435 districts off by ≥3 pts, e.g. GA-06 off by 33). Fixed:
-- **PVI**: replaced all 435 entries with the 2025 Cook PVI on current 2026 lines, scraped from
+- **PVI**: replaced all 435 entries with the 2025 partisan lean index on current 2026 lines, scraped from
   Wikipedia's "2026 United States House of Representatives elections" page (which carries the
   post-redistricting values). Regenerate with `tools/scrape_district_pvi.py`.
 - **Priors**: deleted `Results2024` rows for the 10 redrawn states (results earned on lines
@@ -35,7 +35,7 @@ incumbency fallback for unresolved districts). Fixed:
 - Rebuilt all 254 un-redrawn rows with real 2024 results scraped from Wikipedia's 2024 House
   elections page (`tools/scrape_house_results.py`; winner cross-checked against the {{Aye}}
   marker; one-party races get a ±45 placeholder). Redrawn states stay absent.
-- `CookPVIProvider` now feeds the district's real 2024 Dem margin into
+- `PartisanLeanProvider` now feeds the district's real 2024 Dem margin into
   `FundamentalsData.PriorMargin` for House races (redrawn states stay on PVI + incumbency).
 - Prior retention is now open-seat aware (0.45 when the incumbent runs again, 0.25 when the
   personal vote leaves with a departing incumbent) — applies to statewide races too, so e.g.
@@ -255,12 +255,12 @@ poll (UNH, June 23) has him +15. Two independent causes, both verified against f
 ## 🟢 Low — code hygiene / robustness
 
 - [x] **Deduplicate the shared data and math.** `StatePVI` exists in both `RaceService` and
-      `CookPVIProvider`; district PVI exists in two places with *opposite sign conventions*;
+      `PartisanLeanProvider`; district PVI exists in two places with *opposite sign conventions*;
       `NormalCdf` is copy-pasted in three files (`ForecastMath`, `PollingAverage`, `RaceService`).
       Single source of truth for each.
-      DONE (5324731): new `CookPvi` (Dem-positive lean) holds the one state table; `GetDistrictLean`
+      DONE (5324731): new `PartisanLean` (Dem-positive lean) holds the one state table; `GetDistrictLean`
       flips the R-positive district table once and falls back to state lean. RaceService +
-      CookPVIProvider both route through it; RaceService NormalCdf -> ForecastMath. (PollingAverage
+      PartisanLeanProvider both route through it; RaceService NormalCdf -> ForecastMath. (PollingAverage
       was already migrated in earlier work.) Behavior verified unchanged.
 
 - [x] **Thread-safe RNG in `MonteCarloSimulator`.** It's a singleton sharing one `Random` across

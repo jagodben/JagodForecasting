@@ -12,7 +12,7 @@ public class FundamentalsData
     public string RaceId { get; set; } = string.Empty;
 
     /// <summary>
-    /// Cook PVI for the state/district. Positive = Dem lean (D+5), negative = Rep lean (R+3 = -3).
+    /// partisan lean index for the state/district. Positive = Dem lean (D+5), negative = Rep lean (R+3 = -3).
     /// Defined relative to a neutral national environment, so it's the clean baseline.
     /// </summary>
     public double PartisanLean { get; set; }

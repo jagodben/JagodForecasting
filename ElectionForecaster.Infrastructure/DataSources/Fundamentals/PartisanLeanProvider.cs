@@ -7,14 +7,14 @@ using Microsoft.Extensions.Logging;
 namespace ElectionForecaster.Infrastructure.DataSources.Fundamentals;
 
 /// <summary>
-/// Builds each race's fundamentals from Cook PVI (positive = Dem lean), the seat's prior
+/// Builds each race's fundamentals from partisan lean index (positive = Dem lean), the seat's prior
 /// result, and an incumbency magnitude.
 /// </summary>
-public class CookPVIProvider : IFundamentalsSource
+public class PartisanLeanProvider : IFundamentalsSource
 {
-    private readonly ILogger<CookPVIProvider> _logger;
+    private readonly ILogger<PartisanLeanProvider> _logger;
 
-    public CookPVIProvider(ILogger<CookPVIProvider> logger)
+    public PartisanLeanProvider(ILogger<PartisanLeanProvider> logger)
     {
         _logger = logger;
     }
@@ -24,9 +24,9 @@ public class CookPVIProvider : IFundamentalsSource
         stateId = stateId.ToUpperInvariant();
 
         if (districtNumber.HasValue)
-            return CookPvi.GetDistrictLean(stateId, districtNumber.Value);
+            return PartisanLean.GetDistrictLean(stateId, districtNumber.Value);
 
-        if (CookPvi.StateLean.TryGetValue(stateId, out var pvi))
+        if (PartisanLean.StateLean.TryGetValue(stateId, out var pvi))
             return pvi;
 
         _logger.LogWarning("No PVI data for state {StateId}", stateId);

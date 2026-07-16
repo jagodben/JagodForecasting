@@ -61,7 +61,7 @@ builder.Services.AddHttpClient<WikipediaCandidateClient>();
 builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
 builder.Services.AddScoped<WikipediaPollingClient>();
 builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<WikipediaPollingClient>());
-builder.Services.AddScoped<IFundamentalsSource, CookPVIProvider>();
+builder.Services.AddScoped<IFundamentalsSource, PartisanLeanProvider>();
 builder.Services.AddScoped<IGenericBallotSource, WikipediaGenericBallotClient>();
 builder.Services.AddScoped<CandidateRefreshService>();
 

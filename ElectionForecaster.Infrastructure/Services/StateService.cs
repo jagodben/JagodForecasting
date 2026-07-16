@@ -9,7 +9,7 @@ public class StateService : IStateService
 {
     private readonly List<State> _states;
 
-    // Cook PVI data for state-level ratings
+    // partisan lean index data for state-level ratings
     private static readonly Dictionary<string, double> StatePVI = new()
     {
         { "AL", -15 }, { "AK", -9 }, { "AZ", -2 }, { "AR", -16 },

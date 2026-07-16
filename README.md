@@ -40,7 +40,7 @@ effects are estimated from each firm's deviation against the leave-one-out conse
 on the races it polled, shrunk toward zero, and subtracted before averaging. Polls are
 blended on a two-party margin so they sit on the same scale as the other signals.
 
-**Fundamentals.** For every race: 2025 Cook PVI (on 2026 district lines), the national
+**Fundamentals.** For every race: 2025 partisan lean index (on 2026 district lines), the national
 environment from the generic-ballot average, a flat incumbency term, and the seat's
 prior election result. A running incumbent keeps 35% of their past overperformance
 beyond the flat incumbency term — this is what lets the model see a crossover incumbent
@@ -103,7 +103,7 @@ both of which scored worse; neither is in the model.
 | Market odds | Polymarket (Gamma + CLOB APIs) | 15 min |
 | Polls | Wikipedia race articles | 6 h |
 | Generic ballot | Wikipedia aggregator table | 6 h |
-| District PVI / lines | 2025 Cook PVI on 2026 lines; Census + state GIS geometry | static, scripted refresh |
+| District PVI / lines | 2025 partisan lean index on 2026 lines; Census + state GIS geometry | static, scripted refresh |
 | Prior results | Real 2020–2024 results per seat | static, scripted refresh |
 | Nominees & incumbents | Wikipedia race-summary scrapes | after each primary |
 

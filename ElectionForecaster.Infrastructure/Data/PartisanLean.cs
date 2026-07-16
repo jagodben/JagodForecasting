@@ -1,13 +1,13 @@
 namespace ElectionForecaster.Infrastructure.Data;
 
 /// <summary>
-/// Single source of truth for the Cook Partisan Voter Index, exposed consistently as a
+/// Single source of truth for the partisan lean index, exposed consistently as a
 /// <b>Democratic</b> lean in margin points (positive = D+X, negative = R+X). State values are the
-/// 2024 Cook PVI (2020+2024 presidential results). District values wrap
+/// 2024 partisan lean index (2020+2024 presidential results). District values wrap
 /// <see cref="DistrictElectionData.DistrictPVI"/>, which stores the opposite (R-positive)
 /// convention — this class flips the sign so callers never juggle it.
 /// </summary>
-public static class CookPvi
+public static class PartisanLean
 {
     /// <summary>State PVI as a Democratic lean (positive = Dem).</summary>
     public static readonly IReadOnlyDictionary<string, double> StateLean = new Dictionary<string, double>

@@ -4,7 +4,7 @@ namespace ElectionForecaster.Infrastructure.Data;
 /// District-level partisan data on the lines actually in use for the 2026 elections.
 /// Ten states were redrawn mid-decade for 2026 (AL, CA, FL, LA, MO, NC, OH, TN, TX, UT);
 /// their PVI values here reflect the NEW lines and they carry no 2024 prior result.
-/// Sources: 2025 Cook PVI as compiled (with post-redistricting updates) on Wikipedia's
+/// Sources: 2025 partisan lean index as compiled (with post-redistricting updates) on Wikipedia's
 /// "2026 United States House of Representatives elections" page (scraped 2026-07-09);
 /// 2024 House results for un-redrawn states.
 /// </summary>
@@ -166,7 +166,7 @@ public static class DistrictElectionData
     };
 
     /// <summary>
-    /// 2025 Cook Partisan Voting Index (PVI) by congressional district, on the 2026 election
+    /// 2025 partisan voting index by congressional district (derived from presidential results), on the 2026 election
     /// lines (mid-decade redraws included — those states are tagged "(2026 lines)").
     /// Positive = Republican lean, Negative = Democratic lean.
     /// Regenerate via the scraper against Wikipedia's 2026 House elections page if lines change.
@@ -364,7 +364,7 @@ public static class DistrictElectionData
     }
 
     /// <summary>
-    /// Get the Cook PVI for a district. Positive = R lean, Negative = D lean.
+    /// Get the partisan lean index for a district. Positive = R lean, Negative = D lean.
     /// </summary>
     public static double GetDistrictPVI(string stateId, int districtNumber)
     {

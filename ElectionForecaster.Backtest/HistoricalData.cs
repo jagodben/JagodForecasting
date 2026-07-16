@@ -18,7 +18,7 @@ public static class HistoricalData
         [2022] = -2.8,
     };
 
-    // Cook PVI (2024 release, Dem+ positive). NOTE: using current PVI for older cycles introduces
+    // partisan lean index (2024 release, Dem+ positive). NOTE: using current PVI for older cycles introduces
     // some error for states that have shifted (FL/OH → R, AZ/GA → D). Good enough to exercise the
     // harness; swap in year-correct PVI to sharpen calibration.
     public static readonly Dictionary<string, double> Pvi = new()
