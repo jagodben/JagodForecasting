@@ -30,32 +30,12 @@ const textWidth = (text: string, weight: number): number => {
   return measureCtx.measureText(text).width;
 };
 
-// Builds a smooth SVG path through the points with monotone-cubic interpolation
-// (no overshoot, so a probability series never bulges past its data).
-const smoothPath = (pts: { x: number; y: number }[]): string => {
-  const n = pts.length;
-  if (n < 3) return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
-
-  const dx = Array.from({ length: n - 1 }, (_, i) => pts[i + 1].x - pts[i].x);
-  const slope = Array.from({ length: n - 1 }, (_, i) => (pts[i + 1].y - pts[i].y) / (dx[i] || 1));
-  const m: number[] = [slope[0]];
-  for (let i = 1; i < n - 1; i++) {
-    m.push(slope[i - 1] * slope[i] <= 0 ? 0 : (slope[i - 1] + slope[i]) / 2);
-  }
-  m.push(slope[n - 2]);
-  // Fritsch–Carlson limiter keeps the curve monotone between points.
-  for (let i = 0; i < n - 1; i++) {
-    if (slope[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
-    const a = m[i] / slope[i], b = m[i + 1] / slope[i];
-    const s = a * a + b * b;
-    if (s > 9) { const t = 3 / Math.sqrt(s); m[i] = t * a * slope[i]; m[i + 1] = t * b * slope[i]; }
-  }
+// Step-after path: each day's value holds flat until the next day's jump — the market-style
+// "rigid" look (daily snapshots are genuinely discrete, so steps are also the honest shape).
+const stepPath = (pts: { x: number; y: number }[]): string => {
   let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
-  for (let i = 0; i < n - 1; i++) {
-    const h = dx[i];
-    d += ` C ${(pts[i].x + h / 3).toFixed(1)} ${(pts[i].y + (m[i] * h) / 3).toFixed(1)},`
-      + ` ${(pts[i + 1].x - h / 3).toFixed(1)} ${(pts[i + 1].y - (m[i + 1] * h) / 3).toFixed(1)},`
-      + ` ${pts[i + 1].x.toFixed(1)} ${pts[i + 1].y.toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L ${pts[i].x.toFixed(1)} ${pts[i - 1].y.toFixed(1)} L ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`;
   }
   return d;
 };
@@ -63,7 +43,7 @@ const smoothPath = (pts: { x: number; y: number }[]): string => {
 /**
  * Two-line probability-over-time chart (Dem vs Rep, which sum to 100%). Shared by the home-page
  * chamber "Race Timeline" and each race page's timeline so the two always look identical.
- * Market-style presentation: tall plot, dotted gridlines labeled on the right, smoothed lines,
+ * Market-style presentation: tall plot, dotted gridlines labeled on the right, stepped lines,
  * and white value pills (colored tick + name + value) that sit at the line ends and track the
  * crosshair on hover, with the hovered date shown at the top.
  */
@@ -102,8 +82,8 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   const demPts = dem.map((v, i) => ({ x: x(i), y: y(v) }));
   const repPts = rep.map((v, i) => ({ x: x(i), y: y(v) }));
-  const demLine = smoothPath(demPts);
-  const repLine = smoothPath(repPts);
+  const demLine = stepPath(demPts);
+  const repLine = stepPath(repPts);
 
   const stepW = cw / (data.length - 1);
   // Parse the YYYY-MM-DD portion as a LOCAL date so a UTC-midnight timestamp doesn't render as
