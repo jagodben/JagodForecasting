@@ -25,7 +25,7 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
     private double? _cachedMargin;
     private DateTime _fetchedAt = DateTime.MinValue;
     private readonly SemaphoreSlim _lock = new(1, 1);
-    private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(6);
+    private static readonly TimeSpan CacheTtl = TimeSpan.FromHours(24);
 
     private const string ApiBase = "https://en.wikipedia.org/w/api.php";
     private const string PageTitle = "2026 United States House of Representatives elections";

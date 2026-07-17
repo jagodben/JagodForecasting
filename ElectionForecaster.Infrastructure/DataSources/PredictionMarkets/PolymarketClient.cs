@@ -164,7 +164,7 @@ public class PolymarketClient : IPredictionMarketSource
 
         // First check cache
         if (_cachedOdds.TryGetValue(raceId, out var cached) &&
-            (DateTime.UtcNow - cached.Timestamp).TotalMinutes < 360)
+            (DateTime.UtcNow - cached.Timestamp).TotalMinutes < 1440)
         {
             _logger.LogDebug("Returning cached odds for {RaceId}", raceId);
             return cached;
@@ -176,7 +176,7 @@ public class PolymarketClient : IPredictionMarketSource
             .OrderByDescending(m => m.Timestamp)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (recentOdds != null && (DateTime.UtcNow - recentOdds.Timestamp).TotalMinutes < 360)
+        if (recentOdds != null && (DateTime.UtcNow - recentOdds.Timestamp).TotalMinutes < 1440)
         {
             _logger.LogDebug("Returning database odds for {RaceId}", raceId);
             var odds = EntityToModel(recentOdds);
@@ -211,7 +211,7 @@ public class PolymarketClient : IPredictionMarketSource
     public async Task<Dictionary<string, MarketOdds>> GetAllRaceOddsAsync(CancellationToken cancellationToken = default)
     {
         // Return cached data if fresh
-        if ((DateTime.UtcNow - _lastRefresh).TotalMinutes < 360 && _cachedOdds.Count > 0)
+        if ((DateTime.UtcNow - _lastRefresh).TotalMinutes < 1440 && _cachedOdds.Count > 0)
         {
             return new Dictionary<string, MarketOdds>(_cachedOdds);
         }
