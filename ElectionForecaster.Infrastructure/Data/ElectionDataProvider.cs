@@ -10,73 +10,75 @@ public static partial class ElectionDataProvider
         // 2026 Election Data
         // Senate: Class 2 senators (elected 2020, up for re-election 2026)
         // Governors: 36 states have gubernatorial elections in 2026
-        var stateData = new List<(string Id, string Name, int ElectoralVotes, int Districts, RaceRating Rating, bool HasSenateRace, bool HasGovRace)>
+        var stateData = new List<(string Id, string Name, int ElectoralVotes, int Districts, bool HasSenateRace, bool HasGovRace)>
         {
-            ("AL", "Alabama", 9, 7, RaceRating.SolidRep, true, true),
-            ("AK", "Alaska", 3, 1, RaceRating.LikelyRep, true, true),
-            ("AZ", "Arizona", 11, 9, RaceRating.TiltDem, false, true),
-            ("AR", "Arkansas", 6, 4, RaceRating.SolidRep, true, true),
-            ("CA", "California", 54, 52, RaceRating.SolidDem, false, true),
-            ("CO", "Colorado", 10, 8, RaceRating.LikelyDem, true, true),
-            ("CT", "Connecticut", 7, 5, RaceRating.SolidDem, false, true),
-            ("DE", "Delaware", 3, 1, RaceRating.SolidDem, true, false),
-            ("FL", "Florida", 30, 28, RaceRating.LeanRep, true, true),
-            ("GA", "Georgia", 16, 14, RaceRating.TiltDem, true, true),
-            ("HI", "Hawaii", 4, 2, RaceRating.SolidDem, false, true),
-            ("ID", "Idaho", 4, 2, RaceRating.SolidRep, true, true),
-            ("IL", "Illinois", 19, 17, RaceRating.SolidDem, true, true),
-            ("IN", "Indiana", 11, 9, RaceRating.SolidRep, false, false),
-            ("IA", "Iowa", 6, 4, RaceRating.LikelyRep, true, true),
-            ("KS", "Kansas", 6, 4, RaceRating.SolidRep, true, true),
-            ("KY", "Kentucky", 8, 6, RaceRating.SolidRep, true, false),
-            ("LA", "Louisiana", 8, 6, RaceRating.SolidRep, true, false),
-            ("ME", "Maine", 4, 2, RaceRating.LeanDem, true, true),
-            ("MD", "Maryland", 10, 8, RaceRating.SolidDem, false, true),
-            ("MA", "Massachusetts", 11, 9, RaceRating.SolidDem, true, true),
-            ("MI", "Michigan", 15, 13, RaceRating.TiltDem, true, true),
-            ("MN", "Minnesota", 10, 8, RaceRating.LeanDem, true, true),
-            ("MS", "Mississippi", 6, 4, RaceRating.SolidRep, true, false),
-            ("MO", "Missouri", 10, 8, RaceRating.SolidRep, false, false),
-            ("MT", "Montana", 4, 2, RaceRating.LikelyRep, true, false),
-            ("NE", "Nebraska", 5, 3, RaceRating.SolidRep, true, true),
-            ("NV", "Nevada", 6, 4, RaceRating.TiltDem, false, true),
-            ("NH", "New Hampshire", 4, 2, RaceRating.LeanDem, true, true),
-            ("NJ", "New Jersey", 14, 12, RaceRating.LikelyDem, true, false),
-            ("NM", "New Mexico", 5, 3, RaceRating.LikelyDem, true, true),
-            ("NY", "New York", 28, 26, RaceRating.SolidDem, false, true),
-            ("NC", "North Carolina", 16, 14, RaceRating.TiltDem, true, false),
-            ("ND", "North Dakota", 3, 1, RaceRating.SolidRep, false, false),
-            ("OH", "Ohio", 17, 15, RaceRating.LeanRep, true, true),
-            ("OK", "Oklahoma", 7, 5, RaceRating.SolidRep, true, true),
-            ("OR", "Oregon", 8, 6, RaceRating.LikelyDem, true, true),
-            ("PA", "Pennsylvania", 19, 17, RaceRating.TiltDem, false, true),
-            ("RI", "Rhode Island", 4, 2, RaceRating.SolidDem, true, true),
-            ("SC", "South Carolina", 9, 7, RaceRating.SolidRep, true, true),
-            ("SD", "South Dakota", 3, 1, RaceRating.SolidRep, true, true),
-            ("TN", "Tennessee", 11, 9, RaceRating.SolidRep, true, true),
-            ("TX", "Texas", 40, 38, RaceRating.LikelyRep, true, true),
-            ("UT", "Utah", 6, 4, RaceRating.SolidRep, false, false),
-            ("VT", "Vermont", 3, 1, RaceRating.SolidDem, false, true),
-            ("VA", "Virginia", 13, 11, RaceRating.LeanDem, true, false),
-            ("WA", "Washington", 12, 10, RaceRating.SolidDem, false, false),
-            ("WV", "West Virginia", 4, 2, RaceRating.SolidRep, true, false),
-            ("WI", "Wisconsin", 10, 8, RaceRating.TiltDem, false, true),
-            ("WY", "Wyoming", 3, 1, RaceRating.SolidRep, true, true)
+            ("AL", "Alabama", 9, 7, true, true),
+            ("AK", "Alaska", 3, 1, true, true),
+            ("AZ", "Arizona", 11, 9, false, true),
+            ("AR", "Arkansas", 6, 4, true, true),
+            ("CA", "California", 54, 52, false, true),
+            ("CO", "Colorado", 10, 8, true, true),
+            ("CT", "Connecticut", 7, 5, false, true),
+            ("DE", "Delaware", 3, 1, true, false),
+            ("FL", "Florida", 30, 28, true, true),
+            ("GA", "Georgia", 16, 14, true, true),
+            ("HI", "Hawaii", 4, 2, false, true),
+            ("ID", "Idaho", 4, 2, true, true),
+            ("IL", "Illinois", 19, 17, true, true),
+            ("IN", "Indiana", 11, 9, false, false),
+            ("IA", "Iowa", 6, 4, true, true),
+            ("KS", "Kansas", 6, 4, true, true),
+            ("KY", "Kentucky", 8, 6, true, false),
+            ("LA", "Louisiana", 8, 6, true, false),
+            ("ME", "Maine", 4, 2, true, true),
+            ("MD", "Maryland", 10, 8, false, true),
+            ("MA", "Massachusetts", 11, 9, true, true),
+            ("MI", "Michigan", 15, 13, true, true),
+            ("MN", "Minnesota", 10, 8, true, true),
+            ("MS", "Mississippi", 6, 4, true, false),
+            ("MO", "Missouri", 10, 8, false, false),
+            ("MT", "Montana", 4, 2, true, false),
+            ("NE", "Nebraska", 5, 3, true, true),
+            ("NV", "Nevada", 6, 4, false, true),
+            ("NH", "New Hampshire", 4, 2, true, true),
+            ("NJ", "New Jersey", 14, 12, true, false),
+            ("NM", "New Mexico", 5, 3, true, true),
+            ("NY", "New York", 28, 26, false, true),
+            ("NC", "North Carolina", 16, 14, true, false),
+            ("ND", "North Dakota", 3, 1, false, false),
+            ("OH", "Ohio", 17, 15, true, true),
+            ("OK", "Oklahoma", 7, 5, true, true),
+            ("OR", "Oregon", 8, 6, true, true),
+            ("PA", "Pennsylvania", 19, 17, false, true),
+            ("RI", "Rhode Island", 4, 2, true, true),
+            ("SC", "South Carolina", 9, 7, true, true),
+            ("SD", "South Dakota", 3, 1, true, true),
+            ("TN", "Tennessee", 11, 9, true, true),
+            ("TX", "Texas", 40, 38, true, true),
+            ("UT", "Utah", 6, 4, false, false),
+            ("VT", "Vermont", 3, 1, false, true),
+            ("VA", "Virginia", 13, 11, true, false),
+            ("WA", "Washington", 12, 10, false, false),
+            ("WV", "West Virginia", 4, 2, true, false),
+            ("WI", "Wisconsin", 10, 8, false, true),
+            ("WY", "Wyoming", 3, 1, true, true)
         };
 
-        var states = stateData.Select(s => CreateState(s.Id, s.Name, s.ElectoralVotes, s.Districts, s.Rating, s.HasSenateRace, s.HasGovRace)).ToList();
+        var states = stateData.Select(s => CreateState(s.Id, s.Name, s.ElectoralVotes, s.Districts, s.HasSenateRace, s.HasGovRace)).ToList();
         return states;
     }
 
-    private static State CreateState(string id, string name, int electoralVotes, int districts, RaceRating rating, bool hasSenateRace, bool hasGovRace)
+    private static State CreateState(string id, string name, int electoralVotes, int districts, bool hasSenateRace, bool hasGovRace)
     {
+        // Placeholder rating only — RaceService replaces every race's rating with the real
+        // forecast at startup, so the seed value never reaches the UI.
+        const RaceRating rating = RaceRating.TiltDem;
         var state = new State
         {
             Id = id,
             Name = name,
             ElectoralVotes = electoralVotes,
             CongressionalDistricts = districts,
-            OverallRating = rating,
             Races = new List<Race>(),
             Districts = new List<District>()
         };

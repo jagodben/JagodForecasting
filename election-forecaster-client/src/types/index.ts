@@ -63,7 +63,6 @@ export interface State {
   name: string;
   electoralVotes: number;
   congressionalDistricts: number;
-  overallRating: RaceRating;
   races: Race[];
   districts: District[];
 }
@@ -73,7 +72,6 @@ export interface StateSummary {
   name: string;
   electoralVotes: number;
   congressionalDistricts: number;
-  overallRating: RaceRating;
   raceCount: number;
 }
 

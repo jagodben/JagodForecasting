@@ -71,19 +71,6 @@ public partial class WikipediaPollingClient : IPollingSource
             .ToList();
     }
 
-    public async Task<Dictionary<string, PollingAverage>> GetAllPollingAveragesAsync(CancellationToken cancellationToken = default)
-    {
-        var result = new Dictionary<string, PollingAverage>();
-        var houseEffects = await GetHouseEffectsAsync(cancellationToken);
-        foreach (var (raceId, _) in _cache)
-        {
-            var polls = await GetRecentPollsAsync(raceId, 90, cancellationToken);
-            if (polls.Count > 0)
-                result[raceId] = PollingAverageCalculator.Calculate(polls, raceId, houseEffects: houseEffects);
-        }
-        return result;
-    }
-
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
         // Invalidate the in-memory cache so the next access re-fetches from Wikipedia.

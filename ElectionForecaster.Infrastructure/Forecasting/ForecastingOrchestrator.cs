@@ -334,7 +334,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (_cache.TryGetValue(ChamberKey(chamber), out ChamberForecast? cached) && cached != null)
             return cached;
 
-        var history = await GetChamberHistoryAsync(chamber.ToString(), 0, cancellationToken);
+        var history = await GetChamberHistoryAsync(chamber.ToString(), cancellationToken);
 
         // Serve the most recent stored chamber snapshot so control odds are frozen for the day and
         // stable across restarts; only run the Monte Carlo live before the first snapshot exists.
@@ -408,30 +408,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             ExpectedDemMargin = (demVoteShare - 0.5) * 100.0,
             MarginStdDev = race.Type == RaceType.House ? 8.0 : 6.0
         };
-    }
-
-    /// <summary>
-    /// Refreshes only the prediction-market sources. Markets move often, so this runs on a short
-    /// cadence — kept separate from polling so we don't re-hit Wikipedia every market cycle.
-    /// </summary>
-    public async Task RefreshMarketDataAsync(CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Refreshing prediction-market data...");
-        await Task.WhenAll(_marketSources.Select(s => s.RefreshAsync(cancellationToken)));
-        await ClearForecastCacheAsync();
-    }
-
-    /// <summary>
-    /// Refreshes the polling and generic-ballot sources. Polls update slowly and the Wikipedia
-    /// fetch is expensive/rate-limited, so this runs on a long cadence.
-    /// </summary>
-    public async Task RefreshPollingDataAsync(CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Refreshing polling and generic-ballot data...");
-        await Task.WhenAll(
-            _pollingSource.RefreshAsync(cancellationToken),
-            _genericBallotSource.RefreshAsync(cancellationToken));
-        await ClearForecastCacheAsync();
     }
 
     public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)
@@ -1016,9 +992,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             .ToListAsync(cancellationToken);
     }
 
-    // The `days` parameter is kept for the interface but the chart floor (July 1) always wins.
+    // History always starts at the chart floor (July 1).
     public async Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(
-        string chamber, int days, CancellationToken cancellationToken = default)
+        string chamber, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ChamberHistory
             .Where(c => c.Chamber == chamber && c.Date >= ChartStartDate)

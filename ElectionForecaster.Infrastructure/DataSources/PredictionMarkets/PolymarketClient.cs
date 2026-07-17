@@ -208,18 +208,6 @@ public class PolymarketClient : IPredictionMarketSource
         return null;
     }
 
-    public async Task<Dictionary<string, MarketOdds>> GetAllRaceOddsAsync(CancellationToken cancellationToken = default)
-    {
-        // Return cached data if fresh
-        if ((DateTime.UtcNow - _lastRefresh).TotalMinutes < 1440 && _cachedOdds.Count > 0)
-        {
-            return new Dictionary<string, MarketOdds>(_cachedOdds);
-        }
-
-        await RefreshAsync(cancellationToken);
-        return new Dictionary<string, MarketOdds>(_cachedOdds);
-    }
-
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
         // Static + discovered mappings both refresh; a new discovery happens lazily on first access.
@@ -501,60 +489,6 @@ public class PolymarketClient : IPredictionMarketSource
             Volume = entity.Volume,
             ExternalMarketId = entity.ExternalMarketId
         };
-    }
-
-    // Chamber control market IDs (for overall Senate/House control)
-    private static readonly Dictionary<string, string> ChamberMarketIds = new()
-    {
-        { "Senate", "562794" },  // Which party will control the Senate?
-        // Add House market ID here when available
-    };
-
-    /// <summary>
-    /// Gets the overall chamber control odds from Polymarket.
-    /// </summary>
-    public async Task<MarketOdds?> GetChamberOddsAsync(string chamber, CancellationToken cancellationToken = default)
-    {
-        if (!ChamberMarketIds.TryGetValue(chamber, out var marketId))
-        {
-            _logger.LogDebug("No Polymarket market ID for chamber {Chamber}", chamber);
-            return null;
-        }
-
-        var raceId = $"CHAMBER-{chamber.ToUpper()}";
-
-        try
-        {
-            var url = $"{MarketsApiBaseUrl}/{marketId}";
-            _logger.LogInformation("Fetching Polymarket chamber odds from {Url}", url);
-
-            var response = await _httpClient.GetAsync(url, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning("Polymarket API returned {Status} for chamber market {MarketId}",
-                    response.StatusCode, marketId);
-                return null;
-            }
-
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            var market = JsonSerializer.Deserialize<PolymarketMarketResponse>(
-                content,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (market == null)
-            {
-                _logger.LogWarning("Failed to parse Polymarket response for chamber market {MarketId}", marketId);
-                return null;
-            }
-
-            return ParseMarketResponse(market, raceId, marketId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching chamber market {MarketId}", marketId);
-            return null;
-        }
     }
 
     /// <summary>

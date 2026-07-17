@@ -22,11 +22,6 @@ export const statesApi = {
     return response.data;
   },
 
-  getRaces: async (id: string): Promise<Race[]> => {
-    const response = await api.get<Race[]>(`/states/${id}/races`);
-    return response.data;
-  },
-
 };
 
 export const racesApi = {
@@ -41,15 +36,6 @@ export const racesApi = {
     return response.data;
   },
 };
-
-
-export interface ChamberMarketOdds {
-  chamber: string;
-  demOdds: number;
-  repOdds: number;
-  timestamp: string;
-  source: string;
-}
 
 export const forecastApi = {
   getByRaceId: async (raceId: string): Promise<DetailedForecast> => {
@@ -71,14 +57,5 @@ export const forecastApi = {
   getChamberHistory: async (chamberType: string): Promise<ChamberHistoryPoint[]> => {
     const response = await api.get<ChamberHistoryPoint[]>(`/forecast/chamber/${chamberType}/history`);
     return response.data;
-  },
-
-  getChamberMarketOdds: async (chamberType: string): Promise<ChamberMarketOdds | null> => {
-    try {
-      const response = await api.get<ChamberMarketOdds>(`/forecast/chamber/${chamberType}/market-odds`);
-      return response.data;
-    } catch {
-      return null;
-    }
   },
 };

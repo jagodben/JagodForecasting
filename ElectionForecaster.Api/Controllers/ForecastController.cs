@@ -3,7 +3,6 @@ using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Core.Models;
 using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
-using ElectionForecaster.Infrastructure.DataSources.PredictionMarkets;
 using ElectionForecaster.Infrastructure.Forecasting;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,20 +13,17 @@ namespace ElectionForecaster.Api.Controllers;
 public class ForecastController : ControllerBase
 {
     private readonly IForecastingOrchestrator _orchestrator;
-    private readonly PolymarketClient _polymarketClient;
     private readonly IPollingSource _pollingSource;
     private readonly IRaceService _raceService;
     private readonly ILogger<ForecastController> _logger;
 
     public ForecastController(
         IForecastingOrchestrator orchestrator,
-        PolymarketClient polymarketClient,
         IPollingSource pollingSource,
         IRaceService raceService,
         ILogger<ForecastController> logger)
     {
         _orchestrator = orchestrator;
-        _polymarketClient = polymarketClient;
         _pollingSource = pollingSource;
         _raceService = raceService;
         _logger = logger;
@@ -130,34 +126,10 @@ public class ForecastController : ControllerBase
     /// </summary>
     [HttpGet("chamber/{chamberType}/history")]
     [ProducesResponseType(typeof(List<ChamberHistoryPoint>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<ChamberHistoryPoint>>> GetChamberHistory(string chamberType, [FromQuery] int days = 365)
+    public async Task<ActionResult<List<ChamberHistoryPoint>>> GetChamberHistory(string chamberType)
     {
-        var history = await _orchestrator.GetChamberHistoryAsync(chamberType, days);
+        var history = await _orchestrator.GetChamberHistoryAsync(chamberType);
         return Ok(history);
-    }
-
-    /// <summary>
-    /// Gets the overall chamber control odds from Polymarket.
-    /// </summary>
-    [HttpGet("chamber/{chamberType}/market-odds")]
-    [ProducesResponseType(typeof(ChamberMarketOdds), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ChamberMarketOdds>> GetChamberMarketOdds(string chamberType)
-    {
-        var odds = await _polymarketClient.GetChamberOddsAsync(chamberType);
-        if (odds == null)
-        {
-            return NotFound(new { message = $"No market odds available for {chamberType}" });
-        }
-
-        return Ok(new ChamberMarketOdds
-        {
-            Chamber = chamberType,
-            DemOdds = odds.DemOdds,
-            RepOdds = odds.RepOdds,
-            Timestamp = odds.Timestamp,
-            Source = odds.Source
-        });
     }
 
     /// <summary>
@@ -217,86 +189,6 @@ public class ForecastController : ControllerBase
         return Ok(new { message = "Model history backfill completed" });
     }
 
-    /// <summary>
-    /// Gets a summary of all forecasts grouped by race type.
-    /// </summary>
-    [HttpGet("summary")]
-    [ProducesResponseType(typeof(ForecastSummary), StatusCodes.Status200OK)]
-    public async Task<ActionResult<ForecastSummary>> GetForecastSummary()
-    {
-        var senateForecasts = await _orchestrator.GenerateAllForecastsAsync(RaceType.Senate);
-        var houseForecasts = await _orchestrator.GenerateAllForecastsAsync(RaceType.House);
-        var governorForecasts = await _orchestrator.GenerateAllForecastsAsync(RaceType.Governor);
-
-        var senateChamber = await _orchestrator.SimulateChamberAsync(RaceType.Senate);
-        var houseChamber = await _orchestrator.SimulateChamberAsync(RaceType.House);
-
-        var summary = new ForecastSummary
-        {
-            LastUpdated = DateTime.UtcNow,
-            Senate = new RaceTypeSummary
-            {
-                TotalRaces = senateForecasts.Count,
-                DemFavored = senateForecasts.Count(f => f.DemWinProbability > 0.5),
-                RepFavored = senateForecasts.Count(f => f.RepWinProbability > 0.5),
-                Tossups = senateForecasts.Count(f => Math.Abs(f.DemWinProbability - 0.5) < 0.1),
-                ChamberForecast = senateChamber
-            },
-            House = new RaceTypeSummary
-            {
-                TotalRaces = houseForecasts.Count,
-                DemFavored = houseForecasts.Count(f => f.DemWinProbability > 0.5),
-                RepFavored = houseForecasts.Count(f => f.RepWinProbability > 0.5),
-                Tossups = houseForecasts.Count(f => Math.Abs(f.DemWinProbability - 0.5) < 0.1),
-                ChamberForecast = houseChamber
-            },
-            Governor = new RaceTypeSummary
-            {
-                TotalRaces = governorForecasts.Count,
-                DemFavored = governorForecasts.Count(f => f.DemWinProbability > 0.5),
-                RepFavored = governorForecasts.Count(f => f.RepWinProbability > 0.5),
-                Tossups = governorForecasts.Count(f => Math.Abs(f.DemWinProbability - 0.5) < 0.1),
-                ChamberForecast = null
-            }
-        };
-
-        return Ok(summary);
-    }
-}
-
-/// <summary>
-/// Summary of all forecasts.
-/// </summary>
-public class ForecastSummary
-{
-    public DateTime LastUpdated { get; set; }
-    public RaceTypeSummary Senate { get; set; } = new();
-    public RaceTypeSummary House { get; set; } = new();
-    public RaceTypeSummary Governor { get; set; } = new();
-}
-
-/// <summary>
-/// Summary for a specific race type.
-/// </summary>
-public class RaceTypeSummary
-{
-    public int TotalRaces { get; set; }
-    public int DemFavored { get; set; }
-    public int RepFavored { get; set; }
-    public int Tossups { get; set; }
-    public ChamberForecast? ChamberForecast { get; set; }
-}
-
-/// <summary>
-/// Chamber control odds from prediction markets.
-/// </summary>
-public class ChamberMarketOdds
-{
-    public string Chamber { get; set; } = "";
-    public double DemOdds { get; set; }
-    public double RepOdds { get; set; }
-    public DateTime Timestamp { get; set; }
-    public string Source { get; set; } = "";
 }
 
 /// <summary>

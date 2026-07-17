@@ -13,11 +13,7 @@ public interface IForecastingOrchestrator
     Task<ChamberForecast> SimulateChamberAsync(RaceType chamber, CancellationToken cancellationToken = default);
 
     /// <summary>Stored chamber control-over-time history (cheap DB read, no simulation).</summary>
-    Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(string chamber, int days, CancellationToken cancellationToken = default);
-
-    Task RefreshMarketDataAsync(CancellationToken cancellationToken = default);
-
-    Task RefreshPollingDataAsync(CancellationToken cancellationToken = default);
+    Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(string chamber, CancellationToken cancellationToken = default);
 
     Task RefreshAllDataAsync(CancellationToken cancellationToken = default);
 

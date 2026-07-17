@@ -23,11 +23,6 @@ public interface IPollingSource
     Task<List<PollData>> GetRecentPollsAsync(string raceId, int days = 30, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets polling averages for all available races.
-    /// </summary>
-    Task<Dictionary<string, PollingAverage>> GetAllPollingAveragesAsync(CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Refreshes the cached polling data from the source.
     /// </summary>
     Task RefreshAsync(CancellationToken cancellationToken = default);

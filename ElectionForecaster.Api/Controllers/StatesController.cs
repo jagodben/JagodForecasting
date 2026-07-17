@@ -11,18 +11,15 @@ namespace ElectionForecaster.Api.Controllers;
 public class StatesController : ControllerBase
 {
     private readonly IStateService _stateService;
-    private readonly IRaceService _raceService;
     private readonly IForecastingOrchestrator _orchestrator;
     private readonly ILogger<StatesController> _logger;
 
     public StatesController(
         IStateService stateService,
-        IRaceService raceService,
         IForecastingOrchestrator orchestrator,
         ILogger<StatesController> logger)
     {
         _stateService = stateService;
-        _raceService = raceService;
         _orchestrator = orchestrator;
         _logger = logger;
     }
@@ -37,7 +34,6 @@ public class StatesController : ControllerBase
             s.Name,
             s.ElectoralVotes,
             s.CongressionalDistricts,
-            s.OverallRating,
             RaceCount = s.Races.Count
         });
         return Ok(summaries);
@@ -50,17 +46,6 @@ public class StatesController : ControllerBase
         if (state == null)
             return NotFound();
         return Ok(await WithBlendedForecastsAsync(state));
-    }
-
-    [HttpGet("{id}/races")]
-    public async Task<IActionResult> GetStateRaces(string id)
-    {
-        var state = await _stateService.GetStateByIdAsync(id);
-        if (state == null)
-            return NotFound();
-
-        var races = (await _raceService.GetRacesByStateAsync(id)).ToList();
-        return Ok(await OverlayRacesAsync(races));
     }
 
     /// <summary>
@@ -93,7 +78,6 @@ public class StatesController : ControllerBase
             Name = state.Name,
             ElectoralVotes = state.ElectoralVotes,
             CongressionalDistricts = state.CongressionalDistricts,
-            OverallRating = state.OverallRating,
             Races = races,
             Districts = districts
         };

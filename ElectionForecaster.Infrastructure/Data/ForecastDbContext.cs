@@ -13,7 +13,6 @@ public class ForecastDbContext : DbContext
     public DbSet<PollEntity> Polls { get; set; } = null!;
     public DbSet<ChamberHistoryEntity> ChamberHistory { get; set; } = null!;
     public DbSet<MarketOddsEntity> MarketOdds { get; set; } = null!;
-    public DbSet<ApprovalRatingEntity> ApprovalRatings { get; set; } = null!;
     public DbSet<GenericBallotEntity> GenericBallot { get; set; } = null!;
     public DbSet<NomineeOverrideEntity> NomineeOverrides { get; set; } = null!;
 
@@ -50,12 +49,6 @@ public class ForecastDbContext : DbContext
             entity.HasIndex(e => e.RaceId);
             entity.HasIndex(e => e.Timestamp);
             entity.HasIndex(e => new { e.RaceId, e.Source, e.Timestamp });
-        });
-
-        // ApprovalRatings - index on Date
-        modelBuilder.Entity<ApprovalRatingEntity>(entity =>
-        {
-            entity.HasIndex(e => e.Date);
         });
 
         // GenericBallot - index on Date
