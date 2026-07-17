@@ -20,17 +20,9 @@ distributions.
   feeding the average, and a prediction-over-time chart.
 - **State pages** — every race in a state plus its congressional district grid.
 
-Every surface reads from the same blended model, so the map, tooltips, sidebars, and
-race pages always agree.
-
 ## How the model works
 
 ### Three signals
-
-**Prediction markets.** Per-race "which party wins" markets from Polymarket, refreshed
-every 15 minutes. Odds are volume-weighted and each market's influence scales with its
-liquidity. Races without a usable party market (Alaska's ranked-choice contests,
-California's top-two governor race) fall back to the other signals.
 
 **Polling.** General-election polls parsed from each race's Wikipedia article,
 deduplicated across hypothetical-matchup tables. The average weights each poll by
@@ -47,6 +39,12 @@ beyond the flat incumbency term — this is what lets the model see a crossover 
 like Vermont's Phil Scott instead of assuming the seat votes its PVI. Open seats drop
 the prior entirely: the personal vote leaves with the departing incumbent. Both rules
 were chosen by backtest, not judgment (see Validation).
+
+
+**Prediction markets.** Per-race "which party wins" markets from Polymarket, refreshed
+every 15 minutes. Odds are volume-weighted and each market's influence scales with its
+liquidity. Races without a usable party market (Alaska's ranked-choice contests,
+California's top-two governor race) fall back to the other signals.
 
 ### Blending
 
