@@ -4,6 +4,11 @@ import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
 
+// Home-page chart pills: standard size with a pointer, larger on touch screens (fingers,
+// small viewports). Race-page charts stay at 1x everywhere.
+const TOUCH_PILL_SCALE =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1.75 : 1;
+
 // Rating order from left (Solid D) to right (Solid R)
 const RATING_ORDER: RaceRating[] = [
   RaceRating.SolidDem,
@@ -286,7 +291,7 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
             data={chamberHistory.map(d => ({ date: d.date, demValue: d.demControlProbability }))}
             demLabel="Dem"
             repLabel="Rep"
-            pillScale={2}
+            pillScale={TOUCH_PILL_SCALE}
           />
         </div>
       )}
