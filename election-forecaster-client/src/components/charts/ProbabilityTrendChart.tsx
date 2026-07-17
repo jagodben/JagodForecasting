@@ -26,7 +26,7 @@ let measureCtx: CanvasRenderingContext2D | null = null;
 const textWidth = (text: string, weight: number): number => {
   measureCtx ??= document.createElement('canvas').getContext('2d');
   if (!measureCtx) return text.length * 6.2;
-  measureCtx.font = `${weight} 11px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
+  measureCtx.font = `${weight} 22px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
   return measureCtx.measureText(text).width;
 };
 
@@ -118,10 +118,10 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   // Value pills, market-style: white rounded chip with a colored tick, name, and value.
   // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
-  const PILL_H = 20;
-  const PILL_GAP = 6; // exact space between the name and the value
+  const PILL_H = 40;
+  const PILL_GAP = 12; // exact space between the name and the value
   const pillW = (name: string, value: number) =>
-    9 + textWidth(name, 600) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700) + 8;
+    18 + textWidth(name, 600) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700) + 16;
   let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
   const minGap = PILL_H + 4;
   if (Math.abs(demPillY - repPillY) < minGap) {
@@ -135,12 +135,12 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   const renderPill = (pillY: number, color: string, name: string, value: number) => {
     const w = pillW(name, value);
-    const px = anchorX + 10 + w > width - 2 ? anchorX - w - 10 : anchorX + 10;
+    const px = anchorX + 20 + w > width - 2 ? anchorX - w - 20 : anchorX + 20;
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
-        <rect width={w} height={PILL_H} rx="6" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
-        <text x="9" y={PILL_H / 2 + 0.5} alignmentBaseline="middle" fontSize="11" fontWeight="600" fill={color}>{name}</text>
-        <text x={w - 8} y={PILL_H / 2 + 0.5} textAnchor="end" alignmentBaseline="middle" fontSize="11" fontWeight="700" fill={INK}>
+        <rect width={w} height={PILL_H} rx="12" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
+        <text x="18" y={PILL_H / 2 + 1} alignmentBaseline="middle" fontSize="22" fontWeight="600" fill={color}>{name}</text>
+        <text x={w - 16} y={PILL_H / 2 + 1} textAnchor="end" alignmentBaseline="middle" fontSize="22" fontWeight="700" fill={INK}>
           {(value * 100).toFixed(1)}%
         </text>
       </g>
