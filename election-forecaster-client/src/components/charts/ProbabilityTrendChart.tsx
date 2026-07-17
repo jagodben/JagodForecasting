@@ -13,8 +13,9 @@ interface Props {
   height?: number;
   // Color of the "dem"/challenger series. Defaults to blue; pass gold for a viable independent.
   demColor?: string;
-  // Multiplier for the hover value pills. Race pages use the default; the home-page chamber
-  // chart passes 2 (its small viewBox renders pills tiny at 1x).
+  // Multiplier for the hover value pills. Pills are sized in viewBox units, so a chart whose
+  // viewBox is much wider than its on-screen width should pass (viewBoxWidth / 320) to render
+  // pills at the same physical size as the default 320-wide chart.
   pillScale?: number;
 }
 
