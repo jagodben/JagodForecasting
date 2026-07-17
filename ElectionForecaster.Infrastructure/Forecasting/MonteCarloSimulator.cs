@@ -10,7 +10,6 @@ public class MonteCarloSimulator
 {
     private const int DefaultIterations = 10000;
 
-    // Chamber thresholds for control
     private const int SenateControlThreshold = 51; // 51 seats needed for control
     private const int HouseControlThreshold = 218; // 218 seats needed for control
 

@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -28,11 +27,9 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "Election Forecaster API", Version = "v1" });
 });
 
-// Configure SQLite database
 builder.Services.AddDbContext<ForecastDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("ForecastDb")));
 
-// In-memory cache for computed forecasts (shared singleton across request scopes)
 builder.Services.AddMemoryCache();
 
 // Compress the large forecast JSON payloads (the House batch is ~500KB uncompressed).
@@ -47,17 +44,14 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.Configure<BrotliCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
 builder.Services.Configure<GzipCompressionProviderOptions>(o => o.Level = CompressionLevel.Fastest);
 
-// Register core services
 builder.Services.AddSingleton<IStateService, StateService>();
 builder.Services.AddSingleton<IRaceService, RaceService>();
 
-// Register HttpClient for data sources
 builder.Services.AddHttpClient<PolymarketClient>();
 builder.Services.AddHttpClient<WikipediaPollingClient>();
 builder.Services.AddHttpClient<WikipediaGenericBallotClient>();
 builder.Services.AddHttpClient<WikipediaCandidateClient>();
 
-// Register data sources
 builder.Services.AddScoped<IPredictionMarketSource, PolymarketClient>();
 builder.Services.AddScoped<WikipediaPollingClient>();
 builder.Services.AddScoped<IPollingSource>(sp => sp.GetRequiredService<WikipediaPollingClient>());
@@ -65,15 +59,12 @@ builder.Services.AddScoped<IFundamentalsSource, PartisanLeanProvider>();
 builder.Services.AddScoped<IGenericBallotSource, WikipediaGenericBallotClient>();
 builder.Services.AddScoped<CandidateRefreshService>();
 
-// Register forecasting components
 builder.Services.AddSingleton<WeightCalculator>();
 builder.Services.AddSingleton<MonteCarloSimulator>();
 builder.Services.AddScoped<IForecastingOrchestrator, ForecastingOrchestrator>();
 
-// Register background service for data refresh
 builder.Services.AddHostedService<DataRefreshService>();
 
-// Configure rate limiting
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
@@ -86,7 +77,6 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Configure CORS for React frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactApp", policy =>
@@ -123,9 +113,6 @@ using (var scope = app.Services.CreateScope())
     await candidateRefresh.ApplyStoredOverridesAsync();
 }
 
-// Configure the HTTP request pipeline
-
-// Only enable Swagger in development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -141,13 +128,11 @@ app.UseResponseCompression();
 
 app.UseCors("ReactApp");
 
-// Rate limiting
 app.UseRateLimiter();
 
 app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("api");
 
-// Health check endpoint (no auth required)
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.Run();

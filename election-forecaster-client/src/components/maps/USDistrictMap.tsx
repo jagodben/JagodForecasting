@@ -13,7 +13,6 @@ type DataSource = 'combined' | 'markets' | 'polling';
 
 const DISTRICTS_URL = '/data/districts.json';
 
-// State FIPS to abbreviation mapping
 const fipsToState: Record<string, string> = {
   '01': 'AL', '02': 'AK', '04': 'AZ', '05': 'AR', '06': 'CA', '08': 'CO', '09': 'CT', '10': 'DE',
   '12': 'FL', '13': 'GA', '15': 'HI', '16': 'ID', '17': 'IL', '18': 'IN', '19': 'IA', '20': 'KS',
@@ -61,7 +60,6 @@ const formatMargin = (margin: number): string => {
   return rounded > 0 ? `D+${num}` : `R+${num}`;
 };
 
-// Convert probability to rating
 const probabilityToRating = (demProb: number): RaceRating => {
   if (demProb >= 0.90) return RaceRating.SolidDem;
   if (demProb >= 0.70) return RaceRating.LikelyDem;
@@ -116,7 +114,6 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   const [districtFeatures, setDistrictFeatures] = useState<DistrictFeature[]>([]);
   const [paths, setPaths] = useState<Map<string, string>>(new Map());
 
-  // Zoom and pan state
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
@@ -138,7 +135,6 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   const zoomRef = useRef(zoom);
   const panRef = useRef(pan);
 
-  // Keep refs in sync with state
   zoomRef.current = zoom;
   panRef.current = pan;
 
@@ -173,12 +169,10 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
     return ratings;
   }, [races, detailedForecasts, dataSource]);
 
-  // Create race lookup map: "stateId-districtNum" -> Race
   const raceMap = new Map(
     races.map(r => [`${r.stateId}-${r.districtNumber || 1}`, r])
   );
 
-  // Load and process TopoJSON data
   useEffect(() => {
     fetch(DISTRICTS_URL)
       .then(res => res.json())
@@ -192,7 +186,6 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
           validFips.has(f.properties.STATEFP)
         );
 
-        // Use Albers USA projection for the full US view
         const projection = geoAlbersUsa().scale(1000).translate([400, 250]);
         const pathGenerator = geoPath().projection(projection);
 
@@ -231,11 +224,9 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
 
     const rect = svgElement.getBoundingClientRect();
 
-    // Get mouse position relative to SVG element (0-1 range)
     const mouseX = (e.clientX - rect.left) / rect.width;
     const mouseY = (e.clientY - rect.top) / rect.height;
 
-    // Convert to viewBox coordinates (0-800, 0-500)
     const viewBoxX = mouseX * 800;
     const viewBoxY = mouseY * 500;
 
@@ -256,7 +247,6 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
     const newPanX = viewBoxX - 400 - (mapX - 400) * newZoom;
     const newPanY = viewBoxY - 250 - (mapY - 250) * newZoom;
 
-    // Clamp pan values
     const maxPanX = newZoom > 1 ? 400 * newZoom * 0.8 : 0;
     const maxPanY = newZoom > 1 ? 250 * newZoom * 0.8 : 0;
 

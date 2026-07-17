@@ -19,7 +19,6 @@ public class RaceService : IRaceService
         var states = ElectionDataProvider.GetAllStates();
         _races = states.SelectMany(s => s.Races).ToList();
 
-        // Apply real forecasts based on fundamentals
         foreach (var race in _races)
         {
             ApplyFundamentalsBasedForecast(race);
@@ -32,7 +31,6 @@ public class RaceService : IRaceService
         double? priorMargin = null;
         bool republicanIncumbent = false;
 
-        // For House races, use real district-level data
         if (race.Type == RaceType.House && race.DistrictNumber.HasValue)
         {
             // District partisan lean index as a Dem lean (falls back to state lean for unlisted districts).
@@ -67,7 +65,6 @@ public class RaceService : IRaceService
             if (repCandidate != null) repCandidate.IsIncumbent = republicanIncumbent;
         }
 
-        // Calculate expected margin for Democrats using weighted inputs
         double demMargin;
 
         if (priorMargin.HasValue)
@@ -79,18 +76,14 @@ public class RaceService : IRaceService
         }
         else
         {
-            // No prior data, use fundamentals only
             demMargin = pvi + MidtermPenalty;
         }
 
-        // Add incumbency advantage
         if (demCandidate?.IsIncumbent == true)
             demMargin += IncumbencyAdvantage;
         else if (repCandidate?.IsIncumbent == true)
             demMargin -= IncumbencyAdvantage;
 
-        // Convert margin to probability using normal CDF approximation
-        // Standard error varies by race type
         double standardError = race.Type switch
         {
             RaceType.Senate => 6.0,
@@ -102,11 +95,9 @@ public class RaceService : IRaceService
         double demProb = ForecastMath.MarginToProbability(demMargin, standardError);
         double repProb = 1.0 - demProb;
 
-        // Ensure reasonable bounds
         demProb = Math.Max(0.02, Math.Min(0.98, demProb));
         repProb = Math.Max(0.02, Math.Min(0.98, repProb));
 
-        // Calculate vote shares
         double demVoteShare = 0.50 + (demMargin / 100.0);
         demVoteShare = Math.Max(0.30, Math.Min(0.70, demVoteShare));
         double repVoteShare = 1.0 - demVoteShare;
@@ -128,7 +119,6 @@ public class RaceService : IRaceService
             }
         }
 
-        // Update race rating based on probability
         race.Rating = demProb switch
         {
             >= 0.90 => RaceRating.SolidDem,

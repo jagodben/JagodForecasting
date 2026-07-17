@@ -81,14 +81,12 @@ public static partial class ElectionDataProvider
             Districts = new List<District>()
         };
 
-        // Add Senate race if applicable
         if (hasSenateRace)
         {
             var senateRace = CreateSenateRace(id, rating);
             state.Races.Add(senateRace);
         }
 
-        // Add Governor race if applicable
         if (hasGovRace)
         {
             var govRace = CreateGovernorRace(id, rating);

@@ -12,7 +12,6 @@ const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 
-// Map state names to their abbreviations
 const stateNameToId: Record<string, string> = {
   'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
   'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
@@ -26,7 +25,6 @@ const stateNameToId: Record<string, string> = {
   'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
 };
 
-// Convert probability to rating
 const probabilityToRating = (demProb: number): RaceRating => {
   if (demProb >= 0.90) return RaceRating.SolidDem;
   if (demProb >= 0.70) return RaceRating.LikelyDem;
