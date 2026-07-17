@@ -286,6 +286,7 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
             data={chamberHistory.map(d => ({ date: d.date, demValue: d.demControlProbability }))}
             demLabel="Dem"
             repLabel="Rep"
+            pillScale={2}
           />
         </div>
       )}

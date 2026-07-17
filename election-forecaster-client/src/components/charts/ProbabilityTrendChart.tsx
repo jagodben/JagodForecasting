@@ -13,6 +13,9 @@ interface Props {
   height?: number;
   // Color of the "dem"/challenger series. Defaults to blue; pass gold for a viable independent.
   demColor?: string;
+  // Multiplier for the hover value pills. Race pages use the default; the home-page chamber
+  // chart passes 2 (its small viewBox renders pills tiny at 1x).
+  pillScale?: number;
 }
 
 const DEM = '#123f8f';
@@ -20,17 +23,13 @@ const REP = '#9c150b';
 const INK = '#1f2937';
 const INK_MUTED = '#9aa0a6';
 
-// Touch screens get larger pills (fingers, small viewports); pointers get the compact ones.
-const PILL_SCALE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1.75 : 1;
-const PILL_FONT = 11 * PILL_SCALE;
-
 // Measures pill text at the site font so name/value spacing is exact (character-count
 // estimates left uneven gaps — long names overestimate, short ones underestimate).
 let measureCtx: CanvasRenderingContext2D | null = null;
-const textWidth = (text: string, weight: number): number => {
+const textWidth = (text: string, weight: number, fontPx: number): number => {
   measureCtx ??= document.createElement('canvas').getContext('2d');
   if (!measureCtx) return text.length * 6.2;
-  measureCtx.font = `${weight} ${PILL_FONT}px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
+  measureCtx.font = `${weight} ${fontPx}px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
   return measureCtx.measureText(text).width;
 };
 
@@ -51,7 +50,7 @@ const stepPath = (pts: { x: number; y: number }[]): string => {
  * and white value pills (colored tick + name + value) that sit at the line ends and track the
  * crosshair on hover, with the hovered date shown at the top.
  */
-export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, height = 210, demColor = DEM }: Props) => {
+export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, height = 210, demColor = DEM, pillScale = 1 }: Props) => {
   const uid = useId().replace(/:/g, '');
   const [hover, setHover] = useState<number | null>(null);
   if (data.length < 2) return null;
@@ -122,11 +121,12 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   // Value pills, market-style: white rounded chip with a colored tick, name, and value.
   // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
-  const PILL_H = 20 * PILL_SCALE;
-  const PILL_GAP = 6 * PILL_SCALE; // exact space between the name and the value
-  const padL = 9 * PILL_SCALE, padR = 8 * PILL_SCALE;
+  const PILL_FONT = 11 * pillScale;
+  const PILL_H = 20 * pillScale;
+  const PILL_GAP = 6 * pillScale; // exact space between the name and the value
+  const padL = 9 * pillScale, padR = 8 * pillScale;
   const pillW = (name: string, value: number) =>
-    padL + textWidth(name, 600) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700) + padR;
+    padL + textWidth(name, 600, PILL_FONT) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700, PILL_FONT) + padR;
   let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
   const minGap = PILL_H + 2;
   if (Math.abs(demPillY - repPillY) < minGap) {
@@ -140,11 +140,11 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   const renderPill = (pillY: number, color: string, name: string, value: number) => {
     const w = pillW(name, value);
-    const offset = 10 * PILL_SCALE;
+    const offset = 10 * pillScale;
     const px = anchorX + offset + w > width - 2 ? anchorX - w - offset : anchorX + offset;
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
-        <rect width={w} height={PILL_H} rx={6 * PILL_SCALE} fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
+        <rect width={w} height={PILL_H} rx={6 * pillScale} fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
         <text x={padL} y={PILL_H / 2 + 1} alignmentBaseline="middle" fontSize={PILL_FONT} fontWeight="600" fill={color}>{name}</text>
         <text x={w - padR} y={PILL_H / 2 + 1} textAnchor="end" alignmentBaseline="middle" fontSize={PILL_FONT} fontWeight="700" fill={INK}>
           {(value * 100).toFixed(1)}%
