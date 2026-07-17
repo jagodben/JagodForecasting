@@ -27,13 +27,15 @@ race pages always agree.
 
 ### Three signals
 
-**Prediction markets.** Per-race "which party wins" markets from Polymarket, refreshed
-every 15 minutes. Odds are volume-weighted and each market's influence scales with its
+**Prediction markets.** Per-race "which party wins" markets from Polymarket, fetched
+once per daily update. Odds are volume-weighted and each market's influence scales with its
 liquidity. Races without a usable party market (Alaska's ranked-choice contests,
 California's top-two governor race) fall back to the other signals.
 
-**Polling.** General-election polls parsed from each race's Wikipedia article,
-deduplicated across hypothetical-matchup tables. The average weights each poll by
+**Polling.** General-election polls parsed from each race's Wikipedia article —
+including district-level House polls from the state-wide House articles — deduplicated
+across hypothetical-matchup tables. Multi-candidate field polls (where D+R sums far
+below 100) are rejected, and an average built on few polls counts for less. The average weights each poll by
 recency (14-day half-life), sample size, likely-voter screen, and a curated
 pollster-quality tier; partisan-sponsored polls carry half weight. Pollster house
 effects are estimated from each firm's deviation against the leave-one-out consensus
@@ -45,7 +47,9 @@ environment from the generic-ballot average, a flat incumbency term, and the sea
 prior election result. A running incumbent keeps 35% of their past overperformance
 beyond the flat incumbency term — this is what lets the model see a crossover incumbent
 like Vermont's Phil Scott instead of assuming the seat votes its PVI. Open seats drop
-the prior entirely: the personal vote leaves with the departing incumbent. Both rules
+the prior entirely: the personal vote leaves with the departing incumbent. House
+districts absorb only 60% of the national swing, fitting the recent seats-votes curve.
+Ranked-choice races (Alaska, Maine) carry extra uncertainty for runoff-transfer risk. Both rules
 were chosen by backtest, not judgment (see Validation).
 
 ### Blending
@@ -100,15 +104,16 @@ both of which scored worse; neither is in the model.
 
 | Input | Source | Cadence |
 |---|---|---|
-| Market odds | Polymarket (Gamma + CLOB APIs) | 15 min |
+| Market odds | Polymarket (Gamma + CLOB APIs) | daily |
 | Polls | Wikipedia race articles | 6 h |
-| Generic ballot | Wikipedia aggregator table | 6 h |
+| Generic ballot | Wikipedia aggregator table | daily |
 | District PVI / lines | 2025 partisan lean index on 2026 lines; Census + state GIS geometry | static, scripted refresh |
 | Prior results | Real 2020–2024 results per seat | static, scripted refresh |
-| Nominees & incumbents | Wikipedia race-summary scrapes | after each primary |
+| Nominees & incumbents | Wikipedia infobox scrape (primaries, dropouts, declared incumbents) | daily |
 
-Daily snapshots persist every race's forecast and each chamber's simulation, which is
-what the prediction-over-time charts plot. The `tools/` scripts regenerate the static
+The model recomputes once a day at 8:00 AM ET and the site serves that frozen snapshot;
+per-race and chamber histories persist daily, which is what the timeline charts plot.
+After Election Day's final snapshot (Nov 3) the forecast freezes permanently. The `tools/` scripts regenerate the static
 tables (district PVI, 2024 results, statewide incumbents, map geometry) from their
 sources.
 
@@ -117,7 +122,7 @@ sources.
 - No candidate-quality inputs beyond incumbency and the seat's own history — no
   fundraising, scandals, or approval ratings.
 - The national environment applies uniformly; states don't yet have elasticity.
-- Many house distrcits are unpolled, so some House seats rest on fundamentals plus the
+- Most House districts are unpolled, so those seats rest on fundamentals plus the
   generic ballot
 - Several constants (blend weights, incumbency sizes, swing SDs) are calibrated
   judgment, validated only where the backtest reaches.
