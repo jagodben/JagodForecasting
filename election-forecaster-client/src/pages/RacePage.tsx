@@ -249,7 +249,7 @@ export const RacePage = () => {
                     demColor={demColor}
                     width={760}
                     height={300}
-                    pillScale={760 / 320}
+                    pillScale={(760 / 320) * 0.8}
                   />
                 </div>
               )}
