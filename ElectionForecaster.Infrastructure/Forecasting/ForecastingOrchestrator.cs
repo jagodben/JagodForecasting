@@ -723,12 +723,21 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var chamberName = RaceType.House.ToString();
         await _dbContext.ChamberHistory.Where(c => c.Chamber == chamberName).ExecuteDeleteAsync(cancellationToken);
 
-        foreach (var day in ballotDays.GroupBy(g => g.Date.Date).OrderBy(g => g.Key))
+        // The stored generic-ballot series only begins when persistence started, but the chart
+        // floor is July 1 — reconstruct earlier days by carrying the earliest stored ballot
+        // backward (the same single-mood reconstruction the statewide backfill uses).
+        var byDay = ballotDays.GroupBy(g => g.Date.Date).OrderBy(g => g.Key).ToList();
+        var lastDay = byDay[^1].Key;
+        var startDay = ChartStartDate < byDay[0].Key ? ChartStartDate : byDay[0].Key;
+        var current = byDay[0].Last();
+        int dayIdx = 0;
+        for (var dayKey = startDay; dayKey <= lastDay; dayKey = dayKey.AddDays(1))
         {
-            var ballot = day.Last();
+            while (dayIdx < byDay.Count && byDay[dayIdx].Key <= dayKey) { current = byDay[dayIdx].Last(); dayIdx++; }
+            var ballot = current;
             // Same House environment damping as the live path (see BuildForecast).
             var environment = Math.Clamp(ballot.DemPercent - ballot.RepPercent, -15, 15) * HouseEnvironmentDamping;
-            var daysToElection = (_electionDate - day.Key).TotalDays;
+            var daysToElection = (_electionDate - dayKey).TotalDays;
             var se = UncertaintyModel.MarginStandardError(daysToElection, RaceType.House, 0);
 
             var forecasts = houseRaces.Select(race =>
@@ -748,7 +757,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             _dbContext.ChamberHistory.Add(new ChamberHistoryEntity
             {
                 Chamber = chamberName,
-                Date = day.Key,
+                Date = dayKey,
                 DemControlProbability = result.DemControlProbability,
                 RepControlProbability = result.RepControlProbability,
                 ExpectedDemSeats = result.ExpectedDemSeats,
@@ -761,18 +770,18 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             // Also persist the per-race rows this day's sim was built from, so each House race
             // page gets a timeline (the statewide backfill never covered House). Only fills days
             // the daily snapshot hasn't already written — stored snapshots stay frozen.
-            if (day.Key >= ChartStartDate)
+            if (dayKey >= ChartStartDate)
             {
                 foreach (var f in forecasts)
                 {
-                    if (existingHouseRows.Contains((f.RaceId, day.Key))) continue;
+                    if (existingHouseRows.Contains((f.RaceId, dayKey))) continue;
                     var demProb = ForecastMath.MarginToProbability(f.ExpectedDemMargin, f.MarginStdDev);
                     f.DemWinProbability = demProb;
                     f.RepWinProbability = 1 - demProb;
                     f.DemVoteShare = Math.Clamp(0.5 + f.ExpectedDemMargin / 200.0, 0.3, 0.7);
                     f.RepVoteShare = 1 - f.DemVoteShare;
-                    _dbContext.ForecastHistory.Add(ToHistoryEntity(f, day.Key));
-                    existingHouseRows.Add((f.RaceId, day.Key));
+                    _dbContext.ForecastHistory.Add(ToHistoryEntity(f, dayKey));
+                    existingHouseRows.Add((f.RaceId, dayKey));
                 }
             }
         }
