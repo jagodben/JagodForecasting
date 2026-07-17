@@ -460,11 +460,18 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _cache.Remove(ChamberKey(RaceType.House));
     }
 
-    /// <summary>True if today's (Eastern) daily snapshot has already been stored.</summary>
+    /// <summary>
+    /// True if today's (Eastern) daily snapshot has already been stored for every race. Requiring
+    /// full coverage (not just "any row today") lets the daily update re-run and fill in races a
+    /// partial backfill or a per-race failure left without today's row — already stored rows are
+    /// never recomputed, so the frozen values stand.
+    /// </summary>
     public async Task<bool> HasDailySnapshotAsync(CancellationToken cancellationToken = default)
     {
         var today = EasternToday();
-        return await _dbContext.ForecastHistory.AnyAsync(f => f.Date == today, cancellationToken);
+        var raceCount = (await _raceService.GetAllRacesAsync()).Count();
+        var storedToday = await _dbContext.ForecastHistory.CountAsync(f => f.Date == today, cancellationToken);
+        return storedToday >= raceCount;
     }
 
     /// <summary>
@@ -555,27 +562,36 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
     public async Task BackfillModelHistoryAsync(bool force = false, CancellationToken cancellationToken = default)
     {
-        // Rebuilding wipes the genuine daily snapshots, so only seed automatically when history
-        // is empty; the admin endpoint passes force to rebuild deliberately.
-        if (!force && await _dbContext.ForecastHistory.AnyAsync(cancellationToken))
+        var allRaces = (await _raceService.GetAllRacesAsync()).ToList();
+        var statewide = allRaces
+            .Where(r => r.Type == RaceType.Senate || r.Type == RaceType.Governor)
+            .ToList();
+
+        // Rebuilding wipes the genuine daily snapshots, so a non-forced run only seeds races with
+        // no history at all. Per-race (rather than skipping when the table is non-empty) so an
+        // interrupted or partially failed backfill self-heals on the next startup instead of
+        // permanently leaving those races without a timeline.
+        var raceIdsWithHistory = (await _dbContext.ForecastHistory
+            .Select(f => f.RaceId).Distinct().ToListAsync(cancellationToken)).ToHashSet();
+
+        var races = force ? statewide : statewide.Where(r => !raceIdsWithHistory.Contains(r.Id)).ToList();
+        var houseMissing = allRaces.Any(r => r.Type == RaceType.House && !raceIdsWithHistory.Contains(r.Id));
+
+        if (races.Count == 0 && !houseMissing)
         {
-            _logger.LogInformation("Model history already present — skipping automatic backfill (POST /api/forecast/backfill to force a rebuild)");
+            _logger.LogInformation("Model history complete — skipping backfill (POST /api/forecast/backfill to force a rebuild)");
             return;
         }
 
         var fromDate = new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc);
-        var today = DateTime.UtcNow.Date;
-        _logger.LogInformation("Backfilling model history {From:d}..{To:d} for statewide races", fromDate, today);
+        var today = EasternToday();
+        _logger.LogInformation("Backfilling model history {From:d}..{To:d} for {Count} statewide races (House rows missing: {HouseMissing})",
+            fromDate, today, races.Count, houseMissing);
 
         var polymarket = _marketSources.OfType<PolymarketClient>().FirstOrDefault();
         // Current generic-ballot margin applied across the backfilled days (a single national-mood
         // value for this retrospective reconstruction).
         var genericBallot = await _genericBallotSource.GetCurrentMarginAsync(cancellationToken);
-
-        // Statewide races only (House has no markets and sparse polls; excluded per scope).
-        var races = (await _raceService.GetAllRacesAsync())
-            .Where(r => r.Type == RaceType.Senate || r.Type == RaceType.Governor)
-            .ToList();
 
         int rowsAdded = 0;
         foreach (var race in races)
@@ -594,9 +610,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 var polls = await _pollingSource.GetRecentPollsAsync(race.Id, 3650, cancellationToken);
                 var fundamentals = await _fundamentalsSource.GetFundamentalsAsync(race.Id, cancellationToken);
 
-                // Rebuild the whole series from scratch (clears any stale market-only backfill rows).
-                await _dbContext.ForecastHistory.Where(f => f.RaceId == race.Id).ExecuteDeleteAsync(cancellationToken);
-
+                var newRows = new List<ForecastHistoryEntity>();
                 for (var day = fromDate.Date; day <= today; day = day.AddDays(1))
                 {
                     // Market as of `day`: the exact daily point, else carry the most recent prior point.
@@ -617,11 +631,15 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                         : null;
 
                     var forecast = BuildForecast(race.Id, race.Type, market, polling, fundamentals, genericBallot, race, day, new List<HistoricalDataPoint>());
-                    _dbContext.ForecastHistory.Add(ToHistoryEntity(forecast, day));
-                    rowsAdded++;
+                    newRows.Add(ToHistoryEntity(forecast, day));
                 }
 
+                // Replace only after the whole new series computed cleanly — deleting up front
+                // meant a mid-race failure wiped a race's history without rebuilding it.
+                await _dbContext.ForecastHistory.Where(f => f.RaceId == race.Id).ExecuteDeleteAsync(cancellationToken);
+                _dbContext.ForecastHistory.AddRange(newRows);
                 await _dbContext.SaveChangesAsync(cancellationToken);
+                rowsAdded += newRows.Count;
             }
             catch (Exception ex)
             {
@@ -633,8 +651,14 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         _logger.LogInformation("Model history backfill complete: {Rows} day-rows across {Races} races", rowsAdded, races.Count);
 
         // Chamber control over time follows directly from the per-race history we just wrote.
-        await BackfillChamberHistoryAsync(cancellationToken);
-        await BackfillHouseChamberHistoryAsync(cancellationToken);
+        // (The House pass also writes the per-race House rows, so it runs whenever those are missing.)
+        if (force || races.Count > 0)
+            await BackfillChamberHistoryAsync(cancellationToken);
+        if (force || houseMissing)
+            await BackfillHouseChamberHistoryAsync(cancellationToken);
+
+        // Forecasts cached before the rebuild carry the old (possibly empty) history.
+        await ClearForecastCacheAsync();
     }
 
     /// <summary>
@@ -813,7 +837,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (allOdds.Count == 0)
             return null;
 
-        // Aggregate by volume-weighting
         double totalWeight = 0;
         double weightedDem = 0;
         double weightedRep = 0;
@@ -968,7 +991,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             sources++;
         }
 
-        // Bonus for having multiple sources
         if (sources >= 3)
             confidence += 0.1;
         else if (sources >= 2)

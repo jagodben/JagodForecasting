@@ -3,62 +3,38 @@ using ElectionForecaster.Core.Models;
 
 namespace ElectionForecaster.Infrastructure.Forecasting;
 
-/// <summary>
-/// Interface for the main forecasting engine that combines all data sources.
-/// </summary>
+/// <summary>The main forecasting engine, blending every data source per race.</summary>
 public interface IForecastingOrchestrator
 {
-    /// <summary>
-    /// Generates a detailed forecast for a specific race.
-    /// </summary>
     Task<DetailedForecast> GenerateForecastAsync(string raceId, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Generates forecasts for all races of a specific type.
-    /// </summary>
     Task<List<DetailedForecast>> GenerateAllForecastsAsync(RaceType? raceType = null, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Simulates chamber control using Monte Carlo simulation.
-    /// </summary>
     Task<ChamberForecast> SimulateChamberAsync(RaceType chamber, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Returns the stored chamber control-over-time history (cheap DB read, no simulation).
-    /// </summary>
+    /// <summary>Stored chamber control-over-time history (cheap DB read, no simulation).</summary>
     Task<List<ChamberHistoryPoint>> GetChamberHistoryAsync(string chamber, int days, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Refreshes only the prediction-market sources (short cadence).
-    /// </summary>
     Task RefreshMarketDataAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Refreshes only the polling and generic-ballot sources (long cadence).
-    /// </summary>
     Task RefreshPollingDataAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Refreshes all data sources.
-    /// </summary>
     Task RefreshAllDataAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Stores daily snapshot of forecasts to the database.
-    /// </summary>
     Task StoreDailySnapshotAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The once-a-day update (refresh all sources + store the 8 AM snapshot the site serves).
-    /// No-ops and returns false if today's Eastern snapshot already exists.
+    /// No-ops and returns false if today's Eastern snapshot is already complete.
     /// </summary>
     Task<bool> RunDailyUpdateAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Backfills the full model's forecast history retrospectively (statewide races), reconstructing
-    /// each day's market and polling inputs so the stored history reflects what the model would have said.
-    /// Destructive (deletes and rebuilds), so it only runs when history is empty unless <paramref name="force"/>
-    /// is set — this keeps the automatic startup call from wiping the genuine daily snapshots on every restart.
+    /// Backfills forecast history retrospectively, reconstructing each day's market and polling
+    /// inputs so the stored history reflects what the model would have said. Without
+    /// <paramref name="force"/> it only seeds races that have no history rows at all (so the
+    /// automatic startup call heals gaps without wiping genuine daily snapshots); with it, every
+    /// race is deleted and rebuilt under the current model.
     /// </summary>
     Task BackfillModelHistoryAsync(bool force = false, CancellationToken cancellationToken = default);
 }
