@@ -20,13 +20,17 @@ const REP = '#9c150b';
 const INK = '#1f2937';
 const INK_MUTED = '#9aa0a6';
 
+// Touch screens get larger pills (fingers, small viewports); pointers get the compact ones.
+const PILL_SCALE = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 1.75 : 1;
+const PILL_FONT = 11 * PILL_SCALE;
+
 // Measures pill text at the site font so name/value spacing is exact (character-count
 // estimates left uneven gaps — long names overestimate, short ones underestimate).
 let measureCtx: CanvasRenderingContext2D | null = null;
 const textWidth = (text: string, weight: number): number => {
   measureCtx ??= document.createElement('canvas').getContext('2d');
   if (!measureCtx) return text.length * 6.2;
-  measureCtx.font = `${weight} 22px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
+  measureCtx.font = `${weight} ${PILL_FONT}px 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif`;
   return measureCtx.measureText(text).width;
 };
 
@@ -112,18 +116,19 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
     demShort = trunc(demLabel); repShort = trunc(repLabel);
   }
 
-  // The values/positions the pills reflect: the hovered point, or the latest at rest.
+  // The values/positions the pills reflect while hovering.
   const idx = hover ?? data.length - 1;
   const anchorX = x(idx);
 
   // Value pills, market-style: white rounded chip with a colored tick, name, and value.
   // Nudged apart when the lines converge; placed on whichever side of the anchor has room.
-  const PILL_H = 40;
-  const PILL_GAP = 12; // exact space between the name and the value
+  const PILL_H = 20 * PILL_SCALE;
+  const PILL_GAP = 6 * PILL_SCALE; // exact space between the name and the value
+  const padL = 9 * PILL_SCALE, padR = 8 * PILL_SCALE;
   const pillW = (name: string, value: number) =>
-    18 + textWidth(name, 600) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700) + 16;
+    padL + textWidth(name, 600) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700) + padR;
   let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
-  const minGap = PILL_H + 4;
+  const minGap = PILL_H + 2;
   if (Math.abs(demPillY - repPillY) < minGap) {
     const mid = (demPillY + repPillY) / 2;
     const dir = demPillY <= repPillY ? -1 : 1;
@@ -135,12 +140,13 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
 
   const renderPill = (pillY: number, color: string, name: string, value: number) => {
     const w = pillW(name, value);
-    const px = anchorX + 20 + w > width - 2 ? anchorX - w - 20 : anchorX + 20;
+    const offset = 10 * PILL_SCALE;
+    const px = anchorX + offset + w > width - 2 ? anchorX - w - offset : anchorX + offset;
     return (
       <g transform={`translate(${px.toFixed(1)}, ${(pillY - PILL_H / 2).toFixed(1)})`} pointerEvents="none">
-        <rect width={w} height={PILL_H} rx="12" fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
-        <text x="18" y={PILL_H / 2 + 1} alignmentBaseline="middle" fontSize="22" fontWeight="600" fill={color}>{name}</text>
-        <text x={w - 16} y={PILL_H / 2 + 1} textAnchor="end" alignmentBaseline="middle" fontSize="22" fontWeight="700" fill={INK}>
+        <rect width={w} height={PILL_H} rx={6 * PILL_SCALE} fill="#ffffff" stroke="#e5e8eb" strokeWidth="1" filter={`url(#shadow-${uid})`} />
+        <text x={padL} y={PILL_H / 2 + 1} alignmentBaseline="middle" fontSize={PILL_FONT} fontWeight="600" fill={color}>{name}</text>
+        <text x={w - padR} y={PILL_H / 2 + 1} textAnchor="end" alignmentBaseline="middle" fontSize={PILL_FONT} fontWeight="700" fill={INK}>
           {(value * 100).toFixed(1)}%
         </text>
       </g>
@@ -156,8 +162,9 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
         <filter id={`shadow-${uid}`} x="-20%" y="-40%" width="140%" height="180%">
           <feDropShadow dx="0" dy="1" stdDeviation="2" floodColor="#0b1220" floodOpacity="0.16" />
         </filter>
+        {/* 2px of slack so line strokes centered on the plot edge aren't shaved off */}
         <clipPath id={`plot-${uid}`}>
-          <rect x={pad.left} y={pad.top} width={cw} height={chh} />
+          <rect x={pad.left - 2} y={pad.top - 2} width={cw + 4} height={chh + 4} />
         </clipPath>
       </defs>
 
@@ -177,7 +184,6 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
         );
       })}
 
-      {/* Smoothed lines */}
       <g clipPath={`url(#plot-${uid})`}>
         <path d={repLine} fill="none" stroke={REP} strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
         <path d={demLine} fill="none" stroke={demColor} strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
@@ -202,13 +208,17 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
         </g>
       )}
 
-      {/* Markers at the anchor (line ends at rest, crosshair when hovering) + value pills */}
-      <g pointerEvents="none">
-        <circle cx={anchorX} cy={y(rep[idx])} r="4" fill={REP} stroke="#fff" strokeWidth="1.75" />
-        <circle cx={anchorX} cy={y(dem[idx])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.75" />
-      </g>
-      {renderPill(repPillY, REP, repShort, rep[idx])}
-      {renderPill(demPillY, demColor, demShort, dem[idx])}
+      {/* Markers + value pills follow the crosshair; nothing shows at rest */}
+      {hover != null && (
+        <>
+          <g pointerEvents="none">
+            <circle cx={anchorX} cy={y(rep[idx])} r="4" fill={REP} stroke="#fff" strokeWidth="1.75" />
+            <circle cx={anchorX} cy={y(dem[idx])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.75" />
+          </g>
+          {renderPill(repPillY, REP, repShort, rep[idx])}
+          {renderPill(demPillY, demColor, demShort, dem[idx])}
+        </>
+      )}
 
       {/* Invisible hover targets */}
       {data.map((_, i) => (
