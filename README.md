@@ -117,9 +117,8 @@ sources.
 - No candidate-quality inputs beyond incumbency and the seat's own history — no
   fundraising, scandals, or approval ratings.
 - The national environment applies uniformly; states don't yet have elasticity.
-- House districts are essentially unpolled, so House rests on fundamentals plus the
-  generic ballot — the chamber's headline number is only as good as that environment
-  estimate.
+- Many house distrcits are unpolled, so some House seats rest on fundamentals plus the
+  generic ballot
 - Several constants (blend weights, incumbency sizes, swing SDs) are calibrated
   judgment, validated only where the backtest reaches.
 
