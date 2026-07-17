@@ -164,7 +164,7 @@ export const RacePage = () => {
   return (
     <div className="race-page">
       <nav className="breadcrumb" style={{ marginBottom: '12px' }}>
-        <Link to="/">Map</Link>
+        <Link to={race.type === RaceType.Governor ? '/?view=governors' : race.type === RaceType.House ? '/?view=house' : '/'}>Map</Link>
         <span> / </span>
         <Link to={`/state/${race.stateId}`}>{stateName}</Link>
         <span> / </span>

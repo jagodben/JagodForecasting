@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi } from '../services/api';
 import { StateMap } from '../components/maps/StateMap';
@@ -9,6 +9,9 @@ import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
 export const StatePage = () => {
   const { stateId } = useParams<{ stateId: string }>();
   const navigate = useNavigate();
+  // Set by the map/preview-card that navigated here; the Map breadcrumb returns to that tab.
+  const fromView = (useLocation().state as { fromView?: string } | null)?.fromView;
+  const mapHref = fromView === 'governors' || fromView === 'house' ? `/?view=${fromView}` : '/';
 
   const { data: state, isLoading, error } = useQuery({
     queryKey: ['state', stateId],
@@ -41,7 +44,7 @@ export const StatePage = () => {
   return (
     <div className="state-page">
       <nav className="breadcrumb">
-        <Link to="/">Map</Link>
+        <Link to={mapHref}>Map</Link>
         <span> / </span>
         <span>{state.name}</span>
       </nav>

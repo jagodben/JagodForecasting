@@ -244,12 +244,14 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
       return;
     }
 
-    // Find the race for this state and navigate to the race page
+    // Find the race for this state and navigate to the race page. fromView lets the
+    // destination's "Map" breadcrumb return to the tab the user came from.
+    const fromView = raceType === RaceType.Governor ? 'governors' : 'senate';
     const race = races.find(r => r.stateId.toLowerCase() === stateId.toLowerCase());
     if (race) {
-      navigate(`/race/${race.id}`);
+      navigate(`/race/${race.id}`, { state: { fromView } });
     } else {
-      navigate(`/state/${stateId}`);
+      navigate(`/state/${stateId}`, { state: { fromView } });
     }
   };
 

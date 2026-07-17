@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
 import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
@@ -18,7 +18,11 @@ const dataSource = 'combined' as const;
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState<MapView>('senate');
+  // The active view lives in the URL (?view=house|governors; Senate is the bare "/") so
+  // navigating into a state/race and coming back — or sharing the link — restores the tab.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const viewParam = searchParams.get('view');
+  const activeView: MapView = viewParam === 'house' || viewParam === 'governors' ? viewParam : 'senate';
   const [mobilePanel, setMobilePanel] = useState<MobilePanel>('map');
   const [selectedState, setSelectedState] = useState<SelectedStateData | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<SelectedDistrictData | null>(null);
@@ -95,7 +99,9 @@ export const HomePage = () => {
             <button
               key={view}
               onClick={() => {
-                setActiveView(view);
+                // replace (not push) so flipping tabs doesn't stack history entries; the
+                // current entry always carries the view the user is looking at.
+                setSearchParams(view === 'senate' ? {} : { view }, { replace: true });
                 setSelectedState(null);
                 setSelectedDistrict(null);
               }}
@@ -166,8 +172,8 @@ export const HomePage = () => {
                   className="mobile-state-info mobile-state-info--tappable"
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`); } }}
+                  onClick={() => navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`, { state: { fromView: activeView } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(selectedState.raceId ? `/race/${selectedState.raceId}` : `/state/${selectedState.stateId}`, { state: { fromView: activeView } }); } }}
                 >
                   <div className="mobile-state-info__header">
                     <span className="mobile-state-info__name">{selectedState.stateId}</span>
