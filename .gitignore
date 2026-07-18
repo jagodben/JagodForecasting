@@ -74,3 +74,4 @@ coverage/
 *.db-shm
 *.db-wal
 ElectionForecaster/
+todo.md
