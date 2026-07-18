@@ -184,9 +184,10 @@ public class PolymarketClient : IPredictionMarketSource
             return odds;
         }
 
-        // Fetch fresh data from Polymarket
+        // Fetch fresh data from Polymarket (marketId is non-null on every path that reaches here:
+        // a successful TryGetValue or a non-null discovery — the compiler just can't see through the lock)
         _logger.LogInformation("Fetching fresh odds from Polymarket for {RaceId} (market ID: {MarketId})", raceId, marketId);
-        var freshOdds = await FetchMarketOddsByIdAsync(raceId, marketId, cancellationToken);
+        var freshOdds = await FetchMarketOddsByIdAsync(raceId, marketId!, cancellationToken);
 
         if (freshOdds != null)
         {
