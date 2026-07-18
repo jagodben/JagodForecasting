@@ -327,10 +327,7 @@ public partial class WikipediaPollingClient : IPollingSource
             var repPct = ParsePercent(cells[repCol]);
             if (demPct is null || repPct is null) continue;
 
-            // A two-way race's D+R should approach 100 even with undecideds. A much lower sum
-            // means a multi-candidate field poll (e.g. Alaska's ranked-choice tables), where the
-            // two columns aren't a head-to-head margin — treating D22/R13 as D+9 poisons the blend.
-            if (demPct + repPct < 60) continue;
+            if (!PollFilters.IsUsableTwoWay(demPct.Value, repPct.Value)) continue;
 
             var pollsterRaw = cells.Count > 0 ? CleanWikiText(cells[0]) : "";
             if (string.IsNullOrWhiteSpace(pollsterRaw) ||
