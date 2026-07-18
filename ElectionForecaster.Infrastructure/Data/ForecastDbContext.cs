@@ -15,6 +15,7 @@ public class ForecastDbContext : DbContext
     public DbSet<MarketOddsEntity> MarketOdds { get; set; } = null!;
     public DbSet<GenericBallotEntity> GenericBallot { get; set; } = null!;
     public DbSet<NomineeOverrideEntity> NomineeOverrides { get; set; } = null!;
+    public DbSet<SettingEntity> Settings { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

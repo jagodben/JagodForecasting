@@ -133,6 +133,28 @@ app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers().RequireRateLimiting("api");
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+// Liveness plus data freshness: one URL to confirm the daily pipeline is actually keeping up
+// (latest snapshot/poll/ballot dates), for a weekly glance or an uptime monitor. Always 200 as
+// long as the process is up — staleness is reported, not fatal, so a source hiccup can't put
+// the service in a restart loop.
+app.MapGet("/health", async (ForecastDbContext db) =>
+{
+    var body = new Dictionary<string, object?> { ["status"] = "healthy" };
+    try
+    {
+        var latestSnapshot = await db.ForecastHistory.MaxAsync(f => (DateTime?)f.Date);
+        body["latestSnapshot"] = latestSnapshot?.ToString("yyyy-MM-dd");
+        body["snapshotRaces"] = latestSnapshot == null
+            ? 0
+            : await db.ForecastHistory.CountAsync(f => f.Date == latestSnapshot);
+        body["latestPoll"] = (await db.Polls.MaxAsync(p => (DateTime?)p.Date))?.ToString("yyyy-MM-dd");
+        body["latestGenericBallot"] = (await db.GenericBallot.MaxAsync(g => (DateTime?)g.Date))?.ToString("yyyy-MM-dd");
+    }
+    catch (Exception ex)
+    {
+        body["dataError"] = ex.GetType().Name;
+    }
+    return Results.Ok(body);
+});
 
 app.Run();

@@ -1,3 +1,5 @@
+using ElectionForecaster.Infrastructure.Data;
+using ElectionForecaster.Infrastructure.Data.Entities;
 using ElectionForecaster.Infrastructure.Forecasting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +18,7 @@ public class DataRefreshService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<DataRefreshService> _logger;
     private const int SnapshotHourEastern = 8;
+    private const string RebackfillTokenKey = "ModelRebackfillToken";
 
     private static readonly TimeZoneInfo EasternZone = ResolveEastern();
     private DateTime _lastSnapshotEasternDate = DateTime.MinValue;
@@ -60,16 +63,35 @@ public class DataRefreshService : BackgroundService
         using var scope = _serviceProvider.CreateScope();
         var orchestrator = scope.ServiceProvider.GetRequiredService<IForecastingOrchestrator>();
 
-        // One-time retrospective backfill of the model's forecast history (only seeds an empty DB).
+        // One-time retrospective backfill of the model's forecast history (heals races with
+        // no rows; a full rebuild only when forced below).
         if (!_backfillComplete)
         {
             try
             {
-                // MODEL_REBACKFILL=1 (set for one deploy after a model change, then removed)
-                // forces the retrospective history to be recomputed under the current model, so
-                // charts don't show an artificial cliff where old-model history meets new points.
-                var force = Environment.GetEnvironmentVariable("MODEL_REBACKFILL") == "1";
+                // MODEL_REBACKFILL=<token> forces the history to be recomputed under the current
+                // model (so charts don't show a cliff where old-model history meets new points).
+                // Each distinct token value rebuilds exactly once — recorded in the DB after a
+                // successful run — so an env var that lingers across deploys can't keep wiping
+                // the genuine daily snapshots. To force another rebuild, set a new value.
+                var db = scope.ServiceProvider.GetRequiredService<ForecastDbContext>();
+                var token = Environment.GetEnvironmentVariable("MODEL_REBACKFILL");
+                var applied = string.IsNullOrEmpty(token)
+                    ? null
+                    : await db.Settings.FindAsync(new object[] { RebackfillTokenKey }, cancellationToken);
+                var force = !string.IsNullOrEmpty(token) && applied?.Value != token;
+
                 await orchestrator.BackfillModelHistoryAsync(force, cancellationToken);
+
+                if (force)
+                {
+                    if (applied == null)
+                        db.Settings.Add(new SettingEntity { Key = RebackfillTokenKey, Value = token! });
+                    else
+                        applied.Value = token!;
+                    await db.SaveChangesAsync(cancellationToken);
+                    _logger.LogInformation("Forced model rebuild complete for MODEL_REBACKFILL token '{Token}'", token);
+                }
             }
             catch (Exception ex)
             {
