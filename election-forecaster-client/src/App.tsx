@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { HomePage } from './pages/HomePage';
 import { StatePage } from './pages/StatePage';
 import { RacePage } from './pages/RacePage';
@@ -25,6 +26,7 @@ function App() {
             </Routes>
           </main>
           <SiteFooter />
+          <Analytics />
         </div>
       </BrowserRouter>
     </AccessibilityProvider>
