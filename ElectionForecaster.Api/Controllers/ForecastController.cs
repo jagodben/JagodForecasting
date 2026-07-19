@@ -176,15 +176,15 @@ public class ForecastController : ControllerBase
     }
 
     /// <summary>
-    /// Rebuilds the retrospective model forecast history (statewide races, from June 1). Admin endpoint.
-    /// Destructive: forces a full rebuild even when history already exists.
+    /// Fills any gaps in the retrospective model forecast history (from June 1). Admin endpoint.
+    /// Recorded days are never replaced — this only reconstructs dates that have no row.
     /// </summary>
     [HttpPost("backfill")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> BackfillModelHistory()
     {
         if (RequireAdmin() is { } denied) return denied;
-        _logger.LogInformation("Manual model history backfill triggered (forced rebuild)");
+        _logger.LogInformation("Manual model history backfill triggered (gap fill)");
         await _orchestrator.BackfillModelHistoryAsync(force: true);
         return Ok(new { message = "Model history backfill completed" });
     }

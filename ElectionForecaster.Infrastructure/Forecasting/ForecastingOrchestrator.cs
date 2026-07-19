@@ -574,6 +574,18 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         {
             try
             {
+                // Recorded days are immutable: reconstruction only fills dates with no row, so a
+                // rebuild can never replace what the site actually published on a given day.
+                var recordedDays = (await _dbContext.ForecastHistory
+                        .Where(f => f.RaceId == race.Id)
+                        .Select(f => f.Date)
+                        .ToListAsync(cancellationToken))
+                    .ToHashSet();
+                var missingDays = new List<DateTime>();
+                for (var day = fromDate.Date; day <= today; day = day.AddDays(1))
+                    if (!recordedDays.Contains(day)) missingDays.Add(day);
+                if (missingDays.Count == 0) continue;
+
                 // Reconstruct the daily market series and load all stored polls (with conduct dates).
                 var series = polymarket != null
                     ? await polymarket.GetDailyOddsSeriesAsync(race.Id, fromDate, cancellationToken)
@@ -587,7 +599,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 var fundamentals = await _fundamentalsSource.GetFundamentalsAsync(race.Id, cancellationToken);
 
                 var newRows = new List<ForecastHistoryEntity>();
-                for (var day = fromDate.Date; day <= today; day = day.AddDays(1))
+                foreach (var day in missingDays)
                 {
                     // Market as of `day`: the exact daily point, else carry the most recent prior point.
                     double? demProb = marketByDate.TryGetValue(day, out var exact) ? exact : null;
@@ -610,9 +622,6 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                     newRows.Add(ToHistoryEntity(forecast, day));
                 }
 
-                // Replace only after the whole new series computed cleanly — deleting up front
-                // meant a mid-race failure wiped a race's history without rebuilding it.
-                await _dbContext.ForecastHistory.Where(f => f.RaceId == race.Id).ExecuteDeleteAsync(cancellationToken);
                 _dbContext.ForecastHistory.AddRange(newRows);
                 await _dbContext.SaveChangesAsync(cancellationToken);
                 rowsAdded += newRows.Count;
@@ -638,9 +647,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     }
 
     /// <summary>
-    /// Rebuilds Senate control-over-time by running the Monte Carlo over each day's stored per-race
-    /// forecasts. No re-fetch — the per-race margins/SEs already live in ForecastHistory. (The House
-    /// line is rebuilt separately from the generic-ballot series; see BackfillHouseChamberHistoryAsync.)
+    /// Fills gaps in Senate control-over-time by running the Monte Carlo over each missing day's
+    /// stored per-race forecasts. No re-fetch — the per-race margins/SEs already live in
+    /// ForecastHistory. Recorded days are never recomputed. (The House line fills separately from
+    /// the generic-ballot series; see BackfillHouseChamberHistoryAsync.)
     /// </summary>
     private async Task BackfillChamberHistoryAsync(CancellationToken cancellationToken)
     {
@@ -655,10 +665,17 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             .ToListAsync(cancellationToken);
         if (history.Count == 0) return;
 
-        await _dbContext.ChamberHistory.Where(c => c.Chamber == chamberName).ExecuteDeleteAsync(cancellationToken);
+        // Recorded chamber days are immutable — only dates with no row get simulated in.
+        var recordedDates = (await _dbContext.ChamberHistory
+                .Where(c => c.Chamber == chamberName)
+                .Select(c => c.Date)
+                .ToListAsync(cancellationToken))
+            .ToHashSet();
 
         foreach (var day in history.GroupBy(f => f.Date.Date).OrderBy(g => g.Key))
         {
+            if (recordedDates.Contains(day.Key)) continue;
+
             var forecasts = day.Select(f => new DetailedForecast
             {
                 RaceId = f.RaceId,
@@ -687,9 +704,9 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     }
 
     /// <summary>
-    /// Rebuilds House control-over-time from the daily generic-ballot series — the House model's
-    /// only time-varying input. Replays the current model, so a rebuild also purges rows written
-    /// by older code; the daily snapshot extends the line going forward.
+    /// Fills gaps in House control-over-time (and the per-race House rows) from the daily
+    /// generic-ballot series — the House model's only time-varying input. Recorded days are never
+    /// recomputed; the daily snapshot extends the line going forward.
     /// </summary>
     private async Task BackfillHouseChamberHistoryAsync(CancellationToken cancellationToken)
     {
@@ -721,7 +738,12 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         }
 
         var chamberName = RaceType.House.ToString();
-        await _dbContext.ChamberHistory.Where(c => c.Chamber == chamberName).ExecuteDeleteAsync(cancellationToken);
+        // Recorded chamber days are immutable — only dates with no row get simulated in.
+        var recordedChamberDates = (await _dbContext.ChamberHistory
+                .Where(c => c.Chamber == chamberName)
+                .Select(c => c.Date)
+                .ToListAsync(cancellationToken))
+            .ToHashSet();
 
         // The stored generic-ballot series only begins when persistence started, but the chart
         // floor is July 1 — reconstruct earlier days by carrying the earliest stored ballot
@@ -753,19 +775,22 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                 };
             }).ToList();
 
-            var result = _simulator.SimulateChamber(forecasts, RaceType.House);
-            _dbContext.ChamberHistory.Add(new ChamberHistoryEntity
+            if (!recordedChamberDates.Contains(dayKey))
             {
-                Chamber = chamberName,
-                Date = dayKey,
-                DemControlProbability = result.DemControlProbability,
-                RepControlProbability = result.RepControlProbability,
-                ExpectedDemSeats = result.ExpectedDemSeats,
-                ExpectedRepSeats = result.ExpectedRepSeats,
-                SimulationIterations = result.SimulationIterations,
-                DemSeatsLow = result.DemSeatRange.Low,
-                DemSeatsHigh = result.DemSeatRange.High
-            });
+                var result = _simulator.SimulateChamber(forecasts, RaceType.House);
+                _dbContext.ChamberHistory.Add(new ChamberHistoryEntity
+                {
+                    Chamber = chamberName,
+                    Date = dayKey,
+                    DemControlProbability = result.DemControlProbability,
+                    RepControlProbability = result.RepControlProbability,
+                    ExpectedDemSeats = result.ExpectedDemSeats,
+                    ExpectedRepSeats = result.ExpectedRepSeats,
+                    SimulationIterations = result.SimulationIterations,
+                    DemSeatsLow = result.DemSeatRange.Low,
+                    DemSeatsHigh = result.DemSeatRange.High
+                });
+            }
 
             // Also persist the per-race rows this day's sim was built from, so each House race
             // page gets a timeline (the statewide backfill never covered House). Only fills days

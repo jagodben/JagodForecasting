@@ -26,11 +26,11 @@ public interface IForecastingOrchestrator
     Task<bool> RunDailyUpdateAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Backfills forecast history retrospectively, reconstructing each day's market and polling
-    /// inputs so the stored history reflects what the model would have said. Without
-    /// <paramref name="force"/> it only seeds races that have no history rows at all (so the
-    /// automatic startup call heals gaps without wiping genuine daily snapshots); with it, every
-    /// race is deleted and rebuilt under the current model.
+    /// Fills gaps in the forecast history retrospectively, reconstructing each missing day's
+    /// market and polling inputs. Recorded days are immutable — no code path replaces a row that
+    /// exists, so what the site published on a given day stands forever. Without
+    /// <paramref name="force"/> only races with no history at all are processed (the automatic
+    /// startup heal); with it, every race is scanned for missing days.
     /// </summary>
     Task BackfillModelHistoryAsync(bool force = false, CancellationToken cancellationToken = default);
 }

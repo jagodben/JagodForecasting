@@ -69,11 +69,10 @@ public class DataRefreshService : BackgroundService
         {
             try
             {
-                // MODEL_REBACKFILL=<token> forces the history to be recomputed under the current
-                // model (so charts don't show a cliff where old-model history meets new points).
-                // Each distinct token value rebuilds exactly once — recorded in the DB after a
-                // successful run — so an env var that lingers across deploys can't keep wiping
-                // the genuine daily snapshots. To force another rebuild, set a new value.
+                // MODEL_REBACKFILL=<token> runs a full gap-scan across every race (recorded
+                // days are immutable, so this can only add missing dates, never rewrite). Each
+                // distinct token value runs exactly once — recorded in the DB after a successful
+                // run — so a lingering env var doesn't waste a scan on every deploy.
                 var db = scope.ServiceProvider.GetRequiredService<ForecastDbContext>();
                 var token = Environment.GetEnvironmentVariable("MODEL_REBACKFILL");
                 var applied = string.IsNullOrEmpty(token)
