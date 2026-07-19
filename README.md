@@ -135,6 +135,12 @@ dotnet run --project ElectionForecaster.Api        # API on :5000
 cd election-forecaster-client && npm install && npm run dev   # site on :5173
 ```
 
+## Backups
+
+Recorded forecast days are immutable — no code path rewrites a day once it's stored. A
+nightly GitHub Actions workflow commits a full dump of the persisted model state to
+`backups/`; [backups/README.md](backups/README.md) documents the one-command restore.
+
 ## License
 
 MIT
