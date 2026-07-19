@@ -523,6 +523,10 @@ public partial class WikipediaPollingClient : IPollingSource
         string prev;
         do { prev = s; s = Regex.Replace(s, @"\{\{[^{}]*\}\}", ""); } while (s != prev);
 
+        // A multi-line template split across table cells leaves an unclosed "{{..." remnant the
+        // balanced pass can't match (that's how "UNH{{cite web|url=..." became a pollster name).
+        s = Regex.Replace(s, @"\{\{.*$", "", RegexOptions.Singleline);
+
         // Wiki links [[target|label]] -> label, [[target]] -> target
         s = Regex.Replace(s, @"\[\[[^\]|]*\|([^\]]*)\]\]", "$1");
         s = Regex.Replace(s, @"\[\[([^\]]*)\]\]", "$1");

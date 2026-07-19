@@ -1,0 +1,45 @@
+name: Nightly forecast history backup
+
+# Offsite copy of the model's persisted state (forecast history, chamber lines, ballot
+# series, polls, overrides). The API's disk is the only other copy — if it's ever lost,
+# the latest file in backups/ restores every recorded day via POST /api/forecast/import.
+on:
+  schedule:
+    - cron: "45 13 * * *" # 9:45 AM ET (EDT), after the 8 AM snapshot
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch export
+        run: |
+          curl -sf --compressed --retry 3 --retry-delay 60 \
+            -o backups/forecast-export.json \
+            https://api.jagodforecasting.com/api/forecast/export
+          python3 - <<'EOF'
+          import json
+          d = json.load(open("backups/forecast-export.json"))
+          rows = len(d.get("forecastHistory") or [])
+          assert rows > 1000, f"export looks empty ({rows} history rows) — refusing to overwrite the last good backup"
+          print(f"export ok: {rows} history rows, {len(d.get('chamberHistory') or [])} chamber rows")
+          EOF
+          gzip -9 -n -f backups/forecast-export.json
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backups/forecast-export.json.gz
+          if git diff --cached --quiet; then
+            echo "no changes"
+            exit 0
+          fi
+          git commit -m "Nightly forecast history backup"
+          git pull --rebase origin master
+          git push origin master

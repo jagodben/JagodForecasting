@@ -2,6 +2,8 @@ using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Core.Models;
 using ElectionForecaster.Infrastructure.Data;
+using ElectionForecaster.Infrastructure.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
 using ElectionForecaster.Infrastructure.Forecasting;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +17,20 @@ public class ForecastController : ControllerBase
     private readonly IForecastingOrchestrator _orchestrator;
     private readonly IPollingSource _pollingSource;
     private readonly IRaceService _raceService;
+    private readonly ForecastDbContext _dbContext;
     private readonly ILogger<ForecastController> _logger;
 
     public ForecastController(
         IForecastingOrchestrator orchestrator,
         IPollingSource pollingSource,
         IRaceService raceService,
+        ForecastDbContext dbContext,
         ILogger<ForecastController> logger)
     {
         _orchestrator = orchestrator;
         _pollingSource = pollingSource;
         _raceService = raceService;
+        _dbContext = dbContext;
         _logger = logger;
     }
 
@@ -189,6 +194,99 @@ public class ForecastController : ControllerBase
         return Ok(new { message = "Model history backfill completed" });
     }
 
+    /// <summary>
+    /// Full dump of the persisted model state (history, chambers, ballot series, polls,
+    /// overrides, settings) for the nightly offsite backup. Everything here is public data
+    /// already served by other endpoints, just in one restorable document.
+    /// </summary>
+    [HttpGet("export")]
+    [ProducesResponseType(typeof(ForecastExport), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ForecastExport>> ExportHistory()
+    {
+        var export = new ForecastExport
+        {
+            ExportedAt = DateTime.UtcNow,
+            ForecastHistory = await _dbContext.ForecastHistory.AsNoTracking().OrderBy(f => f.RaceId).ThenBy(f => f.Date).ToListAsync(),
+            ChamberHistory = await _dbContext.ChamberHistory.AsNoTracking().OrderBy(c => c.Chamber).ThenBy(c => c.Date).ToListAsync(),
+            GenericBallot = await _dbContext.GenericBallot.AsNoTracking().OrderBy(g => g.Date).ToListAsync(),
+            Polls = await _dbContext.Polls.AsNoTracking().OrderBy(p => p.RaceId).ThenBy(p => p.Date).ToListAsync(),
+            NomineeOverrides = await _dbContext.NomineeOverrides.AsNoTracking().ToListAsync(),
+            Settings = await _dbContext.Settings.AsNoTracking().ToListAsync()
+        };
+        return Ok(export);
+    }
+
+    /// <summary>
+    /// Break-glass restore from a backup produced by GET export. Obeys the immutability rule:
+    /// only rows whose key doesn't exist are inserted — recorded days are never replaced, so
+    /// importing an old backup after a disk loss recovers history without touching anything
+    /// written since. Admin endpoint (requires ADMIN_KEY in production).
+    /// </summary>
+    [HttpPost("import")]
+    [RequestSizeLimit(200_000_000)]
+    public async Task<IActionResult> ImportHistory()
+    {
+        if (RequireAdmin() is { } denied) return denied;
+
+        // Deserialized by hand: the dump is our own database's contents, and a single row that
+        // predates a validation rule must not make the whole restore impossible.
+        var backup = await System.Text.Json.JsonSerializer.DeserializeAsync<ForecastExport>(
+            Request.Body, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+        if (backup == null) return BadRequest(new { message = "Empty or unreadable backup body" });
+
+        var haveFh = (await _dbContext.ForecastHistory.Select(f => new { f.RaceId, f.Date }).ToListAsync())
+            .Select(x => (x.RaceId, x.Date)).ToHashSet();
+        var haveCh = (await _dbContext.ChamberHistory.Select(c => new { c.Chamber, c.Date }).ToListAsync())
+            .Select(x => (x.Chamber, x.Date)).ToHashSet();
+        var haveBallot = (await _dbContext.GenericBallot.Select(g => g.Date).ToListAsync()).ToHashSet();
+        var havePolls = (await _dbContext.Polls.Select(p => new { p.RaceId, p.Pollster, p.Date }).ToListAsync())
+            .Select(x => (x.RaceId, x.Pollster, x.Date)).ToHashSet();
+        var haveOverrides = (await _dbContext.NomineeOverrides.Select(n => n.RaceId).ToListAsync()).ToHashSet();
+        var haveSettings = (await _dbContext.Settings.Select(k => k.Key).ToListAsync()).ToHashSet();
+
+        int fh = 0, ch = 0, gb = 0, po = 0, no = 0, se = 0;
+        foreach (var r in backup.ForecastHistory.Where(r => !haveFh.Contains((r.RaceId, r.Date))))
+        {
+            r.Id = 0; _dbContext.ForecastHistory.Add(r); fh++;
+        }
+        foreach (var r in backup.ChamberHistory.Where(r => !haveCh.Contains((r.Chamber, r.Date))))
+        {
+            r.Id = 0; _dbContext.ChamberHistory.Add(r); ch++;
+        }
+        foreach (var r in backup.GenericBallot.Where(r => !haveBallot.Contains(r.Date)))
+        {
+            r.Id = 0; _dbContext.GenericBallot.Add(r); gb++;
+        }
+        foreach (var r in backup.Polls.Where(r => !havePolls.Contains((r.RaceId, r.Pollster, r.Date))))
+        {
+            r.Id = 0; _dbContext.Polls.Add(r); po++;
+        }
+        foreach (var r in backup.NomineeOverrides.Where(r => !haveOverrides.Contains(r.RaceId)))
+        {
+            _dbContext.NomineeOverrides.Add(r); no++;
+        }
+        foreach (var r in backup.Settings.Where(r => !haveSettings.Contains(r.Key)))
+        {
+            _dbContext.Settings.Add(r); se++;
+        }
+
+        await _dbContext.SaveChangesAsync();
+        _logger.LogInformation("Backup import: +{Fh} history, +{Ch} chamber, +{Gb} ballot, +{Po} polls, +{No} overrides, +{Se} settings",
+            fh, ch, gb, po, no, se);
+        return Ok(new { forecastHistory = fh, chamberHistory = ch, genericBallot = gb, polls = po, nomineeOverrides = no, settings = se });
+    }
+}
+
+/// <summary>Restorable dump of every persisted table (see GET/POST export/import).</summary>
+public class ForecastExport
+{
+    public DateTime ExportedAt { get; set; }
+    public List<ForecastHistoryEntity> ForecastHistory { get; set; } = new();
+    public List<ChamberHistoryEntity> ChamberHistory { get; set; } = new();
+    public List<GenericBallotEntity> GenericBallot { get; set; } = new();
+    public List<PollEntity> Polls { get; set; } = new();
+    public List<NomineeOverrideEntity> NomineeOverrides { get; set; } = new();
+    public List<SettingEntity> Settings { get; set; } = new();
 }
 
 /// <summary>
