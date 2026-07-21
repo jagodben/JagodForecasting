@@ -33,6 +33,19 @@ AVATAR_PX = 84  # 2x the largest render size (42px), cover-cropped square
 THUMB = 256
 HEADERS = {"User-Agent": "JagodForecasting/1.0 (candidate photo mapping; jagodben@gmail.com)"}
 PLACEHOLDER_PREFIXES = ("TBD ", "Democratic Nominee", "Republican Nominee")
+STATE_NAMES = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California",
+    "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "FL": "Florida", "GA": "Georgia",
+    "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois", "IN": "Indiana", "IA": "Iowa",
+    "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+    "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
+    "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire",
+    "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York", "NC": "North Carolina",
+    "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania",
+    "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota", "TN": "Tennessee",
+    "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington",
+    "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
+}
 
 
 def get(url):
@@ -159,26 +172,48 @@ def main():
             if hit:
                 resolved[n] = hit
 
+    # Third pass, per race: state-qualified titles for slots still missing — the two sitting
+    # congressmen named Mike Rogers live at "... (Michigan politician)" / "... (Alabama politician)".
+    slot_resolved = {}
+    still = [(rid, n) for rid, n in candidates if n not in resolved]
+    state_titles = {}
+    for rid, n in still:
+        state = STATE_NAMES.get(rid[:2])
+        if state:
+            state_titles.setdefault(f"{n} ({state} politician)", []).append((rid, n))
+    if state_titles:
+        hits = page_images(sorted(state_titles))
+        for title, slots in state_titles.items():
+            if title in hits:
+                for slot in slots:
+                    slot_resolved[slot] = hits[title]
+
     # Identity check: drop matches whose page isn't a person (seals, offices, ships...).
-    humans = human_qids([qid for _, _, qid in resolved.values()])
+    humans = human_qids([qid for _, _, qid in resolved.values()] +
+                        [qid for _, _, qid in slot_resolved.values()])
     dropped = [n for n, (_, _, qid) in resolved.items() if qid not in humans]
     resolved = {n: v for n, v in resolved.items() if v[2] in humans}
+    slot_resolved = {k: v for k, v in slot_resolved.items() if v[2] in humans}
     if dropped:
         print(f"rejected {len(dropped)} non-person matches, e.g.: {dropped[:6]}")
+    if slot_resolved:
+        print(f"state-qualified matches: {len(slot_resolved)}, e.g.: {[f'{r}|{n}' for r, n in list(slot_resolved)[:5]]}")
 
     os.makedirs(IMG_DIR, exist_ok=True)
     photos = {}
     failures = 0
     saved_by_name = {}
     for race_id, name in candidates:
-        if name not in resolved:
+        hit = slot_resolved.get((race_id, name)) or resolved.get(name)
+        if hit is None:
             continue
-        thumb, title, _ = resolved[name]
+        thumb, title, _ = hit
         slug = slugify(race_id, name)
         path = os.path.join(IMG_DIR, f"{slug}.webp")
         try:
             # one download per unique person; copy for repeat names in other races
-            if name in saved_by_name:
+            # (never for state-qualified matches — same name, different person)
+            if name in saved_by_name and (race_id, name) not in slot_resolved:
                 import shutil
                 shutil.copyfile(saved_by_name[name], path)
             elif not os.path.exists(path):

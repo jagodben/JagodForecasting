@@ -11,6 +11,10 @@
   "page": "https://en.wikipedia.org/wiki/Dan_Sullivan_%28U.S._senator%29",
   "photo": "/candidates/ak-sen-2026-dan-s-sullivan.webp"
  },
+ "AL-03-2026|Mike Rogers": {
+  "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Alabama_politician%29",
+  "photo": "/candidates/al-03-2026-mike-rogers.webp"
+ },
  "AL-04-2026|Robert Aderholt": {
   "page": "https://en.wikipedia.org/wiki/Robert_Aderholt",
   "photo": "/candidates/al-04-2026-robert-aderholt.webp"
@@ -35,9 +39,17 @@
   "page": "https://en.wikipedia.org/wiki/Tommy_Tuberville",
   "photo": "/candidates/al-gov-2026-tommy-tuberville.webp"
  },
+ "AL-SEN-2026|Barry Moore": {
+  "page": "https://en.wikipedia.org/wiki/Barry_Moore_%28American_politician%29",
+  "photo": "/candidates/al-sen-2026-barry-moore.webp"
+ },
  "AR-01-2026|Rick Crawford": {
   "page": "https://en.wikipedia.org/wiki/Rick_Crawford_%28politician%29",
   "photo": "/candidates/ar-01-2026-rick-crawford.webp"
+ },
+ "AR-02-2026|Chris Jones": {
+  "page": "https://en.wikipedia.org/wiki/Chris_Jones_%28Arkansas_politician%29",
+  "photo": "/candidates/ar-02-2026-chris-jones.webp"
  },
  "AR-02-2026|French Hill": {
   "page": "https://en.wikipedia.org/wiki/French_Hill_%28politician%29",
@@ -102,6 +114,10 @@
  "AZ-GOV-2026|Katie Hobbs": {
   "page": "https://en.wikipedia.org/wiki/Katie_Hobbs",
   "photo": "/candidates/az-gov-2026-katie-hobbs.webp"
+ },
+ "CA-01-2026|James Gallagher": {
+  "page": "https://en.wikipedia.org/wiki/James_Gallagher_%28California_politician%29",
+  "photo": "/candidates/ca-01-2026-james-gallagher.webp"
  },
  "CA-01-2026|Mike McGuire": {
   "page": "https://en.wikipedia.org/wiki/Mike_McGuire_%28politician%29",
@@ -271,6 +287,10 @@
   "page": "https://en.wikipedia.org/wiki/Linda_S%C3%A1nchez",
   "photo": "/candidates/ca-41-2026-linda-s\u00e1nchez.webp"
  },
+ "CA-42-2026|Robert Garcia": {
+  "page": "https://en.wikipedia.org/wiki/Robert_Garcia_%28California_congressman%29",
+  "photo": "/candidates/ca-42-2026-robert-garcia.webp"
+ },
  "CA-43-2026|Maxine Waters": {
   "page": "https://en.wikipedia.org/wiki/Maxine_Waters",
   "photo": "/candidates/ca-43-2026-maxine-waters.webp"
@@ -422,6 +442,10 @@
  "FL-04-2026|Aaron Bean": {
   "page": "https://en.wikipedia.org/wiki/Aaron_Bean",
   "photo": "/candidates/fl-04-2026-aaron-bean.webp"
+ },
+ "FL-05-2026|John Rutherford": {
+  "page": "https://en.wikipedia.org/wiki/John_Rutherford_%28Florida_politician%29",
+  "photo": "/candidates/fl-05-2026-john-rutherford.webp"
  },
  "FL-06-2026|Randy Fine": {
   "page": "https://en.wikipedia.org/wiki/Randy_Fine",
@@ -606,6 +630,10 @@
  "ID-SEN-2026|Jim Risch": {
   "page": "https://en.wikipedia.org/wiki/Jim_Risch",
   "photo": "/candidates/id-sen-2026-jim-risch.webp"
+ },
+ "IL-01-2026|Jonathan Jackson": {
+  "page": "https://en.wikipedia.org/wiki/Jonathan_Jackson_%28Illinois_politician%29",
+  "photo": "/candidates/il-01-2026-jonathan-jackson.webp"
  },
  "IL-02-2026|Donna Miller": {
   "page": "https://en.wikipedia.org/wiki/Donna_Miller",
@@ -895,6 +923,10 @@
   "page": "https://en.wikipedia.org/wiki/Debbie_Dingell",
   "photo": "/candidates/mi-06-2026-debbie-dingell.webp"
  },
+ "MI-07-2026|Tom Barrett": {
+  "page": "https://en.wikipedia.org/wiki/Tom_Barrett_%28Michigan_politician%29",
+  "photo": "/candidates/mi-07-2026-tom-barrett.webp"
+ },
  "MI-08-2026|Kristen McDonald Rivet": {
   "page": "https://en.wikipedia.org/wiki/Kristen_McDonald_Rivet",
   "photo": "/candidates/mi-08-2026-kristen-mcdonald-rivet.webp"
@@ -902,6 +934,10 @@
  "MI-09-2026|Lisa McClain": {
   "page": "https://en.wikipedia.org/wiki/Lisa_McClain",
   "photo": "/candidates/mi-09-2026-lisa-mcclain.webp"
+ },
+ "MI-SEN-2026|Mike Rogers": {
+  "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
+  "photo": "/candidates/mi-sen-2026-mike-rogers.webp"
  },
  "MN-01-2026|Brad Finstad": {
   "page": "https://en.wikipedia.org/wiki/Brad_Finstad",
@@ -983,6 +1019,10 @@
   "page": "https://en.wikipedia.org/wiki/Kurt_Alme",
   "photo": "/candidates/mt-sen-2026-kurt-alme.webp"
  },
+ "NC-01-2026|Don Davis": {
+  "page": "https://en.wikipedia.org/wiki/Don_Davis_%28North_Carolina_politician%29",
+  "photo": "/candidates/nc-01-2026-don-davis.webp"
+ },
  "NC-01-2026|Laurie Buckhout": {
   "page": "https://en.wikipedia.org/wiki/Laurie_Buckhout",
   "photo": "/candidates/nc-01-2026-laurie-buckhout.webp"
@@ -1015,6 +1055,14 @@
   "page": "https://en.wikipedia.org/wiki/David_Rouzer",
   "photo": "/candidates/nc-07-2026-david-rouzer.webp"
  },
+ "NC-08-2026|Mark Harris": {
+  "page": "https://en.wikipedia.org/wiki/Mark_Harris_%28North_Carolina_politician%29",
+  "photo": "/candidates/nc-08-2026-mark-harris.webp"
+ },
+ "NC-09-2026|Richard Hudson": {
+  "page": "https://en.wikipedia.org/wiki/Richard_Hudson_%28American_politician%29",
+  "photo": "/candidates/nc-09-2026-richard-hudson.webp"
+ },
  "NC-09-2026|Richard Ojeda": {
   "page": "https://en.wikipedia.org/wiki/Richard_Ojeda",
   "photo": "/candidates/nc-09-2026-richard-ojeda.webp"
@@ -1038,6 +1086,10 @@
  "NC-13-2026|Paul Barringer": {
   "page": "https://en.wikipedia.org/wiki/Paul_Barringer",
   "photo": "/candidates/nc-13-2026-paul-barringer.webp"
+ },
+ "NC-14-2026|Tim Moore": {
+  "page": "https://en.wikipedia.org/wiki/Tim_Moore_%28North_Carolina_politician%29",
+  "photo": "/candidates/nc-14-2026-tim-moore.webp"
  },
  "NC-SEN-2026|Michael Whatley": {
   "page": "https://en.wikipedia.org/wiki/Michael_Whatley",
@@ -1086,6 +1138,10 @@
  "NJ-03-2026|Herb Conaway": {
   "page": "https://en.wikipedia.org/wiki/Herb_Conaway",
   "photo": "/candidates/nj-03-2026-herb-conaway.webp"
+ },
+ "NJ-04-2026|Chris Smith": {
+  "page": "https://en.wikipedia.org/wiki/Chris_Smith_%28New_Jersey_politician%29",
+  "photo": "/candidates/nj-04-2026-chris-smith.webp"
  },
  "NJ-05-2026|Josh Gottheimer": {
   "page": "https://en.wikipedia.org/wiki/Josh_Gottheimer",
@@ -1167,6 +1223,10 @@
   "page": "https://en.wikipedia.org/wiki/Steven_Horsford",
   "photo": "/candidates/nv-04-2026-steven-horsford.webp"
  },
+ "NV-GOV-2026|Aaron Ford": {
+  "page": "https://en.wikipedia.org/wiki/Aaron_Ford_%28Nevada_politician%29",
+  "photo": "/candidates/nv-gov-2026-aaron-ford.webp"
+ },
  "NV-GOV-2026|Joe Lombardo": {
   "page": "https://en.wikipedia.org/wiki/Joe_Lombardo",
   "photo": "/candidates/nv-gov-2026-joe-lombardo.webp"
@@ -1235,6 +1295,10 @@
   "page": "https://en.wikipedia.org/wiki/Ritchie_Torres",
   "photo": "/candidates/ny-15-2026-ritchie-torres.webp"
  },
+ "NY-16-2026|George Latimer": {
+  "page": "https://en.wikipedia.org/wiki/George_Latimer_%28New_York_politician%29",
+  "photo": "/candidates/ny-16-2026-george-latimer.webp"
+ },
  "NY-17-2026|Mike Lawler": {
   "page": "https://en.wikipedia.org/wiki/Mike_Lawler",
   "photo": "/candidates/ny-17-2026-mike-lawler.webp"
@@ -1286,6 +1350,10 @@
  "OH-01-2026|Greg Landsman": {
   "page": "https://en.wikipedia.org/wiki/Greg_Landsman",
   "photo": "/candidates/oh-01-2026-greg-landsman.webp"
+ },
+ "OH-02-2026|David Taylor": {
+  "page": "https://en.wikipedia.org/wiki/David_Taylor_%28Ohio_politician%29",
+  "photo": "/candidates/oh-02-2026-david-taylor.webp"
  },
  "OH-03-2026|Joyce Beatty": {
   "page": "https://en.wikipedia.org/wiki/Joyce_Beatty",
@@ -1479,6 +1547,10 @@
   "page": "https://en.wikipedia.org/wiki/Summer_Lee",
   "photo": "/candidates/pa-12-2026-summer-lee.webp"
  },
+ "PA-13-2026|John Joyce": {
+  "page": "https://en.wikipedia.org/wiki/John_Joyce_%28American_politician%29",
+  "photo": "/candidates/pa-13-2026-john-joyce.webp"
+ },
  "PA-14-2026|Guy Reschenthaler": {
   "page": "https://en.wikipedia.org/wiki/Guy_Reschenthaler",
   "photo": "/candidates/pa-14-2026-guy-reschenthaler.webp"
@@ -1486,6 +1558,10 @@
  "PA-15-2026|Glenn Thompson": {
   "page": "https://en.wikipedia.org/wiki/Glenn_Thompson_%28politician%29",
   "photo": "/candidates/pa-15-2026-glenn-thompson.webp"
+ },
+ "PA-16-2026|Mike Kelly": {
+  "page": "https://en.wikipedia.org/wiki/Mike_Kelly_%28Pennsylvania_politician%29",
+  "photo": "/candidates/pa-16-2026-mike-kelly.webp"
  },
  "PA-17-2026|Chris Deluzio": {
   "page": "https://en.wikipedia.org/wiki/Chris_Deluzio",
@@ -1506,6 +1582,10 @@
  "RI-02-2026|Seth Magaziner": {
   "page": "https://en.wikipedia.org/wiki/Seth_Magaziner",
   "photo": "/candidates/ri-02-2026-seth-magaziner.webp"
+ },
+ "RI-SEN-2026|Jack Reed": {
+  "page": "https://en.wikipedia.org/wiki/Jack_Reed_%28Rhode_Island_politician%29",
+  "photo": "/candidates/ri-sen-2026-jack-reed.webp"
  },
  "SC-01-2026|Nancy Lacore": {
   "page": "https://en.wikipedia.org/wiki/Nancy_Lacore",
@@ -1687,6 +1767,10 @@
   "page": "https://en.wikipedia.org/wiki/Frederick_Haynes_III",
   "photo": "/candidates/tx-30-2026-frederick-haynes-iii.webp"
  },
+ "TX-31-2026|John Carter": {
+  "page": "https://en.wikipedia.org/wiki/John_Carter_%28Texas_politician%29",
+  "photo": "/candidates/tx-31-2026-john-carter.webp"
+ },
  "TX-33-2026|Colin Allred": {
   "page": "https://en.wikipedia.org/wiki/Colin_Allred",
   "photo": "/candidates/tx-33-2026-colin-allred.webp"
@@ -1750,6 +1834,10 @@
  "VA-04-2026|Jennifer McClellan": {
   "page": "https://en.wikipedia.org/wiki/Jennifer_McClellan",
   "photo": "/candidates/va-04-2026-jennifer-mcclellan.webp"
+ },
+ "VA-05-2026|John McGuire": {
+  "page": "https://en.wikipedia.org/wiki/John_McGuire_%28Virginia_politician%29",
+  "photo": "/candidates/va-05-2026-john-mcguire.webp"
  },
  "VA-06-2026|Ben Cline": {
   "page": "https://en.wikipedia.org/wiki/Ben_Cline",
