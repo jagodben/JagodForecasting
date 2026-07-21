@@ -15,6 +15,10 @@ interface Props {
 
 export const CandidateAvatar = ({ photo, name, size, fallback, link = false, ringColor }: Props) => {
   const [failed, setFailed] = useState(false);
+  // A hairline white gap keeps the party color from blending into the photo's edge pixels,
+  // so the ring reads as the exact same shade as the headline numbers and chart lines.
+  const ring = size >= 40 ? 3 : 2.5;
+  const ringShadow = ringColor ? `0 0 0 1.5px #fff, 0 0 0 ${1.5 + ring}px ${ringColor}` : undefined;
   if (!photo || failed) return <>{fallback}</>;
 
   const img = (
@@ -22,7 +26,7 @@ export const CandidateAvatar = ({ photo, name, size, fallback, link = false, rin
       src={photo.photo}
       alt={name}
       onError={() => setFailed(true)}
-      style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', display: 'block', backgroundColor: '#f0f0f0', boxShadow: ringColor ? `0 0 0 2px ${ringColor}` : undefined }}
+      style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', display: 'block', backgroundColor: '#f0f0f0', boxShadow: ringShadow }}
     />
   );
 
