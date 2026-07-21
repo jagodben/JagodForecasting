@@ -11,6 +11,8 @@ export const SiteFooter = () => {
     <footer className="site-footer">
       <span>© {new Date().getFullYear()} Jagod Forecasting</span>
       <span className="site-footer__dot" aria-hidden>·</span>
+      <Link to="/polls" className="site-footer__link">Polls</Link>
+      <span className="site-footer__dot">·</span>
       <Link to="/methodology" className="site-footer__link">About</Link>
       <span className="site-footer__disclaimer">
         <span className="site-footer__dot" aria-hidden>·</span>

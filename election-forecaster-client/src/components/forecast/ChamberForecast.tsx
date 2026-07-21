@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
@@ -292,6 +293,8 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
 
       <div style={{ marginTop: '12px', fontSize: '11px', color: '#6b6b6b', textAlign: 'center' }}>
         Updated daily at 8:00 AM ET
+        <span style={{ margin: '0 6px' }}>·</span>
+        <Link to="/polls" style={{ color: 'inherit', textDecoration: 'underline' }}>View all polls</Link>
       </div>
       </>
       )}
