@@ -49,14 +49,14 @@ const getRatingColor = (rating: RaceRating, independent = false): string => {
     }
   }
   switch (rating) {
-    case RaceRating.SolidDem: return '#0044c9';
-    case RaceRating.LikelyDem: return '#2d65d3';
-    case RaceRating.LeanDem: return '#628cde';
-    case RaceRating.TiltDem: return '#a5bdec';
-    case RaceRating.TiltRep: return '#f7acaf';
-    case RaceRating.LeanRep: return '#f06a70';
-    case RaceRating.LikelyRep: return '#eb363d';
-    case RaceRating.SolidRep: return '#e81b23';
+    case RaceRating.SolidDem: return '#123f8f';
+    case RaceRating.LikelyDem: return '#2e63bd';
+    case RaceRating.LeanDem: return '#5a8fd6';
+    case RaceRating.TiltDem: return '#9dbff0';
+    case RaceRating.TiltRep: return '#f4aa9b';
+    case RaceRating.LeanRep: return '#e2694f';
+    case RaceRating.LikelyRep: return '#cf2f1a';
+    case RaceRating.SolidRep: return '#9c150b';
     default: return '#E0E0E0';
   }
 };
@@ -95,9 +95,9 @@ const marginLabel = (margin: number, independentChallenger: boolean): { text: st
   if (rounded === 0) return { text: 'EVEN', color: '#666' };
   const num = Number.isInteger(Math.abs(rounded)) ? Math.abs(rounded).toString() : Math.abs(rounded).toFixed(1);
   if (rounded > 0) {
-    return independentChallenger ? { text: `I+${num}`, color: '#b8860b' } : { text: `D+${num}`, color: '#0044c9' };
+    return independentChallenger ? { text: `I+${num}`, color: '#b8860b' } : { text: `D+${num}`, color: '#123f8f' };
   }
-  return { text: `R+${num}`, color: '#e81b23' };
+  return { text: `R+${num}`, color: '#9c150b' };
 };
 
 export interface SelectedStateData {
@@ -398,7 +398,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
               race.candidates.find(c => c.party !== Party.Republican)?.name ?? 'Democrat';
             const repName =
               race.candidates.find(c => c.party === Party.Republican)?.name ?? 'Republican';
-            const challengerColor = independent ? '#b8860b' : '#0044c9';
+            const challengerColor = independent ? '#b8860b' : '#123f8f';
             return (
               <div>
                 <div style={{
@@ -427,7 +427,7 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
                       <span style={{ fontWeight: 'bold' }}>{(tooltipData.demProb * 100).toFixed(1)}%</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: '#e81b23', fontWeight: 500 }}>{repName}{isTbdCandidate(repName) && '*'}</span>
+                      <span style={{ color: '#9c150b', fontWeight: 500 }}>{repName}{isTbdCandidate(repName) && '*'}</span>
                       <span style={{ fontWeight: 'bold' }}>{((1 - tooltipData.demProb) * 100).toFixed(1)}%</span>
                     </div>
                     {(isTbdCandidate(challengerName) || isTbdCandidate(repName)) && (

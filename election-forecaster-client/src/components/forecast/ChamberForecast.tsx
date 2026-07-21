@@ -17,14 +17,14 @@ const RATING_ORDER: RaceRating[] = [
 ];
 
 const RATING_COLORS: Record<RaceRating, string> = {
-  [RaceRating.SolidDem]: '#0044c9',
-  [RaceRating.LikelyDem]: '#2d65d3',
-  [RaceRating.LeanDem]: '#628cde',
-  [RaceRating.TiltDem]: '#a5bdec',
-  [RaceRating.TiltRep]: '#f7acaf',
-  [RaceRating.LeanRep]: '#f06a70',
-  [RaceRating.LikelyRep]: '#eb363d',
-  [RaceRating.SolidRep]: '#e81b23',
+  [RaceRating.SolidDem]: '#123f8f',
+  [RaceRating.LikelyDem]: '#2e63bd',
+  [RaceRating.LeanDem]: '#5a8fd6',
+  [RaceRating.TiltDem]: '#9dbff0',
+  [RaceRating.TiltRep]: '#f4aa9b',
+  [RaceRating.LeanRep]: '#e2694f',
+  [RaceRating.LikelyRep]: '#cf2f1a',
+  [RaceRating.SolidRep]: '#9c150b',
 };
 
 // Convert probability to rating
@@ -194,13 +194,13 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
         {raceType !== RaceType.Governor && (
           <>
             <div className="mobile-chamber-card__probs">
-              <span style={{ color: '#0044c9' }}>{demVictoryOdds}%</span>
+              <span style={{ color: '#123f8f' }}>{demVictoryOdds}%</span>
               <div className="mobile-chamber-card__bar" role="img"
                    aria-label={`Win probability: Democrats ${demVictoryOdds}%, Republicans ${repVictoryOdds}%`}>
-                <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044c9' }} />
-                <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#e81b23' }} />
+                <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#123f8f' }} />
+                <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#9c150b' }} />
               </div>
-              <span style={{ color: '#e81b23', textAlign: 'right' }}>{repVictoryOdds}%</span>
+              <span style={{ color: '#9c150b', textAlign: 'right' }}>{repVictoryOdds}%</span>
             </div>
             <div className="mobile-chamber-card__caption">
               Chance of controlling the {chamberName}
@@ -210,9 +210,9 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
         <div className="mobile-chamber-card__seats">
           <span>{seatLabel}</span>
           <span>
-            <b style={{ color: '#0044c9' }}>{formatSeats(totalDemSeats)}</b>
+            <b style={{ color: '#123f8f' }}>{formatSeats(totalDemSeats)}</b>
             <span className="mobile-chamber-card__dash">–</span>
-            <b style={{ color: '#e81b23' }}>{formatSeats(totalRepSeats)}</b>
+            <b style={{ color: '#9c150b' }}>{formatSeats(totalRepSeats)}</b>
           </span>
         </div>
         <div className="mobile-chamber-card__hint">
@@ -235,13 +235,13 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
         <div className="forecast-sidebar__section">
           <div className="forecast-sidebar__label">Win Probability</div>
           <div className="forecast-sidebar__seats">
-            <span style={{ color: '#0044c9', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
-            <span style={{ color: '#e81b23', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
+            <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{demVictoryOdds}%</span>
+            <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{repVictoryOdds}%</span>
           </div>
           <div className="forecast-sidebar__seat-bar" role="img"
                aria-label={`Win probability: Democrats ${demVictoryOdds}%, Republicans ${repVictoryOdds}%`}>
-            <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#0044c9' }} />
-            <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#e81b23' }} />
+            <div style={{ width: `${demVictoryOdds}%`, backgroundColor: '#123f8f' }} />
+            <div style={{ width: `${repVictoryOdds}%`, backgroundColor: '#9c150b' }} />
           </div>
           <div className="forecast-sidebar__party-labels">
             <span>Democrats</span>
@@ -254,8 +254,8 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
       <div className="forecast-sidebar__section">
         <div className="forecast-sidebar__label">{seatLabel}</div>
         <div className="forecast-sidebar__seats">
-          <span style={{ color: '#0044c9', fontWeight: 'bold', fontSize: '18px' }}>{formatSeats(totalDemSeats)}</span>
-          <span style={{ color: '#e81b23', fontWeight: 'bold', fontSize: '18px' }}>{formatSeats(totalRepSeats)}</span>
+          <span style={{ color: '#123f8f', fontWeight: 'bold', fontSize: '18px' }}>{formatSeats(totalDemSeats)}</span>
+          <span style={{ color: '#9c150b', fontWeight: 'bold', fontSize: '18px' }}>{formatSeats(totalRepSeats)}</span>
         </div>
         <div className="forecast-sidebar__seat-bar">
           {seatSegments.map(seg => (

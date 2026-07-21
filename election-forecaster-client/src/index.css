@@ -7,14 +7,14 @@
   --font-body: 'Libre Franklin', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Political Colors - High Contrast */
-  --dem-solid: #0044c9;
-  --dem-likely: #2d65d3;
-  --dem-lean: #628cde;
-  --dem-tilt: #a5bdec;
-  --rep-tilt: #f7acaf;
-  --rep-lean: #f06a70;
-  --rep-likely: #eb363d;
-  --rep-solid: #e81b23;
+  --dem-solid: #123f8f;
+  --dem-likely: #2e63bd;
+  --dem-lean: #5a8fd6;
+  --dem-tilt: #9dbff0;
+  --rep-tilt: #f4aa9b;
+  --rep-lean: #e2694f;
+  --rep-likely: #cf2f1a;
+  --rep-solid: #9c150b;
 
   /* UI Colors */
   --text-primary: #121212;

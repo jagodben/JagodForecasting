@@ -23,22 +23,22 @@ const getRatingLabel = (rating: RaceRating): string => {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#0044c9';
-    case RaceRating.LikelyDem: return '#2d65d3';
-    case RaceRating.LeanDem: return '#628cde';
-    case RaceRating.TiltDem: return '#a5bdec';
-    case RaceRating.TiltRep: return '#f7acaf';
-    case RaceRating.LeanRep: return '#f06a70';
-    case RaceRating.LikelyRep: return '#eb363d';
-    case RaceRating.SolidRep: return '#e81b23';
+    case RaceRating.SolidDem: return '#123f8f';
+    case RaceRating.LikelyDem: return '#2e63bd';
+    case RaceRating.LeanDem: return '#5a8fd6';
+    case RaceRating.TiltDem: return '#9dbff0';
+    case RaceRating.TiltRep: return '#f4aa9b';
+    case RaceRating.LeanRep: return '#e2694f';
+    case RaceRating.LikelyRep: return '#cf2f1a';
+    case RaceRating.SolidRep: return '#9c150b';
     default: return '#E0E0E0';
   }
 };
 
 const getPartyColor = (party: Party): string => {
   switch (party) {
-    case Party.Democrat: return '#0044c9';
-    case Party.Republican: return '#e81b23';
+    case Party.Democrat: return '#123f8f';
+    case Party.Republican: return '#9c150b';
     case Party.Independent: return '#eab308';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';
@@ -194,7 +194,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           <span style={{
             fontWeight: 'bold',
             fontSize: '16px',
-            color: detailed.expectedDemMargin > 0 ? '#0044c9' : detailed.expectedDemMargin < 0 ? '#e81b23' : '#666',
+            color: detailed.expectedDemMargin > 0 ? '#123f8f' : detailed.expectedDemMargin < 0 ? '#9c150b' : '#666',
           }}>
             {formatMargin(detailed.expectedDemMargin)}
           </span>
