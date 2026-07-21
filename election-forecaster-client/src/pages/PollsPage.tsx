@@ -35,6 +35,14 @@ export const PollsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
   const tab: Chamber = tabParam === 'house' || tabParam === 'governors' ? tabParam : 'senate';
+  const stateParam = searchParams.get('state') ?? '';
+
+  const setParams = (nextTab: Chamber, nextState: string) => {
+    const params: Record<string, string> = {};
+    if (nextTab !== 'senate') params.tab = nextTab;
+    if (nextState) params.state = nextState;
+    setSearchParams(params, { replace: true });
+  };
 
   const { data: polls, isLoading } = useQuery({
     queryKey: ['allPolls'],
@@ -56,7 +64,16 @@ export const PollsPage = () => {
     return districtCode(stateId, district);
   };
 
-  const shown = (polls ?? []).filter(p => chamberOf(p.raceId) === tab);
+  const tabPolls = (polls ?? []).filter(p => chamberOf(p.raceId) === tab);
+
+  // Only states that actually have polls in this tab are offered; a selection that
+  // doesn't exist here (e.g. carried over from another tab) falls back to all states.
+  const stateOptions = [...new Set(tabPolls.map(p => p.raceId.slice(0, 2)))]
+    .map(id => ({ id, name: stateName(id) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const selectedState = stateOptions.some(o => o.id === stateParam) ? stateParam : '';
+
+  const shown = selectedState ? tabPolls.filter(p => p.raceId.startsWith(selectedState)) : tabPolls;
 
   const cell: React.CSSProperties = { padding: isDesktop ? '10px 12px' : '8px 6px', whiteSpace: 'nowrap' };
 
@@ -76,7 +93,7 @@ export const PollsPage = () => {
         {(['senate', 'house', 'governors'] as Chamber[]).map(c => (
           <button
             key={c}
-            onClick={() => setSearchParams(c === 'senate' ? {} : { tab: c }, { replace: true })}
+            onClick={() => setParams(c, stateParam)}
             style={{
               padding: '7px 16px',
               borderRadius: '8px',
@@ -91,6 +108,27 @@ export const PollsPage = () => {
             {c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'}
           </button>
         ))}
+        <select
+          value={selectedState}
+          onChange={e => setParams(tab, e.target.value)}
+          aria-label="Filter by state"
+          style={{
+            marginLeft: 'auto',
+            padding: '6px 10px',
+            borderRadius: '8px',
+            border: '1px solid #d5d5d5',
+            backgroundColor: 'white',
+            color: '#333',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <option value="">All states</option>
+          {stateOptions.map(o => (
+            <option key={o.id} value={o.id}>{o.name}</option>
+          ))}
+        </select>
       </div>
 
       {isLoading && (
