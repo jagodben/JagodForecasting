@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
 import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
@@ -110,6 +110,9 @@ export const HomePage = () => {
               {view === 'senate' ? 'Senate' : view === 'house' ? 'House' : 'Governors'}
             </button>
           ))}
+          <Link to="/polls" className="dashboard-tab" style={{ textDecoration: 'none' }}>
+            Polls
+          </Link>
         </div>
       </header>
 

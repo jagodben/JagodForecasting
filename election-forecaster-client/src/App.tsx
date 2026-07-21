@@ -4,6 +4,7 @@ import { HomePage } from './pages/HomePage';
 import { StatePage } from './pages/StatePage';
 import { RacePage } from './pages/RacePage';
 import { MethodologyPage } from './pages/MethodologyPage';
+import { PollsPage } from './pages/PollsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { AccessibilityProvider } from './context/AccessibilityContext';
 import { SiteFooter } from './components/SiteFooter';
@@ -21,6 +22,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/state/:stateId" element={<StatePage />} />
               <Route path="/race/:raceId" element={<RacePage />} />
+              <Route path="/polls" element={<PollsPage />} />
               <Route path="/methodology" element={<MethodologyPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

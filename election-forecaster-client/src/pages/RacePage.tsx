@@ -420,7 +420,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                     {poll.pollster}
                     {poll.isPartisan && (
                       <span style={{ marginLeft: '6px', fontSize: '11px', color: '#b45309', backgroundColor: '#fef3c7', padding: '1px 6px', borderRadius: '4px' }}>
-                        partisan
+                        partisan{poll.partisanLean ? ` (${poll.partisanLean})` : ''}
                       </span>
                     )}
                   </td>

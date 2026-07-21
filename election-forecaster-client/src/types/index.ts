@@ -136,10 +136,15 @@ export interface Poll {
   repPercent: number;
   margin: number;
   isPartisan: boolean;
+  partisanLean?: string; // "D" | "R" | "I" when isPartisan
 }
 
 export interface RacePolls {
   raceId: string;
   average: PollingAverage | null;
   polls: Poll[];
+}
+
+export interface SitePoll extends Poll {
+  raceId: string;
 }

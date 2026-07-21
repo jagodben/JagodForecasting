@@ -24,6 +24,17 @@ public class PollData
     /// </summary>
     public bool IsPartisan => Methodology?.StartsWith("Partisan", StringComparison.OrdinalIgnoreCase) ?? false;
 
+    /// <summary>"D"/"R"/"I" from the stored "Partisan (X)" tag; null for public polls.</summary>
+    public string? PartisanLean => PartisanLeanOf(Methodology);
+
+    public static string? PartisanLeanOf(string? methodology)
+    {
+        var m = methodology == null
+            ? null
+            : System.Text.RegularExpressions.Regex.Match(methodology, @"^Partisan \(([DRI])\)");
+        return m is { Success: true } ? m.Groups[1].Value : null;
+    }
+
     public string? SourceUrl { get; set; }
 
     public double GetWeight(DateTime asOfDate)
