@@ -148,20 +148,3 @@ export interface RacePolls {
 export interface SitePoll extends Poll {
   raceId: string;
 }
-
-export interface GenericBallotAggregate {
-  source: string;
-  demPercent: number;
-  repPercent: number;
-}
-
-export interface GenericBallotDay {
-  date: string;
-  demPercent: number;
-  repPercent: number;
-}
-
-export interface GenericBallotView {
-  aggregates: GenericBallotAggregate[];
-  history: GenericBallotDay[];
-}
