@@ -1,8 +1,4 @@
 {
- "AK-01-2026|Matt Schultz": {
-  "page": "https://en.wikipedia.org/wiki/Matt_Schultz",
-  "photo": "/candidates/ak-01-2026-matt-schultz.webp"
- },
  "AK-01-2026|Nick Begich III": {
   "page": "https://en.wikipedia.org/wiki/Nick_Begich_III",
   "photo": "/candidates/ak-01-2026-nick-begich-iii.webp"
@@ -18,6 +14,10 @@
  "AL-04-2026|Robert Aderholt": {
   "page": "https://en.wikipedia.org/wiki/Robert_Aderholt",
   "photo": "/candidates/al-04-2026-robert-aderholt.webp"
+ },
+ "AL-05-2026|Andrew Sneed": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Alabama",
+  "photo": "/candidates/al-05-2026-andrew-sneed.webp"
  },
  "AL-05-2026|Dale Strong": {
   "page": "https://en.wikipedia.org/wiki/Dale_Strong",
@@ -95,6 +95,10 @@
   "page": "https://en.wikipedia.org/wiki/Zuhdi_Jasser",
   "photo": "/candidates/az-04-2026-zuhdi-jasser.webp"
  },
+ "AZ-06-2026|JoAnna Mendoza": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Arizona",
+  "photo": "/candidates/az-06-2026-joanna-mendoza.webp"
+ },
  "AZ-06-2026|Juan Ciscomani": {
   "page": "https://en.wikipedia.org/wiki/Juan_Ciscomani",
   "photo": "/candidates/az-06-2026-juan-ciscomani.webp"
@@ -102,6 +106,10 @@
  "AZ-07-2026|Adelita Grijalva": {
   "page": "https://en.wikipedia.org/wiki/Adelita_Grijalva",
   "photo": "/candidates/az-07-2026-adelita-grijalva.webp"
+ },
+ "AZ-07-2026|Daniel Butierez": {
+  "page": "https://en.wikipedia.org/wiki/2024_United_States_House_of_Representatives_elections_in_Arizona",
+  "photo": "/candidates/az-07-2026-daniel-butierez.webp"
  },
  "AZ-08-2026|Abraham Hamadeh": {
   "page": "https://en.wikipedia.org/wiki/Abraham_Hamadeh",
@@ -207,6 +215,10 @@
   "page": "https://en.wikipedia.org/wiki/David_Valadao",
   "photo": "/candidates/ca-22-2026-david-valadao.webp"
  },
+ "CA-22-2026|Randy Villegas": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
+  "photo": "/candidates/ca-22-2026-randy-villegas.webp"
+ },
  "CA-23-2026|Jay Obernolte": {
   "page": "https://en.wikipedia.org/wiki/Jay_Obernolte",
   "photo": "/candidates/ca-23-2026-jay-obernolte.webp"
@@ -214,6 +226,10 @@
  "CA-24-2026|Salud Carbajal": {
   "page": "https://en.wikipedia.org/wiki/Salud_Carbajal",
   "photo": "/candidates/ca-24-2026-salud-carbajal.webp"
+ },
+ "CA-25-2026|Joe Males": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
+  "photo": "/candidates/ca-25-2026-joe-males.webp"
  },
  "CA-25-2026|Raul Ruiz": {
   "page": "https://en.wikipedia.org/wiki/Raul_Ruiz_%28politician%29",
@@ -239,10 +255,6 @@
   "page": "https://en.wikipedia.org/wiki/Laura_Friedman",
   "photo": "/candidates/ca-30-2026-laura-friedman.webp"
  },
- "CA-30-2026|Scott Meyers": {
-  "page": "https://en.wikipedia.org/wiki/Scott_Meyers",
-  "photo": "/candidates/ca-30-2026-scott-meyers.webp"
- },
  "CA-31-2026|Gil Cisneros": {
   "page": "https://en.wikipedia.org/wiki/Gil_Cisneros",
   "photo": "/candidates/ca-31-2026-gil-cisneros.webp"
@@ -258,6 +270,10 @@
  "CA-34-2026|Jimmy Gomez": {
   "page": "https://en.wikipedia.org/wiki/Jimmy_Gomez",
   "photo": "/candidates/ca-34-2026-jimmy-gomez.webp"
+ },
+ "CA-35-2026|Mike Cargile": {
+  "page": "https://en.wikipedia.org/wiki/2020_United_States_House_of_Representatives_elections_in_California",
+  "photo": "/candidates/ca-35-2026-mike-cargile.webp"
  },
  "CA-35-2026|Norma Torres": {
   "page": "https://en.wikipedia.org/wiki/Norma_Torres",
@@ -298,6 +314,10 @@
  "CA-44-2026|Nanette Barrag\u00e1n": {
   "page": "https://en.wikipedia.org/wiki/Nanette_Barrag%C3%A1n",
   "photo": "/candidates/ca-44-2026-nanette-barrag\u00e1n.webp"
+ },
+ "CA-45-2026|Chuong Vo": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
+  "photo": "/candidates/ca-45-2026-chuong-vo.webp"
  },
  "CA-45-2026|Derek Tran": {
   "page": "https://en.wikipedia.org/wiki/Derek_Tran",
@@ -435,6 +455,10 @@
   "page": "https://en.wikipedia.org/wiki/Chris_Coons",
   "photo": "/candidates/de-sen-2026-chris-coons.webp"
  },
+ "FL-01-2026|Gay Valimont": {
+  "page": "https://en.wikipedia.org/wiki/2025_Florida%27s_1st_congressional_district_special_election",
+  "photo": "/candidates/fl-01-2026-gay-valimont.webp"
+ },
  "FL-03-2026|Kat Cammack": {
   "page": "https://en.wikipedia.org/wiki/Kat_Cammack",
   "photo": "/candidates/fl-03-2026-kat-cammack.webp"
@@ -499,9 +523,9 @@
   "page": "https://en.wikipedia.org/wiki/Ashley_Moody",
   "photo": "/candidates/fl-sen-2026-ashley-moody.webp"
  },
- "GA-02-2026|Matt Day": {
-  "page": "https://en.wikipedia.org/wiki/Matt_Day",
-  "photo": "/candidates/ga-02-2026-matt-day.webp"
+ "GA-01-2026|Jim Kingston": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Georgia",
+  "photo": "/candidates/ga-01-2026-jim-kingston.webp"
  },
  "GA-02-2026|Sanford Bishop": {
   "page": "https://en.wikipedia.org/wiki/Sanford_Bishop",
@@ -540,8 +564,12 @@
   "photo": "/candidates/ga-10-2026-houston-gaines.webp"
  },
  "GA-11-2026|John Cowan": {
-  "page": "https://en.wikipedia.org/wiki/John_Cowan",
+  "page": "https://en.wikipedia.org/wiki/John_F._Cowan",
   "photo": "/candidates/ga-11-2026-john-cowan.webp"
+ },
+ "GA-12-2026|Ceretta Smith": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Georgia",
+  "photo": "/candidates/ga-12-2026-ceretta-smith.webp"
  },
  "GA-12-2026|Rick Allen": {
   "page": "https://en.wikipedia.org/wiki/Rick_Allen_%28politician%29",
@@ -599,6 +627,10 @@
   "page": "https://en.wikipedia.org/wiki/Zach_Nunn",
   "photo": "/candidates/ia-03-2026-zach-nunn.webp"
  },
+ "IA-04-2026|Chris McGowan": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Iowa",
+  "photo": "/candidates/ia-04-2026-chris-mcgowan.webp"
+ },
  "IA-GOV-2026|Rob Sand": {
   "page": "https://en.wikipedia.org/wiki/Rob_Sand",
   "photo": "/candidates/ia-gov-2026-rob-sand.webp"
@@ -610,6 +642,10 @@
  "IA-SEN-2026|Josh Turek": {
   "page": "https://en.wikipedia.org/wiki/Josh_Turek",
   "photo": "/candidates/ia-sen-2026-josh-turek.webp"
+ },
+ "ID-01-2026|Kaylee Peterson": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Idaho",
+  "photo": "/candidates/id-01-2026-kaylee-peterson.webp"
  },
  "ID-01-2026|Russ Fulcher": {
   "page": "https://en.wikipedia.org/wiki/Russ_Fulcher",
@@ -643,13 +679,13 @@
   "page": "https://en.wikipedia.org/wiki/Delia_Ramirez",
   "photo": "/candidates/il-03-2026-delia-ramirez.webp"
  },
+ "IL-04-2026|Patty Garcia": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Illinois",
+  "photo": "/candidates/il-04-2026-patty-garcia.webp"
+ },
  "IL-05-2026|Mike Quigley": {
   "page": "https://en.wikipedia.org/wiki/Mike_Quigley",
   "photo": "/candidates/il-05-2026-mike-quigley.webp"
- },
- "IL-05-2026|Tommy Hanson": {
-  "page": "https://en.wikipedia.org/wiki/Tommy_Hanson",
-  "photo": "/candidates/il-05-2026-tommy-hanson.webp"
  },
  "IL-06-2026|Sean Casten": {
   "page": "https://en.wikipedia.org/wiki/Sean_Casten",
@@ -683,6 +719,10 @@
   "page": "https://en.wikipedia.org/wiki/Nikki_Budzinski",
   "photo": "/candidates/il-13-2026-nikki-budzinski.webp"
  },
+ "IL-14-2026|James Marter": {
+  "page": "https://en.wikipedia.org/wiki/2024_United_States_House_of_Representatives_elections_in_Illinois",
+  "photo": "/candidates/il-14-2026-james-marter.webp"
+ },
  "IL-14-2026|Lauren Underwood": {
   "page": "https://en.wikipedia.org/wiki/Lauren_Underwood",
   "photo": "/candidates/il-14-2026-lauren-underwood.webp"
@@ -694,6 +734,10 @@
  "IL-16-2026|Darin LaHood": {
   "page": "https://en.wikipedia.org/wiki/Darin_LaHood",
   "photo": "/candidates/il-16-2026-darin-lahood.webp"
+ },
+ "IL-17-2026|Dillan Vancil": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Illinois",
+  "photo": "/candidates/il-17-2026-dillan-vancil.webp"
  },
  "IL-17-2026|Eric Sorensen": {
   "page": "https://en.wikipedia.org/wiki/Eric_Sorensen_%28politician%29",
@@ -782,6 +826,10 @@
  "KY-05-2026|Hal Rogers": {
   "page": "https://en.wikipedia.org/wiki/Hal_Rogers",
   "photo": "/candidates/ky-05-2026-hal-rogers.webp"
+ },
+ "KY-05-2026|Ned Pillersdorf": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Kentucky",
+  "photo": "/candidates/ky-05-2026-ned-pillersdorf.webp"
  },
  "KY-06-2026|Ralph Alvarado": {
   "page": "https://en.wikipedia.org/wiki/Ralph_Alvarado",
@@ -983,6 +1031,10 @@
   "page": "https://en.wikipedia.org/wiki/Emanuel_Cleaver",
   "photo": "/candidates/mo-05-2026-emanuel-cleaver.webp"
  },
+ "MO-07-2026|Missi Hesketh": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Missouri",
+  "photo": "/candidates/mo-07-2026-missi-hesketh.webp"
+ },
  "MS-01-2026|Trent Kelly": {
   "page": "https://en.wikipedia.org/wiki/Trent_Kelly",
   "photo": "/candidates/ms-01-2026-trent-kelly.webp"
@@ -1007,9 +1059,9 @@
   "page": "https://en.wikipedia.org/wiki/Cindy_Hyde-Smith",
   "photo": "/candidates/ms-sen-2026-cindy-hyde-smith.webp"
  },
- "MT-01-2026|Sam Forstag": {
-  "page": "https://en.wikipedia.org/wiki/Sam_Forstag",
-  "photo": "/candidates/mt-01-2026-sam-forstag.webp"
+ "MT-01-2026|Aaron Flint": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Montana",
+  "photo": "/candidates/mt-01-2026-aaron-flint.webp"
  },
  "MT-02-2026|Troy Downing": {
   "page": "https://en.wikipedia.org/wiki/Troy_Downing",
@@ -1031,8 +1083,12 @@
   "page": "https://en.wikipedia.org/wiki/Deborah_Ross_%28politician%29",
   "photo": "/candidates/nc-02-2026-deborah-ross.webp"
  },
+ "NC-02-2026|Gene Douglass": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_North_Carolina",
+  "photo": "/candidates/nc-02-2026-gene-douglass.webp"
+ },
  "NC-03-2026|Greg Murphy": {
-  "page": "https://en.wikipedia.org/wiki/Greg_Murphy",
+  "page": "https://en.wikipedia.org/wiki/Greg_Murphy_%28politician%29",
   "photo": "/candidates/nc-03-2026-greg-murphy.webp"
  },
  "NC-03-2026|Raymond Smith Jr.": {
@@ -1042,6 +1098,10 @@
  "NC-04-2026|Valerie Foushee": {
   "page": "https://en.wikipedia.org/wiki/Valerie_Foushee",
   "photo": "/candidates/nc-04-2026-valerie-foushee.webp"
+ },
+ "NC-05-2026|Chuck Hubbard": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_North_Carolina",
+  "photo": "/candidates/nc-05-2026-chuck-hubbard.webp"
  },
  "NC-05-2026|Virginia Foxx": {
   "page": "https://en.wikipedia.org/wiki/Virginia_Foxx",
@@ -1075,6 +1135,10 @@
   "page": "https://en.wikipedia.org/wiki/Chuck_Edwards",
   "photo": "/candidates/nc-11-2026-chuck-edwards.webp"
  },
+ "NC-11-2026|Jamie Ager": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_North_Carolina",
+  "photo": "/candidates/nc-11-2026-jamie-ager.webp"
+ },
  "NC-12-2026|Alma Adams": {
   "page": "https://en.wikipedia.org/wiki/Alma_Adams",
   "photo": "/candidates/nc-12-2026-alma-adams.webp"
@@ -1106,6 +1170,14 @@
  "NE-01-2026|Mike Flood": {
   "page": "https://en.wikipedia.org/wiki/Mike_Flood_%28politician%29",
   "photo": "/candidates/ne-01-2026-mike-flood.webp"
+ },
+ "NE-02-2026|Brinker Harding": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Nebraska",
+  "photo": "/candidates/ne-02-2026-brinker-harding.webp"
+ },
+ "NE-02-2026|Denise Powell": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Nebraska",
+  "photo": "/candidates/ne-02-2026-denise-powell.webp"
  },
  "NE-03-2026|Adrian Smith": {
   "page": "https://en.wikipedia.org/wiki/Adrian_Smith_%28politician%29",
@@ -1143,6 +1215,10 @@
   "page": "https://en.wikipedia.org/wiki/Chris_Smith_%28New_Jersey_politician%29",
   "photo": "/candidates/nj-04-2026-chris-smith.webp"
  },
+ "NJ-04-2026|Rachel Peace": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_New_Jersey",
+  "photo": "/candidates/nj-04-2026-rachel-peace.webp"
+ },
  "NJ-05-2026|Josh Gottheimer": {
   "page": "https://en.wikipedia.org/wiki/Josh_Gottheimer",
   "photo": "/candidates/nj-05-2026-josh-gottheimer.webp"
@@ -1150,6 +1226,10 @@
  "NJ-06-2026|Frank Pallone": {
   "page": "https://en.wikipedia.org/wiki/Frank_Pallone",
   "photo": "/candidates/nj-06-2026-frank-pallone.webp"
+ },
+ "NJ-07-2026|Rebecca Bennett": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_New_Jersey",
+  "photo": "/candidates/nj-07-2026-rebecca-bennett.webp"
  },
  "NJ-07-2026|Thomas Kean Jr.": {
   "page": "https://en.wikipedia.org/wiki/Thomas_Kean_Jr.",
@@ -1171,6 +1251,10 @@
   "page": "https://en.wikipedia.org/wiki/Analilia_Mejia",
   "photo": "/candidates/nj-11-2026-analilia-mejia.webp"
  },
+ "NJ-11-2026|Joe Hathaway": {
+  "page": "https://en.wikipedia.org/wiki/2026_New_Jersey%27s_11th_congressional_district_special_election",
+  "photo": "/candidates/nj-11-2026-joe-hathaway.webp"
+ },
  "NJ-12-2026|Adam Hamawy": {
   "page": "https://en.wikipedia.org/wiki/Adam_Hamawy",
   "photo": "/candidates/nj-12-2026-adam-hamawy.webp"
@@ -1187,10 +1271,6 @@
   "page": "https://en.wikipedia.org/wiki/Gabe_Vasquez",
   "photo": "/candidates/nm-02-2026-gabe-vasquez.webp"
  },
- "NM-02-2026|Greg Cunningham": {
-  "page": "https://en.wikipedia.org/wiki/Greg_Cunningham",
-  "photo": "/candidates/nm-02-2026-greg-cunningham.webp"
- },
  "NM-03-2026|Teresa Leger Fern\u00e1ndez": {
   "page": "https://en.wikipedia.org/wiki/Teresa_Leger_Fern%C3%A1ndez",
   "photo": "/candidates/nm-03-2026-teresa-leger-fern\u00e1ndez.webp"
@@ -1202,10 +1282,6 @@
  "NM-SEN-2026|Ben Ray Luj\u00e1n": {
   "page": "https://en.wikipedia.org/wiki/Ben_Ray_Luj%C3%A1n",
   "photo": "/candidates/nm-sen-2026-ben-ray-luj\u00e1n.webp"
- },
- "NV-01-2026|Carrie Buck": {
-  "page": "https://en.wikipedia.org/wiki/Carrie_Buck",
-  "photo": "/candidates/nv-01-2026-carrie-buck.webp"
  },
  "NV-01-2026|Dina Titus": {
   "page": "https://en.wikipedia.org/wiki/Dina_Titus",
@@ -1219,6 +1295,10 @@
   "page": "https://en.wikipedia.org/wiki/Susie_Lee",
   "photo": "/candidates/nv-03-2026-susie-lee.webp"
  },
+ "NV-04-2026|Cody Whipple": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Nevada",
+  "photo": "/candidates/nv-04-2026-cody-whipple.webp"
+ },
  "NV-04-2026|Steven Horsford": {
   "page": "https://en.wikipedia.org/wiki/Steven_Horsford",
   "photo": "/candidates/nv-04-2026-steven-horsford.webp"
@@ -1230,6 +1310,10 @@
  "NV-GOV-2026|Joe Lombardo": {
   "page": "https://en.wikipedia.org/wiki/Joe_Lombardo",
   "photo": "/candidates/nv-gov-2026-joe-lombardo.webp"
+ },
+ "NY-01-2026|Chris Gallant": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_New_York",
+  "photo": "/candidates/ny-01-2026-chris-gallant.webp"
  },
  "NY-01-2026|Nick LaLota": {
   "page": "https://en.wikipedia.org/wiki/Nick_LaLota",
@@ -1320,8 +1404,12 @@
   "photo": "/candidates/ny-20-2026-paul-tonko.webp"
  },
  "NY-21-2026|Anthony Constantino": {
-  "page": "https://en.wikipedia.org/wiki/Anthony_Constantino",
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_New_York",
   "photo": "/candidates/ny-21-2026-anthony-constantino.webp"
+ },
+ "NY-21-2026|Blake Gendebien": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_New_York",
+  "photo": "/candidates/ny-21-2026-blake-gendebien.webp"
  },
  "NY-23-2026|Nick Langworthy": {
   "page": "https://en.wikipedia.org/wiki/Nick_Langworthy",
@@ -1347,6 +1435,10 @@
   "page": "https://en.wikipedia.org/wiki/Kathy_Hochul",
   "photo": "/candidates/ny-gov-2026-kathy-hochul.webp"
  },
+ "OH-01-2026|Eric Conroy": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Ohio",
+  "photo": "/candidates/oh-01-2026-eric-conroy.webp"
+ },
  "OH-01-2026|Greg Landsman": {
   "page": "https://en.wikipedia.org/wiki/Greg_Landsman",
   "photo": "/candidates/oh-01-2026-greg-landsman.webp"
@@ -1371,6 +1463,10 @@
   "page": "https://en.wikipedia.org/wiki/Michael_Rulli",
   "photo": "/candidates/oh-06-2026-michael-rulli.webp"
  },
+ "OH-07-2026|Brian Poindexter": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Ohio",
+  "photo": "/candidates/oh-07-2026-brian-poindexter.webp"
+ },
  "OH-07-2026|Max Miller": {
   "page": "https://en.wikipedia.org/wiki/Max_Miller_%28politician%29",
   "photo": "/candidates/oh-07-2026-max-miller.webp"
@@ -1386,10 +1482,6 @@
  "OH-10-2026|Mike Turner": {
   "page": "https://en.wikipedia.org/wiki/Mike_Turner",
   "photo": "/candidates/oh-10-2026-mike-turner.webp"
- },
- "OH-11-2026|Mike Kirchner": {
-  "page": "https://en.wikipedia.org/wiki/Corporal_Kirchner",
-  "photo": "/candidates/oh-11-2026-mike-kirchner.webp"
  },
  "OH-11-2026|Shontel Brown": {
   "page": "https://en.wikipedia.org/wiki/Shontel_Brown",
@@ -1427,6 +1519,10 @@
   "page": "https://en.wikipedia.org/wiki/Sherrod_Brown",
   "photo": "/candidates/oh-sen-2026-sherrod-brown.webp"
  },
+ "OK-01-2026|John Croisant": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Oklahoma",
+  "photo": "/candidates/ok-01-2026-john-croisant.webp"
+ },
  "OK-01-2026|Mark Tedford": {
   "page": "https://en.wikipedia.org/wiki/Mark_Tedford",
   "photo": "/candidates/ok-01-2026-mark-tedford.webp"
@@ -1436,7 +1532,7 @@
   "photo": "/candidates/ok-02-2026-josh-brecheen.webp"
  },
  "OK-03-2026|Frank Lucas": {
-  "page": "https://en.wikipedia.org/wiki/Frank_Lucas",
+  "page": "https://en.wikipedia.org/wiki/Frank_Lucas_%28Oklahoma_politician%29",
   "photo": "/candidates/ok-03-2026-frank-lucas.webp"
  },
  "OK-04-2026|Tom Cole": {
@@ -1495,10 +1591,6 @@
   "page": "https://en.wikipedia.org/wiki/Jeff_Merkley",
   "photo": "/candidates/or-sen-2026-jeff-merkley.webp"
  },
- "PA-01-2026|Bob Harvie": {
-  "page": "https://en.wikipedia.org/wiki/Bob_Harvie",
-  "photo": "/candidates/pa-01-2026-bob-harvie.webp"
- },
  "PA-02-2026|Brendan Boyle": {
   "page": "https://en.wikipedia.org/wiki/Brendan_Boyle",
   "photo": "/candidates/pa-02-2026-brendan-boyle.webp"
@@ -1547,6 +1639,10 @@
   "page": "https://en.wikipedia.org/wiki/Summer_Lee",
   "photo": "/candidates/pa-12-2026-summer-lee.webp"
  },
+ "PA-13-2026|Beth Farnham": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Pennsylvania",
+  "photo": "/candidates/pa-13-2026-beth-farnham.webp"
+ },
  "PA-13-2026|John Joyce": {
   "page": "https://en.wikipedia.org/wiki/John_Joyce_%28American_politician%29",
   "photo": "/candidates/pa-13-2026-john-joyce.webp"
@@ -1586,6 +1682,10 @@
  "RI-SEN-2026|Jack Reed": {
   "page": "https://en.wikipedia.org/wiki/Jack_Reed_%28Rhode_Island_politician%29",
   "photo": "/candidates/ri-sen-2026-jack-reed.webp"
+ },
+ "SC-01-2026|Jenny Costa Honeycutt": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_South_Carolina",
+  "photo": "/candidates/sc-01-2026-jenny-costa-honeycutt.webp"
  },
  "SC-01-2026|Nancy Lacore": {
   "page": "https://en.wikipedia.org/wiki/Nancy_Lacore",
@@ -1679,6 +1779,14 @@
   "page": "https://en.wikipedia.org/wiki/Lizzie_Fletcher",
   "photo": "/candidates/tx-07-2026-lizzie-fletcher.webp"
  },
+ "TX-08-2026|Jessica Steinmann": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-08-2026-jessica-steinmann.webp"
+ },
+ "TX-10-2026|Chris Gober": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-10-2026-chris-gober.webp"
+ },
  "TX-11-2026|August Pfluger": {
   "page": "https://en.wikipedia.org/wiki/August_Pfluger",
   "photo": "/candidates/tx-11-2026-august-pfluger.webp"
@@ -1694,10 +1802,6 @@
  "TX-14-2026|Randy Weber": {
   "page": "https://en.wikipedia.org/wiki/Randy_Weber",
   "photo": "/candidates/tx-14-2026-randy-weber.webp"
- },
- "TX-15-2026|Bobby Pulido": {
-  "page": "https://en.wikipedia.org/wiki/Bobby_Pulido",
-  "photo": "/candidates/tx-15-2026-bobby-pulido.webp"
  },
  "TX-15-2026|Monica De La Cruz": {
   "page": "https://en.wikipedia.org/wiki/Monica_De_La_Cruz",
@@ -1715,6 +1819,14 @@
   "page": "https://en.wikipedia.org/wiki/Christian_Menefee",
   "photo": "/candidates/tx-18-2026-christian-menefee.webp"
  },
+ "TX-19-2026|Kyle Rable": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-19-2026-kyle-rable.webp"
+ },
+ "TX-19-2026|Tom Sell": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-19-2026-tom-sell.webp"
+ },
  "TX-20-2026|Joaquin Castro": {
   "page": "https://en.wikipedia.org/wiki/Joaquin_Castro",
   "photo": "/candidates/tx-20-2026-joaquin-castro.webp"
@@ -1727,9 +1839,9 @@
   "page": "https://en.wikipedia.org/wiki/Troy_Nehls",
   "photo": "/candidates/tx-22-2026-trever-nehls.webp"
  },
- "TX-23-2026|Brandon Herrera": {
-  "page": "https://en.wikipedia.org/wiki/Brandon_Herrera",
-  "photo": "/candidates/tx-23-2026-brandon-herrera.webp"
+ "TX-23-2026|Katy Padilla Stout": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-23-2026-katy-padilla-stout.webp"
  },
  "TX-24-2026|Beth Van Duyne": {
   "page": "https://en.wikipedia.org/wiki/Beth_Van_Duyne",
@@ -1751,17 +1863,13 @@
   "page": "https://en.wikipedia.org/wiki/Henry_Cuellar",
   "photo": "/candidates/tx-28-2026-henry-cuellar.webp"
  },
- "TX-29-2026|Martha Fierro": {
-  "page": "https://en.wikipedia.org/wiki/Martha_Fierro",
-  "photo": "/candidates/tx-29-2026-martha-fierro.webp"
+ "TX-28-2026|Tano Tijerina": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-28-2026-tano-tijerina.webp"
  },
  "TX-29-2026|Sylvia Garcia": {
   "page": "https://en.wikipedia.org/wiki/Sylvia_Garcia",
   "photo": "/candidates/tx-29-2026-sylvia-garcia.webp"
- },
- "TX-30-2026|Everett Jackson": {
-  "page": "https://en.wikipedia.org/wiki/E._Dale_Jackson",
-  "photo": "/candidates/tx-30-2026-everett-jackson.webp"
  },
  "TX-30-2026|Frederick Haynes III": {
   "page": "https://en.wikipedia.org/wiki/Frederick_Haynes_III",
@@ -1775,9 +1883,17 @@
   "page": "https://en.wikipedia.org/wiki/Colin_Allred",
   "photo": "/candidates/tx-33-2026-colin-allred.webp"
  },
+ "TX-34-2026|Eric Flores": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-34-2026-eric-flores.webp"
+ },
  "TX-35-2026|Carlos De La Cruz": {
-  "page": "https://en.wikipedia.org/wiki/Carlos_Da_Cruz",
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
   "photo": "/candidates/tx-35-2026-carlos-de-la-cruz.webp"
+ },
+ "TX-35-2026|Johnny Garcia": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-35-2026-johnny-garcia.webp"
  },
  "TX-36-2026|Brian Babin": {
   "page": "https://en.wikipedia.org/wiki/Brian_Babin",
@@ -1851,6 +1967,10 @@
   "page": "https://en.wikipedia.org/wiki/Eugene_Vindman",
   "photo": "/candidates/va-07-2026-eugene-vindman.webp"
  },
+ "VA-08-2026|Tony Sabio": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Virginia",
+  "photo": "/candidates/va-08-2026-tony-sabio.webp"
+ },
  "VA-09-2026|Morgan Griffith": {
   "page": "https://en.wikipedia.org/wiki/Morgan_Griffith",
   "photo": "/candidates/va-09-2026-morgan-griffith.webp"
@@ -1908,7 +2028,7 @@
   "photo": "/candidates/wi-04-2026-gwen-moore.webp"
  },
  "WI-05-2026|Scott Fitzgerald": {
-  "page": "https://en.wikipedia.org/wiki/F._Scott_Fitzgerald",
+  "page": "https://en.wikipedia.org/wiki/Scott_Fitzgerald_%28politician%29",
   "photo": "/candidates/wi-05-2026-scott-fitzgerald.webp"
  },
  "WI-06-2026|Glenn Grothman": {

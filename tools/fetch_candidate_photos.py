@@ -132,10 +132,45 @@ def page_images(titles):
     return found
 
 
-def human_qids(qids):
-    """Subset of qids whose Wikidata item is instance-of human (Q5). A name that lands on
-    a seal, an office, or a list page fails this — better no photo than the wrong one."""
-    humans = set()
+POLITICAL_CAT = __import__("re").compile(
+    r"politician|candidate|senator|representative|governor|congress|legislat|mayor|officeholder|attorneys general|treasurer",
+    __import__("re").IGNORECASE)
+
+
+def political_titles(titles):
+    """Subset of article titles carrying a political/candidate category. Wikidata items for
+    state-level figures are often sparse (SD's sitting AG has no P39), but their articles
+    always categorize as politicians or election candidates."""
+    ok = set()
+    titles = sorted(set(titles))
+    for i in range(0, len(titles), 20):
+        batch = titles[i : i + 20]
+        params = {
+            "action": "query", "titles": "|".join(batch), "redirects": "1",
+            "prop": "categories", "cllimit": "500",
+        }
+        while True:
+            data = wiki_query(params)
+            for page in data["query"].get("pages") or []:
+                for cat in page.get("categories") or []:
+                    if POLITICAL_CAT.search(cat.get("title", "")):
+                        ok.add(page["title"])
+                        break
+            cont = data.get("continue")
+            if not cont:
+                break
+            params = {**params, **cont}
+        time.sleep(0.3)
+    return ok
+
+
+def politician_qids(qids):
+    """Subset of qids that are a human (P31=Q5) AND verifiably political: occupation (P106)
+    includes politician, or any position held (P39) is recorded. "Is a person" alone let the
+    famous namesakes through — Frank Lucas (OK-3) resolved to the drug trafficker, who is
+    human but has never held office. Better no photo than the wrong person's."""
+    POLITICIAN = "Q82955"
+    ok = set()
     ids = sorted({q for q in qids if q})
     for i in range(0, len(ids), 50):
         batch = ids[i : i + 50]
@@ -145,13 +180,21 @@ def human_qids(qids):
         })
         data = get(f"{WIKIDATA}?{qs}")
         for qid, ent in (data.get("entities") or {}).items():
-            for claim in (ent.get("claims") or {}).get("P31") or []:
-                val = (((claim.get("mainsnak") or {}).get("datavalue") or {}).get("value") or {})
-                if val.get("id") == "Q5":
-                    humans.add(qid)
-                    break
+            claims = ent.get("claims") or {}
+            def ids_of(prop):
+                out = set()
+                for c in claims.get(prop) or []:
+                    val = (((c.get("mainsnak") or {}).get("datavalue") or {}).get("value") or {})
+                    if isinstance(val, dict) and val.get("id"):
+                        out.add(val["id"])
+                return out
+            is_political = (POLITICIAN in ids_of("P106")
+                            or bool(claims.get("P39"))     # any position held
+                            or bool(claims.get("P3602")))  # any candidacy in an election
+            if "Q5" in ids_of("P31") and is_political:
+                ok.add(qid)
         time.sleep(0.3)
-    return humans
+    return ok
 
 
 def main():
@@ -172,8 +215,33 @@ def main():
             if hit:
                 resolved[n] = hit
 
-    # Third pass, per race: state-qualified titles for slots still missing — the two sitting
-    # congressmen named Mike Rogers live at "... (Michigan politician)" / "... (Alabama politician)".
+    # Identity check on the name-based matches BEFORE the state pass, so a famous namesake
+    # (human but not a politician) is rejected and the name falls through to the state-
+    # qualified retry that finds the actual politician's article.
+    politicians = politician_qids([qid for _, _, qid in resolved.values()])
+    political_pages = political_titles([title for _, title, _ in resolved.values()])
+    def is_political(entry):
+        _, title, qid = entry
+        return qid in politicians or title in political_pages
+    dropped = [n for n, v in resolved.items() if not is_political(v)]
+    resolved = {n: v for n, v in resolved.items() if is_political(v)}
+    if dropped:
+        print(f"rejected {len(dropped)} non-politician matches: {dropped}")
+
+    # Rejected namesakes retry the "(politician)" form before the state-qualified pass —
+    # the Wisconsin congressman lives at "Scott Fitzgerald (politician)" while his bare
+    # name leads to the novelist.
+    retry2 = page_images([f"{n} (politician)" for n in dropped] +
+                         [f"{n} (American politician)" for n in dropped])
+    ok2 = politician_qids([qid for _, _, qid in retry2.values()])
+    pages2 = political_titles([title for _, title, _ in retry2.values()])
+    for n in dropped:
+        hit = retry2.get(f"{n} (politician)") or retry2.get(f"{n} (American politician)")
+        if hit and (hit[2] in ok2 or hit[1] in pages2):
+            resolved[n] = hit
+
+    # Per-race pass: state-qualified titles for everything still unmatched — disambiguated
+    # names ("Mike Rogers (Michigan politician)") and the rejected namesakes alike.
     slot_resolved = {}
     still = [(rid, n) for rid, n in candidates if n not in resolved]
     state_titles = {}
@@ -183,23 +251,20 @@ def main():
             state_titles.setdefault(f"{n} ({state} politician)", []).append((rid, n))
     if state_titles:
         hits = page_images(sorted(state_titles))
+        ok = politician_qids([qid for _, _, qid in hits.values()])
+        pages3 = political_titles([title for _, title, _ in hits.values()])
         for title, slots in state_titles.items():
-            if title in hits:
+            hit = hits.get(title)
+            if hit and (hit[2] in ok or hit[1] in pages3):
                 for slot in slots:
-                    slot_resolved[slot] = hits[title]
-
-    # Identity check: drop matches whose page isn't a person (seals, offices, ships...).
-    humans = human_qids([qid for _, _, qid in resolved.values()] +
-                        [qid for _, _, qid in slot_resolved.values()])
-    dropped = [n for n, (_, _, qid) in resolved.items() if qid not in humans]
-    resolved = {n: v for n, v in resolved.items() if v[2] in humans}
-    slot_resolved = {k: v for k, v in slot_resolved.items() if v[2] in humans}
-    if dropped:
-        print(f"rejected {len(dropped)} non-person matches, e.g.: {dropped[:6]}")
+                    slot_resolved[slot] = hit
     if slot_resolved:
         print(f"state-qualified matches: {len(slot_resolved)}, e.g.: {[f'{r}|{n}' for r, n in list(slot_resolved)[:5]]}")
 
     os.makedirs(IMG_DIR, exist_ok=True)
+    previous = {}
+    if os.path.exists(OUT):
+        previous = json.load(open(OUT, encoding="utf-8"))
     photos = {}
     failures = 0
     saved_by_name = {}
@@ -210,6 +275,12 @@ def main():
         thumb, title, _ = hit
         slug = slugify(race_id, name)
         path = os.path.join(IMG_DIR, f"{slug}.webp")
+        page_url = "https://en.wikipedia.org/wiki/" + urllib.parse.quote(title.replace(" ", "_"))
+        # A slot whose source article changed (e.g. wrong-person fix) must re-download.
+        prev = previous.get(f"{race_id}|{name}")
+        if prev and prev.get("page") != page_url and os.path.exists(path):
+            os.remove(path)
+            saved_by_name.pop(name, None)
         try:
             # one download per unique person; copy for repeat names in other races
             # (never for state-qualified matches — same name, different person)
@@ -232,6 +303,13 @@ def main():
         }
     if failures:
         print(f"{failures} avatar downloads failed (left as fallback)")
+
+    # Remove avatar files no longer referenced by the map (dropped wrong-person matches).
+    referenced = {v["photo"].rsplit("/", 1)[-1] for v in photos.values()}
+    for f in os.listdir(IMG_DIR):
+        if f.endswith(".webp") and f not in referenced:
+            os.remove(os.path.join(IMG_DIR, f))
+            print(f"  removed orphaned avatar {f}")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
