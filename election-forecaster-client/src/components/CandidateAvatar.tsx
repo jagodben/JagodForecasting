@@ -27,16 +27,7 @@ export const CandidateAvatar = ({ photo, name, size, fallback, ringParty }: Prop
   const ring = size >= 40 ? 2.5 : 2;
   const ringColor = ringParty ? RING_COLORS[ringParty] ?? '#808080' : undefined;
   const ringShadow = ringColor ? `0 0 0 ${ring}px ${ringColor}` : undefined;
-
-  // The no-photo fallback (party logo or letter badge) sits in an identically sized ringed
-  // circle, so rows with and without photos align to the same footprint.
-  if (!photo || failed) {
-    return (
-      <div style={{ width: size, height: size, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', boxShadow: ringShadow, overflow: 'hidden', flexShrink: 0 }}>
-        {fallback}
-      </div>
-    );
-  }
+  if (!photo || failed) return <>{fallback}</>;
 
   // Photos aren't links — sourcing is credited on the About page, and each image's
   // origin article is recorded in candidatePhotos.json.

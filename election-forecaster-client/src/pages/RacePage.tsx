@@ -315,9 +315,9 @@ const CandidatesList = ({ race }: { race: Race }) => (
       {race.candidates.map(candidate => {
         const partyLogo = getPartyLogo(candidate.party);
         const fallback = partyLogo ? (
-          <img src={partyLogo} alt={candidate.party} style={{ width: '30px', height: '30px', objectFit: 'contain', display: 'block' }} />
+          <img src={partyLogo} alt={candidate.party} style={{ width: '47px', height: '47px', objectFit: 'contain', display: 'block' }} />
         ) : (
-          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: getPartyColor(candidate.party), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px' }}>{candidate.party.charAt(0)}</div>
+          <div style={{ width: '47px', height: '47px', borderRadius: '50%', backgroundColor: getPartyColor(candidate.party), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px' }}>{candidate.party.charAt(0)}</div>
         );
         return (
           <div key={candidate.id} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0', borderBottom: '1px solid #eee' }}>
