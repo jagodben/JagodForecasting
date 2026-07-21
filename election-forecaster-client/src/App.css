@@ -230,6 +230,23 @@
   color: white;
 }
 
+/* On phones the header has no room beside the title — Polls/About move to the footer. */
+.site-footer__nav-mobile {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header__link {
+    display: none;
+  }
+
+  .site-footer__nav-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
 .dashboard-tabs {
   display: flex;
   gap: 4px;

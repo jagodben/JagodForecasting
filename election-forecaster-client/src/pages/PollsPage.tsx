@@ -16,7 +16,7 @@ const formatDate = (iso: string): string =>
 
 const formatDateShort = (iso: string): string => {
   const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
+  return `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
 const formatMargin = (margin: number): string => {
@@ -75,10 +75,10 @@ export const PollsPage = () => {
 
   const shown = selectedState ? tabPolls.filter(p => p.raceId.startsWith(selectedState)) : tabPolls;
 
-  const cell: React.CSSProperties = { padding: isDesktop ? '10px 12px' : '8px 6px', whiteSpace: 'nowrap' };
+  const cell: React.CSSProperties = { padding: isDesktop ? '10px 12px' : '7px 4px', whiteSpace: 'nowrap' };
 
   return (
-    <div style={{ backgroundColor: 'white', minHeight: '100vh', padding: '20px', maxWidth: '860px', margin: '0 auto' }}>
+    <div style={{ backgroundColor: 'white', minHeight: '100vh', padding: isDesktop ? '20px' : '12px', maxWidth: '860px', margin: '0 auto' }}>
       <nav className="breadcrumb" style={{ marginBottom: '20px' }}>
         <Link to="/">Map</Link>
         <span> / </span>
@@ -89,7 +89,7 @@ export const PollsPage = () => {
         <h1 style={{ margin: 0 }}>Polls</h1>
       </header>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
         {(['senate', 'house', 'governors'] as Chamber[]).map(c => (
           <button
             key={c}
@@ -143,22 +143,30 @@ export const PollsPage = () => {
       )}
 
       {shown.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '12.5px', tableLayout: isDesktop ? 'auto' : 'fixed' }}>
+          {!isDesktop && (
+            <colgroup>
+              <col style={{ width: '28%' }} />
+              <col style={{ width: '42%' }} />
+              <col style={{ width: '13%' }} />
+              <col style={{ width: '17%' }} />
+            </colgroup>
+          )}
           <thead>
             <tr style={{ borderBottom: '2px solid #e0e0e0', textAlign: 'left', color: '#555' }}>
               <th style={cell}>Race</th>
               <th style={cell}>Pollster</th>
               <th style={cell}>Date</th>
               {isDesktop && <th style={cell}>Sample</th>}
-              <th style={{ ...cell, textAlign: 'right', color: '#123f8f' }}>D</th>
-              <th style={{ ...cell, textAlign: 'right', color: '#9c150b' }}>R</th>
+              {isDesktop && <th style={{ ...cell, textAlign: 'right', color: '#123f8f' }}>D</th>}
+              {isDesktop && <th style={{ ...cell, textAlign: 'right', color: '#9c150b' }}>R</th>}
               <th style={{ ...cell, textAlign: 'right' }}>Margin</th>
             </tr>
           </thead>
           <tbody>
             {shown.map((poll, i) => (
               <tr key={`${poll.raceId}-${poll.pollster}-${poll.date}-${i}`} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={cell}>
+                <td style={{ ...cell, whiteSpace: isDesktop ? 'nowrap' : 'normal' }}>
                   <Link to={`/race/${poll.raceId}`} style={{ color: 'inherit', fontWeight: 500 }}>
                     {raceLabel(poll.raceId)}
                   </Link>
@@ -175,8 +183,8 @@ export const PollsPage = () => {
                     {poll.sampleSize ? `${poll.sampleSize.toLocaleString()}${poll.population ? ` ${poll.population}` : ''}` : '—'}
                   </td>
                 )}
-                <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#123f8f' }}>{poll.demPercent}%</td>
-                <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#9c150b' }}>{poll.repPercent}%</td>
+                {isDesktop && <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#123f8f' }}>{poll.demPercent}%</td>}
+                {isDesktop && <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#9c150b' }}>{poll.repPercent}%</td>}
                 <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: poll.margin > 0 ? '#123f8f' : poll.margin < 0 ? '#9c150b' : '#666' }}>
                   {formatMargin(poll.margin)}
                 </td>
