@@ -39,9 +39,10 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
     private static readonly TimeZoneInfo EasternZone = ResolveEastern();
     private const int SnapshotHourEastern = 8; // 8 AM Eastern
 
-    // Charts (and the retrospective history behind them) begin here; earlier snapshots exist in
-    // the DB but aren't shown. The served headline still uses the most recent snapshot regardless.
-    private static readonly DateTime ChartStartDate = new(2026, 7, 1);
+    // Charts (and the retrospective history behind them) begin here — the first day recorded on
+    // the persistent disk. Earlier rows exist in the DB but are reconstruction, not record, so
+    // they aren't shown. The served headline still uses the most recent snapshot regardless.
+    private static readonly DateTime ChartStartDate = new(2026, 7, 19);
 
     // Served forecasts change once a day, so cache them until the next 8 AM Eastern rather than a
     // short TTL; the snapshot job also clears the cache when it writes, so the new day shows at once.

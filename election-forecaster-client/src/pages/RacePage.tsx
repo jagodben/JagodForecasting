@@ -113,8 +113,8 @@ export const RacePage = () => {
     // Fall back to the fundamentals-only race forecast only if the blended forecast hasn't loaded.
     const demProbability = forecast?.demWinProbability ?? demForecastData?.winProbability ?? 0.5;
 
-    // Timeline starts July 1, 2026 (the server already floors history to this date).
-    const startDate = new Date('2026-07-01');
+    // Timeline starts July 19, 2026 — the first recorded day (the server floors history there too).
+    const startDate = new Date('2026-07-19');
     const historical: HistoricalOdds[] = (forecast?.history ?? [])
       .filter(h => new Date(h.date) >= startDate)
       .map(h => ({
