@@ -25,14 +25,14 @@ const fipsToState: Record<string, string> = {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#123f8f';
-    case RaceRating.LikelyDem: return '#2e63bd';
-    case RaceRating.LeanDem: return '#5a8fd6';
-    case RaceRating.TiltDem: return '#9dbff0';
-    case RaceRating.TiltRep: return '#f4aa9b';
-    case RaceRating.LeanRep: return '#e2694f';
-    case RaceRating.LikelyRep: return '#cf2f1a';
-    case RaceRating.SolidRep: return '#9c150b';
+    case RaceRating.SolidDem: return '#0044c9';
+    case RaceRating.LikelyDem: return '#2d65d3';
+    case RaceRating.LeanDem: return '#628cde';
+    case RaceRating.TiltDem: return '#a5bdec';
+    case RaceRating.TiltRep: return '#f7acaf';
+    case RaceRating.LeanRep: return '#f06a70';
+    case RaceRating.LikelyRep: return '#eb363d';
+    case RaceRating.SolidRep: return '#e81b23';
     default: return '#E0E0E0';
   }
 };
@@ -414,7 +414,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
       demProb,
       raceId: race.id,
       marginText: margin != null ? formatMargin(margin) : null,
-      marginColor: margin == null ? '#666' : margin > 0 ? '#123f8f' : margin < 0 ? '#9c150b' : '#666',
+      marginColor: margin == null ? '#666' : margin > 0 ? '#0044c9' : margin < 0 ? '#e81b23' : '#666',
     });
   };
 
@@ -601,7 +601,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
               const margin = detailedForecasts?.find(f => f.raceId === tooltipData.race?.id)?.expectedDemMargin;
               if (margin == null) return null;
               return (
-                <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap', color: margin > 0 ? '#123f8f' : margin < 0 ? '#9c150b' : '#666' }}>
+                <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap', color: margin > 0 ? '#0044c9' : margin < 0 ? '#e81b23' : '#666' }}>
                   {formatMargin(margin)}
                 </span>
               );
@@ -635,7 +635,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                   const isDemo = candidate?.party === 'Democrat';
                   return (
                     <div key={forecast.candidateId} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-                      <span style={{ color: isDemo ? '#123f8f' : '#9c150b', fontWeight: 500 }}>
+                      <span style={{ color: isDemo ? '#0044c9' : '#e81b23', fontWeight: 500 }}>
                         {isDemo ? 'D' : 'R'}: {forecast.candidateName}
                       </span>
                       <span style={{ fontWeight: 'bold' }}>{(forecast.winProbability * 100).toFixed(0)}%</span>

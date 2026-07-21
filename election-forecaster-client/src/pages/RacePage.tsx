@@ -18,8 +18,8 @@ interface HistoricalOdds {
 
 const getPartyColor = (party: Party): string => {
   switch (party) {
-    case Party.Democrat: return '#123f8f';
-    case Party.Republican: return '#9c150b';
+    case Party.Democrat: return '#0044c9';
+    case Party.Republican: return '#e81b23';
     case Party.Independent: return '#eab308';
     case Party.Libertarian: return '#FED105';
     case Party.Green: return '#17AA5C';
@@ -154,7 +154,7 @@ export const RacePage = () => {
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
   const demCandidate = race.candidates.find(c => c.id !== repCandidate?.id);
   // Challenger-side color: gold for a viable independent, blue for a Democrat.
-  const demColor = demCandidate ? getPartyColor(demCandidate.party) : '#123f8f';
+  const demColor = demCandidate ? getPartyColor(demCandidate.party) : '#0044c9';
 
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber, race.stateId);
@@ -178,7 +178,7 @@ export const RacePage = () => {
           <h1 style={{ margin: 0 }}>{stateName}</h1>
           <h2 style={{ margin: '4px 0 0', color: '#666', fontWeight: 'normal', fontSize: '1.15rem' }}>
             {raceTypeLabel} {race.year}
-            {race.isSpecialElection && <span style={{ marginLeft: '8px', color: '#dc2626' }}>(Special Election)</span>}
+            {race.isSpecialElection && <span style={{ marginLeft: '8px', color: '#e81b23' }}>(Special Election)</span>}
           </h2>
           {forecast && (
             <div style={{ fontSize: '12px', color: '#6b6b6b', marginTop: '6px' }}>
@@ -213,7 +213,7 @@ export const RacePage = () => {
                   <div style={{
                     fontSize: '30px',
                     fontWeight: 'bold',
-                    color: forecast.expectedDemMargin > 0 ? '#123f8f' : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666',
+                    color: forecast.expectedDemMargin > 0 ? '#0044c9' : forecast.expectedDemMargin < 0 ? '#e81b23' : '#666',
                   }}>
                     {formatMargin(forecast.expectedDemMargin)}
                   </div>
@@ -285,20 +285,20 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, forecast }: {
     <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: '38px', fontWeight: 'bold', color: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: demCandidate ? getPartyColor(demCandidate.party) : '#0044c9' }}>{(headDem * 100).toFixed(1)}%</div>
       </div>
       <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
-        <div style={{ width: `${headDem * 100}%`, backgroundColor: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demCandidate?.party === Party.Independent ? 'I' : 'D'}</div>
-        <div style={{ width: `${headRep * 100}%`, backgroundColor: '#9c150b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>R</div>
+        <div style={{ width: `${headDem * 100}%`, backgroundColor: demCandidate ? getPartyColor(demCandidate.party) : '#0044c9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demCandidate?.party === Party.Independent ? 'I' : 'D'}</div>
+        <div style={{ width: `${headRep * 100}%`, backgroundColor: '#e81b23', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>R</div>
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#9c150b' }}>{(headRep * 100).toFixed(1)}%</div>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: '#e81b23' }}>{(headRep * 100).toFixed(1)}%</div>
       </div>
     </div>
     {forecast && (
       <div style={{ textAlign: 'center', marginTop: '16px' }}>
         <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
-        <div style={{ fontSize: '24px', fontWeight: 'bold', color: forecast.expectedDemMargin > 0 ? '#123f8f' : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666' }}>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', color: forecast.expectedDemMargin > 0 ? '#0044c9' : forecast.expectedDemMargin < 0 ? '#e81b23' : '#666' }}>
           {formatMargin(forecast.expectedDemMargin)}
         </div>
       </div>
@@ -380,17 +380,17 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
           padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', marginBottom: '20px',
         }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#123f8f' }}>{avg.demPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#0044c9' }}>{avg.demPercent.toFixed(1)}%</div>
             <div style={{ fontSize: '12px', color: '#666' }}>{demName || 'Democrat'}</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: demLead ? '#123f8f' : '#9c150b' }}>
+            <div style={{ fontSize: '16px', fontWeight: 600, color: demLead ? '#0044c9' : '#e81b23' }}>
               {demLead ? 'D' : 'R'} +{Math.abs(avg.margin).toFixed(1)}
             </div>
             <div style={{ fontSize: '11px', color: '#6b6b6b' }}>avg. margin</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#9c150b' }}>{avg.repPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#e81b23' }}>{avg.repPercent.toFixed(1)}%</div>
             <div style={{ fontSize: '12px', color: '#666' }}>{repName || 'Republican'}</div>
           </div>
         </div>
@@ -404,8 +404,8 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
               <th style={{ padding: isDesktop ? '8px 12px 8px 0' : '6px 6px 6px 0' }}>Pollster</th>
               <th style={{ padding: isDesktop ? '8px 12px' : '6px' }}>Date</th>
               {isDesktop && <th style={{ padding: '8px 12px', textAlign: 'right' }}>Sample</th>}
-              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#123f8f' }}>D</th>
-              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#9c150b' }}>R</th>
+              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#0044c9' }}>D</th>
+              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#e81b23' }}>R</th>
               <th style={{ padding: isDesktop ? '8px 0 8px 12px' : '6px 0 6px 6px', textAlign: 'right' }}>Margin</th>
             </tr>
           </thead>
@@ -434,7 +434,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                   )}
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: leadD ? 'bold' : 'normal' }}>{poll.demPercent.toFixed(0)}%</td>
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: !leadD ? 'bold' : 'normal' }}>{poll.repPercent.toFixed(0)}%</td>
-                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: leadD ? '#123f8f' : '#9c150b', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: leadD ? '#0044c9' : '#e81b23', fontWeight: 600, whiteSpace: 'nowrap' }}>
                     {leadD ? 'D' : 'R'} +{Math.abs(poll.margin).toFixed(0)}
                   </td>
                 </tr>
@@ -455,7 +455,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
             cursor: 'pointer',
             fontSize: '13px',
             fontWeight: 600,
-            color: '#123f8f',
+            color: '#0044c9',
           }}
         >
           {expanded ? 'Show fewer ▲' : `Show ${hiddenCount} more poll${hiddenCount === 1 ? '' : 's'} ▼`}

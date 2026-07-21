@@ -6,13 +6,13 @@
 
 /* Visible keyboard-focus indicator, everywhere (mouse clicks don't trigger :focus-visible). */
 :focus-visible {
-  outline: 2px solid #123f8f;
+  outline: 2px solid #0044c9;
   outline-offset: 2px;
 }
 
 /* Map shapes set an inline outline:none (react-simple-maps default); win it back for keyboard. */
 .rsm-geography:focus-visible {
-  outline: 2px solid #123f8f !important;
+  outline: 2px solid #0044c9 !important;
   outline-offset: 1px;
 }
 
@@ -22,7 +22,7 @@
   left: -9999px;
   z-index: 2000;
   padding: 10px 16px;
-  background: #123f8f;
+  background: #0044c9;
   color: white;
   font-weight: 600;
   border-radius: 0 0 6px 0;

@@ -20,14 +20,14 @@ const stateToFips: Record<string, string> = {
 
 const getRatingColor = (rating: RaceRating): string => {
   switch (rating) {
-    case RaceRating.SolidDem: return '#123f8f';
-    case RaceRating.LikelyDem: return '#2e63bd';
-    case RaceRating.LeanDem: return '#5a8fd6';
-    case RaceRating.TiltDem: return '#9dbff0';
-    case RaceRating.TiltRep: return '#f4aa9b';
-    case RaceRating.LeanRep: return '#e2694f';
-    case RaceRating.LikelyRep: return '#cf2f1a';
-    case RaceRating.SolidRep: return '#9c150b';
+    case RaceRating.SolidDem: return '#0044c9';
+    case RaceRating.LikelyDem: return '#2d65d3';
+    case RaceRating.LeanDem: return '#628cde';
+    case RaceRating.TiltDem: return '#a5bdec';
+    case RaceRating.TiltRep: return '#f7acaf';
+    case RaceRating.LeanRep: return '#f06a70';
+    case RaceRating.LikelyRep: return '#eb363d';
+    case RaceRating.SolidRep: return '#e81b23';
     default: return '#E0E0E0';
   }
 };
@@ -369,7 +369,7 @@ const DistrictTooltipContent = ({ district, stateId }: DistrictTooltipContentPro
             const candidate = race.candidates.find(c => c.id === forecast.candidateId);
             const party = candidate?.party;
             // Color/letter by the candidate's actual party — a viable independent (gold "I") is neither D nor R.
-            const partyColor = party === 'Republican' ? '#9c150b' : party === 'Independent' ? '#b8860b' : '#123f8f';
+            const partyColor = party === 'Republican' ? '#e81b23' : party === 'Independent' ? '#b8860b' : '#0044c9';
             const partyLetter = party === 'Republican' ? 'R' : party === 'Independent' ? 'I' : 'D';
             return (
               <div key={forecast.candidateId} style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>

@@ -19,8 +19,8 @@ interface Props {
   pillScale?: number;
 }
 
-const DEM = '#123f8f';
-const REP = '#9c150b';
+const DEM = '#0044c9';
+const REP = '#e81b23';
 const INK = '#1f2937';
 const INK_MUTED = '#9aa0a6';
 
