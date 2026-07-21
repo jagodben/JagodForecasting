@@ -10,6 +10,7 @@ import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
 import { districtCode } from '../utils/districts';
 import { getCandidatePhoto } from '../utils/photos';
 import { CandidateAvatar } from '../components/CandidateAvatar';
+import { PartisanBadge } from '../components/PartisanBadge';
 
 interface HistoricalOdds {
   date: string;
@@ -418,11 +419,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                       break on phones — otherwise their unbreakable width forces the table to scroll. */}
                   <td style={{ padding: isDesktop ? '10px 12px 10px 0' : '8px 6px 8px 0', overflowWrap: isDesktop ? undefined : 'anywhere' }}>
                     {poll.pollster}
-                    {poll.isPartisan && (
-                      <span style={{ marginLeft: '6px', fontSize: '11px', color: '#b45309', backgroundColor: '#fef3c7', padding: '1px 6px', borderRadius: '4px' }}>
-                        partisan{poll.partisanLean ? ` (${poll.partisanLean})` : ''}
-                      </span>
-                    )}
+                    {poll.isPartisan && <PartisanBadge lean={poll.partisanLean} />}
                   </td>
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', color: '#666', whiteSpace: 'nowrap' }}>
                     {isDesktop ? formatPollDate(poll.date) : formatPollDateShort(poll.date)}

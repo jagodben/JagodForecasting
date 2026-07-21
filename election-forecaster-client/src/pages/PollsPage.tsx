@@ -4,6 +4,7 @@ import { forecastApi, statesApi } from '../services/api';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
 import { districtCode } from '../utils/districts';
+import { PartisanBadge } from '../components/PartisanBadge';
 
 type Chamber = 'senate' | 'house' | 'governors';
 
@@ -122,11 +123,7 @@ export const PollsPage = () => {
                 </td>
                 <td style={{ ...cell, whiteSpace: 'normal' }}>
                   {poll.pollster}
-                  {poll.isPartisan && (
-                    <span style={{ marginLeft: '6px', fontSize: '11px', color: '#b45309', backgroundColor: '#fef3c7', padding: '1px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
-                      partisan{poll.partisanLean ? ` (${poll.partisanLean})` : ''}
-                    </span>
-                  )}
+                  {poll.isPartisan && <PartisanBadge lean={poll.partisanLean} />}
                 </td>
                 <td style={{ ...cell, color: '#666' }}>
                   {isDesktop ? formatDate(poll.date) : formatDateShort(poll.date)}
