@@ -95,7 +95,7 @@ export const HomePage = () => {
       <header className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
           <h1 className="dashboard-title">2026 Election Forecast</h1>
-          <Link to="/polls" className="dashboard-header__link">Polls</Link>
+          <Link to="/polls" className="dashboard-header__link">All Polls</Link>
           <Link to="/methodology" className="dashboard-header__link">About</Link>
         </div>
         <div className="dashboard-tabs">
