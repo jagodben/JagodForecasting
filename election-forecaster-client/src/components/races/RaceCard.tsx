@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { getCandidatePhoto } from '../../utils/photos';
+import { CandidateAvatar } from '../CandidateAvatar';
 import { useNavigate } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
@@ -161,6 +163,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
       <div className="candidates" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {demCandidate && demProbability != null && (
           <CandidateRow
+            raceId={race.id}
             name={demCandidate.name}
             party={demCandidate.party}
             probability={demProbability}
@@ -168,6 +171,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
         )}
         {repCandidate && repProbability != null && (
           <CandidateRow
+            raceId={race.id}
             name={repCandidate.name}
             party={repCandidate.party}
             probability={repProbability}
@@ -201,12 +205,13 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
 };
 
 interface CandidateRowProps {
+  raceId: string;
   name: string;
   party: Party;
   probability: number;
 }
 
-const CandidateRow = ({ name, party, probability }: CandidateRowProps) => {
+const CandidateRow = ({ raceId, name, party, probability }: CandidateRowProps) => {
   const partyLabel = party === Party.Democrat ? 'D' : party === Party.Republican ? 'R' : 'I';
   const partyColor = getPartyColor(party);
   const percentage = (probability * 100).toFixed(0);
@@ -215,7 +220,7 @@ const CandidateRow = ({ name, party, probability }: CandidateRowProps) => {
     <div className="candidate-row">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{
+          <CandidateAvatar photo={getCandidatePhoto(raceId, name)} name={name} size={24} ringParty={party} fallback={<span style={{
             width: '24px',
             height: '24px',
             borderRadius: '50%',
@@ -228,7 +233,7 @@ const CandidateRow = ({ name, party, probability }: CandidateRowProps) => {
             fontWeight: 'bold',
           }}>
             {partyLabel}
-          </span>
+          </span>} />
           <span style={{ fontWeight: 500 }}>
             {name}
             {isTbdCandidate(name) && <span title={TBD_NOTE.slice(2)}>*</span>}
