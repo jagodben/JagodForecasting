@@ -28,7 +28,7 @@ export const AccessibilityToggle = () => {
         color: 'rgba(255,255,255,0.6)',
       }}
     >
-      <span>Accessibility</span>
+      <span className="accessibility-toggle__label">Accessibility</span>
       <span
         style={{
           width: 26,

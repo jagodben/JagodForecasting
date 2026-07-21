@@ -111,12 +111,14 @@ export const PollsPage = () => {
             {c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'}
           </button>
         ))}
+        {/* Mobile: break the flex row so the state filter starts at the left edge, under Senate */}
+        {!isDesktop && <div style={{ flexBasis: '100%', height: 0 }} />}
         <select
           value={selectedState}
           onChange={e => setParams(tab, e.target.value)}
           aria-label="Filter by state"
           style={{
-            marginLeft: 'auto',
+            marginLeft: isDesktop ? 'auto' : 0,
             padding: '6px 10px',
             borderRadius: '2px',
             border: '1px solid #d5d5d5',
