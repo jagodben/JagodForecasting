@@ -2,11 +2,11 @@ import { useState, ReactNode } from 'react';
 import { CandidatePhoto } from '../utils/photos';
 import { Party } from '../types';
 
-// Ring shades are the party-LOGO colors (sampled from democrat.png / republican.png) — a
-// deliberate exception to the site palette, used only on these circles.
+// Ring shades, used only on these circles: the Democrat ring borrows the logo blue (a
+// deliberate exception to the site palette); the Republican ring stays the site red.
 const RING_COLORS: Partial<Record<Party, string>> = {
   [Party.Democrat]: '#0044c9',
-  [Party.Republican]: '#e81b23',
+  [Party.Republican]: '#9c150b',
   [Party.Independent]: '#eab308',
   [Party.Libertarian]: '#FED105',
   [Party.Green]: '#17AA5C',
