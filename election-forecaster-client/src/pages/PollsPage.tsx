@@ -95,14 +95,17 @@ export const PollsPage = () => {
             key={c}
             onClick={() => setParams(c, stateParam)}
             style={{
-              padding: '7px 16px',
-              borderRadius: '8px',
+              padding: '8px 20px',
+              borderRadius: '2px',
               border: tab === c ? '1px solid #121212' : '1px solid #d5d5d5',
               backgroundColor: tab === c ? '#121212' : 'white',
               color: tab === c ? 'white' : '#333',
-              fontSize: '13px',
-              fontWeight: 600,
+              fontSize: '0.8rem',
+              fontWeight: tab === c ? 700 : 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
               cursor: 'pointer',
+              transition: 'all 0.2s ease',
             }}
           >
             {c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'}
@@ -115,7 +118,7 @@ export const PollsPage = () => {
           style={{
             marginLeft: 'auto',
             padding: '6px 10px',
-            borderRadius: '8px',
+            borderRadius: '2px',
             border: '1px solid #d5d5d5',
             backgroundColor: 'white',
             color: '#333',
