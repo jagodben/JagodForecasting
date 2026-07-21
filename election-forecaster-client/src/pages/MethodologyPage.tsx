@@ -31,8 +31,7 @@ export const MethodologyPage = () => {
         <Item label="Polls">recency- and sample-size-weighted average of public polls — including
           district-level House polls where they exist. Partisan-sponsored polls count at half weight,
           and each pollster&rsquo;s measured lean is corrected before averaging.</Item>
-        <Item label="Fundamentals">partisan lean (district-level for the House), past
-          results, and incumbency.</Item>
+        <Item label="Fundamentals">partisan lean, past results, and incumbency.</Item>
         <Item label="National environment">the generic congressional ballot average. House districts
           absorb only part of the national swing, matching how votes have translated into seats in
           recent cycles.</Item>

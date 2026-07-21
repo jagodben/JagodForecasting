@@ -67,7 +67,8 @@ public class ForecastController : ControllerBase
                 DemPercent = p.DemPercent,
                 RepPercent = p.RepPercent,
                 Margin = p.Margin,
-                IsPartisan = p.IsPartisan
+                IsPartisan = p.IsPartisan,
+                PartisanLean = p.PartisanLean
             }).ToList()
         });
     }
@@ -195,6 +196,37 @@ public class ForecastController : ControllerBase
     }
 
     /// <summary>
+    /// Every stored poll across all races, newest first — the data behind the Polls page.
+    /// Served straight from the DB (no scraping); rows accumulate as the daily refresh and
+    /// race-page visits fetch new polls from Wikipedia.
+    /// </summary>
+    [HttpGet("polls")]
+    [ProducesResponseType(typeof(List<SitePollDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<SitePollDto>>> GetAllPolls()
+    {
+        // Page cutoff: nothing conducted before May 2026.
+        var cutoff = new DateTime(2026, 5, 1);
+        var rows = await _dbContext.Polls.AsNoTracking()
+            .Where(p => p.Date >= cutoff)
+            .OrderByDescending(p => p.Date)
+            .ToListAsync();
+
+        return Ok(rows.Select(p => new SitePollDto
+        {
+            RaceId = p.RaceId,
+            Pollster = p.Pollster,
+            Date = p.Date,
+            SampleSize = p.SampleSize,
+            Population = p.Population,
+            DemPercent = p.DemPercent,
+            RepPercent = p.RepPercent,
+            Margin = p.DemPercent - p.RepPercent,
+            IsPartisan = p.Methodology != null && p.Methodology.StartsWith("Partisan"),
+            PartisanLean = Infrastructure.DataSources.Models.PollData.PartisanLeanOf(p.Methodology)
+        }).ToList());
+    }
+
+    /// <summary>
     /// Full dump of the persisted model state (history, chambers, ballot series, polls,
     /// overrides, settings) for the nightly offsite backup. Everything here is public data
     /// already served by other endpoints, just in one restorable document.
@@ -312,4 +344,11 @@ public class PollDto
     public double RepPercent { get; set; }
     public double Margin { get; set; }
     public bool IsPartisan { get; set; }
+    public string? PartisanLean { get; set; }
+}
+
+/// <summary>A poll row on the all-polls page: PollDto plus which race it belongs to.</summary>
+public class SitePollDto : PollDto
+{
+    public string RaceId { get; set; } = "";
 }

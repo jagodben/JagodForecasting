@@ -453,11 +453,19 @@ public partial class WikipediaPollingClient : IPollingSource
     private static bool EndsWithParty(string header, char party) =>
         Regex.IsMatch(header, $@"\({party}\)\s*$");
 
-    /// <summary>Splits "Quantus Insights (R)" into ("Quantus Insights", "R"); non-partisan → (name, null).</summary>
+    /// <summary>
+    /// Splits "Quantus Insights (R)" into ("Quantus Insights", "R"); non-partisan → (name, null).
+    /// A D/R pollster pair ("Beacon Research (D)/Shaw &amp; Co. Research (R)" — the bipartisan
+    /// teams outlets like Fox commission) is not a partisan poll: both parties are in the room,
+    /// so it keeps full weight and no tag.
+    /// </summary>
     private static (string Name, string? Partisan) SplitPartisan(string pollster)
     {
         var m = Regex.Match(pollster, @"^(.*?)\s*\(([DRI])(?:-[^)]*)?\)\s*$");
-        return m.Success ? (m.Groups[1].Value.Trim(), m.Groups[2].Value) : (pollster.Trim(), null);
+        if (!m.Success) return (pollster.Trim(), null);
+        if (Regex.IsMatch(m.Groups[1].Value, @"\([DRI]\)"))
+            return (m.Groups[1].Value.Trim(), null);
+        return (m.Groups[1].Value.Trim(), m.Groups[2].Value);
     }
 
     private static double? ParsePercent(string cell)
@@ -642,12 +650,19 @@ public partial class WikipediaPollingClient : IPollingSource
     {
         foreach (var poll in polls)
         {
-            var exists = await _dbContext.Polls.AnyAsync(p =>
+            var existing = await _dbContext.Polls.FirstOrDefaultAsync(p =>
                 p.RaceId == poll.RaceId &&
                 p.Pollster == poll.Pollster &&
                 p.Date == poll.Date, cancellationToken);
 
-            if (!exists)
+            if (existing != null)
+            {
+                // Parser improvements can reread a stored poll's tags (e.g. a bipartisan
+                // pollster pair losing its bogus "Partisan (R)") — keep the row current.
+                if (existing.Methodology != poll.Methodology)
+                    existing.Methodology = poll.Methodology;
+            }
+            else
             {
                 _dbContext.Polls.Add(new PollEntity
                 {
