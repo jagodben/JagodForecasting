@@ -8,6 +8,8 @@ import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { useIsDesktop } from '../utils/useMediaQuery';
 import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
 import { districtCode } from '../utils/districts';
+import { getCandidatePhoto } from '../utils/photos';
+import { CandidateAvatar } from '../components/CandidateAvatar';
 
 interface HistoricalOdds {
   date: string;
@@ -312,13 +314,16 @@ const CandidatesList = ({ race }: { race: Race }) => (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       {race.candidates.map(candidate => {
         const partyLogo = getPartyLogo(candidate.party);
+        const fallback = partyLogo ? (
+          <img src={partyLogo} alt={candidate.party} style={{ width: '42px', height: '42px', objectFit: 'contain', display: 'block' }} />
+        ) : (
+          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: getPartyColor(candidate.party), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px' }}>{candidate.party.charAt(0)}</div>
+        );
         return (
-          <div key={candidate.id} style={{ display: 'flex', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #eee' }}>
-            {partyLogo ? (
-              <img src={partyLogo} alt={candidate.party} style={{ width: '42px', height: '42px', objectFit: 'contain', marginRight: '14px', flexShrink: 0 }} />
-            ) : (
-              <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: getPartyColor(candidate.party), color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px', marginRight: '14px', flexShrink: 0 }}>{candidate.party.charAt(0)}</div>
-            )}
+          <div key={candidate.id} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0', borderBottom: '1px solid #eee' }}>
+            <div style={{ flexShrink: 0 }}>
+              <CandidateAvatar photo={getCandidatePhoto(race.id, candidate.name)} name={candidate.name} size={42} fallback={fallback} link />
+            </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', fontSize: '17px' }}>
                 {candidate.name}
