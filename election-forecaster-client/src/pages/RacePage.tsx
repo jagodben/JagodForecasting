@@ -322,7 +322,7 @@ const CandidatesList = ({ race }: { race: Race }) => (
         return (
           <div key={candidate.id} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0', borderBottom: '1px solid #eee' }}>
             <div style={{ flexShrink: 0 }}>
-              <CandidateAvatar photo={getCandidatePhoto(race.id, candidate.name)} name={candidate.name} size={42} fallback={fallback} link ringColor={getPartyColor(candidate.party)} />
+              <CandidateAvatar photo={getCandidatePhoto(race.id, candidate.name)} name={candidate.name} size={42} fallback={fallback} ringColor={getPartyColor(candidate.party)} />
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 'bold', fontSize: '17px' }}>

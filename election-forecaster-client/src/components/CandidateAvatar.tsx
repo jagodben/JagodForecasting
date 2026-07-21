@@ -9,35 +9,22 @@ interface Props {
   ringColor?: string;
   // Rendered when there is no photo (or it fails to load): the existing party logo/letter.
   fallback: ReactNode;
-  // Wrap the photo in its Wikipedia attribution link (skip inside clickable cards).
-  link?: boolean;
 }
 
-export const CandidateAvatar = ({ photo, name, size, fallback, link = false, ringColor }: Props) => {
+export const CandidateAvatar = ({ photo, name, size, fallback, ringColor }: Props) => {
   const [failed, setFailed] = useState(false);
   const ring = size >= 40 ? 2.5 : 2;
   const ringShadow = ringColor ? `0 0 0 ${ring}px ${ringColor}` : undefined;
   if (!photo || failed) return <>{fallback}</>;
 
-  const img = (
+  // Photos aren't links — sourcing is credited on the About page, and each image's
+  // origin article is recorded in candidatePhotos.json.
+  return (
     <img
       src={photo.photo}
       alt={name}
       onError={() => setFailed(true)}
       style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', display: 'block', backgroundColor: '#f0f0f0', boxShadow: ringShadow }}
     />
-  );
-
-  if (!link) return img;
-  return (
-    <a
-      href={photo.page}
-      target="_blank"
-      rel="noopener noreferrer"
-      title={`${name} — photo via Wikipedia`}
-      style={{ flexShrink: 0, lineHeight: 0 }}
-    >
-      {img}
-    </a>
   );
 };
