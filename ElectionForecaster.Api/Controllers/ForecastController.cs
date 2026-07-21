@@ -2,6 +2,8 @@ using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Core.Models;
 using ElectionForecaster.Infrastructure.Data;
+using ElectionForecaster.Infrastructure.DataSources.Polling;
+using Microsoft.Extensions.Caching.Memory;
 using ElectionForecaster.Infrastructure.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
@@ -196,6 +198,38 @@ public class ForecastController : ControllerBase
     }
 
     /// <summary>
+    /// The generic congressional ballot: the current per-aggregator breakdown (RCP, Silver
+    /// Bulletin, ...) plus the daily average series the model consumes. Aggregates are cached
+    /// in the shared memory cache for 6 hours, so the polls page can't hammer Wikipedia.
+    /// </summary>
+    [HttpGet("generic-ballot")]
+    [ProducesResponseType(typeof(GenericBallotView), StatusCodes.Status200OK)]
+    public async Task<ActionResult<GenericBallotView>> GetGenericBallot(
+        [FromServices] WikipediaGenericBallotClient ballotClient,
+        [FromServices] IMemoryCache cache)
+    {
+        var aggregates = await cache.GetOrCreateAsync("generic-ballot-aggregates", async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(6);
+            return await ballotClient.GetAggregatesAsync();
+        }) ?? new List<WikipediaGenericBallotClient.BallotAggregate>();
+
+        var history = await _dbContext.GenericBallot.AsNoTracking()
+            .OrderByDescending(g => g.Date)
+            .Select(g => new GenericBallotDay { Date = g.Date, DemPercent = g.DemPercent, RepPercent = g.RepPercent })
+            .ToListAsync();
+
+        return Ok(new GenericBallotView
+        {
+            Aggregates = aggregates.Select(a => new GenericBallotAggregateDto
+            {
+                Source = a.Source, DemPercent = a.DemPercent, RepPercent = a.RepPercent
+            }).ToList(),
+            History = history
+        });
+    }
+
+    /// <summary>
     /// Every stored poll across all races, newest first — the data behind the Polls page.
     /// Served straight from the DB (no scraping); rows accumulate as the daily refresh and
     /// race-page visits fetch new polls from Wikipedia.
@@ -348,4 +382,25 @@ public class PollDto
 public class SitePollDto : PollDto
 {
     public string RaceId { get; set; } = "";
+}
+
+/// <summary>The polls page's generic-ballot tab: aggregator breakdown + daily model input.</summary>
+public class GenericBallotView
+{
+    public List<GenericBallotAggregateDto> Aggregates { get; set; } = new();
+    public List<GenericBallotDay> History { get; set; } = new();
+}
+
+public class GenericBallotAggregateDto
+{
+    public string Source { get; set; } = "";
+    public double DemPercent { get; set; }
+    public double RepPercent { get; set; }
+}
+
+public class GenericBallotDay
+{
+    public DateTime Date { get; set; }
+    public double DemPercent { get; set; }
+    public double RepPercent { get; set; }
 }

@@ -6,7 +6,7 @@ import { useIsDesktop } from '../utils/useMediaQuery';
 import { districtCode } from '../utils/districts';
 import { PartisanBadge } from '../components/PartisanBadge';
 
-type Chamber = 'senate' | 'house' | 'governors';
+type Chamber = 'senate' | 'house' | 'governors' | 'ballot';
 
 const chamberOf = (raceId: string): Chamber =>
   raceId.includes('-SEN') ? 'senate' : raceId.includes('-GOV') ? 'governors' : 'house';
@@ -34,7 +34,7 @@ export const PollsPage = () => {
   // Active chamber lives in the URL so back-navigation and shared links keep the tab.
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const tab: Chamber = tabParam === 'house' || tabParam === 'governors' ? tabParam : 'senate';
+  const tab: Chamber = tabParam === 'house' || tabParam === 'governors' || tabParam === 'ballot' ? tabParam : 'senate';
 
   const { data: polls, isLoading } = useQuery({
     queryKey: ['allPolls'],
@@ -44,6 +44,12 @@ export const PollsPage = () => {
   const { data: states } = useQuery({
     queryKey: ['states'],
     queryFn: statesApi.getAll,
+  });
+
+  const { data: ballot, isLoading: ballotLoading } = useQuery({
+    queryKey: ['genericBallot'],
+    queryFn: forecastApi.getGenericBallot,
+    enabled: tab === 'ballot',
   });
 
   const stateName = (id: string) => states?.find(s => s.id === id)?.name ?? id;
@@ -57,7 +63,7 @@ export const PollsPage = () => {
     return districtCode(stateId, district);
   };
 
-  const counts: Record<Chamber, number> = { senate: 0, house: 0, governors: 0 };
+  const counts: Record<Chamber, number> = { senate: 0, house: 0, governors: 0, ballot: 0 };
   (polls ?? []).forEach(p => { counts[chamberOf(p.raceId)]++; });
   const shown = (polls ?? []).filter(p => chamberOf(p.raceId) === tab);
 
@@ -80,27 +86,89 @@ export const PollsPage = () => {
       </header>
 
       <div className="dashboard-tabs" style={{ marginBottom: '16px' }}>
-        {(['senate', 'house', 'governors'] as Chamber[]).map(c => (
+        {(['senate', 'house', 'governors', 'ballot'] as Chamber[]).map(c => (
           <button
             key={c}
             onClick={() => setSearchParams(c === 'senate' ? {} : { tab: c }, { replace: true })}
             className={`dashboard-tab ${tab === c ? 'dashboard-tab--active' : ''}`}
             style={{ color: tab === c ? undefined : '#333' }}
           >
-            {c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'} ({counts[c]})
+            {c === 'ballot' ? 'Generic ballot'
+              : `${c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'} (${counts[c]})`}
           </button>
         ))}
       </div>
 
-      {isLoading && (
+      {tab === 'ballot' && (
+        <div>
+          <p style={{ margin: '0 0 16px 0', color: '#555', fontSize: '14px' }}>
+            The national generic congressional ballot — the model&rsquo;s measure of the national
+            environment. Wikipedia&rsquo;s aggregator table, averaged into the daily value the model uses.
+          </p>
+          {ballotLoading && <div className="loading-container"><div className="spinner" /></div>}
+          {ballot && (
+            <>
+              <h3 style={{ margin: '8px 0' }}>Current aggregator averages</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px', marginBottom: '24px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e0e0e0', textAlign: 'left', color: '#555' }}>
+                    <th style={cell}>Aggregator</th>
+                    <th style={{ ...cell, textAlign: 'right', color: '#123f8f' }}>D</th>
+                    <th style={{ ...cell, textAlign: 'right', color: '#9c150b' }}>R</th>
+                    <th style={{ ...cell, textAlign: 'right' }}>Margin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ballot.aggregates.map(a => (
+                    <tr key={a.source} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ ...cell, whiteSpace: 'normal', fontWeight: 500 }}>{a.source}</td>
+                      <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#123f8f' }}>{a.demPercent.toFixed(1)}%</td>
+                      <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#9c150b' }}>{a.repPercent.toFixed(1)}%</td>
+                      <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: a.demPercent - a.repPercent > 0 ? '#123f8f' : '#9c150b' }}>
+                        {formatMargin(a.demPercent - a.repPercent)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <h3 style={{ margin: '8px 0' }}>Daily average used by the model</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e0e0e0', textAlign: 'left', color: '#555' }}>
+                    <th style={cell}>Date</th>
+                    <th style={{ ...cell, textAlign: 'right', color: '#123f8f' }}>D</th>
+                    <th style={{ ...cell, textAlign: 'right', color: '#9c150b' }}>R</th>
+                    <th style={{ ...cell, textAlign: 'right' }}>Margin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ballot.history.map(d => (
+                    <tr key={d.date} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={{ ...cell, color: '#666' }}>{isDesktop ? formatDate(d.date) : formatDateShort(d.date)}</td>
+                      <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#123f8f' }}>{d.demPercent.toFixed(1)}%</td>
+                      <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#9c150b' }}>{d.repPercent.toFixed(1)}%</td>
+                      <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: d.demPercent - d.repPercent > 0 ? '#123f8f' : '#9c150b' }}>
+                        {formatMargin(d.demPercent - d.repPercent)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+      )}
+
+      {tab !== 'ballot' && isLoading && (
         <div className="loading-container"><div className="spinner" /></div>
       )}
 
-      {!isLoading && shown.length === 0 && (
+      {tab !== 'ballot' && !isLoading && shown.length === 0 && (
         <div style={{ color: '#6b6b6b', padding: '24px 0' }}>No polls collected for this chamber yet.</div>
       )}
 
-      {shown.length > 0 && (
+      {tab !== 'ballot' && shown.length > 0 && (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: isDesktop ? '14px' : '13px' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #e0e0e0', textAlign: 'left', color: '#555' }}>

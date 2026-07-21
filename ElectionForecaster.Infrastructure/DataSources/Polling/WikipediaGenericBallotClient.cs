@@ -112,7 +112,20 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
 
     // ---- Fetch + parse -----------------------------------------------------
 
-    private async Task<(double DemPercent, double RepPercent, int Count)?> FetchAndParseAsync(CancellationToken cancellationToken)
+    /// <summary>One aggregator's current average (RCP, Silver Bulletin, ...).</summary>
+    public sealed record BallotAggregate(string Source, double DemPercent, double RepPercent);
+
+    /// <summary>
+    /// The individual aggregator rows behind the average — fetched fresh (the caller caches;
+    /// this client's own state is per-request).
+    /// </summary>
+    public async Task<List<BallotAggregate>> GetAggregatesAsync(CancellationToken cancellationToken = default)
+    {
+        var parsed = await FetchAndParseAsync(cancellationToken);
+        return parsed?.Rows ?? new List<BallotAggregate>();
+    }
+
+    private async Task<(double DemPercent, double RepPercent, int Count, List<BallotAggregate> Rows)?> FetchAndParseAsync(CancellationToken cancellationToken)
     {
         var url = $"{ApiBase}?action=parse&prop=wikitext&formatversion=2&redirects=1&format=json&page={Uri.EscapeDataString(PageTitle)}";
         var json = await _httpClient.GetStringAsync(url, cancellationToken);
@@ -140,6 +153,7 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
 
         var demVals = new List<double>();
         var repVals = new List<double>();
+        var aggregates = new List<BallotAggregate>();
         foreach (var row in rows)
         {
             if (row.Any(c => c.IsHeader)) continue;
@@ -148,7 +162,8 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
 
             // The final "Average" row is colspan-merged (misaligned) — skip it and average the
             // individual aggregators ourselves.
-            if (CleanWikiText(cells[0]).Equals("Average", StringComparison.OrdinalIgnoreCase)) continue;
+            var source = CleanWikiText(cells[0]);
+            if (source.Equals("Average", StringComparison.OrdinalIgnoreCase)) continue;
             if (cells.Count <= Math.Max(demCol, repCol)) continue;
 
             var dem = ParsePercent(cells[demCol]);
@@ -157,10 +172,11 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
 
             demVals.Add(dem.Value);
             repVals.Add(rep.Value);
+            aggregates.Add(new BallotAggregate(source, dem.Value, rep.Value));
         }
 
         if (demVals.Count == 0) return null;
-        return (demVals.Average(), repVals.Average(), demVals.Count);
+        return (demVals.Average(), repVals.Average(), demVals.Count, aggregates);
     }
 
     private async Task SaveToDbAsync(double demPercent, double repPercent, CancellationToken cancellationToken)
