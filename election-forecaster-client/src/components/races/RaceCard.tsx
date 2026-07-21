@@ -220,7 +220,7 @@ const CandidateRow = ({ raceId, name, party, probability }: CandidateRowProps) =
     <div className="candidate-row">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <CandidateAvatar photo={getCandidatePhoto(raceId, name)} name={name} size={24} fallback={<span style={{
+          <CandidateAvatar photo={getCandidatePhoto(raceId, name)} name={name} size={24} ringColor={partyColor} fallback={<span style={{
             width: '24px',
             height: '24px',
             borderRadius: '50%',
