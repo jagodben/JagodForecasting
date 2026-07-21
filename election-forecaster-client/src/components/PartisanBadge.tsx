@@ -7,7 +7,7 @@ export const PartisanBadge = ({ lean }: { lean?: string }) => {
     { color: '#b45309', backgroundColor: '#fef3c7' };
   return (
     <span style={{ marginLeft: '6px', fontSize: '11px', padding: '1px 6px', borderRadius: '4px', whiteSpace: 'nowrap', ...tint }}>
-      partisan{lean ? ` (${lean})` : ''}
+      partisan
     </span>
   );
 };
