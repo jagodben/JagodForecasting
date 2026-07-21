@@ -27,16 +27,24 @@ export const CandidateAvatar = ({ photo, name, size, fallback, ringParty }: Prop
   const ring = size >= 40 ? 2.5 : 2;
   const ringColor = ringParty ? RING_COLORS[ringParty] ?? '#808080' : undefined;
   const ringShadow = ringColor ? `0 0 0 ${ring}px ${ringColor}` : undefined;
-  if (!photo || failed) return <>{fallback}</>;
+
+  // The ring is a box-shadow, which paints outside the layout box — so both branches get a
+  // true outer-sized box (photo + ring) and rows align regardless of which one renders.
+  const outer = size + 2 * ring;
+  const box: React.CSSProperties = { width: outer, height: outer, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
+
+  if (!photo || failed) return <div style={box}>{fallback}</div>;
 
   // Photos aren't links — sourcing is credited on the About page, and each image's
   // origin article is recorded in candidatePhotos.json.
   return (
-    <img
-      src={photo.photo}
-      alt={name}
-      onError={() => setFailed(true)}
-      style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', display: 'block', backgroundColor: '#f0f0f0', boxShadow: ringShadow }}
-    />
+    <div style={box}>
+      <img
+        src={photo.photo}
+        alt={name}
+        onError={() => setFailed(true)}
+        style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', display: 'block', backgroundColor: '#f0f0f0', boxShadow: ringShadow }}
+      />
+    </div>
   );
 };
