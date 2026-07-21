@@ -213,15 +213,17 @@
   letter-spacing: -0.02em;
 }
 
-/* Quiet nav link beside the title (Polls) — visibly not one of the view tabs. */
+/* Quiet nav links beside the title (Polls/About) — visibly not the view tabs. The small
+   nudge optically aligns their baseline with the serif headline's. */
 .dashboard-header__link {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.65);
   text-decoration: none;
   transition: color 0.2s ease;
+  position: relative;
+  top: 2px;
 }
 
 .dashboard-header__link:hover {
