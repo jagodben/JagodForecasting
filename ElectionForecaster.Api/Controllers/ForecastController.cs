@@ -204,7 +204,10 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(typeof(List<SitePollDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<SitePollDto>>> GetAllPolls()
     {
+        // Page cutoff: nothing conducted before May 2026.
+        var cutoff = new DateTime(2026, 5, 1);
         var rows = await _dbContext.Polls.AsNoTracking()
+            .Where(p => p.Date >= cutoff)
             .OrderByDescending(p => p.Date)
             .ToListAsync();
 

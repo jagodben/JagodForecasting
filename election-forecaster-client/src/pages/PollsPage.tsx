@@ -56,8 +56,6 @@ export const PollsPage = () => {
     return districtCode(stateId, district);
   };
 
-  const counts: Record<Chamber, number> = { senate: 0, house: 0, governors: 0 };
-  (polls ?? []).forEach(p => { counts[chamberOf(p.raceId)]++; });
   const shown = (polls ?? []).filter(p => chamberOf(p.raceId) === tab);
 
   const cell: React.CSSProperties = { padding: isDesktop ? '10px 12px' : '8px 6px', whiteSpace: 'nowrap' };
@@ -74,15 +72,23 @@ export const PollsPage = () => {
         <h1 style={{ margin: 0 }}>Polls</h1>
       </header>
 
-      <div className="dashboard-tabs" style={{ marginBottom: '16px' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         {(['senate', 'house', 'governors'] as Chamber[]).map(c => (
           <button
             key={c}
             onClick={() => setSearchParams(c === 'senate' ? {} : { tab: c }, { replace: true })}
-            className={`dashboard-tab ${tab === c ? 'dashboard-tab--active' : ''}`}
-            style={{ color: tab === c ? undefined : '#333' }}
+            style={{
+              padding: '7px 16px',
+              borderRadius: '8px',
+              border: tab === c ? '1px solid #121212' : '1px solid #d5d5d5',
+              backgroundColor: tab === c ? '#121212' : 'white',
+              color: tab === c ? 'white' : '#333',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
           >
-            {c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'} ({counts[c]})
+            {c === 'senate' ? 'Senate' : c === 'house' ? 'House' : 'Governors'}
           </button>
         ))}
       </div>
