@@ -2,6 +2,11 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* If any page's content is ever wider than the viewport, grow the shell with it so the
+     header and footer bars paint across the whole scrollable width instead of stopping at
+     the viewport edge (normal wrapped text has a small min-content, so this is inert when
+     nothing overflows). */
+  min-width: fit-content;
 }
 
 /* Visible keyboard-focus indicator, everywhere (mouse clicks don't trigger :focus-visible). */
