@@ -213,6 +213,21 @@
   letter-spacing: -0.02em;
 }
 
+/* Quiet nav link beside the title (Polls) — visibly not one of the view tabs. */
+.dashboard-header__link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.dashboard-header__link:hover {
+  color: white;
+}
+
 .dashboard-tabs {
   display: flex;
   gap: 4px;

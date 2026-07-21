@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { statesApi, racesApi } from '../services/api';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { RaceMap, SelectedStateData, getRatingColor, getRatingLabel } from '../components/maps/RaceMap';
 import { USDistrictMap, SelectedDistrictData } from '../components/maps/USDistrictMap';
 import { ChamberForecast } from '../components/forecast/ChamberForecast';
@@ -93,7 +93,10 @@ export const HomePage = () => {
     <div className="dashboard">
       {/* Header row */}
       <header className="dashboard-header">
-        <h1 className="dashboard-title">2026 Election Forecast</h1>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px' }}>
+          <h1 className="dashboard-title">2026 Election Forecast</h1>
+          <Link to="/polls" className="dashboard-header__link">Polls</Link>
+        </div>
         <div className="dashboard-tabs">
           {(['senate', 'house', 'governors'] as MapView[]).map((view) => (
             <button
