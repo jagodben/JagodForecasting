@@ -18,6 +18,8 @@ import urllib.parse
 import urllib.request
 
 import certifi
+from PIL import Image
+from io import BytesIO
 
 # The bundled Windows cert store trips on Wikipedia's chain; certifi's bundle doesn't.
 SSL_CTX = ssl.create_default_context(cafile=certifi.where())
@@ -26,6 +28,8 @@ API = "http://localhost:5000/api"
 WIKI = "https://en.wikipedia.org/w/api.php"
 WIKIDATA = "https://www.wikidata.org/w/api.php"
 OUT = "election-forecaster-client/src/data/candidatePhotos.json"
+IMG_DIR = "election-forecaster-client/public/candidates"
+AVATAR_PX = 84  # 2x the largest render size (42px), cover-cropped square
 THUMB = 256
 HEADERS = {"User-Agent": "JagodForecasting/1.0 (candidate photo mapping; jagodben@gmail.com)"}
 PLACEHOLDER_PREFIXES = ("TBD ", "Democratic Nominee", "Republican Nominee")
@@ -35,6 +39,38 @@ def get(url):
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=60, context=SSL_CTX if url.startswith("https") else None) as r:
         return json.load(r)
+
+
+def get_bytes(url, attempts=4):
+    for i in range(attempts):
+        try:
+            req = urllib.request.Request(url, headers=HEADERS)
+            with urllib.request.urlopen(req, timeout=60, context=SSL_CTX) as r:
+                return r.read()
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and i < attempts - 1:
+                time.sleep(45 * (i + 1))  # back off politely; Wikimedia rate-limits bursts
+                continue
+            raise
+
+
+def slugify(race_id, name):
+    keep = "".join(ch if ch.isalnum() else "-" for ch in f"{race_id}-{name}".lower())
+    while "--" in keep:
+        keep = keep.replace("--", "-")
+    return keep.strip("-")
+
+
+def save_avatar(url, path):
+    """Downloads the Wikimedia thumb and writes an AVATAR_PX cover-cropped square WebP —
+    Lanczos-resized here so the browser never has to downscale a 250px+ source into a
+    42px circle (its fast path aliases badly, especially at page zoom)."""
+    img = Image.open(BytesIO(get_bytes(url))).convert("RGB")
+    w, h = img.size
+    side = min(w, h)
+    img = img.crop(((w - side) // 2, max(0, (h - side) // 4), (w - side) // 2 + side, max(0, (h - side) // 4) + side))
+    img = img.resize((AVATAR_PX, AVATAR_PX), Image.LANCZOS)
+    img.save(path, "WEBP", quality=82)
 
 
 def wiki_query(params):
@@ -130,14 +166,37 @@ def main():
     if dropped:
         print(f"rejected {len(dropped)} non-person matches, e.g.: {dropped[:6]}")
 
+    os.makedirs(IMG_DIR, exist_ok=True)
     photos = {}
+    failures = 0
+    saved_by_name = {}
     for race_id, name in candidates:
-        if name in resolved:
-            thumb, title, _ = resolved[name]
-            photos[f"{race_id}|{name}"] = {
-                "photo": thumb,
-                "page": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(title.replace(" ", "_")),
-            }
+        if name not in resolved:
+            continue
+        thumb, title, _ = resolved[name]
+        slug = slugify(race_id, name)
+        path = os.path.join(IMG_DIR, f"{slug}.webp")
+        try:
+            # one download per unique person; copy for repeat names in other races
+            if name in saved_by_name:
+                import shutil
+                shutil.copyfile(saved_by_name[name], path)
+            elif not os.path.exists(path):
+                save_avatar(thumb, path)
+                saved_by_name[name] = path
+                time.sleep(1.0)
+            else:
+                saved_by_name.setdefault(name, path)
+        except Exception as e:
+            failures += 1
+            print(f"  avatar failed for {name}: {e}")
+            continue
+        photos[f"{race_id}|{name}"] = {
+            "photo": f"/candidates/{slug}.webp",
+            "page": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(title.replace(" ", "_")),
+        }
+    if failures:
+        print(f"{failures} avatar downloads failed (left as fallback)")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
