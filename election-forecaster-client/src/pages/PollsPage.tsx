@@ -54,11 +54,10 @@ export const PollsPage = () => {
 
   const stateName = (id: string) => states?.find(s => s.id === id)?.name ?? id;
 
-  // Race column label: "Michigan Senate", "Ohio Governor", or the district code "OH-01".
+  // Race column label: the state name (chamber's implied by the tab), or the district code "OH-01".
   const raceLabel = (raceId: string): string => {
     const stateId = raceId.slice(0, 2);
-    if (raceId.includes('-SEN')) return `${stateName(stateId)} Senate`;
-    if (raceId.includes('-GOV')) return `${stateName(stateId)} Governor`;
+    if (raceId.includes('-SEN') || raceId.includes('-GOV')) return stateName(stateId);
     const district = parseInt(raceId.split('-')[1], 10);
     return districtCode(stateId, district);
   };
@@ -78,11 +77,7 @@ export const PollsPage = () => {
       </nav>
 
       <header style={{ marginBottom: '16px' }}>
-        <h1 style={{ margin: '0 0 6px 0' }}>Polls</h1>
-        <p style={{ margin: 0, color: '#555555', fontSize: '14px' }}>
-          Every poll the site has collected from Wikipedia, newest first. New polls appear here
-          as the daily refresh finds them.
-        </p>
+        <h1 style={{ margin: 0 }}>Polls</h1>
       </header>
 
       <div className="dashboard-tabs" style={{ marginBottom: '16px' }}>
