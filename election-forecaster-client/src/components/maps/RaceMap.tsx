@@ -89,12 +89,14 @@ const hasIndependentChallenger = (race: Race | null | undefined): boolean =>
   race?.candidates.some(c => c.party === Party.Independent) ?? false;
 
 // Projected-result label + color for a race's expected Dem margin (points): D+/R+, or I+ (gold) when
-// a viable independent is the one ahead. e.g. +5.3 → "D+5.3", -3 → "R+3", 0 → "EVEN".
+// a viable independent is the one ahead. e.g. +5.3 → "D+5.3", -3 → "R+3". Always assigns a
+// winner — a margin that rounds to zero shows as 0.1 on the true side rather than "EVEN".
 const marginLabel = (margin: number, independentChallenger: boolean): { text: string; color: string } => {
   const rounded = Math.round(margin * 10) / 10;
-  if (rounded === 0) return { text: 'EVEN', color: '#666' };
-  const num = Number.isInteger(Math.abs(rounded)) ? Math.abs(rounded).toString() : Math.abs(rounded).toFixed(1);
-  if (rounded > 0) {
+  const demLeads = rounded !== 0 ? rounded > 0 : margin >= 0;
+  const absVal = Math.max(Math.abs(rounded), 0.1);
+  const num = Number.isInteger(absVal) ? absVal.toString() : absVal.toFixed(1);
+  if (demLeads) {
     return independentChallenger ? { text: `I+${num}`, color: '#b8860b' } : { text: `D+${num}`, color: '#123f8f' };
   }
   return { text: `R+${num}`, color: '#9c150b' };

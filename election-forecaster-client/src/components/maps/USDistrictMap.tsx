@@ -51,13 +51,15 @@ const getRatingLabel = (rating: RaceRating): string => {
   }
 };
 
-// Formats a Dem margin (points) as a called result, e.g. +5.3 → "D+5.3", -3 → "R+3", 0 → "EVEN".
+// Formats a Dem margin (points) as a called result, e.g. +5.3 → "D+5.3", -3 → "R+3".
 const formatMargin = (margin: number): string => {
+  // The projected result always assigns a winner — a margin that rounds to zero
+  // shows as 0.1 on the true side rather than "EVEN".
   const rounded = Math.round(margin * 10) / 10;
-  if (rounded === 0) return 'EVEN';
-  const abs = Math.abs(rounded);
+  const demLeads = rounded !== 0 ? rounded > 0 : margin >= 0;
+  const abs = Math.max(Math.abs(rounded), 0.1);
   const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
-  return rounded > 0 ? `D+${num}` : `R+${num}`;
+  return demLeads ? `D+${num}` : `R+${num}`;
 };
 
 const probabilityToRating = (demProb: number): RaceRating => {

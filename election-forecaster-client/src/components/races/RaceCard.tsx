@@ -47,13 +47,15 @@ const getPartyColor = (party: Party): string => {
 };
 
 // Formats a Dem-margin (points) as a called result to one decimal (dropping a trailing .0),
-// e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2".
+// e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2"; never "EVEN".
 const formatMargin = (margin: number): string => {
+  // The projected result always assigns a winner — a margin that rounds to zero
+  // shows as 0.1 on the true side rather than "EVEN".
   const rounded = Math.round(margin * 10) / 10;
-  if (rounded === 0) return 'EVEN';
-  const abs = Math.abs(rounded);
+  const demLeads = rounded !== 0 ? rounded > 0 : margin >= 0;
+  const abs = Math.max(Math.abs(rounded), 0.1);
   const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
-  return rounded > 0 ? `D+${num}` : `R+${num}`;
+  return demLeads ? `D+${num}` : `R+${num}`;
 };
 
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number, stateId?: string): string => {
