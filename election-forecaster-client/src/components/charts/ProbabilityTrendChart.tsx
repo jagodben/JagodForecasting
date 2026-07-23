@@ -63,18 +63,20 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   const dem = data.map(d => d.demValue);
   const rep = data.map(d => 1 - d.demValue);
 
-  // Domain fits both series with headroom, then snaps to a round tick step so the
-  // axis reads 40/50/60 rather than arbitrary values.
+  // The window hugs the race: a few points of padding beyond the series' extremes, snapped
+  // to whole percents — so a 75/25 race zooms to roughly 20-80 while a 99/1 blowout still
+  // naturally spans 0-100. (The old tick-multiple snapping inflated any mid-range race to
+  // the full axis.) Ticks stay at round values inside the window, anchored on 50% when
+  // it's in view.
   const all = [...dem, ...rep];
   const rawLo = Math.min(...all), rawHi = Math.max(...all);
-  const rawSpan = Math.max(rawHi - rawLo, 0.06) * 1.3;
-  const step = [0.02, 0.05, 0.1, 0.2, 0.25].find(s => rawSpan / s <= 4) ?? 0.25;
-  const lo = Math.max(0, Math.floor((rawLo - rawSpan * 0.12) / step) * step);
-  const hi = Math.min(1, Math.ceil((rawHi + rawSpan * 0.12) / step) * step);
-  // Ticks grow outward from the 50% majority line (falling back to the domain floor when
-  // 50% is out of view), so that line always gets a gridline and the count stays sparse.
-  const anchor = lo <= 0.5 && 0.5 <= hi ? 0.5 : lo;
-  const tickStep = (hi - lo) / step > 4 ? step * 2 : step;
+  const padAmt = Math.max(0.02, (rawHi - rawLo) * 0.12);
+  const lo = Math.max(0, Math.floor((rawLo - padAmt) * 100) / 100);
+  const hi = Math.min(1, Math.ceil((rawHi + padAmt) * 100) / 100);
+  const span = Math.max(hi - lo, 0.04);
+  const step = [0.02, 0.05, 0.1, 0.2, 0.25].find(st => span / st <= 4) ?? 0.25;
+  const anchor = lo <= 0.5 && 0.5 <= hi ? 0.5 : Math.ceil(lo / step) * step;
+  const tickStep = span / step > 4 ? step * 2 : step;
   const tickSet = new Set<number>();
   for (let t = anchor; t >= lo - 1e-9; t -= tickStep) tickSet.add(Math.round(t * 1000) / 1000);
   for (let t = anchor; t <= hi + 1e-9; t += tickStep) tickSet.add(Math.round(t * 1000) / 1000);
