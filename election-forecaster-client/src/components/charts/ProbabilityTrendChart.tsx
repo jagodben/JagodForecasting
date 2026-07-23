@@ -99,8 +99,8 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
     const upLo0 = Math.min(...upper), upHi0 = Math.max(...upper);
     const span = Math.max(upHi0 - upLo0, 0.03) * 1.3;
     const step = [0.01, 0.02, 0.05, 0.1, 0.2].find(st => span / st <= 3) ?? 0.25;
-    const upLo = Math.floor((upLo0 - span * 0.15) / step) * step;
-    const upHi = Math.ceil((upHi0 + span * 0.15) / step) * step;
+    const upLo = Math.max(0, Math.floor((upLo0 - span * 0.15) / step) * step);
+    const upHi = Math.min(1, Math.ceil((upHi0 + span * 0.15) / step) * step);
     // The lower band is the exact mirror, so both bands share one scale and honest slopes.
     const bandGap = 18;
     const bandH = (chh - bandGap) / 2;
