@@ -94,7 +94,7 @@ export const HomePage = () => {
       {/* Header row */}
       <header className="dashboard-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-          <img src="/logo.svg" alt="" aria-hidden className="dashboard-logo" />
+          <img src="/favicon.png" alt="" aria-hidden className="dashboard-logo" />
           <h1 className="dashboard-title">2026 Election Forecast</h1>
           <Link to="/polls" className="dashboard-header__link">All Polls</Link>
           <Link to="/methodology" className="dashboard-header__link">About</Link>
