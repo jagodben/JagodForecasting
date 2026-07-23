@@ -76,7 +76,6 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   let yDem: (v: number) => number;
   let yRep: (v: number) => number;
   let gridLines: { y: number; label: string; bold: boolean }[];
-  let breakY: number | null = null;
 
   if (!split) {
     const rawSpan = Math.max(fullHi - fullLo, 0.06) * 1.3;
@@ -109,7 +108,6 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
     const yLower = (v: number) => pad.top + bandH + bandGap + bandH - ((v - (1 - upHi)) / (upHi - upLo || 1)) * bandH;
     yDem = demLeads ? yUpper : yLower;
     yRep = demLeads ? yLower : yUpper;
-    breakY = pad.top + bandH + bandGap / 2;
 
     gridLines = [];
     for (let t = upLo; t <= upHi + 1e-9; t += step) {
@@ -217,13 +215,6 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
         </g>
       ))}
 
-      {/* Axis break between the two zoomed bands of a lopsided race */}
-      {breakY != null && (
-        <g stroke={INK_MUTED} strokeWidth="1.25" strokeLinecap="round">
-          <line x1={pad.left + 2} y1={breakY + 3} x2={pad.left + 12} y2={breakY - 3} />
-          <line x1={pad.left + 8} y1={breakY + 3} x2={pad.left + 18} y2={breakY - 3} />
-        </g>
-      )}
 
       <g clipPath={`url(#plot-${uid})`}>
         <path d={repLine} fill="none" stroke={REP} strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
