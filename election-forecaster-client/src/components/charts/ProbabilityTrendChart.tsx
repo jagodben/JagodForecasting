@@ -63,62 +63,31 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   const dem = data.map(d => d.demValue);
   const rep = data.map(d => 1 - d.demValue);
 
-  // Competitive races share one window (both lines near 50). Lopsided races would need a
-  // 44+ point span to hold both mirrored lines, flattening every real move — so past a 25pt
-  // gap the plot breaks into two zoomed bands on the same pts-per-pixel scale: the leader's
-  // line up top, the trailing line below, with an axis break between.
+  // The window hugs the race: a few points of padding beyond the series' extremes, snapped
+  // to whole percents — so a 75/25 race zooms to roughly 20-80 while a 99/1 blowout still
+  // naturally spans 0-100. (The old tick-multiple snapping inflated any mid-range race to
+  // the full axis.) Ticks stay at round values inside the window, anchored on 50% when
+  // it's in view.
   const all = [...dem, ...rep];
-  const fullLo = Math.min(...all), fullHi = Math.max(...all);
-  const split = fullHi - fullLo > 0.25;
+  const rawLo = Math.min(...all), rawHi = Math.max(...all);
+  const padAmt = Math.max(0.02, (rawHi - rawLo) * 0.12);
+  const lo = Math.max(0, Math.floor((rawLo - padAmt) * 100) / 100);
+  const hi = Math.min(1, Math.ceil((rawHi + padAmt) * 100) / 100);
+  const span = Math.max(hi - lo, 0.04);
+  const step = [0.02, 0.05, 0.1, 0.2, 0.25].find(st => span / st <= 4) ?? 0.25;
+  const anchor = lo <= 0.5 && 0.5 <= hi ? 0.5 : Math.ceil(lo / step) * step;
+  const tickStep = span / step > 4 ? step * 2 : step;
+  const tickSet = new Set<number>();
+  for (let t = anchor; t >= lo - 1e-9; t -= tickStep) tickSet.add(Math.round(t * 1000) / 1000);
+  for (let t = anchor; t <= hi + 1e-9; t += tickStep) tickSet.add(Math.round(t * 1000) / 1000);
+  const ticks = [...tickSet].sort((a, b) => a - b);
+
   const x = (i: number) => pad.left + (i / (data.length - 1)) * cw;
+  const y = (v: number) => pad.top + chh - ((v - lo) / (hi - lo || 1)) * chh;
   const floorY = pad.top + chh;
 
-  let yDem: (v: number) => number;
-  let yRep: (v: number) => number;
-  let gridLines: { y: number; label: string; bold: boolean }[];
-
-  if (!split) {
-    const rawSpan = Math.max(fullHi - fullLo, 0.06) * 1.3;
-    const step = [0.02, 0.05, 0.1, 0.2, 0.25].find(st => rawSpan / st <= 4) ?? 0.25;
-    const lo = Math.max(0, Math.floor((fullLo - rawSpan * 0.12) / step) * step);
-    const hi = Math.min(1, Math.ceil((fullHi + rawSpan * 0.12) / step) * step);
-    // Ticks grow outward from the 50% majority line so it always gets a gridline.
-    const anchor = lo <= 0.5 && 0.5 <= hi ? 0.5 : lo;
-    const tickStep = (hi - lo) / step > 4 ? step * 2 : step;
-    const tickSet = new Set<number>();
-    for (let t = anchor; t >= lo - 1e-9; t -= tickStep) tickSet.add(Math.round(t * 1000) / 1000);
-    for (let t = anchor; t <= hi + 1e-9; t += tickStep) tickSet.add(Math.round(t * 1000) / 1000);
-    const yAll = (v: number) => pad.top + chh - ((v - lo) / (hi - lo || 1)) * chh;
-    yDem = yAll;
-    yRep = yAll;
-    gridLines = [...tickSet].sort((a, b) => a - b)
-      .map(t => ({ y: yAll(t), label: `${(t * 100).toFixed(0)}%`, bold: Math.abs(t - 0.5) < 1e-9 }));
-  } else {
-    const demLeads = dem[dem.length - 1] >= rep[rep.length - 1];
-    const upper = demLeads ? dem : rep;
-    const upLo0 = Math.min(...upper), upHi0 = Math.max(...upper);
-    const span = Math.max(upHi0 - upLo0, 0.03) * 1.3;
-    const step = [0.01, 0.02, 0.05, 0.1, 0.2].find(st => span / st <= 3) ?? 0.25;
-    const upLo = Math.max(0, Math.floor((upLo0 - span * 0.15) / step) * step);
-    const upHi = Math.min(1, Math.ceil((upHi0 + span * 0.15) / step) * step);
-    // The lower band is the exact mirror, so both bands share one scale and honest slopes.
-    const bandGap = 18;
-    const bandH = (chh - bandGap) / 2;
-    const yUpper = (v: number) => pad.top + bandH - ((v - upLo) / (upHi - upLo || 1)) * bandH;
-    const yLower = (v: number) => pad.top + bandH + bandGap + bandH - ((v - (1 - upHi)) / (upHi - upLo || 1)) * bandH;
-    yDem = demLeads ? yUpper : yLower;
-    yRep = demLeads ? yLower : yUpper;
-
-    gridLines = [];
-    for (let t = upLo; t <= upHi + 1e-9; t += step) {
-      const tv = Math.round(t * 1000) / 1000;
-      gridLines.push({ y: yUpper(tv), label: `${(tv * 100).toFixed(0)}%`, bold: false });
-      gridLines.push({ y: yLower(1 - tv), label: `${((1 - tv) * 100).toFixed(0)}%`, bold: false });
-    }
-  }
-
-  const demPts = dem.map((v, i) => ({ x: x(i), y: yDem(v) }));
-  const repPts = rep.map((v, i) => ({ x: x(i), y: yRep(v) }));
+  const demPts = dem.map((v, i) => ({ x: x(i), y: y(v) }));
+  const repPts = rep.map((v, i) => ({ x: x(i), y: y(v) }));
   const demLine = stepPath(demPts);
   const repLine = stepPath(repPts);
 
@@ -161,7 +130,7 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   const padL = 9 * pillScale, padR = 8 * pillScale;
   const pillW = (name: string, value: number) =>
     padL + textWidth(name, 600, PILL_FONT) + PILL_GAP + textWidth(`${(value * 100).toFixed(1)}%`, 700, PILL_FONT) + padR;
-  let demPillY = yDem(dem[idx]), repPillY = yRep(rep[idx]);
+  let demPillY = y(dem[idx]), repPillY = y(rep[idx]);
   const minGap = PILL_H + 2;
   if (Math.abs(demPillY - repPillY) < minGap) {
     const mid = (demPillY + repPillY) / 2;
@@ -203,18 +172,20 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
       </defs>
 
       {/* Dotted gridlines, labeled on the right; the 50% majority line is slightly emphasized */}
-      {gridLines.map((g, i) => (
-        <g key={i}>
-          <line x1={pad.left} y1={g.y} x2={width - pad.right} y2={g.y}
-                stroke={g.bold ? '#c2c8cf' : '#e3e6ea'} strokeWidth="1"
-                strokeDasharray="1.5,3.5" strokeLinecap="round" />
-          <text x={width - pad.right + 8} y={g.y} alignmentBaseline="middle"
-                fontSize="10.5" fontWeight={g.bold ? 700 : 400} fill={g.bold ? '#6b7280' : INK_MUTED}>
-            {g.label}
-          </text>
-        </g>
-      ))}
-
+      {ticks.map((t, i) => {
+        const isHalf = Math.abs(t - 0.5) < 1e-9;
+        return (
+          <g key={i}>
+            <line x1={pad.left} y1={y(t)} x2={width - pad.right} y2={y(t)}
+                  stroke={isHalf ? '#c2c8cf' : '#e3e6ea'} strokeWidth="1"
+                  strokeDasharray="1.5,3.5" strokeLinecap="round" />
+            <text x={width - pad.right + 8} y={y(t)} alignmentBaseline="middle"
+                  fontSize="10.5" fontWeight={isHalf ? 700 : 400} fill={isHalf ? '#6b7280' : INK_MUTED}>
+              {(t * 100).toFixed(0)}%
+            </text>
+          </g>
+        );
+      })}
 
       <g clipPath={`url(#plot-${uid})`}>
         <path d={repLine} fill="none" stroke={REP} strokeWidth="2.25" strokeLinejoin="round" strokeLinecap="round" />
@@ -244,8 +215,8 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
       {hover != null && (
         <>
           <g pointerEvents="none">
-            <circle cx={anchorX} cy={yRep(rep[idx])} r="4" fill={REP} stroke="#fff" strokeWidth="1.75" />
-            <circle cx={anchorX} cy={yDem(dem[idx])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.75" />
+            <circle cx={anchorX} cy={y(rep[idx])} r="4" fill={REP} stroke="#fff" strokeWidth="1.75" />
+            <circle cx={anchorX} cy={y(dem[idx])} r="4" fill={demColor} stroke="#fff" strokeWidth="1.75" />
           </g>
           {renderPill(repPillY, REP, repShort, rep[idx])}
           {renderPill(demPillY, demColor, demShort, dem[idx])}
