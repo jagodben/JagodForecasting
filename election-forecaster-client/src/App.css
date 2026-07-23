@@ -209,6 +209,14 @@
   flex-shrink: 0;
 }
 
+.dashboard-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: block;
+  margin-right: -6px; /* the badge has generous padding; tuck the title closer */
+}
+
 .dashboard-title {
   font-family: var(--font-headline);
   font-size: 1.5rem;
