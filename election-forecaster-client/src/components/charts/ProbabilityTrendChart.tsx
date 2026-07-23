@@ -64,9 +64,17 @@ export const ProbabilityTrendChart = ({ data, demLabel, repLabel, width = 320, h
   const rep = data.map(d => 1 - d.demValue);
 
   // Domain fits both series with headroom, then snaps to a round tick step so the
-  // axis reads 40/50/60 rather than arbitrary values.
+  // axis reads 40/50/60 rather than arbitrary values. In lopsided races the mirror
+  // line would force a huge span (72% vs 28% needs 44+ points) that flattens every
+  // real move — so when the series sit far apart, scale to the leader's line and let
+  // the mirror clip out of frame; its value still shows in the hover pills.
   const all = [...dem, ...rep];
-  const rawLo = Math.min(...all), rawHi = Math.max(...all);
+  let rawLo = Math.min(...all), rawHi = Math.max(...all);
+  if (rawHi - rawLo > 0.25) {
+    const leader = dem[dem.length - 1] >= rep[rep.length - 1] ? dem : rep;
+    rawLo = Math.min(...leader);
+    rawHi = Math.max(...leader);
+  }
   const rawSpan = Math.max(rawHi - rawLo, 0.06) * 1.3;
   const step = [0.02, 0.05, 0.1, 0.2, 0.25].find(s => rawSpan / s <= 4) ?? 0.25;
   const lo = Math.max(0, Math.floor((rawLo - rawSpan * 0.12) / step) * step);
