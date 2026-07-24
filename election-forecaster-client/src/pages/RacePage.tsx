@@ -135,7 +135,7 @@ export const RacePage = () => {
   if (raceLoading) {
     return (
       <div className="loading-container">
-        <div className="spinner" />
+        <img src="/favicon.png" alt="" aria-hidden className="loading-glasses" />
         <p>Loading race data...</p>
       </div>
     );

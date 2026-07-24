@@ -20,7 +20,10 @@ export const MethodologyPage = () => {
       </nav>
 
       <header style={{ marginBottom: '20px' }}>
-        <h1 style={{ margin: '0 0 8px 0' }}>About</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+          <img src="/favicon.png" alt="" aria-hidden style={{ width: '44px', height: '44px', borderRadius: '50%' }} />
+          <h1 style={{ margin: 0 }}>About</h1>
+        </div>
         <p style={{ margin: 0, color: '#555555', fontSize: '15px', lineHeight: 1.6 }}>
           Each 2026 race gets a single forecast by blending a few inputs. What the model considers:
         </p>

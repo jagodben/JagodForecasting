@@ -9,6 +9,7 @@ export const SiteFooter = () => {
   const onMap = useLocation().pathname === '/';
   return (
     <footer className="site-footer">
+      <img src="/favicon.png" alt="" aria-hidden className="site-footer__badge" />
       <span>© {new Date().getFullYear()} Jagod Forecasting</span>
       <span className="site-footer__nav-mobile">
         <span className="site-footer__dot" aria-hidden>·</span>
