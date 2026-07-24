@@ -209,6 +209,14 @@
   flex-shrink: 0;
 }
 
+/* Inverted glasses badge: its dark circle matches the bar, so only the mark shows. */
+.dashboard-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: block;
+}
+
 .dashboard-title {
   font-family: var(--font-headline);
   font-size: 1.5rem;
@@ -1161,26 +1169,4 @@
     color: var(--text-muted, #999);
     text-align: center;
   }
-}
-
-/* --- Glasses logo spots (logo-spots experiment) --- */
-
-/* Loading: the glasses gently pulse instead of a generic spinner. */
-.loading-glasses {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  animation: glasses-pulse 1.15s ease-in-out infinite;
-}
-
-@keyframes glasses-pulse {
-  0%, 100% { opacity: 0.35; transform: scale(0.94); }
-  50% { opacity: 1; transform: scale(1); }
-}
-
-/* Footer: small badge ahead of the copyright line. */
-.site-footer__badge {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
 }

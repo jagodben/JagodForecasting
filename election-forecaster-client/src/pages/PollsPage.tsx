@@ -137,7 +137,7 @@ export const PollsPage = () => {
       </div>
 
       {isLoading && (
-        <div className="loading-container"><img src="/favicon.png" alt="" aria-hidden className="loading-glasses" /></div>
+        <div className="loading-container"><div className="spinner" /></div>
       )}
 
       {!isLoading && shown.length === 0 && (

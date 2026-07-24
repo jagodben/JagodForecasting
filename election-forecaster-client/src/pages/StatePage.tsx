@@ -22,7 +22,7 @@ export const StatePage = () => {
   if (isLoading) {
     return (
       <div className="loading-container">
-        <img src="/favicon.png" alt="" aria-hidden className="loading-glasses" />
+        <div className="spinner" />
         <p>Loading state data...</p>
       </div>
     );
