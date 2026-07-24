@@ -209,9 +209,20 @@
   flex-shrink: 0;
 }
 
+/* Inverted glasses badge: its dark circle matches the bar, so only the mark shows. */
+.dashboard-logo {
+  width: 81px;
+  height: 81px;
+  border-radius: 50%;
+  display: block;
+  position: relative;
+  left: -4px;
+  top: 2px;
+}
+
 .dashboard-title {
   font-family: var(--font-headline);
-  font-size: 1.5rem;
+  font-size: 1.875rem;
   font-weight: 700;
   margin: 0;
   color: white;
@@ -221,7 +232,7 @@
 /* Quiet nav links beside the title (Polls/About) — visibly not the view tabs. The small
    nudge optically aligns their baseline with the serif headline's. */
 .dashboard-header__link {
-  font-size: 0.85rem;
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.65);
@@ -229,6 +240,15 @@
   transition: color 0.2s ease;
   position: relative;
   top: 2px;
+}
+
+/* Extra breathing room between the title and the nav links, and between the links. */
+.dashboard-title + .dashboard-header__link {
+  margin-left: 22px;
+}
+
+.dashboard-header__link + .dashboard-header__link {
+  margin-left: 14px;
 }
 
 .dashboard-header__link:hover {
@@ -265,8 +285,8 @@
 }
 
 .dashboard-tab {
-  padding: 8px 20px;
-  font-size: 0.8rem;
+  padding: 10px 25px;
+  font-size: 1rem;
   font-weight: 600;
   font-family: var(--font-body);
   background: transparent;
@@ -948,7 +968,7 @@
   }
 
   .dashboard-title {
-    font-size: 1.1rem;
+    font-size: 1.375rem;
   }
 
   .dashboard-tabs {
