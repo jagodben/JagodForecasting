@@ -175,7 +175,7 @@ const TailChart = () => {
       </div>
       <p style={caption}>
         Both curves agree on ordinary polling error. The difference is in the tails: the fat-tailed
-        curve keeps real probability on very large misses, so no race gets rounded to a certainty.
+        curve keeps real probability on very large misses.
       </p>
     </div>
   );
@@ -217,99 +217,30 @@ export const MethodologyPage = () => {
         <Pipeline />
       </Section>
 
-      <Section title="Polls">
-        <p style={body}>
-          Every usable public poll of a race goes into a weighted average. A poll counts for more
-          when it&rsquo;s recent (weight halves every 14 days, so a fresh poll outvotes a stale one
-          without old polls ever being thrown away abruptly), when its sample is larger, when its
-          pollster has a strong track-record rating, and when it surveys likely voters rather than
-          all registered voters or adults.
-        </p>
-        <p style={body}>
-          Two corrections keep the average honest. Polls sponsored by a campaign or party count at
-          half weight, since they systematically flatter their sponsor. And each pollster&rsquo;s
-          measured house lean — its tendency to run a couple of points friendlier to one party than
-          the field — is subtracted from its margin before it enters the average. Polls whose numbers
-          don&rsquo;t describe a real two-way race (implausibly large undecided shares) are excluded
-          entirely.
-        </p>
-      </Section>
-
-      <Section title="Fundamentals">
-        <p style={body}>
-          Fundamentals estimate what a seat would do in a neutral year: its partisan lean, a modest
-          bonus for a running incumbent, and the seat&rsquo;s most recent comparable result. A running
-          incumbent keeps about a third of their past overperformance beyond the flat incumbency
-          bonus — that&rsquo;s how a crossover governor who routinely outruns their state&rsquo;s lean
-          stays favored. Open seats keep none of it: the personal vote leaves with the departing
-          incumbent.
-        </p>
-      </Section>
-
-      <Section title="National environment">
-        <p style={body}>
-          The generic congressional ballot average sets the national mood, applied as a uniform shift
-          on top of every seat&rsquo;s lean (it rides inside the fundamentals signal rather than
-          getting a separate weight). House districts absorb only about 60% of the national swing,
-          matching how votes have actually translated into seats in recent cycles. Because this one
-          number touches every race at once, it&rsquo;s the input behind most day-to-day movement in
-          the chamber odds.
-        </p>
-      </Section>
-
-      <Section title="Prediction markets">
-        <p style={body}>
-          Where a Polymarket market exists, its price enters the blend, weighted by how much real
-          money trades in it. It&rsquo;s deliberately the smallest input: markets mostly re-digest
-          the same polls everyone sees, and they carry a known favorite-longshot bias. Their value is
-          being early — a market sometimes knows about a scandal, a retirement, or a local dynamic
-          before any poll can show it.
-        </p>
-      </Section>
-
       <Section title="Blending the inputs">
         <p style={body}>
-          The base blend is 45% polls, 40% fundamentals, 15% markets — but it shifts with the
-          calendar and the race. Far from Election Day, polls are scarce and voters aren&rsquo;t
-          paying attention, so fundamentals carry the forecast; as the election nears, polls take
-          over. Weights also renormalize around what a race actually has: most House seats are never
-          polled and have no market, so they run on fundamentals and the generic ballot.
+          The base blend is 45% polls, 40% fundamentals, 15% markets — shifting toward polls as
+          Election Day nears, and renormalizing around what each race actually has.
         </p>
         <WeightChart />
       </Section>
 
       <Section title="From margin to probability">
         <p style={body}>
-          A blended margin only means something with an error bar. Each race&rsquo;s standard error
-          starts around 8&ndash;9 points a year out and tightens toward 4&ndash;5 in the final weeks.
-          Governor&rsquo;s races carry extra (voters split tickets for governors far more than for
-          senators), as do House seats and the ranked-choice states (Alaska, Maine). Polling shrinks
-          the error with sharply diminishing returns — poll errors correlate, so the tenth poll
-          barely helps — and it&rsquo;s floored so that no race, however lopsided, is ever treated as
-          a certainty.
-        </p>
-        <p style={body}>
-          The margin and its error bar become a win probability through a fat-tailed curve rather
-          than a normal one, because history says big polling misses happen more often than a bell
-          curve allows:
+          Each race&rsquo;s margin carries an error bar — wide a year out, tighter in the final
+          weeks, extra for governor&rsquo;s races and the ranked-choice states (Alaska, Maine), and
+          floored so no race is ever a certainty. It becomes a win probability through a fat-tailed
+          curve, because big polling misses happen more often than a bell curve allows:
         </p>
         <TailChart />
       </Section>
 
       <Section title="Simulating the chambers">
         <p style={body}>
-          Chamber odds come from 10,000 simulated elections, not from multiplying race probabilities
-          together — because polling misses aren&rsquo;t independent. Each simulation first draws one
-          shared national error that shifts every race in the same direction, then a smaller shared
-          error for each region of the country, and only then each race&rsquo;s own independent
-          error. That structure lets upsets cluster the way they do in real elections, which is what
-          keeps the chamber odds honest: a night that&rsquo;s two points better for one party
-          everywhere flips many seats together.
-        </p>
-        <p style={body}>
-          Democrats need 51 seats for Senate control (the Vice President breaks ties for
-          Republicans) and 218 for the House. Seat counts add each simulation&rsquo;s wins to the
-          seats not up in 2026.
+          Chamber odds come from 10,000 simulated elections. Each simulation shares one national
+          polling miss and one regional miss across races before adding race-level noise, so upsets
+          cluster the way they do in real elections. Democrats need 51 Senate seats (the Vice
+          President breaks ties for Republicans) and 218 House seats.
         </p>
       </Section>
 
@@ -317,8 +248,7 @@ export const MethodologyPage = () => {
         <p style={body}>
           Everything updates once a day at 8:00 AM ET — polls, markets, and the candidates
           themselves, so primaries, dropouts, and replacements show up automatically. Each
-          day&rsquo;s forecast is then recorded as a permanent snapshot: the history charts are the
-          model&rsquo;s actual day-by-day record, never revised in hindsight. On November 3 the model
+          day&rsquo;s forecast is recorded and never revised in hindsight; on November 3 the model
           takes its final snapshot and freezes.
         </p>
       </Section>
