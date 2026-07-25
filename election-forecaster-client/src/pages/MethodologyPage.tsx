@@ -81,7 +81,6 @@ const WEIGHT_LABELS = {
 // Normalized shares for a typical fully-polled Senate race in each calendar phase,
 // mirroring the backend WeightCalculator (base 45/40/15, shifted by time to election).
 const WEIGHT_PHASES = [
-  { label: '6+ months out', minDays: 180, polls: 22, fundamentals: 63, markets: 15 },
   { label: '2–6 months out', minDays: 60, polls: 47, fundamentals: 39, markets: 14 },
   { label: '2 weeks – 2 months out', minDays: 14, polls: 63, fundamentals: 24, markets: 13 },
   { label: 'Final two weeks', minDays: -Infinity, polls: 69, fundamentals: 19, markets: 12 },
