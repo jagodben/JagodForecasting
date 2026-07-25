@@ -226,6 +226,13 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (RankedChoiceVoting.IsRankedChoice(raceId))
             se = Math.Sqrt(se * se + RankedChoiceVoting.ExtraStandardError * RankedChoiceVoting.ExtraStandardError);
 
+        // Undecided primaries: when recent polls test several hypothetical matchups, the spread
+        // between them measures how much the race hinges on who gets nominated. Like the RCV term,
+        // price that as extra SE rather than trying to forecast the primary; it decays to zero as
+        // single-matchup post-primary polls take over the average.
+        if (polling is { NomineeSpread: > 0 })
+            se = Math.Sqrt(se * se + Math.Pow(polling.NomineeSpread / 2.0, 2));
+
         // Safety net: if a liquid market sharply disagrees with the structural blend, lean on the
         // market — it usually knows something PVI/priors/polls-so-far can't (the VT-GOV class).
         ApplyMarketDisagreementGuard(weights, marketOdds, polling, fundamentals, se, raceId);
@@ -598,6 +605,7 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
 
                 var polls = await _pollingSource.GetRecentPollsAsync(race.Id, 3650, cancellationToken);
                 var fundamentals = await _fundamentalsSource.GetFundamentalsAsync(race.Id, cancellationToken);
+                var (demNominee, repNominee) = SettledNomineeNames(race);
 
                 var newRows = new List<ForecastHistoryEntity>();
                 foreach (var day in missingDays)
@@ -616,7 +624,8 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
                     // Polling as of `day`: polls conducted on or before that date, decayed to that date.
                     var pollsAsOf = polls.Where(p => p.Date.Date <= day).ToList();
                     var polling = pollsAsOf.Count > 0
-                        ? PollingAverageCalculator.Calculate(pollsAsOf, race.Id, day)
+                        ? PollingAverageCalculator.Calculate(pollsAsOf, race.Id, day,
+                            demNominee: demNominee, repNominee: repNominee)
                         : null;
 
                     var forecast = BuildForecast(race.Id, race.Type, market, polling, fundamentals, genericBallot, race, day, new List<HistoricalDataPoint>());
@@ -965,6 +974,22 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var incumbent = race?.Candidates.FirstOrDefault(c => c.IsIncumbent);
         if (incumbent != null) return incumbent.Party == Party.Democrat;
         return race != null ? StatewideIncumbents.GetIncumbentIsDem(race.Id) : null;
+    }
+
+    /// <summary>
+    /// The race's settled nominee names from its live candidates (candidate-refresh overrides
+    /// already applied) — null for a side still on a TBD placeholder, which keeps that side's
+    /// multi-matchup polls blended in the average.
+    /// </summary>
+    private static (string? Dem, string? Rep) SettledNomineeNames(Race? race)
+    {
+        if (race is null) return (null, null);
+        var rep = race.Candidates.FirstOrDefault(c => c.Party == Party.Republican);
+        var dem = race.Candidates.FirstOrDefault(c => c.Id != rep?.Id);
+        return (Settled(dem?.Name), Settled(rep?.Name));
+
+        static string? Settled(string? name) =>
+            name is null || name.StartsWith("TBD ", StringComparison.Ordinal) ? null : name;
     }
 
     private double CalculateConfidence(

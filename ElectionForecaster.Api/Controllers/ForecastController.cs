@@ -68,7 +68,9 @@ public class ForecastController : ControllerBase
                 RepPercent = p.RepPercent,
                 Margin = p.Margin,
                 IsPartisan = p.IsPartisan,
-                PartisanLean = p.PartisanLean
+                PartisanLean = p.PartisanLean,
+                DemCandidate = p.DemCandidate,
+                RepCandidate = p.RepCandidate
             }).ToList()
         });
     }
@@ -222,7 +224,9 @@ public class ForecastController : ControllerBase
             RepPercent = p.RepPercent,
             Margin = p.DemPercent - p.RepPercent,
             IsPartisan = p.Methodology != null && p.Methodology.StartsWith("Partisan"),
-            PartisanLean = Infrastructure.DataSources.Models.PollData.PartisanLeanOf(p.Methodology)
+            PartisanLean = Infrastructure.DataSources.Models.PollData.PartisanLeanOf(p.Methodology),
+            DemCandidate = p.DemCandidate,
+            RepCandidate = p.RepCandidate
         }).ToList());
     }
 
@@ -271,8 +275,9 @@ public class ForecastController : ControllerBase
         var haveCh = (await _dbContext.ChamberHistory.Select(c => new { c.Chamber, c.Date }).ToListAsync())
             .Select(x => (x.Chamber, x.Date)).ToHashSet();
         var haveBallot = (await _dbContext.GenericBallot.Select(g => g.Date).ToListAsync()).ToHashSet();
-        var havePolls = (await _dbContext.Polls.Select(p => new { p.RaceId, p.Pollster, p.Date }).ToListAsync())
-            .Select(x => (x.RaceId, x.Pollster, x.Date)).ToHashSet();
+        // Matchup rows share (race, pollster, date) — the pairing is part of a poll row's identity.
+        var havePolls = (await _dbContext.Polls.Select(p => new { p.RaceId, p.Pollster, p.Date, p.DemCandidate, p.RepCandidate }).ToListAsync())
+            .Select(x => (x.RaceId, x.Pollster, x.Date, x.DemCandidate, x.RepCandidate)).ToHashSet();
         var haveOverrides = (await _dbContext.NomineeOverrides.Select(n => n.RaceId).ToListAsync()).ToHashSet();
         var haveSettings = (await _dbContext.Settings.Select(k => k.Key).ToListAsync()).ToHashSet();
 
@@ -289,7 +294,7 @@ public class ForecastController : ControllerBase
         {
             r.Id = 0; _dbContext.GenericBallot.Add(r); gb++;
         }
-        foreach (var r in backup.Polls.Where(r => !havePolls.Contains((r.RaceId, r.Pollster, r.Date))))
+        foreach (var r in backup.Polls.Where(r => !havePolls.Contains((r.RaceId, r.Pollster, r.Date, r.DemCandidate, r.RepCandidate))))
         {
             r.Id = 0; _dbContext.Polls.Add(r); po++;
         }
@@ -345,6 +350,14 @@ public class PollDto
     public double Margin { get; set; }
     public bool IsPartisan { get; set; }
     public string? PartisanLean { get; set; }
+
+    /// <summary>
+    /// The matchup this row polled. An undecided-primary poll appears as several rows (one per
+    /// hypothetical pairing tested, sharing pollster and date); the model averages them but the
+    /// rows display exactly as published. Null on rows stored before matchups were tracked.
+    /// </summary>
+    public string? DemCandidate { get; set; }
+    public string? RepCandidate { get; set; }
 }
 
 /// <summary>A poll row on the all-polls page: PollDto plus which race it belongs to.</summary>

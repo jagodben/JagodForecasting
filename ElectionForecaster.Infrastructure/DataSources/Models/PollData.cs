@@ -7,10 +7,28 @@ public class PollData
     public DateTime Date { get; set; }
     public int? SampleSize { get; set; }
 
-    // Percentages 0..100; margin positive = Dem lead.
+    // Percentages 0..100; margin positive = Dem lead. One PollData per matchup as published:
+    // an undecided-primary poll that tested several hypothetical matchups yields several rows
+    // sharing (pollster, date). MatchupBlender.Collapse folds those into one model-facing poll
+    // inside the average; display always shows the rows exactly as the source printed them.
     public double DemPercent { get; set; }
     public double RepPercent { get; set; }
     public double Margin => DemPercent - RepPercent;
+
+    /// <summary>
+    /// Candidate names from the matchup table's column headers (e.g. "Mandela Barnes" /
+    /// "Tom Tiffany"). Null on rows stored before matchups were tracked.
+    /// </summary>
+    public string? DemCandidate { get; set; }
+    public string? RepCandidate { get; set; }
+
+    /// <summary>
+    /// Set by <c>MatchupBlender.Collapse</c> on the effective (model-facing) poll: how many
+    /// matchups were averaged, and the max − min margin between them — how much the race
+    /// depends on who gets nominated. Raw rows keep the defaults.
+    /// </summary>
+    public int MatchupCount { get; set; } = 1;
+    public double MatchupSpread { get; set; }
 
     public string? PollsterRating { get; set; }
     public string? Methodology { get; set; }

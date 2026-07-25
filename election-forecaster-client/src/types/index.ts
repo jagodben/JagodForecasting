@@ -137,6 +137,11 @@ export interface Poll {
   margin: number;
   isPartisan: boolean;
   partisanLean?: string; // "D" | "R" | "I" when isPartisan
+  // The matchup this row polled. An undecided-primary poll appears as several rows (one per
+  // pairing tested, sharing pollster + date); the model averages them, the rows display as
+  // published. Null on rows stored before matchups were tracked.
+  demCandidate: string | null;
+  repCandidate: string | null;
 }
 
 export interface RacePolls {

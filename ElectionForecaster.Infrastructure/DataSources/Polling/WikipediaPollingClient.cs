@@ -58,7 +58,9 @@ public partial class WikipediaPollingClient : IPollingSource
         var polls = await GetRecentPollsAsync(raceId, 90, cancellationToken);
         if (polls.Count == 0) return null;
         var houseEffects = await GetHouseEffectsAsync(cancellationToken);
-        return PollingAverageCalculator.Calculate(polls, raceId, houseEffects: houseEffects);
+        var (demNominee, repNominee) = await GetSettledNomineesAsync(raceId, cancellationToken);
+        return PollingAverageCalculator.Calculate(polls, raceId, houseEffects: houseEffects,
+            demNominee: demNominee, repNominee: repNominee);
     }
 
     public async Task<List<PollData>> GetRecentPollsAsync(string raceId, int days = 30, CancellationToken cancellationToken = default)
@@ -267,21 +269,22 @@ public partial class WikipediaPollingClient : IPollingSource
             return new List<PollData>();
         }
 
-        var polls = new List<PollData>();
+        // Every hypothetical-matchup table contributes its rows as published — an undecided-
+        // primary poll yields one row per pairing it tested (the model folds them back into one
+        // effective poll inside the average; the polls pages show them all). Keep one row per
+        // distinct pairing per (pollster, date) in case a pairing repeats across tables.
+        var parsed = new List<PollData>();
         foreach (var table in ExtractTables(scanBlock))
         {
-            polls.AddRange(ParseTable(table, raceId, twoWayOnly));
+            parsed.AddRange(ParseTable(table, raceId, twoWayOnly));
         }
-
-        // A pollster's result is repeated across each hypothetical-matchup table.
-        // Keep the first occurrence per (pollster, date) — the actual-nominee matchup is listed first.
-        var deduped = polls
-            .GroupBy(p => (p.Pollster, p.Date.Date))
+        var deduped = parsed
+            .GroupBy(p => (p.Pollster, p.Date.Date, p.DemCandidate, p.RepCandidate))
             .Select(g => g.First())
             .ToList();
 
         _logger.LogInformation("Parsed {Count} polls ({Raw} rows) for {RaceId} from Wikipedia",
-            deduped.Count, polls.Count, raceId);
+            deduped.Count, parsed.Count, raceId);
         return deduped;
     }
 
@@ -316,6 +319,11 @@ public partial class WikipediaPollingClient : IPollingSource
         int dateCol = headers.FindIndex(h => h.Contains("administered", StringComparison.OrdinalIgnoreCase)
                                           || h.Contains("Date", StringComparison.OrdinalIgnoreCase));
         int sampleCol = headers.FindIndex(h => h.Contains("Sample", StringComparison.OrdinalIgnoreCase));
+
+        // The candidate columns are headed "Mandela Barnes (D)" / "Tom Tiffany (R)" — capture the
+        // names so the blender can match this table against the race's settled nominees.
+        var demCandidate = CandidateFromHeader(headers[demCol]);
+        var repCandidate = CandidateFromHeader(headers[repCol]);
 
         foreach (var row in rows)
         {
@@ -355,13 +363,20 @@ public partial class WikipediaPollingClient : IPollingSource
                 SampleSize = sample,
                 DemPercent = demPct.Value,
                 RepPercent = repPct.Value,
+                DemCandidate = demCandidate,
+                RepCandidate = repCandidate,
                 Population = population,
                 PollsterRating = PollsterRatings.GetRating(pollster),
                 Methodology = partisan is null ? null : $"Partisan ({partisan})"
             });
         }
 
-        return polls;
+        // Within one table a pollster/date can repeat (a likely-voter line then a
+        // registered-voter line) — keep the first (LV) line only.
+        return polls
+            .GroupBy(p => (p.Pollster, p.Date.Date))
+            .Select(g => g.First())
+            .ToList();
     }
 
     /// <summary>A parsed table cell.</summary>
@@ -452,6 +467,13 @@ public partial class WikipediaPollingClient : IPollingSource
 
     private static bool EndsWithParty(string header, char party) =>
         Regex.IsMatch(header, $@"\({party}\)\s*$");
+
+    /// <summary>"Mandela Barnes (D)" → "Mandela Barnes"; null when the header holds no name.</summary>
+    private static string? CandidateFromHeader(string header)
+    {
+        var name = Regex.Replace(header, @"\s*\([DR]\)\s*$", "").Trim();
+        return name.Length > 0 ? name : null;
+    }
 
     /// <summary>
     /// Splits "Quantus Insights (R)" into ("Quantus Insights", "R"); non-partisan → (name, null).
@@ -644,38 +666,78 @@ public partial class WikipediaPollingClient : IPollingSource
         { "WI", "Wisconsin" }, { "WY", "Wyoming" }
     };
 
+    /// <summary>
+    /// The race's settled general-election nominees: the daily candidate refresh's override row
+    /// first, the compile-time nominee data as fallback. Null for a side still on a TBD
+    /// placeholder — that side's primary is undecided, and the matchup blend keeps averaging over
+    /// every pairing its polls tested.
+    /// </summary>
+    private async Task<(string? Dem, string? Rep)> GetSettledNomineesAsync(string raceId, CancellationToken cancellationToken)
+    {
+        var (dem, rep) = ElectionDataProvider.GetStaticNomineeNames(raceId);
+        var row = await _dbContext.NomineeOverrides.AsNoTracking()
+            .FirstOrDefaultAsync(o => o.RaceId == raceId, cancellationToken);
+        if (row?.DemName is not null) dem = row.DemName;
+        if (row?.RepName is not null) rep = row.RepName;
+        return (Settled(dem), Settled(rep));
+
+        static string? Settled(string? name) =>
+            name is null
+            || name.StartsWith("TBD ", StringComparison.Ordinal)
+            || name is "Democratic Nominee" or "Republican Nominee" // pre-rename placeholder rows
+                ? null : name;
+    }
+
     // ---- Persistence -------------------------------------------------------
 
     private async Task SavePollsToDbAsync(List<PollData> polls, CancellationToken cancellationToken)
     {
-        foreach (var poll in polls)
+        // One row per matchup: rows are identified by (race, pollster, date, pairing).
+        foreach (var group in polls.GroupBy(p => (p.RaceId, p.Pollster, p.Date)))
         {
-            var existing = await _dbContext.Polls.FirstOrDefaultAsync(p =>
-                p.RaceId == poll.RaceId &&
-                p.Pollster == poll.Pollster &&
-                p.Date == poll.Date, cancellationToken);
+            var existing = await _dbContext.Polls.Where(p =>
+                p.RaceId == group.Key.RaceId &&
+                p.Pollster == group.Key.Pollster &&
+                p.Date == group.Key.Date).ToListAsync(cancellationToken);
 
-            if (existing != null)
+            // Rows stored before matchups were tracked have no candidate names and held only one
+            // (arbitrarily chosen) pairing — the freshly parsed full matchup set supersedes them.
+            var legacy = existing.Where(e => e.DemCandidate is null && e.RepCandidate is null).ToList();
+            if (legacy.Count > 0 && group.Any(p => p.DemCandidate is not null || p.RepCandidate is not null))
             {
-                // Parser improvements can reread a stored poll's tags (e.g. a bipartisan
-                // pollster pair losing its bogus "Partisan (R)") — keep the row current.
-                if (existing.Methodology != poll.Methodology)
-                    existing.Methodology = poll.Methodology;
+                _dbContext.Polls.RemoveRange(legacy);
+                existing = existing.Except(legacy).ToList();
             }
-            else
+
+            foreach (var poll in group)
             {
-                _dbContext.Polls.Add(new PollEntity
+                var match = existing.FirstOrDefault(e =>
+                    e.DemCandidate == poll.DemCandidate && e.RepCandidate == poll.RepCandidate);
+
+                if (match != null)
                 {
-                    RaceId = poll.RaceId,
-                    Pollster = poll.Pollster,
-                    Date = poll.Date,
-                    SampleSize = poll.SampleSize,
-                    DemPercent = poll.DemPercent,
-                    RepPercent = poll.RepPercent,
-                    PollsterRating = poll.PollsterRating,
-                    Methodology = poll.Methodology,
-                    Population = poll.Population
-                });
+                    // Parser improvements can reread a stored poll's tags (e.g. a bipartisan
+                    // pollster pair losing its bogus "Partisan (R)") — keep the row current.
+                    if (match.Methodology != poll.Methodology)
+                        match.Methodology = poll.Methodology;
+                }
+                else
+                {
+                    _dbContext.Polls.Add(new PollEntity
+                    {
+                        RaceId = poll.RaceId,
+                        Pollster = poll.Pollster,
+                        Date = poll.Date,
+                        SampleSize = poll.SampleSize,
+                        DemPercent = poll.DemPercent,
+                        RepPercent = poll.RepPercent,
+                        DemCandidate = poll.DemCandidate,
+                        RepCandidate = poll.RepCandidate,
+                        PollsterRating = poll.PollsterRating,
+                        Methodology = poll.Methodology,
+                        Population = poll.Population
+                    });
+                }
             }
         }
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -696,6 +758,8 @@ public partial class WikipediaPollingClient : IPollingSource
             SampleSize = e.SampleSize,
             DemPercent = e.DemPercent,
             RepPercent = e.RepPercent,
+            DemCandidate = e.DemCandidate,
+            RepCandidate = e.RepCandidate,
             PollsterRating = e.PollsterRating,
             Methodology = e.Methodology,
             Population = e.Population

@@ -28,6 +28,13 @@ public class PollingAverage
     public DateTime? LatestPollDate { get; set; }
     public int? AverageSampleSize { get; set; }
 
+    /// <summary>
+    /// Decay-weighted average of the per-poll matchup spread (max−min margin across the
+    /// hypothetical matchups each poll tested, in points). Positive while a primary leaves the
+    /// pairing unresolved, zero once nominees are settled; the orchestrator prices it as extra SE.
+    /// </summary>
+    public double NomineeSpread { get; set; }
+
     /// <summary>Confidence in this average based on poll quantity and recency (0..1).</summary>
     public double Confidence { get; set; }
 

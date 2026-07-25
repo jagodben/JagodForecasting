@@ -15,23 +15,31 @@ public static class PollingAverageCalculator
     /// date to reconstruct what the average looked like then (for the retrospective backfill).
     /// <paramref name="houseEffects"/> optionally maps a pollster to its estimated Dem-favorable
     /// lean (margin points); each poll's margin is de-biased by that amount before averaging.
+    /// <paramref name="demNominee"/>/<paramref name="repNominee"/> are the settled nominees (null
+    /// while that side's primary is undecided) — they steer how multi-matchup rows collapse.
     /// </summary>
     public static PollingAverage Calculate(
         IReadOnlyList<PollData> polls,
         string raceId,
         DateTime? asOf = null,
-        IReadOnlyDictionary<string, double>? houseEffects = null)
+        IReadOnlyDictionary<string, double>? houseEffects = null,
+        string? demNominee = null,
+        string? repNominee = null)
     {
         if (polls.Count == 0)
         {
             return new PollingAverage { RaceId = raceId };
         }
 
+        // Fold each undecided-primary poll's matchup rows into one effective poll, so a poll
+        // that tested five pairings counts once — not five times — in the average.
+        var effective = MatchupBlender.Collapse(polls, demNominee, repNominee);
+
         var now = asOf ?? DateTime.UtcNow;
-        double totalWeight = 0, weightedDem = 0, weightedRep = 0;
+        double totalWeight = 0, weightedDem = 0, weightedRep = 0, weightedSpread = 0;
         int totalSampleSize = 0, sampleCount = 0;
 
-        foreach (var poll in polls)
+        foreach (var poll in effective)
         {
             var weight = poll.GetWeight(now);
 
@@ -48,6 +56,7 @@ public static class PollingAverageCalculator
             totalWeight += weight;
             weightedDem += demPct * weight;
             weightedRep += repPct * weight;
+            weightedSpread += poll.MatchupSpread * weight;
 
             if (poll.SampleSize.HasValue)
             {
@@ -66,10 +75,11 @@ public static class PollingAverageCalculator
             RaceId = raceId,
             DemPercent = weightedDem / totalWeight,
             RepPercent = weightedRep / totalWeight,
-            PollCount = polls.Count,
-            LatestPollDate = polls.Max(p => p.Date),
+            NomineeSpread = weightedSpread / totalWeight,
+            PollCount = effective.Count,
+            LatestPollDate = effective.Max(p => p.Date),
             AverageSampleSize = sampleCount > 0 ? totalSampleSize / sampleCount : null,
-            Confidence = CalculateConfidence(polls, now)
+            Confidence = CalculateConfidence(effective, now)
         };
     }
 

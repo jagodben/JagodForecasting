@@ -24,6 +24,15 @@ public class PollEntity
     public double DemPercent { get; set; }
     public double RepPercent { get; set; }
 
+    // The matchup this row polled, from the source table's column headers. An undecided-primary
+    // poll stores one row per hypothetical matchup, all sharing (RaceId, Pollster, Date); rows
+    // saved before matchups were tracked have nulls.
+    [MaxLength(120)]
+    public string? DemCandidate { get; set; }
+
+    [MaxLength(120)]
+    public string? RepCandidate { get; set; }
+
     // Pollster quality rating (e.g., "A+", "B-", etc.)
     [MaxLength(10)]
     public string? PollsterRating { get; set; }
