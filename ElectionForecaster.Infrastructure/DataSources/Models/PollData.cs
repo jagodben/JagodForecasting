@@ -7,40 +7,28 @@ public class PollData
     public DateTime Date { get; set; }
     public int? SampleSize { get; set; }
 
-    // Percentages 0..100; margin positive = Dem lead. When a poll tested several hypothetical
-    // matchups (undecided primary), these hold the first-listed matchup — the numbers shown on
-    // the polls page — and the blend fields below hold what the model actually averages.
+    // Percentages 0..100; margin positive = Dem lead. One PollData per matchup as published:
+    // an undecided-primary poll that tested several hypothetical matchups yields several rows
+    // sharing (pollster, date). MatchupBlender.Collapse folds those into one model-facing poll
+    // inside the average; display always shows the rows exactly as the source printed them.
     public double DemPercent { get; set; }
     public double RepPercent { get; set; }
     public double Margin => DemPercent - RepPercent;
 
     /// <summary>
-    /// Mean Dem/Rep percentages across every matchup this pollster tested on this date, when
-    /// there was more than one (null otherwise). Neutral to who wins the primary: each tested
-    /// pairing counts equally.
-    /// </summary>
-    public double? BlendDemPercent { get; set; }
-    public double? BlendRepPercent { get; set; }
-
-    /// <summary>Number of hypothetical matchups this poll tested (1 = nominees settled).</summary>
-    public int MatchupCount { get; set; } = 1;
-
-    /// <summary>
-    /// Max − min margin (points) across the tested matchups — how much the race depends on who
-    /// gets nominated. Zero for single-matchup polls; priced as extra SE by the orchestrator.
-    /// </summary>
-    public double MatchupSpread { get; set; }
-
-    /// <summary>The percentages the model averages: the matchup blend when present, else the poll as shown.</summary>
-    public double ModelDemPercent => BlendDemPercent ?? DemPercent;
-    public double ModelRepPercent => BlendRepPercent ?? RepPercent;
-
-    /// <summary>
-    /// Candidate names from the matchup table's column headers, set at parse time so the blender
-    /// can match matchups against settled nominees. Not persisted — every parse re-derives them.
+    /// Candidate names from the matchup table's column headers (e.g. "Mandela Barnes" /
+    /// "Tom Tiffany"). Null on rows stored before matchups were tracked.
     /// </summary>
     public string? DemCandidate { get; set; }
     public string? RepCandidate { get; set; }
+
+    /// <summary>
+    /// Set by <c>MatchupBlender.Collapse</c> on the effective (model-facing) poll: how many
+    /// matchups were averaged, and the max − min margin between them — how much the race
+    /// depends on who gets nominated. Raw rows keep the defaults.
+    /// </summary>
+    public int MatchupCount { get; set; } = 1;
+    public double MatchupSpread { get; set; }
 
     public string? PollsterRating { get; set; }
     public string? Methodology { get; set; }

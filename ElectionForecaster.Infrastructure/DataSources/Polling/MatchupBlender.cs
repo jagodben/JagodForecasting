@@ -4,53 +4,55 @@ using ElectionForecaster.Infrastructure.DataSources.Models;
 namespace ElectionForecaster.Infrastructure.DataSources.Polling;
 
 /// <summary>
-/// Collapses the multiple hypothetical-matchup tables an undecided-primary race is polled under
-/// into one row per (pollster, date).
+/// Folds an undecided-primary poll's multiple hypothetical-matchup rows (one per pairing the
+/// pollster tested, sharing pollster + date) into one model-facing poll before averaging.
 ///
-/// While a primary is undecided (no settled nominee for that side), every matchup the pollster
-/// tested counts: the first-listed matchup keeps the display percentages (that's the row the polls
-/// page shows), the model-facing blend fields average across the matchups, and the margin spread
-/// between them is recorded so the orchestrator can price nominee uncertainty as extra standard
-/// error. Once a side's nominee is settled, only matchups featuring that nominee count — a stale
-/// hypothetical must not keep speaking for the race — and with both sides settled the poll
-/// collapses to the single real-matchup row. Races polled under one table pass through unchanged.
+/// While a primary is undecided every tested matchup counts equally: the effective poll is the
+/// mean across them, and the margin spread between them is recorded so the orchestrator can price
+/// nominee uncertainty as extra standard error. Once a side's nominee is settled, only matchups
+/// featuring that nominee count — a stale hypothetical must not keep speaking for the race. This
+/// only shapes the model's average; the polls pages display the raw rows exactly as published.
 /// </summary>
 public static class MatchupBlender
 {
-    public static List<PollData> Blend(
-        IReadOnlyList<(PollData Poll, int TableIndex)> rows,
+    public static List<PollData> Collapse(
+        IReadOnlyList<PollData> polls,
         string? demNominee = null,
         string? repNominee = null)
     {
-        // Within one table a pollster/date can repeat (an LV line then an RV line) — keep the
-        // first, matching the old global keep-first behavior.
-        var perTable = rows
-            .GroupBy(r => (r.Poll.Pollster, Date: r.Poll.Date.Date, r.TableIndex))
-            .Select(g => g.First());
-
-        return perTable
-            .GroupBy(r => (r.Poll.Pollster, Date: r.Poll.Date.Date))
+        return polls
+            .GroupBy(p => (p.Pollster, Date: p.Date.Date))
             .Select(g =>
             {
-                var matchups = g.OrderBy(r => r.TableIndex).Select(r => r.Poll).ToList();
+                var matchups = g.ToList();
 
                 // Settled primaries prune the matchup set. If nothing matches (the nominee was
-                // never polled by name), keep the full set — a blend beats a blind first-table pick.
+                // never polled by name), keep the full set — a blend beats a blind pick.
                 var filtered = matchups
                     .Where(m => MatchesNominee(m.DemCandidate, demNominee)
                              && MatchesNominee(m.RepCandidate, repNominee))
                     .ToList();
                 if (filtered.Count > 0) matchups = filtered;
 
-                var primary = matchups[0];
-                if (matchups.Count > 1)
+                if (matchups.Count == 1) return matchups[0];
+
+                // Clone rather than mutate: the source rows may be shared (client cache, display).
+                var first = matchups[0];
+                return new PollData
                 {
-                    primary.BlendDemPercent = matchups.Average(m => m.DemPercent);
-                    primary.BlendRepPercent = matchups.Average(m => m.RepPercent);
-                    primary.MatchupCount = matchups.Count;
-                    primary.MatchupSpread = matchups.Max(m => m.Margin) - matchups.Min(m => m.Margin);
-                }
-                return primary;
+                    RaceId = first.RaceId,
+                    Pollster = first.Pollster,
+                    Date = first.Date,
+                    SampleSize = first.SampleSize,
+                    Population = first.Population,
+                    PollsterRating = first.PollsterRating,
+                    Methodology = first.Methodology,
+                    SourceUrl = first.SourceUrl,
+                    DemPercent = matchups.Average(m => m.DemPercent),
+                    RepPercent = matchups.Average(m => m.RepPercent),
+                    MatchupCount = matchups.Count,
+                    MatchupSpread = matchups.Max(m => m.Margin) - matchups.Min(m => m.Margin),
+                };
             })
             .ToList();
     }

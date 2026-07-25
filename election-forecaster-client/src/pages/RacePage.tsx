@@ -369,11 +369,19 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
   const shownPolls = expanded ? data.polls : data.polls.slice(0, COLLAPSED_POLL_COUNT);
   const hiddenCount = data.polls.length - shownPolls.length;
 
+  // An undecided-primary poll appears as one row per matchup it tested (same pollster + date).
+  // Label the matchup on those rows so it's clear who each line is polling.
+  const matchupRows = new Map<string, number>();
+  data.polls.forEach((p) => {
+    const k = `${p.pollster}|${p.date}`;
+    matchupRows.set(k, (matchupRows.get(k) ?? 0) + 1);
+  });
+
   return (
     <div style={{ width: '100%' }}>
       <h3 style={{ margin: '0 0 4px 0' }}>Polls</h3>
       <div style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-        Weighted average of {data.polls.length} poll{data.polls.length === 1 ? '' : 's'} · recency &amp; sample-size weighted
+        Weighted average of {avg?.pollCount ?? data.polls.length} poll{(avg?.pollCount ?? data.polls.length) === 1 ? '' : 's'} · recency &amp; sample-size weighted
       </div>
 
       {/* Weighted average summary */}
@@ -422,9 +430,10 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                   <td style={{ padding: isDesktop ? '10px 12px 10px 0' : '8px 6px 8px 0', overflowWrap: isDesktop ? undefined : 'anywhere' }}>
                     {poll.pollster}
                     {poll.isPartisan && <PartisanBadge lean={poll.partisanLean} />}
-                    {poll.matchupCount > 1 && (
+                    {poll.demCandidate && poll.repCandidate &&
+                      (matchupRows.get(`${poll.pollster}|${poll.date}`) ?? 0) > 1 && (
                       <div style={{ fontSize: '11px', color: '#999' }}>
-                        averaged across {poll.matchupCount} matchups
+                        {poll.demCandidate} vs. {poll.repCandidate}
                       </div>
                     )}
                   </td>
@@ -438,8 +447,8 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                   )}
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: leadD ? 'bold' : 'normal' }}>{poll.demPercent.toFixed(0)}%</td>
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: !leadD ? 'bold' : 'normal' }}>{poll.repPercent.toFixed(0)}%</td>
-                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: leadD ? '#123f8f' : '#9c150b', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {leadD ? 'D' : 'R'} +{Math.abs(poll.margin).toFixed(0)}
+                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: poll.margin === 0 ? '#666' : leadD ? '#123f8f' : '#9c150b', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {poll.margin === 0 ? 'EVEN' : `${leadD ? 'D' : 'R'} +${Math.abs(poll.margin).toFixed(0)}`}
                   </td>
                 </tr>
               );
@@ -462,7 +471,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
             color: '#123f8f',
           }}
         >
-          {expanded ? 'Show fewer ▲' : `Show ${hiddenCount} more poll${hiddenCount === 1 ? '' : 's'} ▼`}
+          {expanded ? 'Show fewer ▲' : `Show ${hiddenCount} more ▼`}
         </button>
       )}
     </div>

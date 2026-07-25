@@ -75,6 +75,14 @@ export const PollsPage = () => {
 
   const shown = selectedState ? tabPolls.filter(p => p.raceId.startsWith(selectedState)) : tabPolls;
 
+  // An undecided-primary poll appears as one row per matchup it tested (same race, pollster,
+  // and date). Label the matchup on those rows so it's clear who each line is polling.
+  const matchupRows = new Map<string, number>();
+  shown.forEach((p) => {
+    const k = `${p.raceId}|${p.pollster}|${p.date}`;
+    matchupRows.set(k, (matchupRows.get(k) ?? 0) + 1);
+  });
+
   const cell: React.CSSProperties = { padding: isDesktop ? '10px 12px' : '7px 4px', whiteSpace: 'nowrap' };
 
   return (
@@ -176,9 +184,10 @@ export const PollsPage = () => {
                 <td style={{ ...cell, whiteSpace: 'normal' }}>
                   {poll.pollster}
                   {poll.isPartisan && <PartisanBadge lean={poll.partisanLean} />}
-                  {poll.matchupCount > 1 && (
+                  {poll.demCandidate && poll.repCandidate &&
+                    (matchupRows.get(`${poll.raceId}|${poll.pollster}|${poll.date}`) ?? 0) > 1 && (
                     <div style={{ fontSize: '11px', color: '#999' }}>
-                      averaged across {poll.matchupCount} matchups
+                      {poll.demCandidate} vs. {poll.repCandidate}
                     </div>
                   )}
                 </td>

@@ -236,22 +236,14 @@ namespace ElectionForecaster.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double?>("BlendDemPercent")
-                        .HasColumnType("REAL");
-
-                    b.Property<double?>("BlendRepPercent")
-                        .HasColumnType("REAL");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DemCandidate")
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
                     b.Property<double>("DemPercent")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("MatchupCount")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("MatchupSpread")
                         .HasColumnType("REAL");
 
                     b.Property<string>("Methodology")
@@ -274,6 +266,10 @@ namespace ElectionForecaster.Infrastructure.Data.Migrations
                     b.Property<string>("RaceId")
                         .IsRequired()
                         .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RepCandidate")
+                        .HasMaxLength(120)
                         .HasColumnType("TEXT");
 
                     b.Property<double>("RepPercent")

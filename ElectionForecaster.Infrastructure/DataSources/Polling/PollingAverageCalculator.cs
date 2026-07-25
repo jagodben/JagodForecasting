@@ -15,31 +15,37 @@ public static class PollingAverageCalculator
     /// date to reconstruct what the average looked like then (for the retrospective backfill).
     /// <paramref name="houseEffects"/> optionally maps a pollster to its estimated Dem-favorable
     /// lean (margin points); each poll's margin is de-biased by that amount before averaging.
+    /// <paramref name="demNominee"/>/<paramref name="repNominee"/> are the settled nominees (null
+    /// while that side's primary is undecided) — they steer how multi-matchup rows collapse.
     /// </summary>
     public static PollingAverage Calculate(
         IReadOnlyList<PollData> polls,
         string raceId,
         DateTime? asOf = null,
-        IReadOnlyDictionary<string, double>? houseEffects = null)
+        IReadOnlyDictionary<string, double>? houseEffects = null,
+        string? demNominee = null,
+        string? repNominee = null)
     {
         if (polls.Count == 0)
         {
             return new PollingAverage { RaceId = raceId };
         }
 
+        // Fold each undecided-primary poll's matchup rows into one effective poll, so a poll
+        // that tested five pairings counts once — not five times — in the average.
+        var effective = MatchupBlender.Collapse(polls, demNominee, repNominee);
+
         var now = asOf ?? DateTime.UtcNow;
         double totalWeight = 0, weightedDem = 0, weightedRep = 0, weightedSpread = 0;
         int totalSampleSize = 0, sampleCount = 0;
 
-        foreach (var poll in polls)
+        foreach (var poll in effective)
         {
             var weight = poll.GetWeight(now);
 
-            // Model percentages: the cross-matchup blend for undecided-primary polls, the poll as
-            // published otherwise.
             // De-bias by the pollster's estimated house effect: split the correction evenly across
             // the two parties so the margin shifts toward neutral while the two-party sum is kept.
-            double demPct = poll.ModelDemPercent, repPct = poll.ModelRepPercent;
+            double demPct = poll.DemPercent, repPct = poll.RepPercent;
             if (houseEffects != null &&
                 houseEffects.TryGetValue(poll.Pollster, out var effect) && effect != 0)
             {
@@ -70,10 +76,10 @@ public static class PollingAverageCalculator
             DemPercent = weightedDem / totalWeight,
             RepPercent = weightedRep / totalWeight,
             NomineeSpread = weightedSpread / totalWeight,
-            PollCount = polls.Count,
-            LatestPollDate = polls.Max(p => p.Date),
+            PollCount = effective.Count,
+            LatestPollDate = effective.Max(p => p.Date),
             AverageSampleSize = sampleCount > 0 ? totalSampleSize / sampleCount : null,
-            Confidence = CalculateConfidence(polls, now)
+            Confidence = CalculateConfidence(effective, now)
         };
     }
 
