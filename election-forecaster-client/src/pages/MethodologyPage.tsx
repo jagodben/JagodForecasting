@@ -27,7 +27,6 @@ export const MethodologyPage = () => {
       </header>
 
       <ul style={{ paddingLeft: '20px', color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
-        <Item label="Prediction markets">Polymarket odds for the race.</Item>
         <Item label="Polls">recency- and sample-size-weighted average of public polls — including
           district-level House polls where they exist. Partisan-sponsored polls count at half weight,
           and each pollster&rsquo;s measured lean is corrected before averaging.</Item>
@@ -35,6 +34,7 @@ export const MethodologyPage = () => {
         <Item label="National environment">the generic congressional ballot average. House districts
           absorb only part of the national swing, matching how votes have translated into seats in
           recent cycles.</Item>
+        <Item label="Prediction markets">Polymarket odds for the race.</Item>
       </ul>
 
       <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
