@@ -35,6 +35,13 @@ public class PollData
     public double ModelDemPercent => BlendDemPercent ?? DemPercent;
     public double ModelRepPercent => BlendRepPercent ?? RepPercent;
 
+    /// <summary>
+    /// Candidate names from the matchup table's column headers, set at parse time so the blender
+    /// can match matchups against settled nominees. Not persisted — every parse re-derives them.
+    /// </summary>
+    public string? DemCandidate { get; set; }
+    public string? RepCandidate { get; set; }
+
     public string? PollsterRating { get; set; }
     public string? Methodology { get; set; }
 

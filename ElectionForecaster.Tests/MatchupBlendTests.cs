@@ -12,7 +12,8 @@ public class MatchupBlendTests
 {
     private static readonly DateTime PollDate = new(2026, 7, 16);
 
-    private static PollData Poll(double dem, double rep, string pollster = "Marquette", DateTime? date = null)
+    private static PollData Poll(double dem, double rep, string pollster = "Marquette", DateTime? date = null,
+        string? demCandidate = null, string? repCandidate = null)
         => new()
         {
             RaceId = "WI-GOV-2026",
@@ -20,6 +21,8 @@ public class MatchupBlendTests
             Date = date ?? PollDate,
             DemPercent = dem,
             RepPercent = rep,
+            DemCandidate = demCandidate,
+            RepCandidate = repCandidate,
             SampleSize = 695,
             Population = "LV",
         };
@@ -94,6 +97,72 @@ public class MatchupBlendTests
         Assert.Equal(2, marquette.MatchupCount);
         Assert.Equal(1, wedgewood.MatchupCount);
         Assert.Equal(0, wedgewood.MatchupSpread, 6);
+    }
+
+    [Fact]
+    public void Blend_SettledNominees_CollapseToTheirMatchup()
+    {
+        // Once Hong wins the primary, the Barnes table is a stale hypothetical: the poll must
+        // collapse to the Hong–Tiffany numbers — display and model alike, no blend, no spread.
+        var result = MatchupBlender.Blend(new[]
+        {
+            (Poll(47, 42, demCandidate: "Mandela Barnes", repCandidate: "Tom Tiffany"), 0),
+            (Poll(40, 43, demCandidate: "Francesca Hong", repCandidate: "Tom Tiffany"), 3),
+        }, demNominee: "Francesca Hong", repNominee: "Tom Tiffany");
+
+        var poll = Assert.Single(result);
+        Assert.Equal(40, poll.DemPercent);
+        Assert.Equal(43, poll.RepPercent);
+        Assert.Null(poll.BlendDemPercent);
+        Assert.Equal(1, poll.MatchupCount);
+        Assert.Equal(0, poll.MatchupSpread, 6);
+    }
+
+    [Fact]
+    public void Blend_OneSideSettled_BlendsOnlyThatSidesMatchups()
+    {
+        // Rep primary decided (Tiffany), Dem still open: the Michels table drops out; the
+        // remaining Tiffany matchups still blend with their spread.
+        var result = MatchupBlender.Blend(new[]
+        {
+            (Poll(47, 42, demCandidate: "Mandela Barnes", repCandidate: "Tom Tiffany"), 0),
+            (Poll(40, 43, demCandidate: "Francesca Hong", repCandidate: "Tom Tiffany"), 1),
+            (Poll(49, 40, demCandidate: "Mandela Barnes", repCandidate: "Tim Michels"), 2),
+        }, repNominee: "Tom Tiffany");
+
+        var poll = Assert.Single(result);
+        Assert.Equal(2, poll.MatchupCount);
+        Assert.Equal(43.5, poll.ModelDemPercent, 6);
+        Assert.Equal(8, poll.MatchupSpread, 6);
+    }
+
+    [Fact]
+    public void Blend_NomineeNeverPolled_FallsBackToFullBlend()
+    {
+        // The settled nominee has no head-to-head table: averaging what exists beats a blind pick.
+        var result = MatchupBlender.Blend(new[]
+        {
+            (Poll(47, 42, demCandidate: "Mandela Barnes", repCandidate: "Tom Tiffany"), 0),
+            (Poll(40, 43, demCandidate: "Francesca Hong", repCandidate: "Tom Tiffany"), 1),
+        }, demNominee: "Kelda Roys");
+
+        var poll = Assert.Single(result);
+        Assert.Equal(2, poll.MatchupCount);
+        Assert.Equal(43.5, poll.ModelDemPercent, 6);
+    }
+
+    [Fact]
+    public void Blend_NomineeMatching_ToleratesSuffixVariants()
+    {
+        var result = MatchupBlender.Blend(new[]
+        {
+            (Poll(44, 48, demCandidate: "Nick Begich III", repCandidate: "Someone Else"), 0),
+            (Poll(41, 50, demCandidate: "Another Person", repCandidate: "Someone Else"), 1),
+        }, demNominee: "Nick Begich");
+
+        var poll = Assert.Single(result);
+        Assert.Equal(44, poll.DemPercent);
+        Assert.Equal(1, poll.MatchupCount);
     }
 
     [Fact]

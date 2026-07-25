@@ -269,7 +269,8 @@ public partial class WikipediaPollingClient : IPollingSource
 
         // Each hypothetical-matchup table repeats the same pollster's result for a different
         // candidate pairing. Blend them: one row per (pollster, date), first-listed matchup for
-        // display, the cross-matchup mean and spread for the model.
+        // display, the cross-matchup mean and spread for the model. Settled nominees (decided
+        // primaries) prune the set to the matchups they actually appear in.
         var parsed = new List<(PollData Poll, int TableIndex)>();
         var tableIndex = 0;
         foreach (var table in ExtractTables(scanBlock))
@@ -278,7 +279,8 @@ public partial class WikipediaPollingClient : IPollingSource
                 parsed.Add((poll, tableIndex));
             tableIndex++;
         }
-        var deduped = MatchupBlender.Blend(parsed);
+        var (demNominee, repNominee) = await GetSettledNomineesAsync(raceId, cancellationToken);
+        var deduped = MatchupBlender.Blend(parsed, demNominee, repNominee);
 
         _logger.LogInformation("Parsed {Count} polls ({Raw} rows) for {RaceId} from Wikipedia",
             deduped.Count, parsed.Count, raceId);
@@ -316,6 +318,11 @@ public partial class WikipediaPollingClient : IPollingSource
         int dateCol = headers.FindIndex(h => h.Contains("administered", StringComparison.OrdinalIgnoreCase)
                                           || h.Contains("Date", StringComparison.OrdinalIgnoreCase));
         int sampleCol = headers.FindIndex(h => h.Contains("Sample", StringComparison.OrdinalIgnoreCase));
+
+        // The candidate columns are headed "Mandela Barnes (D)" / "Tom Tiffany (R)" — capture the
+        // names so the blender can match this table against the race's settled nominees.
+        var demCandidate = CandidateFromHeader(headers[demCol]);
+        var repCandidate = CandidateFromHeader(headers[repCol]);
 
         foreach (var row in rows)
         {
@@ -355,6 +362,8 @@ public partial class WikipediaPollingClient : IPollingSource
                 SampleSize = sample,
                 DemPercent = demPct.Value,
                 RepPercent = repPct.Value,
+                DemCandidate = demCandidate,
+                RepCandidate = repCandidate,
                 Population = population,
                 PollsterRating = PollsterRatings.GetRating(pollster),
                 Methodology = partisan is null ? null : $"Partisan ({partisan})"
@@ -452,6 +461,13 @@ public partial class WikipediaPollingClient : IPollingSource
 
     private static bool EndsWithParty(string header, char party) =>
         Regex.IsMatch(header, $@"\({party}\)\s*$");
+
+    /// <summary>"Mandela Barnes (D)" → "Mandela Barnes"; null when the header holds no name.</summary>
+    private static string? CandidateFromHeader(string header)
+    {
+        var name = Regex.Replace(header, @"\s*\([DR]\)\s*$", "").Trim();
+        return name.Length > 0 ? name : null;
+    }
 
     /// <summary>
     /// Splits "Quantus Insights (R)" into ("Quantus Insights", "R"); non-partisan → (name, null).
@@ -644,6 +660,28 @@ public partial class WikipediaPollingClient : IPollingSource
         { "WI", "Wisconsin" }, { "WY", "Wyoming" }
     };
 
+    /// <summary>
+    /// The race's settled general-election nominees: the daily candidate refresh's override row
+    /// first, the compile-time nominee data as fallback. Null for a side still on a TBD
+    /// placeholder — that side's primary is undecided, and the matchup blend keeps averaging over
+    /// every pairing its polls tested.
+    /// </summary>
+    private async Task<(string? Dem, string? Rep)> GetSettledNomineesAsync(string raceId, CancellationToken cancellationToken)
+    {
+        var (dem, rep) = ElectionDataProvider.GetStaticNomineeNames(raceId);
+        var row = await _dbContext.NomineeOverrides.AsNoTracking()
+            .FirstOrDefaultAsync(o => o.RaceId == raceId, cancellationToken);
+        if (row?.DemName is not null) dem = row.DemName;
+        if (row?.RepName is not null) rep = row.RepName;
+        return (Settled(dem), Settled(rep));
+
+        static string? Settled(string? name) =>
+            name is null
+            || name.StartsWith("TBD ", StringComparison.Ordinal)
+            || name is "Democratic Nominee" or "Republican Nominee" // pre-rename placeholder rows
+                ? null : name;
+    }
+
     // ---- Persistence -------------------------------------------------------
 
     private async Task SavePollsToDbAsync(List<PollData> polls, CancellationToken cancellationToken)
@@ -662,9 +700,12 @@ public partial class WikipediaPollingClient : IPollingSource
                 if (existing.Methodology != poll.Methodology)
                     existing.Methodology = poll.Methodology;
 
-                // The matchup blend is recomputed each parse (tables get added or reordered as
-                // primaries resolve) — keep the stored copy current for the DB-fallback and
-                // backfill paths. Display percentages stay as first stored.
+                // The matchup blend is recomputed each parse (tables get added, and settled
+                // nominees prune the set once a primary is decided) — keep the stored copy
+                // current for the DB-fallback and backfill paths. Display percentages update
+                // too, so an old multi-matchup poll collapses to the real nominees' numbers.
+                existing.DemPercent = poll.DemPercent;
+                existing.RepPercent = poll.RepPercent;
                 existing.BlendDemPercent = poll.BlendDemPercent;
                 existing.BlendRepPercent = poll.BlendRepPercent;
                 existing.MatchupCount = poll.MatchupCount;

@@ -68,7 +68,8 @@ public class ForecastController : ControllerBase
                 RepPercent = p.RepPercent,
                 Margin = p.Margin,
                 IsPartisan = p.IsPartisan,
-                PartisanLean = p.PartisanLean
+                PartisanLean = p.PartisanLean,
+                MatchupCount = p.MatchupCount
             }).ToList()
         });
     }
@@ -222,7 +223,8 @@ public class ForecastController : ControllerBase
             RepPercent = p.RepPercent,
             Margin = p.DemPercent - p.RepPercent,
             IsPartisan = p.Methodology != null && p.Methodology.StartsWith("Partisan"),
-            PartisanLean = Infrastructure.DataSources.Models.PollData.PartisanLeanOf(p.Methodology)
+            PartisanLean = Infrastructure.DataSources.Models.PollData.PartisanLeanOf(p.Methodology),
+            MatchupCount = p.MatchupCount
         }).ToList());
     }
 
@@ -345,6 +347,12 @@ public class PollDto
     public double Margin { get; set; }
     public bool IsPartisan { get; set; }
     public string? PartisanLean { get; set; }
+
+    /// <summary>
+    /// How many hypothetical matchups this poll tested (>1 while primaries are undecided —
+    /// the model averages across them; the shown numbers are the first-listed matchup).
+    /// </summary>
+    public int MatchupCount { get; set; } = 1;
 }
 
 /// <summary>A poll row on the all-polls page: PollDto plus which race it belongs to.</summary>

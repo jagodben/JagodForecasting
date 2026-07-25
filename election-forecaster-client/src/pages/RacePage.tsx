@@ -422,6 +422,11 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                   <td style={{ padding: isDesktop ? '10px 12px 10px 0' : '8px 6px 8px 0', overflowWrap: isDesktop ? undefined : 'anywhere' }}>
                     {poll.pollster}
                     {poll.isPartisan && <PartisanBadge lean={poll.partisanLean} />}
+                    {poll.matchupCount > 1 && (
+                      <div style={{ fontSize: '11px', color: '#999' }}>
+                        averaged across {poll.matchupCount} matchups
+                      </div>
+                    )}
                   </td>
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', color: '#666', whiteSpace: 'nowrap' }}>
                     {isDesktop ? formatPollDate(poll.date) : formatPollDateShort(poll.date)}

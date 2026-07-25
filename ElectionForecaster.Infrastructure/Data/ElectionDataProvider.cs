@@ -231,6 +231,25 @@ public static partial class ElectionDataProvider
         return (name, Party.Democrat, incumbent);
     }
 
+    /// <summary>
+    /// The compile-time settled nominee names for a race — null for a side whose nominating
+    /// contest hasn't concluded (that's the convention of the nominee tables below). Stored
+    /// nominee overrides from the daily candidate refresh take precedence at call sites.
+    /// </summary>
+    public static (string? Dem, string? Rep) GetStaticNomineeNames(string raceId)
+    {
+        var parts = raceId.Split('-');
+        if (parts.Length < 3) return (null, null);
+        var state = parts[0];
+        var (dem, rep) = parts[1] switch
+        {
+            "SEN" => SenateNominees.TryGetValue(state, out var s) ? s : default,
+            "GOV" => GovernorNominees.TryGetValue(state, out var g) ? g : default,
+            _ => HouseNominees.TryGetValue($"{state}-{parts[1]}", out var h) ? h : default,
+        };
+        return (dem?.Name, rep?.Name);
+    }
+
     // -----------------------------------------------------------------------------------------
     // 2026 nominees — sourced from Wikipedia as of 2026-07-02. A name is filled in only where
     // that party's nominating contest has CONCLUDED (primary/runoff held before this date);

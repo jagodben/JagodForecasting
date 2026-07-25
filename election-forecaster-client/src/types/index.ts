@@ -137,6 +137,9 @@ export interface Poll {
   margin: number;
   isPartisan: boolean;
   partisanLean?: string; // "D" | "R" | "I" when isPartisan
+  // >1 while primaries are undecided: the poll tested several hypothetical matchups and the
+  // model averages across them (the shown numbers are the first-listed matchup).
+  matchupCount: number;
 }
 
 export interface RacePolls {

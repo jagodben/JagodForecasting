@@ -176,6 +176,11 @@ export const PollsPage = () => {
                 <td style={{ ...cell, whiteSpace: 'normal' }}>
                   {poll.pollster}
                   {poll.isPartisan && <PartisanBadge lean={poll.partisanLean} />}
+                  {poll.matchupCount > 1 && (
+                    <div style={{ fontSize: '11px', color: '#999' }}>
+                      averaged across {poll.matchupCount} matchups
+                    </div>
+                  )}
                 </td>
                 <td style={{ ...cell, color: '#666' }}>
                   {isDesktop ? formatDate(poll.date) : formatDateShort(poll.date)}
