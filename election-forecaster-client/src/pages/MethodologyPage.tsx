@@ -50,14 +50,11 @@ export const MethodologyPage = () => {
 
       <p style={{ color: '#333333', fontSize: '15px', lineHeight: 1.6 }}>
         Everything updates once a day at 8:00 AM ET — polls, markets, and the candidates themselves,
-        which are checked against Wikipedia so primaries, dropouts, and replacements show up
-        automatically.
+        so primaries, dropouts, and replacements show up automatically.
       </p>
 
       <p style={{ color: '#6b6b6b', fontSize: '13px', lineHeight: 1.6 }}>
         A personal modeling project — not affiliated with any campaign, and not professional guidance.
-        Candidate photos via <a href="https://en.wikipedia.org" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>Wikipedia</a>/Wikimedia
-        Commons contributors.
       </p>
 
       <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
