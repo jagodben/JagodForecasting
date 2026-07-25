@@ -51,7 +51,7 @@ const Pipeline = () => (
         ['National environment', 'generic ballot'],
         ['Markets', 'Polymarket odds'],
       ].map(([name, sub]) => (
-        <div key={name} style={{ ...stageBox, flex: '1 1 130px', padding: '8px 6px' }}>
+        <div key={name} style={{ ...stageBox, flex: '1 1 40%', padding: '8px 6px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <strong>{name}</strong>
           <div style={{ color: '#777777', fontSize: '12px' }}>{sub}</div>
         </div>
