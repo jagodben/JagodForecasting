@@ -267,21 +267,21 @@ public partial class WikipediaPollingClient : IPollingSource
             return new List<PollData>();
         }
 
-        var polls = new List<PollData>();
+        // Each hypothetical-matchup table repeats the same pollster's result for a different
+        // candidate pairing. Blend them: one row per (pollster, date), first-listed matchup for
+        // display, the cross-matchup mean and spread for the model.
+        var parsed = new List<(PollData Poll, int TableIndex)>();
+        var tableIndex = 0;
         foreach (var table in ExtractTables(scanBlock))
         {
-            polls.AddRange(ParseTable(table, raceId, twoWayOnly));
+            foreach (var poll in ParseTable(table, raceId, twoWayOnly))
+                parsed.Add((poll, tableIndex));
+            tableIndex++;
         }
-
-        // A pollster's result is repeated across each hypothetical-matchup table.
-        // Keep the first occurrence per (pollster, date) — the actual-nominee matchup is listed first.
-        var deduped = polls
-            .GroupBy(p => (p.Pollster, p.Date.Date))
-            .Select(g => g.First())
-            .ToList();
+        var deduped = MatchupBlender.Blend(parsed);
 
         _logger.LogInformation("Parsed {Count} polls ({Raw} rows) for {RaceId} from Wikipedia",
-            deduped.Count, polls.Count, raceId);
+            deduped.Count, parsed.Count, raceId);
         return deduped;
     }
 
@@ -661,6 +661,14 @@ public partial class WikipediaPollingClient : IPollingSource
                 // pollster pair losing its bogus "Partisan (R)") — keep the row current.
                 if (existing.Methodology != poll.Methodology)
                     existing.Methodology = poll.Methodology;
+
+                // The matchup blend is recomputed each parse (tables get added or reordered as
+                // primaries resolve) — keep the stored copy current for the DB-fallback and
+                // backfill paths. Display percentages stay as first stored.
+                existing.BlendDemPercent = poll.BlendDemPercent;
+                existing.BlendRepPercent = poll.BlendRepPercent;
+                existing.MatchupCount = poll.MatchupCount;
+                existing.MatchupSpread = poll.MatchupSpread;
             }
             else
             {
@@ -672,6 +680,10 @@ public partial class WikipediaPollingClient : IPollingSource
                     SampleSize = poll.SampleSize,
                     DemPercent = poll.DemPercent,
                     RepPercent = poll.RepPercent,
+                    BlendDemPercent = poll.BlendDemPercent,
+                    BlendRepPercent = poll.BlendRepPercent,
+                    MatchupCount = poll.MatchupCount,
+                    MatchupSpread = poll.MatchupSpread,
                     PollsterRating = poll.PollsterRating,
                     Methodology = poll.Methodology,
                     Population = poll.Population
@@ -696,6 +708,10 @@ public partial class WikipediaPollingClient : IPollingSource
             SampleSize = e.SampleSize,
             DemPercent = e.DemPercent,
             RepPercent = e.RepPercent,
+            BlendDemPercent = e.BlendDemPercent,
+            BlendRepPercent = e.BlendRepPercent,
+            MatchupCount = e.MatchupCount,
+            MatchupSpread = e.MatchupSpread,
             PollsterRating = e.PollsterRating,
             Methodology = e.Methodology,
             Population = e.Population

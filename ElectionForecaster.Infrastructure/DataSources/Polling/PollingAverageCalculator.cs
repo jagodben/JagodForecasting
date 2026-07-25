@@ -28,16 +28,18 @@ public static class PollingAverageCalculator
         }
 
         var now = asOf ?? DateTime.UtcNow;
-        double totalWeight = 0, weightedDem = 0, weightedRep = 0;
+        double totalWeight = 0, weightedDem = 0, weightedRep = 0, weightedSpread = 0;
         int totalSampleSize = 0, sampleCount = 0;
 
         foreach (var poll in polls)
         {
             var weight = poll.GetWeight(now);
 
+            // Model percentages: the cross-matchup blend for undecided-primary polls, the poll as
+            // published otherwise.
             // De-bias by the pollster's estimated house effect: split the correction evenly across
             // the two parties so the margin shifts toward neutral while the two-party sum is kept.
-            double demPct = poll.DemPercent, repPct = poll.RepPercent;
+            double demPct = poll.ModelDemPercent, repPct = poll.ModelRepPercent;
             if (houseEffects != null &&
                 houseEffects.TryGetValue(poll.Pollster, out var effect) && effect != 0)
             {
@@ -48,6 +50,7 @@ public static class PollingAverageCalculator
             totalWeight += weight;
             weightedDem += demPct * weight;
             weightedRep += repPct * weight;
+            weightedSpread += poll.MatchupSpread * weight;
 
             if (poll.SampleSize.HasValue)
             {
@@ -66,6 +69,7 @@ public static class PollingAverageCalculator
             RaceId = raceId,
             DemPercent = weightedDem / totalWeight,
             RepPercent = weightedRep / totalWeight,
+            NomineeSpread = weightedSpread / totalWeight,
             PollCount = polls.Count,
             LatestPollDate = polls.Max(p => p.Date),
             AverageSampleSize = sampleCount > 0 ? totalSampleSize / sampleCount : null,

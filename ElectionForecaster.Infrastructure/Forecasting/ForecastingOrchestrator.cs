@@ -226,6 +226,13 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         if (RankedChoiceVoting.IsRankedChoice(raceId))
             se = Math.Sqrt(se * se + RankedChoiceVoting.ExtraStandardError * RankedChoiceVoting.ExtraStandardError);
 
+        // Undecided primaries: when recent polls test several hypothetical matchups, the spread
+        // between them measures how much the race hinges on who gets nominated. Like the RCV term,
+        // price that as extra SE rather than trying to forecast the primary; it decays to zero as
+        // single-matchup post-primary polls take over the average.
+        if (polling is { NomineeSpread: > 0 })
+            se = Math.Sqrt(se * se + Math.Pow(polling.NomineeSpread / 2.0, 2));
+
         // Safety net: if a liquid market sharply disagrees with the structural blend, lean on the
         // market — it usually knows something PVI/priors/polls-so-far can't (the VT-GOV class).
         ApplyMarketDisagreementGuard(weights, marketOdds, polling, fundamentals, se, raceId);
