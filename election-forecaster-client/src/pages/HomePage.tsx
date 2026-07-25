@@ -97,7 +97,7 @@ export const HomePage = () => {
           <img src="/favicon-inverted.png" alt="" aria-hidden className="dashboard-logo" />
           <h1 className="dashboard-title">Jagod Forecasting 2026</h1>
           <Link to="/polls" className="dashboard-header__link">All Polls</Link>
-          <Link to="/methodology" className="dashboard-header__link">About</Link>
+          <Link to="/methodology" className="dashboard-header__link">Methodology</Link>
         </div>
         <div className="dashboard-tabs">
           {(['senate', 'house', 'governors'] as MapView[]).map((view) => (

@@ -14,7 +14,7 @@ export const SiteFooter = () => {
         <span className="site-footer__dot" aria-hidden>·</span>
         <Link to="/polls" className="site-footer__link">Polls</Link>
         <span className="site-footer__dot" aria-hidden>·</span>
-        <Link to="/methodology" className="site-footer__link">About</Link>
+        <Link to="/methodology" className="site-footer__link">Methodology</Link>
       </span>
       <span className="site-footer__disclaimer">
         <span className="site-footer__dot" aria-hidden>·</span>

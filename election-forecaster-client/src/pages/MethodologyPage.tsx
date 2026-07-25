@@ -183,18 +183,18 @@ const TailChart = () => {
 /* --------------------------------------------------------------- the page */
 
 export const MethodologyPage = () => {
-  useDocumentTitle('About');
+  useDocumentTitle('Methodology');
 
   return (
     <div style={{ backgroundColor: 'white', minHeight: '100vh', padding: '20px', maxWidth: '640px', margin: '0 auto' }}>
       <nav className="breadcrumb" style={{ marginBottom: '20px' }}>
         <Link to="/">Map</Link>
         <span> / </span>
-        <span>About</span>
+        <span>Methodology</span>
       </nav>
 
       <header style={{ marginBottom: '20px' }}>
-        <h1 style={{ margin: '0 0 8px 0' }}>About</h1>
+        <h1 style={{ margin: '0 0 8px 0' }}>Methodology</h1>
         <p style={{ ...body, color: MUTED, margin: 0 }}>
           Each 2026 race gets a single forecast by blending four inputs, listed here in rough order
           of weight:
@@ -243,7 +243,7 @@ export const MethodologyPage = () => {
         </p>
       </Section>
 
-      <Section title="The daily rhythm">
+      <Section title="Daily updates">
         <p style={body}>
           Everything updates once a day at 8:00 AM ET — polls, markets, and the candidates
           themselves, so primaries, dropouts, and replacements show up automatically. Each
