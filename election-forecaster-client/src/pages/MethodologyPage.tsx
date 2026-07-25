@@ -238,8 +238,8 @@ export const MethodologyPage = () => {
         <p style={body}>
           Chamber odds come from 10,000 simulated elections. Each simulation shares one national
           polling miss and one regional miss across races before adding race-level noise, so upsets
-          cluster the way they do in real elections. Democrats need 51 Senate seats (the Vice
-          President breaks ties for Republicans) and 218 House seats.
+          cluster the way they do in real elections. In the event of a tied Senate, Republicans
+          would retain the majority with the Vice President having the tie-breaking vote.
         </p>
       </Section>
 
