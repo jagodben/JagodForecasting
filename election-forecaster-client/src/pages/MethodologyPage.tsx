@@ -81,9 +81,9 @@ const WEIGHT_LABELS = {
 // Normalized shares for a typical fully-polled Senate race in each calendar phase,
 // mirroring the backend WeightCalculator (base 45/40/15, shifted by time to election).
 const WEIGHT_PHASES = [
-  { label: '2–6 months out', minDays: 60, polls: 47, fundamentals: 39, markets: 14 },
-  { label: '2 weeks – 2 months out', minDays: 14, polls: 63, fundamentals: 24, markets: 13 },
-  { label: 'Final two weeks', minDays: -Infinity, polls: 69, fundamentals: 19, markets: 12 },
+  { label: '2–6 months out', minDays: 60, polls: 42, fundamentals: 38, markets: 20 },
+  { label: '2 weeks – 2 months out', minDays: 14, polls: 62, fundamentals: 24, markets: 14 },
+  { label: 'Final two weeks', minDays: -Infinity, polls: 70, fundamentals: 19, markets: 11 },
 ];
 
 const WeightChart = () => {
@@ -218,8 +218,10 @@ export const MethodologyPage = () => {
 
       <Section title="Blending the inputs">
         <p style={body}>
-          The base blend is 45% polls, 40% fundamentals, 15% markets — shifting toward polls as
-          Election Day nears, and renormalizing around what each race actually has.
+          The blend shifts with the calendar: far out, fundamentals lead and markets carry extra
+          weight (early polls are sparse, while markets price in what polls can&rsquo;t see yet);
+          as Election Day nears, polls take over and markets fade to a sanity check. Weights also
+          renormalize around what each race actually has.
         </p>
         <WeightChart />
       </Section>
