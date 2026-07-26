@@ -7,8 +7,11 @@ namespace ElectionForecaster.Infrastructure.Forecasting;
 /// <summary>
 /// Calculates dynamic weights for blending the three forecast signals — polling,
 /// fundamentals, and prediction markets — in margin space. Polling gains weight as the
-/// election nears; fundamentals carry the early forecast; markets are a smaller sanity
-/// input (they largely re-digest the same polls and carry a favorite-longshot bias).
+/// election nears. Far from the election the roles reverse: fundamentals carry the
+/// forecast and markets get an elevated voice (sparse early polls are noisy, while
+/// markets price in things they can't see yet — primary risk, retirements, scandals).
+/// Near the election markets fade back to a sanity input: by then they largely
+/// re-digest the same polls and carry a favorite-longshot bias.
 /// The national environment / approval is folded into fundamentals, not weighted here.
 /// </summary>
 public class WeightCalculator
@@ -100,28 +103,31 @@ public class WeightCalculator
 
     private void AdjustForTimeToElection(ForecastWeights weights, double daysToElection)
     {
-        // Base weights represent the ~2-6 month window. Shift toward fundamentals when far
-        // out (few/no polls, mood not yet set) and toward polling as election day nears.
+        // Base weights represent the ~2-6 month window. Far out, polls are sparse and
+        // unrepresentative while markets aggregate information polls can't capture yet, so
+        // fundamentals lead with markets elevated; polling takes over as election day nears
+        // and the markets' edge (being early) evaporates.
         if (daysToElection > 180)
         {
-            weights.FundamentalsWeight *= 1.6;
+            weights.FundamentalsWeight *= 1.5;
+            weights.MarketWeight *= 1.5;
             weights.PollingWeight *= 0.45;
         }
         else if (daysToElection > 60)
         {
-            // ~2-6 months: use base weights.
+            weights.MarketWeight *= 1.4;
+            weights.PollingWeight *= 0.9;
         }
         else if (daysToElection > 14)
         {
             weights.PollingWeight *= 1.35;
             weights.FundamentalsWeight *= 0.65;
-            weights.MarketWeight *= 0.9;
         }
         else
         {
             weights.PollingWeight *= 1.5;
             weights.FundamentalsWeight *= 0.5;
-            weights.MarketWeight *= 0.85;
+            weights.MarketWeight *= 0.8;
         }
     }
 

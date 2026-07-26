@@ -54,7 +54,10 @@ California's top-two governor race) fall back to the other signals.
 
 Each signal is expressed as an expected Democratic margin and combined with weights
 that shift by data availability, time to election, and race type (baseline: polling
-0.45, fundamentals 0.40, markets 0.15). Two safeguards:
+0.45, fundamentals 0.40, markets 0.15). Far from the election, markets carry extra
+weight (~1.4–1.5×) and polling less — sparse early polls are noisy, while markets
+price in primary risk and news polls can't see yet; the boost fades as polling
+volume takes over in the fall. Two safeguards:
 
 - **Market-disagreement guard** — when a liquid market diverges from the
   poll+fundamentals blend by more than 10 points of implied margin, the market's

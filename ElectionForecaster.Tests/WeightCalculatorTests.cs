@@ -61,4 +61,18 @@ public class WeightCalculatorTests
         var thin = Calc().CalculateWeights(Market(volume: 500), Polls(), Fundamentals(), RaceType.Senate, AsOf);
         Assert.True(liquid.MarketWeight > thin.MarketWeight);
     }
+
+    [Fact]
+    public void MarketsFadeAndPollsRiseAsElectionNears()
+    {
+        var electionDay = new DateTime(2026, 11, 3);
+        var farOut = Calc().CalculateWeights(Market(), Polls(), Fundamentals(), RaceType.Senate, electionDay.AddDays(-200));
+        var midCycle = Calc().CalculateWeights(Market(), Polls(), Fundamentals(), RaceType.Senate, electionDay.AddDays(-100));
+        var closing = Calc().CalculateWeights(Market(), Polls(), Fundamentals(), RaceType.Senate, electionDay.AddDays(-7));
+
+        Assert.True(farOut.MarketWeight > midCycle.MarketWeight);
+        Assert.True(midCycle.MarketWeight > closing.MarketWeight);
+        Assert.True(farOut.PollingWeight < midCycle.PollingWeight);
+        Assert.True(midCycle.PollingWeight < closing.PollingWeight);
+    }
 }
