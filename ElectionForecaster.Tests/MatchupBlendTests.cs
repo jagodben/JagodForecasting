@@ -96,17 +96,34 @@ public class MatchupBlendTests
     }
 
     [Fact]
-    public void Collapse_NomineeNeverPolled_FallsBackToFullBlend()
+    public void Collapse_PollOfOnlyDefeatedCandidates_IsDropped()
     {
+        // The Michigan scenario: the settled nominee appears in none of this poll's matchups
+        // (every pairing stars a candidate who lost their primary), so the poll says nothing
+        // about the race as it now stands and must not enter the model at all. A same-day poll
+        // from another pollster that did test the nominee survives.
         var result = MatchupBlender.Collapse(new[]
         {
             Poll(47, 42, demCandidate: "Mandela Barnes", repCandidate: "Tom Tiffany"),
             Poll(40, 43, demCandidate: "Francesca Hong", repCandidate: "Tom Tiffany"),
+            Poll(45, 44, "Wedgewood", demCandidate: "Kelda Roys", repCandidate: "Tom Tiffany"),
         }, demNominee: "Kelda Roys");
 
         var effective = Assert.Single(result);
-        Assert.Equal(2, effective.MatchupCount);
-        Assert.Equal(43.5, effective.DemPercent, 6);
+        Assert.Equal("Wedgewood", effective.Pollster);
+        Assert.Equal(45, effective.DemPercent);
+    }
+
+    [Fact]
+    public void Collapse_LegacyRowsWithoutCandidates_SurviveSettledNominees()
+    {
+        // Rows stored before matchups were tracked have no candidate names — they were the
+        // published nominee matchup of their day, so a settled primary must not drop them.
+        var legacy = Poll(46, 45);
+        var result = MatchupBlender.Collapse(new[] { legacy }, demNominee: "Kelda Roys", repNominee: "Tom Tiffany");
+
+        var effective = Assert.Single(result);
+        Assert.Same(legacy, effective);
     }
 
     [Fact]
