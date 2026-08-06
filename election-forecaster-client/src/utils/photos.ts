@@ -3,6 +3,7 @@ import photoData from '../data/candidatePhotos.json';
 export interface CandidatePhoto {
   photo: string; // self-hosted /candidates/*.webp avatar (84px, pre-cropped by the tool)
   page: string;  // the article it came from — used as the attribution link
+  src?: string;  // wikimedia thumb the avatar was rendered from — regen bookkeeping only
 }
 
 const photos = photoData as Record<string, CandidatePhoto>;
