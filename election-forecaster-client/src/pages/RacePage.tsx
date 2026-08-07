@@ -381,11 +381,16 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
     <div style={{ width: '100%' }}>
       <h3 style={{ margin: '0 0 4px 0' }}>Polls</h3>
       <div style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-        Weighted average of {avg?.pollCount ?? data.polls.length} poll{(avg?.pollCount ?? data.polls.length) === 1 ? '' : 's'} · recency &amp; sample-size weighted
+        {(avg?.pollCount ?? data.polls.length) > 0 ? (
+          <>Weighted average of {avg?.pollCount ?? data.polls.length} poll{(avg?.pollCount ?? data.polls.length) === 1 ? '' : 's'} · recency &amp; sample-size weighted</>
+        ) : (
+          <>No polls of the current matchup yet — the polls below tested candidates who lost their primaries, so they don&rsquo;t count toward the model</>
+        )}
       </div>
 
-      {/* Weighted average summary */}
-      {avg && (
+      {/* Weighted average summary — hidden when no usable polls exist, so a race whose polls
+          all predate the settled nominees doesn't render a meaningless 0.0% card. */}
+      {avg && avg.pollCount > 0 && (
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-around',
           padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', marginBottom: '20px',
