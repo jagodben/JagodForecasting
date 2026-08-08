@@ -1,0 +1,44 @@
+name: Nightly candidate photo refresh
+
+# Keeps candidate avatars in sync with the roster: every primary night the daily 8 AM ET
+# candidate refresh swaps placeholders for real nominees, and this run fetches their photos
+# (Wikipedia page images, identity-checked via Wikidata) so new nominees never ship without
+# an avatar. Incremental — already-downloaded photos are kept, only roster changes act.
+on:
+  schedule:
+    - cron: "15 14 * * *" # 10:15 AM ET (EDT), after the 8 AM candidate refresh and the 9:45 backup
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  photos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install certifi pillow
+
+      - name: Fetch photos for current nominees
+        env:
+          FORECAST_API: https://api.jagodforecasting.com/api
+        run: python tools/fetch_candidate_photos.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add election-forecaster-client/public/candidates election-forecaster-client/src/data/candidatePhotos.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+            exit 0
+          fi
+          git commit -m "Nightly candidate photo refresh"
+          git pull --rebase origin master
+          git push origin master

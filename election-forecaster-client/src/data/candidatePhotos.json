@@ -42,7 +42,7 @@
  "AL-GOV-2026|Tommy Tuberville": {
   "page": "https://en.wikipedia.org/wiki/Tommy_Tuberville",
   "photo": "/candidates/al-gov-2026-tommy-tuberville.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Tommy_tuberville.jpg/330px-Tommy_tuberville.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Sen._Tommy_Tuberville_Official_Portrait%2C_118th_Congress_%28cropped%29.jpg/330px-Sen._Tommy_Tuberville_Official_Portrait%2C_118th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AL-SEN-2026|Barry Moore": {
   "page": "https://en.wikipedia.org/wiki/Barry_Moore_%28American_politician%29",
@@ -732,7 +732,7 @@
  "GA-12-2026|Rick Allen": {
   "page": "https://en.wikipedia.org/wiki/Rick_Allen_%28politician%29",
   "photo": "/candidates/ga-12-2026-rick-allen.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Rick_Allen_Official_Photo%2C_114th_Congress.jpg/330px-Rick_Allen_Official_Photo%2C_114th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Rick_Allen_Official_Photo%2C_119th_Congress.jpg/330px-Rick_Allen_Official_Photo%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "GA-13-2026|Jasmine Clark": {
   "page": "https://en.wikipedia.org/wiki/Jasmine_Clark",
@@ -2184,6 +2184,11 @@
   "photo": "/candidates/tn-04-2026-scott-desjarlais.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Scott_DesJarlais_118th_Congress.jpg/330px-Scott_DesJarlais_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "TN-05-2026|Chaz Molder": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Tennessee",
+  "photo": "/candidates/tn-05-2026-chaz-molder.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Mayor_Chaz_Molder_%28cropped%29.jpg/330px-Mayor_Chaz_Molder_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "TN-07-2026|Matt Van Epps": {
   "page": "https://en.wikipedia.org/wiki/Matt_Van_Epps",
   "photo": "/candidates/tn-07-2026-matt-van-epps.webp",
@@ -2194,10 +2199,30 @@
   "photo": "/candidates/tn-08-2026-david-kustoff.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Rep._David_Kustoff%2C_official_portrait%2C_2023.jpg/330px-Rep._David_Kustoff%2C_official_portrait%2C_2023.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "TN-09-2026|Brent Taylor": {
+  "page": "https://en.wikipedia.org/wiki/Brent_Taylor_%28Tennessee_politician%29",
+  "photo": "/candidates/tn-09-2026-brent-taylor.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Brent_Taylor_%28Tennessee_politician%29.jpg/330px-Brent_Taylor_%28Tennessee_politician%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "TN-09-2026|Justin J. Pearson": {
+  "page": "https://en.wikipedia.org/wiki/Justin_J._Pearson",
+  "photo": "/candidates/tn-09-2026-justin-j-pearson.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Justin_J_Pearson_August_2023.jpg/330px-Justin_J_Pearson_August_2023.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "TN-GOV-2026|Marsha Blackburn": {
+  "page": "https://en.wikipedia.org/wiki/Marsha_Blackburn",
+  "photo": "/candidates/tn-gov-2026-marsha-blackburn.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Sen._Marsha_Blackburn_%28R-TN%29_official_headshot_-_116th_Congress.jpg/330px-Sen._Marsha_Blackburn_%28R-TN%29_official_headshot_-_116th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "TN-SEN-2026|Bill Hagerty": {
   "page": "https://en.wikipedia.org/wiki/Bill_Hagerty",
   "photo": "/candidates/tn-sen-2026-bill-hagerty.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Bill_Hagerty_senatorial_portrait.jpg/330px-Bill_Hagerty_senatorial_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "TN-SEN-2026|Marquita Bradshaw": {
+  "page": "https://en.wikipedia.org/wiki/Marquita_Bradshaw",
+  "photo": "/candidates/tn-sen-2026-marquita-bradshaw.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg/330px-Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-01-2026|Nathaniel Moran": {
   "page": "https://en.wikipedia.org/wiki/Nathaniel_Moran",

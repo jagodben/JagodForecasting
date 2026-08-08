@@ -141,6 +141,36 @@ public class MatchupBlendTests
     }
 
     [Fact]
+    public void Collapse_NomineeMatching_ToleratesShortFormFirstNames()
+    {
+        // The ME-02 regression: the roster says "Matthew Dunlap", the poll table says
+        // "Matt Dunlap". Containment misses that, and dropping it zeroed the race's average —
+        // the loose surname + first-name-prefix pass must keep the poll alive.
+        var result = MatchupBlender.Collapse(new[]
+        {
+            Poll(40, 50, demCandidate: "Matt Dunlap", repCandidate: "Paul LePage"),
+        }, demNominee: "Matthew Dunlap", repNominee: "Paul LePage");
+
+        var effective = Assert.Single(result);
+        Assert.Equal(40, effective.DemPercent);
+    }
+
+    [Fact]
+    public void Collapse_NomineeMatching_ToleratesCommonDiminutives()
+    {
+        // Non-prefix nicknames ("Bob" for "Robert") come from the fixed diminutive table.
+        var result = MatchupBlender.Collapse(new[]
+        {
+            Poll(44, 47, demCandidate: "Bob Casey", repCandidate: "Someone Else"),
+            Poll(41, 49, demCandidate: "Another Person", repCandidate: "Someone Else"),
+        }, demNominee: "Robert Casey");
+
+        var effective = Assert.Single(result);
+        Assert.Equal(44, effective.DemPercent);
+        Assert.Equal(1, effective.MatchupCount);
+    }
+
+    [Fact]
     public void Collapse_KeepsPollstersAndDatesSeparate()
     {
         var other = new DateTime(2026, 7, 4);

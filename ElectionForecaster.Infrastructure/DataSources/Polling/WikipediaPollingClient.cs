@@ -372,10 +372,17 @@ public partial class WikipediaPollingClient : IPollingSource
         }
 
         // Within one table a pollster/date can repeat (a likely-voter line then a
-        // registered-voter line) — keep the first (LV) line only.
+        // registered-voter line) — keep the first (LV) line, adopting a sibling line's
+        // sample size when the kept line didn't publish one (some polls print the N only
+        // on the RV row).
         return polls
             .GroupBy(p => (p.Pollster, p.Date.Date))
-            .Select(g => g.First())
+            .Select(g =>
+            {
+                var kept = g.First();
+                kept.SampleSize ??= g.Skip(1).FirstOrDefault(x => x.SampleSize.HasValue)?.SampleSize;
+                return kept;
+            })
             .ToList();
     }
 
@@ -720,6 +727,11 @@ public partial class WikipediaPollingClient : IPollingSource
                     // pollster pair losing its bogus "Partisan (R)") — keep the row current.
                     if (match.Methodology != poll.Methodology)
                         match.Methodology = poll.Methodology;
+
+                    // Fill a missing stored sample size once a re-parse finds one (the RV-line
+                    // adoption above); never null-out a stored value on a page regression.
+                    if (poll.SampleSize.HasValue && match.SampleSize != poll.SampleSize)
+                        match.SampleSize = poll.SampleSize;
                 }
                 else
                 {
