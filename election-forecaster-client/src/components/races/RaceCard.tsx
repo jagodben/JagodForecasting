@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCandidatePhoto } from '../../utils/photos';
 import { CandidateAvatar } from '../CandidateAvatar';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
@@ -76,7 +76,6 @@ interface RaceCardProps {
 }
 
 export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
-  const navigate = useNavigate();
   // The Republican holds the R-side; the challenger is the other candidate — a Democrat, or a viable
   // independent (e.g. Dan Osborn) that replaced the token Democrat. It carries the Dem-side probability.
   const repCandidate = race.candidates.find(c => c.party === Party.Republican);
@@ -97,14 +96,16 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
   const repProbability = detailed?.repWinProbability ?? repForecast?.winProbability;
 
   if (compact) {
+    // A real <a href> (via Link) rather than a div with onClick, so crawlers can discover
+    // every race page from the sidebar lists.
     return (
-      <div
+      <Link
+        to={`/race/${race.id}`}
         className="race-card compact race-card--clickable"
-        role="link"
-        tabIndex={0}
-        onClick={() => navigate(`/race/${race.id}`)}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/race/${race.id}`); } }}
         style={{
+          display: 'block',
+          color: 'inherit',
+          textDecoration: 'none',
           padding: '12px',
           borderRadius: '8px',
           backgroundColor: '#fff',
@@ -129,18 +130,18 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
             {getRatingLabel(race.rating)}
           </span>
         </div>
-      </div>
+      </Link>
     );
   }
 
   return (
-    <div
+    <Link
+      to={`/race/${race.id}`}
       className="race-card race-card--clickable"
-      role="link"
-      tabIndex={0}
-      onClick={() => navigate(`/race/${race.id}`)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/race/${race.id}`); } }}
       style={{
+        display: 'block',
+        color: 'inherit',
+        textDecoration: 'none',
         padding: '20px',
         borderRadius: '12px',
         backgroundColor: '#fff',
@@ -202,7 +203,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           </span>
         </div>
       )}
-    </div>
+    </Link>
   );
 };
 

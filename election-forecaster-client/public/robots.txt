@@ -3,3 +3,5 @@ Allow: /
 
 # Static geometry/data files aren't useful search results
 Disallow: /data/
+
+Sitemap: https://jagodforecasting.com/sitemap.xml
