@@ -574,11 +574,6 @@
   "photo": "/candidates/ct-05-2026-jahana-hayes.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Jahana_Hayes%2C_official_portrait%2C_116th_Congress.jpg/330px-Jahana_Hayes%2C_official_portrait%2C_116th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "CT-GOV-2026|Ryan Fazio": {
-  "page": "https://en.wikipedia.org/wiki/Ryan_Fazio",
-  "photo": "/candidates/ct-gov-2026-ryan-fazio.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Fazio-State-Senate_%28cropped%29.jpg/330px-Fazio-State-Senate_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
  "DE-01-2026|Sarah McBride": {
   "page": "https://en.wikipedia.org/wiki/Sarah_McBride",
   "photo": "/candidates/de-01-2026-sarah-mcbride.webp",
@@ -759,10 +754,20 @@
   "photo": "/candidates/ga-sen-2026-mike-collins.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Rep._Mike_Collins_official_photo%2C_118th_Congress.jpg/330px-Rep._Mike_Collins_official_photo%2C_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "HI-01-2026|Ed Case": {
+  "page": "https://en.wikipedia.org/wiki/Ed_Case",
+  "photo": "/candidates/hi-01-2026-ed-case.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Ed_Case%2C_official_portrait%2C_119th_Congress.jpg/330px-Ed_Case%2C_official_portrait%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "HI-02-2026|Brenton Awa": {
   "page": "https://en.wikipedia.org/wiki/Brenton_Awa",
   "photo": "/candidates/hi-02-2026-brenton-awa.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Senator_Awa_Visits_Marine_Corps_Base_Hawaii_%288%29_%28cropped%29.jpg/330px-Senator_Awa_Visits_Marine_Corps_Base_Hawaii_%288%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "HI-02-2026|Jill Tokuda": {
+  "page": "https://en.wikipedia.org/wiki/Jill_Tokuda",
+  "photo": "/candidates/hi-02-2026-jill-tokuda.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Rep._Jill_Tokuda_official_photo%2C_118th_Congress_%281%29.jpg/330px-Rep._Jill_Tokuda_official_photo%2C_118th_Congress_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "HI-GOV-2026|Josh Green": {
   "page": "https://en.wikipedia.org/wiki/Josh_Green_%28politician%29",
@@ -1377,7 +1382,7 @@
  "MS-02-2026|Bennie Thompson": {
   "page": "https://en.wikipedia.org/wiki/Bennie_Thompson",
   "photo": "/candidates/ms-02-2026-bennie-thompson.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/2/23/Bennie_Thompson_118th_Congress.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Bennie_Thompson_118th_Congress.jpeg/330px-Bennie_Thompson_118th_Congress.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MS-03-2026|Michael Guest": {
   "page": "https://en.wikipedia.org/wiki/Michael_Guest_%28politician%29",
@@ -1398,6 +1403,11 @@
   "page": "https://en.wikipedia.org/wiki/Cindy_Hyde-Smith",
   "photo": "/candidates/ms-sen-2026-cindy-hyde-smith.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Official_headshot_of_US_Senator_Cindy_Hyde-Smith.jpg/330px-Official_headshot_of_US_Senator_Cindy_Hyde-Smith.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MT-01-2026|Sam Forstag": {
+  "page": "https://en.wikipedia.org/wiki/Sam_Forstag",
+  "photo": "/candidates/mt-01-2026-sam-forstag.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Sam_Forstag_Portrait_%28cropped%29.jpg/330px-Sam_Forstag_Portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MT-02-2026|Troy Downing": {
   "page": "https://en.wikipedia.org/wiki/Troy_Downing",
