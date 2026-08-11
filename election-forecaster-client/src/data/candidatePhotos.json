@@ -769,6 +769,11 @@
   "photo": "/candidates/hi-02-2026-jill-tokuda.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Rep._Jill_Tokuda_official_photo%2C_118th_Congress_%281%29.jpg/330px-Rep._Jill_Tokuda_official_photo%2C_118th_Congress_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "HI-GOV-2026|Gary Cordery": {
+  "page": "https://en.wikipedia.org/wiki/2026_Hawaii_gubernatorial_election",
+  "photo": "/candidates/hi-gov-2026-gary-cordery.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Gary_Cordery_Hawaii.jpg/330px-Gary_Cordery_Hawaii.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "HI-GOV-2026|Josh Green": {
   "page": "https://en.wikipedia.org/wiki/Josh_Green_%28politician%29",
   "photo": "/candidates/hi-gov-2026-josh-green.webp",
@@ -1484,6 +1489,11 @@
   "photo": "/candidates/nc-10-2026-pat-harrigan.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/CongressmanPatHarriganPortrait.jpg/330px-CongressmanPatHarriganPortrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "NC-11-2026|Jennifer Balkcom": {
+  "page": "https://en.wikipedia.org/wiki/Jennifer_Balkcom",
+  "photo": "/candidates/nc-11-2026-jennifer-balkcom.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Rep._Jennifer_Balkcom.jpg/330px-Rep._Jennifer_Balkcom.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "NC-12-2026|Alma Adams": {
   "page": "https://en.wikipedia.org/wiki/Alma_Adams",
   "photo": "/candidates/nc-12-2026-alma-adams.webp",
@@ -1712,7 +1722,7 @@
  "NY-06-2026|Grace Meng": {
   "page": "https://en.wikipedia.org/wiki/Grace_Meng",
   "photo": "/candidates/ny-06-2026-grace-meng.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Grace_Meng_in_2021.jpg/330px-Grace_Meng_in_2021.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Grace_Meng_Official_Congressional_Photo.jpg/330px-Grace_Meng_Official_Congressional_Photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NY-07-2026|Claire Valdez": {
   "page": "https://en.wikipedia.org/wiki/Claire_Valdez",
