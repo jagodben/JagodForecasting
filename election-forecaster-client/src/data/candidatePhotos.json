@@ -9,6 +9,21 @@
   "photo": "/candidates/ak-sen-2026-dan-s-sullivan.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Senator_Dan_Sullivan_official.jpg/330px-Senator_Dan_Sullivan_official.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "AL-01-2026|Jerry Carl": {
+  "page": "https://en.wikipedia.org/wiki/Jerry_Carl",
+  "photo": "/candidates/al-01-2026-jerry-carl.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Rep._Jerry_Carl_official_photo.jpg/330px-Rep._Jerry_Carl_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "AL-02-2026|Rhett Marques": {
+  "page": "https://en.wikipedia.org/wiki/Rhett_Marques",
+  "photo": "/candidates/al-02-2026-rhett-marques.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Rhett_Marques.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+ },
+ "AL-02-2026|Shomari Figures": {
+  "page": "https://en.wikipedia.org/wiki/Shomari_Figures",
+  "photo": "/candidates/al-02-2026-shomari-figures.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Figures_Shomari_119th_Congress_2_%284x5_cropped%29.jpg/330px-Figures_Shomari_119th_Congress_2_%284x5_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "AL-03-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Alabama_politician%29",
   "photo": "/candidates/al-03-2026-mike-rogers.webp",
@@ -554,6 +569,11 @@
   "photo": "/candidates/co-sen-2026-mark-baisley.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Mark_Baisley.JPG/330px-Mark_Baisley.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "CT-01-2026|Luke Bronin": {
+  "page": "https://en.wikipedia.org/wiki/Luke_Bronin",
+  "photo": "/candidates/ct-01-2026-luke-bronin.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Luke_Bronin_%2842831415392%29.jpg/330px-Luke_Bronin_%2842831415392%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "CT-02-2026|Joe Courtney": {
   "page": "https://en.wikipedia.org/wiki/Joe_Courtney_%28politician%29",
   "photo": "/candidates/ct-02-2026-joe-courtney.webp",
@@ -573,6 +593,11 @@
   "page": "https://en.wikipedia.org/wiki/Jahana_Hayes",
   "photo": "/candidates/ct-05-2026-jahana-hayes.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Jahana_Hayes%2C_official_portrait%2C_116th_Congress.jpg/330px-Jahana_Hayes%2C_official_portrait%2C_116th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "CT-GOV-2026|Ned Lamont": {
+  "page": "https://en.wikipedia.org/wiki/Ned_Lamont",
+  "photo": "/candidates/ct-gov-2026-ned-lamont.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Governor_Ned_Lamont_of_Connecticut%2C_official_portrait.jpg/330px-Governor_Ned_Lamont_of_Connecticut%2C_official_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "DE-01-2026|Sarah McBride": {
   "page": "https://en.wikipedia.org/wiki/Sarah_McBride",
@@ -1302,17 +1327,27 @@
  "MI-SEN-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
   "photo": "/candidates/mi-sen-2026-mike-rogers.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Mike-Rogers-Head-Shot-2_%283x4_cropped%29.jpg/330px-Mike-Rogers-Head-Shot-2_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Rogers_Mike_32711599270_%28cropped%29.jpg/330px-Rogers_Mike_32711599270_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MN-01-2026|Brad Finstad": {
   "page": "https://en.wikipedia.org/wiki/Brad_Finstad",
   "photo": "/candidates/mn-01-2026-brad-finstad.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Rep._Brad_Finstad_%28R-MN%29%2C_Official_Portrait%2C_119th_Congress.jpg/330px-Rep._Brad_Finstad_%28R-MN%29%2C_Official_Portrait%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MN-01-2026|Jake Johnson": {
+  "page": "https://en.wikipedia.org/wiki/Jake_Johnson_%28politician%29",
+  "photo": "/candidates/mn-01-2026-jake-johnson.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Rep._Jake_Johnson.jpg/330px-Rep._Jake_Johnson.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MN-02-2026|Eric Pratt": {
   "page": "https://en.wikipedia.org/wiki/Eric_Pratt",
   "photo": "/candidates/mn-02-2026-eric-pratt.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Minnesota_State_Senator_Eric_Pratt.jpg/330px-Minnesota_State_Senator_Eric_Pratt.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MN-02-2026|Matt Little": {
+  "page": "https://en.wikipedia.org/wiki/Matt_Little",
+  "photo": "/candidates/mn-02-2026-matt-little.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/2026Little.jpg/330px-2026Little.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MN-03-2026|Kelly Morrison": {
   "page": "https://en.wikipedia.org/wiki/Kelly_Morrison",
@@ -1323,6 +1358,11 @@
   "page": "https://en.wikipedia.org/wiki/Betty_McCollum",
   "photo": "/candidates/mn-04-2026-betty-mccollum.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Betty_McCollum%2C_official_portrait%2C_116th_Congress.jpg/330px-Betty_McCollum%2C_official_portrait%2C_116th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MN-05-2026|Ilhan Omar": {
+  "page": "https://en.wikipedia.org/wiki/Ilhan_Omar",
+  "photo": "/candidates/mn-05-2026-ilhan-omar.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Ilhan_Omar%2C_official_portrait%2C_116th_Congress_%28cropped%29_A.jpg/330px-Ilhan_Omar%2C_official_portrait%2C_116th_Congress_%28cropped%29_A.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MN-06-2026|Tom Emmer": {
   "page": "https://en.wikipedia.org/wiki/Tom_Emmer",
@@ -1338,6 +1378,26 @@
   "page": "https://en.wikipedia.org/wiki/Pete_Stauber",
   "photo": "/candidates/mn-08-2026-pete-stauber.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Pete_Stauber_118th_Congress_%28cropped%29.jpeg/330px-Pete_Stauber_118th_Congress_%28cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MN-GOV-2026|Amy Klobuchar": {
+  "page": "https://en.wikipedia.org/wiki/Amy_Klobuchar",
+  "photo": "/candidates/mn-gov-2026-amy-klobuchar.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Amy_Klobuchar%2C_official_portrait%2C_113th_Congress.jpg/330px-Amy_Klobuchar%2C_official_portrait%2C_113th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MN-GOV-2026|Lisa Demuth": {
+  "page": "https://en.wikipedia.org/wiki/Lisa_Demuth",
+  "photo": "/candidates/mn-gov-2026-lisa-demuth.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Lisa_Demuth%2C_2026_%28cropped%29.jpg/330px-Lisa_Demuth%2C_2026_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MN-SEN-2026|Michele Tafoya": {
+  "page": "https://en.wikipedia.org/wiki/Michele_Tafoya",
+  "photo": "/candidates/mn-sen-2026-michele-tafoya.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/MicheleTafoya2023.jpg/330px-MicheleTafoya2023.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MN-SEN-2026|Peggy Flanagan": {
+  "page": "https://en.wikipedia.org/wiki/Peggy_Flanagan",
+  "photo": "/candidates/mn-sen-2026-peggy-flanagan.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/2026PeggyFlanagan_%28newcropped%29.jpg/330px-2026PeggyFlanagan_%28newcropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MO-01-2026|Wesley Bell": {
   "page": "https://en.wikipedia.org/wiki/Wesley_Bell",
@@ -1418,6 +1478,11 @@
   "page": "https://en.wikipedia.org/wiki/Troy_Downing",
   "photo": "/candidates/mt-02-2026-troy-downing.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Troy_Downing%2C_official_portrait_%28119th_Congress%29.jpg/330px-Troy_Downing%2C_official_portrait_%28119th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MT-SEN-2026|Alani Bankhead": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Montana",
+  "photo": "/candidates/mt-sen-2026-alani-bankhead.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Alani_Bankhead_USAF_Lulu_Video_2021.png/330px-Alani_Bankhead_USAF_Lulu_Video_2021.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "MT-SEN-2026|Kurt Alme": {
   "page": "https://en.wikipedia.org/wiki/Kurt_Alme",
@@ -1547,7 +1612,7 @@
  "NE-SEN-2026|Pete Ricketts": {
   "page": "https://en.wikipedia.org/wiki/Pete_Ricketts",
   "photo": "/candidates/ne-sen-2026-pete-ricketts.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Sen._Pete_Ricketts%2C_R-Neb.%2C_Official_Portrait%2C_118th_Congress_%28cropped%29.jpg/330px-Sen._Pete_Ricketts%2C_R-Neb.%2C_Official_Portrait%2C_118th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Sen._Pete_Ricketts_official_portrait%2C_118th_Congress.jpg/330px-Sen._Pete_Ricketts_official_portrait%2C_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NH-02-2026|Maggie Goodlander": {
   "page": "https://en.wikipedia.org/wiki/Maggie_Goodlander",
@@ -2534,6 +2599,11 @@
   "photo": "/candidates/vt-01-2026-becca-balint.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Rep._Becca_Balint_-_118th_Congress.jpg/330px-Rep._Becca_Balint_-_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "VT-01-2026|Gerald Malloy": {
+  "page": "https://en.wikipedia.org/wiki/Gerald_Malloy",
+  "photo": "/candidates/vt-01-2026-gerald-malloy.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/0/08/State_Senator_Malloy.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+ },
  "VT-GOV-2026|Phil Scott": {
   "page": "https://en.wikipedia.org/wiki/Phil_Scott",
   "photo": "/candidates/vt-gov-2026-phil-scott.webp",
@@ -2609,6 +2679,11 @@
   "photo": "/candidates/wi-03-2026-derrick-van-orden.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Congressman_dvo_%281%29.jpg/330px-Congressman_dvo_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "WI-03-2026|Rebecca Cooke": {
+  "page": "https://en.wikipedia.org/wiki/Rebecca_Cooke_%28politician%29",
+  "photo": "/candidates/wi-03-2026-rebecca-cooke.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Rebecca_Cooke_on_UpNorthNews_March_2025_%28cropped%29.jpg/330px-Rebecca_Cooke_on_UpNorthNews_March_2025_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "WI-04-2026|Gwen Moore": {
   "page": "https://en.wikipedia.org/wiki/Gwen_Moore",
   "photo": "/candidates/wi-04-2026-gwen-moore.webp",
@@ -2624,10 +2699,30 @@
   "photo": "/candidates/wi-06-2026-glenn-grothman.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Glenn_Grothman_117th_Congress_portrait.jpg/330px-Glenn_Grothman_117th_Congress_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "WI-07-2026|Fred Clark": {
+  "page": "https://en.wikipedia.org/wiki/Fred_Clark_%28politician%29",
+  "photo": "/candidates/wi-07-2026-fred-clark.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Fred_Clark_in_Bayfield_%28cropped%29.jpg/330px-Fred_Clark_in_Bayfield_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WI-07-2026|Michael Alfonso": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Wisconsin",
+  "photo": "/candidates/wi-07-2026-michael-alfonso.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Michael_Alfonso_2025.jpg/330px-Michael_Alfonso_2025.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "WI-08-2026|Tony Wied": {
   "page": "https://en.wikipedia.org/wiki/Tony_Wied",
   "photo": "/candidates/wi-08-2026-tony-wied.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Representative_Tony_Wied_Official_Portrait.jpg/330px-Representative_Tony_Wied_Official_Portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WI-GOV-2026|David Crowley": {
+  "page": "https://en.wikipedia.org/wiki/David_Crowley_%28Wisconsin_politician%29",
+  "photo": "/candidates/wi-gov-2026-david-crowley.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Milwaukee_County_Executive_David_Crowley_during_Democratic_Primary_debate_on_July_28%2C_2026.jpg/330px-Milwaukee_County_Executive_David_Crowley_during_Democratic_Primary_debate_on_July_28%2C_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WI-GOV-2026|Tom Tiffany": {
+  "page": "https://en.wikipedia.org/wiki/Tom_Tiffany",
+  "photo": "/candidates/wi-gov-2026-tom-tiffany.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Tom_Tiffany.jpg/330px-Tom_Tiffany.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "WV-01-2026|Carol Miller": {
   "page": "https://en.wikipedia.org/wiki/Carol_Miller_%28politician%29",
