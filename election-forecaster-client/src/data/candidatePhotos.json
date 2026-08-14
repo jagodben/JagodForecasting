@@ -305,9 +305,9 @@
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/David_Valadao_117th_U.S_Congress.jpg/330px-David_Valadao_117th_U.S_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "CA-22-2026|Randy Villegas": {
-  "page": "https://en.wikipedia.org/wiki/Randy_Villegas",
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
   "photo": "/candidates/ca-22-2026-randy-villegas.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg/330px-Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg/330px-Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "CA-23-2026|Jay Obernolte": {
   "page": "https://en.wikipedia.org/wiki/Jay_Obernolte",
@@ -457,7 +457,7 @@
  "CA-48-2026|Marni von Wilpert": {
   "page": "https://en.wikipedia.org/wiki/Marni_von_Wilpert",
   "photo": "/candidates/ca-48-2026-marni-von-wilpert.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Marni-von-wilpert-sq_%28cropped%29.jpg/330px-Marni-von-wilpert-sq_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Marni_von_Wilpert.jpg/330px-Marni_von_Wilpert.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "CA-49-2026|Mike Levin": {
   "page": "https://en.wikipedia.org/wiki/Mike_Levin",
@@ -1043,6 +1043,11 @@
   "page": "https://en.wikipedia.org/wiki/Cindy_Holscher",
   "photo": "/candidates/ks-gov-2026-cindy-holscher.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Kansas_State_Senator_Cindy_Holscher.jpg/330px-Kansas_State_Senator_Cindy_Holscher.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "KS-SEN-2026|Adam Hamilton": {
+  "page": "https://en.wikipedia.org/wiki/Adam_Hamilton_%28pastor%29",
+  "photo": "/candidates/ks-sen-2026-adam-hamilton.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Rev._Adam_Hamilton_%28cropped%29.jpg/330px-Rev._Adam_Hamilton_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "KS-SEN-2026|Roger Marshall": {
   "page": "https://en.wikipedia.org/wiki/Roger_Marshall",
@@ -2628,6 +2633,11 @@
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Washington",
   "photo": "/candidates/wa-04-2026-amanda-mckinney.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Amanda_McKinney_%2855022651563%29_%28cropped%29.jpg/330px-Amanda_McKinney_%2855022651563%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
+ "WA-05-2026|Carmela Conroy": {
+  "page": "https://en.wikipedia.org/wiki/Carmela_Conroy",
+  "photo": "/candidates/wa-05-2026-carmela-conroy.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Carmela_Conroy_State_Department_Portrait_%28cropped%29.jpg/330px-Carmela_Conroy_State_Department_Portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "WA-05-2026|Michael Baumgartner": {
   "page": "https://en.wikipedia.org/wiki/Michael_Baumgartner",
