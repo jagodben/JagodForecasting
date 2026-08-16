@@ -599,6 +599,11 @@
   "photo": "/candidates/ct-gov-2026-ned-lamont.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Governor_Ned_Lamont_of_Connecticut%2C_official_portrait.jpg/330px-Governor_Ned_Lamont_of_Connecticut%2C_official_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "CT-GOV-2026|Ryan Fazio": {
+  "page": "https://en.wikipedia.org/wiki/Ryan_Fazio",
+  "photo": "/candidates/ct-gov-2026-ryan-fazio.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Ryan_Fazio%2C_2026_%283x4_headshot%29.jpg/330px-Ryan_Fazio%2C_2026_%283x4_headshot%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "DE-01-2026|Sarah McBride": {
   "page": "https://en.wikipedia.org/wiki/Sarah_McBride",
   "photo": "/candidates/de-01-2026-sarah-mcbride.webp",
@@ -1482,7 +1487,7 @@
  "MT-SEN-2026|Alani Bankhead": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Montana",
   "photo": "/candidates/mt-sen-2026-alani-bankhead.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5e/Alani_Bankhead_USAF_2021.png/330px-Alani_Bankhead_USAF_2021.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Alani_Bankhead_USAF_2021.png/330px-Alani_Bankhead_USAF_2021.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "MT-SEN-2026|Kurt Alme": {
   "page": "https://en.wikipedia.org/wiki/Kurt_Alme",
@@ -1718,11 +1723,6 @@
   "page": "https://en.wikipedia.org/wiki/Dina_Titus",
   "photo": "/candidates/nv-01-2026-dina-titus.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Dina_Titus_official_photo.jpg/330px-Dina_Titus_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
- "NV-02-2026|David Flippo": {
-  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Nevada",
-  "photo": "/candidates/nv-02-2026-david-flippo.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/David_Flippo.png/330px-David_Flippo.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "NV-03-2026|Martin O'Donnell": {
   "page": "https://en.wikipedia.org/wiki/Martin_O%27Donnell",
