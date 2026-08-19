@@ -4,10 +4,20 @@
   "photo": "/candidates/ak-01-2026-nick-begich-iii.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Nick_Begich_III_119th_Congress.jpg/330px-Nick_Begich_III_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "AK-GOV-2026|Bernadette Wilson": {
+  "page": "https://en.wikipedia.org/wiki/2026_Alaska_gubernatorial_election",
+  "photo": "/candidates/ak-gov-2026-bernadette-wilson.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Bernadette_Wilson_at_Chris_Birch_memorial_service.jpg/330px-Bernadette_Wilson_at_Chris_Birch_memorial_service.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "AK-SEN-2026|Dan S. Sullivan": {
   "page": "https://en.wikipedia.org/wiki/Dan_Sullivan_%28U.S._senator%29",
   "photo": "/candidates/ak-sen-2026-dan-s-sullivan.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Senator_Dan_Sullivan_official.jpg/330px-Senator_Dan_Sullivan_official.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "AK-SEN-2026|Mary Peltola": {
+  "page": "https://en.wikipedia.org/wiki/Mary_Peltola",
+  "photo": "/candidates/ak-sen-2026-mary-peltola.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Mary_Peltola_Congressional_Member_Portrait_%282%29.jpeg/330px-Mary_Peltola_Congressional_Member_Portrait_%282%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AL-01-2026|Jerry Carl": {
   "page": "https://en.wikipedia.org/wiki/Jerry_Carl",
@@ -102,7 +112,7 @@
  "AR-SEN-2026|Hallie Shoffner": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Arkansas",
   "photo": "/candidates/ar-sen-2026-hallie-shoffner.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Hallie_Shoffner_%28cropped%29.jpg/330px-Hallie_Shoffner_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Hallie_Shoffner_Headshot_111925.jpg/330px-Hallie_Shoffner_Headshot_111925.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AR-SEN-2026|Tom Cotton": {
   "page": "https://en.wikipedia.org/wiki/Tom_Cotton",
@@ -617,7 +627,12 @@
  "FL-01-2026|Gay Valimont": {
   "page": "https://en.wikipedia.org/wiki/2025_Florida%27s_1st_congressional_district_special_election",
   "photo": "/candidates/fl-01-2026-gay-valimont.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Gay_Valimont_candidacy_photo_%28cropped%29.jpg/330px-Gay_Valimont_candidacy_photo_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Gay_Valimont.jpg/330px-Gay_Valimont.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
+ "FL-01-2026|Jimmy Patronis": {
+  "page": "https://en.wikipedia.org/wiki/Jimmy_Patronis",
+  "photo": "/candidates/fl-01-2026-jimmy-patronis.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Jimmy_Patronis%2C_official_portrait_%28119th_Congress%29.jpg/330px-Jimmy_Patronis%2C_official_portrait_%28119th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "FL-03-2026|Kat Cammack": {
   "page": "https://en.wikipedia.org/wiki/Kat_Cammack",
@@ -637,7 +652,7 @@
  "FL-06-2026|Randy Fine": {
   "page": "https://en.wikipedia.org/wiki/Randy_Fine",
   "photo": "/candidates/fl-06-2026-randy-fine.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Rep._Randy_Fine%2C_official_portrait%2C_2026_%28full_body_crop%29.jpg/330px-Rep._Randy_Fine%2C_official_portrait%2C_2026_%28full_body_crop%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Rep._Randy_Fine%2C_official_portrait%2C_2026.jpg/330px-Rep._Randy_Fine%2C_official_portrait%2C_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "FL-08-2026|Mike Haridopolos": {
   "page": "https://en.wikipedia.org/wiki/Mike_Haridopolos",
@@ -669,6 +684,11 @@
   "photo": "/candidates/fl-14-2026-kathy-castor.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Kathy_Castor.jpg/330px-Kathy_Castor.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "FL-14-2026|Mike Beltran": {
+  "page": "https://en.wikipedia.org/wiki/Mike_Beltran",
+  "photo": "/candidates/fl-14-2026-mike-beltran.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/2/2a/Mike_Beltran.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+ },
  "FL-15-2026|Laurel Lee": {
   "page": "https://en.wikipedia.org/wiki/Laurel_Lee",
   "photo": "/candidates/fl-15-2026-laurel-lee.webp",
@@ -684,25 +704,70 @@
   "photo": "/candidates/fl-18-2026-scott-franklin.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Scott_Franklin%2C_117th_Congress_portrait.jpg/330px-Scott_Franklin%2C_117th_Congress_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "FL-20-2026|Sheila Cherfilus-McCormick": {
-  "page": "https://en.wikipedia.org/wiki/Sheila_Cherfilus-McCormick",
-  "photo": "/candidates/fl-20-2026-sheila-cherfilus-mccormick.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Congresswoman_Sheila_Cherfilus-McCormick_Official_Portrait_%28cropped2%29.jpg/330px-Congresswoman_Sheila_Cherfilus-McCormick_Official_Portrait_%28cropped2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ "FL-20-2026|Debbie Wasserman Schultz": {
+  "page": "https://en.wikipedia.org/wiki/Debbie_Wasserman_Schultz",
+  "photo": "/candidates/fl-20-2026-debbie-wasserman-schultz.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Debbie_Wasserman_Schultz_official_photo.jpg/330px-Debbie_Wasserman_Schultz_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "FL-21-2026|Brian Mast": {
   "page": "https://en.wikipedia.org/wiki/Brian_Mast",
   "photo": "/candidates/fl-21-2026-brian-mast.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Brian_Mast_official_115th_Congress_photo.jpg/330px-Brian_Mast_official_115th_Congress_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "FL-22-2026|Casey Askar": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Florida",
+  "photo": "/candidates/fl-22-2026-casey-askar.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Casey_Askar.jpg/330px-Casey_Askar.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
+ "FL-23-2026|Lois Frankel": {
+  "page": "https://en.wikipedia.org/wiki/Lois_Frankel",
+  "photo": "/candidates/fl-23-2026-lois-frankel.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Lois_Frankel_118th_Congress.jpeg/330px-Lois_Frankel_118th_Congress.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-24-2026|Oliver Gilbert": {
+  "page": "https://en.wikipedia.org/wiki/Oliver_Gilbert",
+  "photo": "/candidates/fl-24-2026-oliver-gilbert.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/OG3_High_Res_headshot.jpg/330px-OG3_High_Res_headshot.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-25-2026|Jared Moskowitz": {
+  "page": "https://en.wikipedia.org/wiki/Jared_Moskowitz",
+  "photo": "/candidates/fl-25-2026-jared-moskowitz.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/JEM_New_Headshot_2.jpg/330px-JEM_New_Headshot_2.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-25-2026|Scott Singer": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Florida",
+  "photo": "/candidates/fl-25-2026-scott-singer.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Scott_Singer_%28cropped%29.jpg/330px-Scott_Singer_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "FL-26-2026|Mario D\u00edaz-Balart": {
   "page": "https://en.wikipedia.org/wiki/Mario_D%C3%ADaz-Balart",
   "photo": "/candidates/fl-26-2026-mario-d\u00edaz-balart.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mario_D%C3%ADaz-Balart_official_photo.jpg/330px-Mario_D%C3%ADaz-Balart_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "FL-27-2026|Maria Elvira Salazar": {
+  "page": "https://en.wikipedia.org/wiki/Mar%C3%ADa_Elvira_Salazar",
+  "photo": "/candidates/fl-27-2026-maria-elvira-salazar.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/REP.MES_Headshot_%28cropped_2%29.jpg/330px-REP.MES_Headshot_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "FL-28-2026|Carlos Gim\u00e9nez": {
   "page": "https://en.wikipedia.org/wiki/Carlos_A._Gim%C3%A9nez",
   "photo": "/candidates/fl-28-2026-carlos-gim\u00e9nez.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Rep._Carlos_Gimenez_official_photo.jpg/330px-Rep._Carlos_Gimenez_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-GOV-2026|Byron Donalds": {
+  "page": "https://en.wikipedia.org/wiki/Byron_Donalds",
+  "photo": "/candidates/fl-gov-2026-byron-donalds.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Rep._Byron_Donalds_official_photo%2C_117th_Congress.jpg/330px-Rep._Byron_Donalds_official_photo%2C_117th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-GOV-2026|David Jolly": {
+  "page": "https://en.wikipedia.org/wiki/David_Jolly",
+  "photo": "/candidates/fl-gov-2026-david-jolly.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/David_Jolly_%283x4%29.jpg/330px-David_Jolly_%283x4%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-SEN-2026|Angie Nixon": {
+  "page": "https://en.wikipedia.org/wiki/Angie_Nixon",
+  "photo": "/candidates/fl-sen-2026-angie-nixon.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Angie_Nixon_official_portrait.jpg/330px-Angie_Nixon_official_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "FL-SEN-2026|Ashley Moody": {
   "page": "https://en.wikipedia.org/wiki/Ashley_Moody",
@@ -842,7 +907,12 @@
  "IA-GOV-2026|Rob Sand": {
   "page": "https://en.wikipedia.org/wiki/Rob_Sand",
   "photo": "/candidates/ia-gov-2026-rob-sand.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Rob_Sand_campaign_headshot_%28cropped_2%29.jpg/330px-Rob_Sand_campaign_headshot_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Rob_Sand_For_Iowa_%28cropped%29.jpg/330px-Rob_Sand_For_Iowa_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "IA-GOV-2026|Zach Lahn": {
+  "page": "https://en.wikipedia.org/wiki/2026_Iowa_gubernatorial_election",
+  "photo": "/candidates/ia-gov-2026-zach-lahn.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Zach_Lahn_IA_State_Fair_2026.jog.jpg/330px-Zach_Lahn_IA_State_Fair_2026.jog.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "IA-SEN-2026|Ashley Hinson": {
   "page": "https://en.wikipedia.org/wiki/Ashley_Hinson",
@@ -992,7 +1062,7 @@
  "IN-04-2026|Jim Baird": {
   "page": "https://en.wikipedia.org/wiki/Jim_Baird_%28politician%29",
   "photo": "/candidates/in-04-2026-jim-baird.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Rep._Jim_Baird_official_photo%2C_116th_congress.jpg/330px-Rep._Jim_Baird_official_photo%2C_116th_congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Jim_Baird_119th_Congress.jpg/330px-Jim_Baird_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IN-05-2026|J. D. Ford": {
   "page": "https://commons.wikimedia.org/wiki/File:JD_Ford%2C_Indy_Pride_Parade_2023_%282%29_%28cropped%29.jpg",
@@ -1332,7 +1402,7 @@
  "MI-SEN-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
   "photo": "/candidates/mi-sen-2026-mike-rogers.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Mike-Rogers-Head-Shot-2_%283x4_cropped%29.jpg/330px-Mike-Rogers-Head-Shot-2_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Rogers_Mike_32711599270_%28cropped%29.jpg/330px-Rogers_Mike_32711599270_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MN-01-2026|Brad Finstad": {
   "page": "https://en.wikipedia.org/wiki/Brad_Finstad",
@@ -2592,7 +2662,7 @@
  "VA-SEN-2026|Mark Warner": {
   "page": "https://en.wikipedia.org/wiki/Mark_Warner",
   "photo": "/candidates/va-sen-2026-mark-warner.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Mark_Warner_2025.jpg/330px-Mark_Warner_2025.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Sen._Mark_Warner_%28D-VA%29%2C_Official_Portrait%2C_119th_Congress_%281%29_%28cropped%29.jpg/330px-Sen._Mark_Warner_%28D-VA%29%2C_Official_Portrait%2C_119th_Congress_%281%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "VT-01-2026|Becca Balint": {
   "page": "https://en.wikipedia.org/wiki/Becca_Balint",
@@ -2743,5 +2813,20 @@
   "page": "https://en.wikipedia.org/wiki/Shelley_Moore_Capito",
   "photo": "/candidates/wv-sen-2026-shelley-moore-capito.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Shelley_Moore_Capito_official_Senate_photo.jpg/330px-Shelley_Moore_Capito_official_Senate_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WY-01-2026|Chuck Gray": {
+  "page": "https://en.wikipedia.org/wiki/Chuck_Gray_%28Wyoming_politician%29",
+  "photo": "/candidates/wy-01-2026-chuck-gray.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Chuck_Gray_in_2025_%28cropped%29.jpg/330px-Chuck_Gray_in_2025_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WY-SEN-2026|Harriet Hageman": {
+  "page": "https://en.wikipedia.org/wiki/Harriet_Hageman",
+  "photo": "/candidates/wy-sen-2026-harriet-hageman.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Official-harriet-hageman-wy00.jpg/330px-Official-harriet-hageman-wy00.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WY-SEN-2026|James W. Byrd": {
+  "page": "https://en.wikipedia.org/wiki/James_W._Byrd",
+  "photo": "/candidates/wy-sen-2026-james-w-byrd.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/James_W._Byrd_at_Campbell_County_League_of_Women_Voters%27_General_Election_Candidates%27_Forum_in_Gillette%2C_Wyoming_%28cropped%29.jpg/330px-James_W._Byrd_at_Campbell_County_League_of_Women_Voters%27_General_Election_Candidates%27_Forum_in_Gillette%2C_Wyoming_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  }
 }
