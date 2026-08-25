@@ -112,7 +112,7 @@
  "AR-SEN-2026|Hallie Shoffner": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_Arkansas",
   "photo": "/candidates/ar-sen-2026-hallie-shoffner.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Hallie_Shoffner_Headshot_111925.jpg/330px-Hallie_Shoffner_Headshot_111925.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Hallie_Shoffner_Headshot_111925_%28cropped%29.jpg/330px-Hallie_Shoffner_Headshot_111925_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AR-SEN-2026|Tom Cotton": {
   "page": "https://en.wikipedia.org/wiki/Tom_Cotton",
@@ -1299,6 +1299,11 @@
   "photo": "/candidates/me-01-2026-chellie-pingree.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/CPingree_Portrait_202203.jpg/330px-CPingree_Portrait_202203.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "ME-02-2026|Matthew Dunlap": {
+  "page": "https://en.wikipedia.org/wiki/Matthew_Dunlap",
+  "photo": "/candidates/me-02-2026-matthew-dunlap.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Matt_Dunlap_headshot.jpg/330px-Matt_Dunlap_headshot.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "ME-02-2026|Paul LePage": {
   "page": "https://en.wikipedia.org/wiki/Paul_LePage",
   "photo": "/candidates/me-02-2026-paul-lepage.webp",
@@ -1822,7 +1827,7 @@
  "NV-GOV-2026|Joe Lombardo": {
   "page": "https://en.wikipedia.org/wiki/Joe_Lombardo",
   "photo": "/candidates/nv-gov-2026-joe-lombardo.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Joe_Lombardo_by_Gage_Skidmore_%283x4_cropped%29.jpg/330px-Joe_Lombardo_by_Gage_Skidmore_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Joe_Lombardo_by_Gage_Skidmore.jpg/330px-Joe_Lombardo_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NY-01-2026|Nick LaLota": {
   "page": "https://en.wikipedia.org/wiki/Nick_LaLota",
