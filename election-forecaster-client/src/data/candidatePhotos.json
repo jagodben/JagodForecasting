@@ -115,9 +115,9 @@
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Hallie_Shoffner_Headshot_111925_%28cropped%29.jpg/330px-Hallie_Shoffner_Headshot_111925_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AR-SEN-2026|Tom Cotton": {
-  "page": "https://en.wikipedia.org/wiki/Tom_Cotton",
+  "page": "https://commons.wikimedia.org/wiki/File:Tom_Cotton_official_Senate_photo.jpg",
   "photo": "/candidates/ar-sen-2026-tom-cotton.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tom_Cotton_official_Senate_photo.jpg/330px-Tom_Cotton_official_Senate_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tom_Cotton_official_Senate_photo.jpg/330px-Tom_Cotton_official_Senate_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AZ-01-2026|Amish Shah": {
   "page": "https://en.wikipedia.org/wiki/Amish_Shah",
@@ -2307,7 +2307,7 @@
  "SC-07-2026|Russell Fry": {
   "page": "https://en.wikipedia.org/wiki/Russell_Fry",
   "photo": "/candidates/sc-07-2026-russell-fry.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Rep_Russell_Fry_Official_Portrait.jpg/330px-Rep_Russell_Fry_Official_Portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Russell_Fry_119th_Congress.jpg/330px-Russell_Fry_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "SC-GOV-2026|Alan Wilson": {
   "page": "https://en.wikipedia.org/wiki/Alan_Wilson_%28politician%29",
