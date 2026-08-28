@@ -115,9 +115,9 @@
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Hallie_Shoffner_Headshot_111925_%28cropped%29.jpg/330px-Hallie_Shoffner_Headshot_111925_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AR-SEN-2026|Tom Cotton": {
-  "page": "https://commons.wikimedia.org/wiki/File:Tom_Cotton_official_Senate_photo.jpg",
+  "page": "https://en.wikipedia.org/wiki/Tom_Cotton",
   "photo": "/candidates/ar-sen-2026-tom-cotton.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tom_Cotton_official_Senate_photo.jpg/330px-Tom_Cotton_official_Senate_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Tom_Cotton_official_Senate_photo.jpg/330px-Tom_Cotton_official_Senate_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AZ-01-2026|Amish Shah": {
   "page": "https://en.wikipedia.org/wiki/Amish_Shah",
@@ -1223,11 +1223,6 @@
   "page": "https://en.wikipedia.org/wiki/Maura_Healey",
   "photo": "/candidates/ma-gov-2026-maura-healey.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Maura_Healey%2C_official_portrait%2C_governor.jpg/330px-Maura_Healey%2C_official_portrait%2C_governor.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
- "MA-SEN-2026|John Deaton": {
-  "page": "https://en.wikipedia.org/wiki/2024_United_States_Senate_election_in_Massachusetts",
-  "photo": "/candidates/ma-sen-2026-john-deaton.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/John_Deaton%2C_2024_%28cropped%29.jpg/330px-John_Deaton%2C_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "MD-01-2026|Andy Harris": {
   "page": "https://en.wikipedia.org/wiki/Andy_Harris_%28politician%29",
