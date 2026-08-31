@@ -1080,9 +1080,9 @@
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Jim_Baird_119th_Congress.jpg/330px-Jim_Baird_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IN-05-2026|J. D. Ford": {
-  "page": "https://commons.wikimedia.org/wiki/File:JD_Ford%2C_Indy_Pride_Parade_2023_%282%29_%28cropped%29.jpg",
+  "page": "https://en.wikipedia.org/wiki/J._D._Ford",
   "photo": "/candidates/in-05-2026-j-d-ford.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/JD_Ford%2C_Indy_Pride_Parade_2023_%282%29_%28cropped%29.jpg/330px-JD_Ford%2C_Indy_Pride_Parade_2023_%282%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/JD_Ford%2C_Indy_Pride_Parade_2023_%282%29_%28cropped%29.jpg/330px-JD_Ford%2C_Indy_Pride_Parade_2023_%282%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IN-05-2026|Victoria Spartz": {
   "page": "https://en.wikipedia.org/wiki/Victoria_Spartz",
@@ -2279,11 +2279,6 @@
   "photo": "/candidates/ri-02-2026-seth-magaziner.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Seth_Magaziner_%281%29.jpg/330px-Seth_Magaziner_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "RI-SEN-2026|Jack Reed": {
-  "page": "https://en.wikipedia.org/wiki/Jack_Reed_%28Rhode_Island_politician%29",
-  "photo": "/candidates/ri-sen-2026-jack-reed.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Sen._Jack_Reed_%28D-RI%29%2C_Official_Portrait%2C_119th_Congress_%281%29.jpg/330px-Sen._Jack_Reed_%28D-RI%29%2C_Official_Portrait%2C_119th_Congress_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
  "SC-01-2026|Nancy Lacore": {
   "page": "https://en.wikipedia.org/wiki/Nancy_Lacore",
   "photo": "/candidates/sc-01-2026-nancy-lacore.webp",
@@ -2400,9 +2395,9 @@
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Bill_Hagerty_senatorial_portrait.jpg/330px-Bill_Hagerty_senatorial_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TN-SEN-2026|Marquita Bradshaw": {
-  "page": "https://commons.wikimedia.org/wiki/File:Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg",
+  "page": "https://en.wikipedia.org/wiki/Marquita_Bradshaw",
   "photo": "/candidates/tn-sen-2026-marquita-bradshaw.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg/330px-Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg/330px-Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-01-2026|Nathaniel Moran": {
   "page": "https://en.wikipedia.org/wiki/Nathaniel_Moran",
