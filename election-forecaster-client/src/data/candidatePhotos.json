@@ -1209,6 +1209,11 @@
   "photo": "/candidates/la-sen-2026-julia-letlow.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Julia_Letlow_117th_%28cropped%29.jpg/330px-Julia_Letlow_117th_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MA-01-2026|Richard Neal": {
+  "page": "https://en.wikipedia.org/wiki/Richard_Neal",
+  "photo": "/candidates/ma-01-2026-richard-neal.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Richard_Neal_official_photo_%28cropped%29.jpg/330px-Richard_Neal_official_photo_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MA-02-2026|Jim McGovern": {
   "page": "https://en.wikipedia.org/wiki/Jim_McGovern_%28American_politician%29",
   "photo": "/candidates/ma-02-2026-jim-mcgovern.webp",
@@ -1219,15 +1224,45 @@
   "photo": "/candidates/ma-03-2026-lori-trahan.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Lori_Trahan%2C_official_portrait%2C_116th_Congress.jpg/330px-Lori_Trahan%2C_official_portrait%2C_116th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MA-04-2026|Jake Auchincloss": {
+  "page": "https://en.wikipedia.org/wiki/Jake_Auchincloss",
+  "photo": "/candidates/ma-04-2026-jake-auchincloss.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Rep._Jake_Auchincloss_218th_Congress_Portrait.jpg/330px-Rep._Jake_Auchincloss_218th_Congress_Portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MA-05-2026|Katherine Clark": {
+  "page": "https://en.wikipedia.org/wiki/Katherine_Clark",
+  "photo": "/candidates/ma-05-2026-katherine-clark.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Katherine_Clark%2C_official_portrait%2C_118th_Congress_cropped%29.jpg/330px-Katherine_Clark%2C_official_portrait%2C_118th_Congress_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MA-06-2026|Dan Koh": {
+  "page": "https://en.wikipedia.org/wiki/Dan_Koh",
+  "photo": "/candidates/ma-06-2026-dan-koh.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Daniel_Koh%2C_White_House_Deputy_Cabinet_Secretary.jpg/330px-Daniel_Koh%2C_White_House_Deputy_Cabinet_Secretary.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MA-07-2026|Ayanna Pressley": {
   "page": "https://en.wikipedia.org/wiki/Ayanna_Pressley",
   "photo": "/candidates/ma-07-2026-ayanna-pressley.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Rep._Ayanna_Pressley%2C_117th_Congress.jpg/330px-Rep._Ayanna_Pressley%2C_117th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MA-08-2026|Stephen Lynch": {
+  "page": "https://en.wikipedia.org/wiki/Stephen_Lynch_%28politician%29",
+  "photo": "/candidates/ma-08-2026-stephen-lynch.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Stephen_Lynch_2019.jpg/330px-Stephen_Lynch_2019.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MA-09-2026|Bill Keating": {
+  "page": "https://en.wikipedia.org/wiki/Bill_Keating",
+  "photo": "/candidates/ma-09-2026-bill-keating.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Bill_Keating_portrait_%28118th_Congress%29.jpg/330px-Bill_Keating_portrait_%28118th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MA-GOV-2026|Maura Healey": {
   "page": "https://en.wikipedia.org/wiki/Maura_Healey",
   "photo": "/candidates/ma-gov-2026-maura-healey.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Maura_Healey%2C_official_portrait%2C_governor.jpg/330px-Maura_Healey%2C_official_portrait%2C_governor.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MA-SEN-2026|Ed Markey": {
+  "page": "https://en.wikipedia.org/wiki/Ed_Markey",
+  "photo": "/candidates/ma-sen-2026-ed-markey.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Edward_Markey%2C_official_portrait%2C_114th_Congress.jpg/330px-Edward_Markey%2C_official_portrait%2C_114th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MD-01-2026|Andy Harris": {
   "page": "https://en.wikipedia.org/wiki/Andy_Harris_%28politician%29",
@@ -1913,6 +1948,11 @@
   "page": "https://en.wikipedia.org/wiki/George_Latimer_%28New_York_politician%29",
   "photo": "/candidates/ny-16-2026-george-latimer.webp",
   "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Latimer_George_119th_Congress_2.jpg/330px-Latimer_George_119th_Congress_2.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NY-17-2026|Cait Conley": {
+  "page": "https://en.wikipedia.org/wiki/Cait_Conley",
+  "photo": "/candidates/ny-17-2026-cait-conley.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/DHS_Secretary_Alejandro_Mayorkas_Gives_Opening_Remarks_During_CISA_National_Election_Exercise_in_Arlington%2C_Virginia_on_22_August_2024_-_6.jpg/330px-DHS_Secretary_Alejandro_Mayorkas_Gives_Opening_Remarks_During_CISA_National_Election_Exercise_in_Arlington%2C_Virginia_on_22_August_2024_-_6.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NY-17-2026|Mike Lawler": {
   "page": "https://en.wikipedia.org/wiki/Mike_Lawler",
