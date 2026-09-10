@@ -1157,7 +1157,7 @@
  "KY-04-2026|Ed Gallrein": {
   "page": "https://en.wikipedia.org/wiki/Ed_Gallrein",
   "photo": "/candidates/ky-04-2026-ed-gallrein.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Ed_Gallrein.jpg/330px-Ed_Gallrein.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Ed_Gallrein_%2855505179851%29_%28cropped%29.jpg/330px-Ed_Gallrein_%2855505179851%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "KY-05-2026|Hal Rogers": {
   "page": "https://en.wikipedia.org/wiki/Hal_Rogers",
@@ -1729,6 +1729,11 @@
   "photo": "/candidates/ne-sen-2026-pete-ricketts.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Sen._Pete_Ricketts_official_portrait%2C_118th_Congress.jpg/330px-Sen._Pete_Ricketts_official_portrait%2C_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "NH-01-2026|Stefany Shaheen": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_New_Hampshire",
+  "photo": "/candidates/nh-01-2026-stefany-shaheen.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Stefany_Shaheen%2C_2015_%28cropped%29.jpg/330px-Stefany_Shaheen%2C_2015_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "NH-02-2026|Lily Tang Williams": {
   "page": "https://en.wikipedia.org/wiki/Lily_Tang_Williams",
   "photo": "/candidates/nh-02-2026-lily-tang-williams.webp",
@@ -1877,7 +1882,7 @@
  "NV-GOV-2026|Joe Lombardo": {
   "page": "https://en.wikipedia.org/wiki/Joe_Lombardo",
   "photo": "/candidates/nv-gov-2026-joe-lombardo.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Joe_Lombardo_by_Gage_Skidmore.jpg/330px-Joe_Lombardo_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Joe_Lombardo_%2855512849370%29%28cropped%29.jpg/330px-Joe_Lombardo_%2855512849370%29%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NY-01-2026|Nick LaLota": {
   "page": "https://en.wikipedia.org/wiki/Nick_LaLota",
@@ -2317,7 +2322,7 @@
  "PA-GOV-2026|Josh Shapiro": {
   "page": "https://en.wikipedia.org/wiki/Josh_Shapiro",
   "photo": "/candidates/pa-gov-2026-josh-shapiro.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/e/ef/Josh_Shapiro_2023_%283x4%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Josh_Shapiro_December_2025.jpg/330px-Josh_Shapiro_December_2025.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "PA-GOV-2026|Stacy Garrity": {
   "page": "https://en.wikipedia.org/wiki/Stacy_Garrity",
@@ -2333,6 +2338,16 @@
   "page": "https://en.wikipedia.org/wiki/Seth_Magaziner",
   "photo": "/candidates/ri-02-2026-seth-magaziner.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Seth_Magaziner_%281%29.jpg/330px-Seth_Magaziner_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "RI-GOV-2026|Helena Foulkes": {
+  "page": "https://en.wikipedia.org/wiki/Helena_Buonanno_Foulkes",
+  "photo": "/candidates/ri-gov-2026-helena-foulkes.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/HelenaFoulkes_CROP.jpg/330px-HelenaFoulkes_CROP.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "RI-SEN-2026|Jack Reed": {
+  "page": "https://en.wikipedia.org/wiki/Jack_Reed_%28Rhode_Island_politician%29",
+  "photo": "/candidates/ri-sen-2026-jack-reed.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Sen._Jack_Reed_%28D-RI%29%2C_Official_Portrait%2C_119th_Congress_%281%29.jpg/330px-Sen._Jack_Reed_%28D-RI%29%2C_Official_Portrait%2C_119th_Congress_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "SC-01-2026|Nancy Lacore": {
   "page": "https://en.wikipedia.org/wiki/Nancy_Lacore",
