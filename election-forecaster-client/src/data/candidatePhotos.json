@@ -925,9 +925,9 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Rob_Sand_campaign_headshot_%28cropped_1%29.jpg/330px-Rob_Sand_campaign_headshot_%28cropped_1%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IA-GOV-2026|Zach Lahn": {
-  "page": "https://en.wikipedia.org/wiki/2026_Iowa_gubernatorial_election",
+  "page": "https://en.wikipedia.org/wiki/Zach_Lahn",
   "photo": "/candidates/ia-gov-2026-zach-lahn.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Zach_Lahn_IA_State_Fair_2026.jog_%28cropped%29.jpg/330px-Zach_Lahn_IA_State_Fair_2026.jog_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Zach_Lahn_IA_State_Fair_2026.jog_%28cropped%29.jpg/330px-Zach_Lahn_IA_State_Fair_2026.jog_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IA-SEN-2026|Ashley Hinson": {
   "page": "https://en.wikipedia.org/wiki/Ashley_Hinson",
@@ -2078,6 +2078,11 @@
   "page": "https://en.wikipedia.org/wiki/Warren_Davidson",
   "photo": "/candidates/oh-08-2026-warren-davidson.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Warren_Davidson_118th_Congress_%28cropped%29.jpg/330px-Warren_Davidson_118th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "OH-09-2026|Derek Merrin": {
+  "page": "https://en.wikipedia.org/wiki/Derek_Merrin",
+  "photo": "/candidates/oh-09-2026-derek-merrin.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/Derek_Merrin_jpeg.jpg/330px-Derek_Merrin_jpeg.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OH-09-2026|Marcy Kaptur": {
   "page": "https://en.wikipedia.org/wiki/Marcy_Kaptur",
