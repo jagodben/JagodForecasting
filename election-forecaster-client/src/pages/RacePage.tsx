@@ -158,6 +158,8 @@ export const RacePage = () => {
   const demCandidate = race.candidates.find(c => c.id !== repCandidate?.id);
   // Challenger-side color: gold for a viable independent, blue for a Democrat.
   const demColor = demCandidate ? getPartyColor(demCandidate.party) : '#123f8f';
+  // ...and the letter that labels their column, so an independent's polls aren't badged "D".
+  const demLetter: 'I' | 'D' = demCandidate?.party === Party.Independent ? 'I' : 'D';
 
   const stateName = state?.name || race.stateId;
   const raceTypeLabel = getRaceTypeLabel(race.type, race.districtNumber, race.stateId);
@@ -227,7 +229,7 @@ export const RacePage = () => {
             {/* Right column: candidates (top) + polls (bottom) */}
             <div className="race-page__col">
               <CandidatesList race={race} />
-              <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
+              <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} demColor={demColor} demLetter={demLetter} />
             </div>
           </>
         ) : (
@@ -259,7 +261,7 @@ export const RacePage = () => {
                 </div>
               )}
 
-              <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} />
+              <PollsSection data={pollsData} demName={demCandidate?.name} repName={repCandidate?.name} demColor={demColor} demLetter={demLetter} />
             </div>
           </>
         )}
@@ -350,7 +352,12 @@ const COLLAPSED_POLL_COUNT = 3;
 // Polls list + weighted average. Starts collapsed to the newest few polls with a toggle to show
 // the rest. On phones the table slims down (no Sample column, compact dates, tighter cells) so it
 // always fits the viewport without scrolling.
-const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: string; repName?: string }) => {
+const PollsSection = ({ data, demName, repName, demColor = '#123f8f', demLetter = 'D' }: {
+  data?: RacePolls; demName?: string; repName?: string;
+  // The challenger slot can hold a viable independent, so their color and column letter come
+  // from the race rather than being hardcoded to Democratic blue.
+  demColor?: string; demLetter?: 'I' | 'D';
+}) => {
   const isDesktop = useIsDesktop();
   const [expanded, setExpanded] = useState(false);
   if (!data || data.polls.length === 0) {
@@ -396,12 +403,12 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
           padding: '16px', backgroundColor: '#f9fafb', borderRadius: '8px', marginBottom: '20px',
         }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#123f8f' }}>{avg.demPercent.toFixed(1)}%</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold', color: demColor }}>{avg.demPercent.toFixed(1)}%</div>
             <div style={{ fontSize: '12px', color: '#666' }}>{demName || 'Democrat'}</div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: 600, color: demLead ? '#123f8f' : '#9c150b' }}>
-              {demLead ? 'D' : 'R'} +{Math.abs(avg.margin).toFixed(1)}
+            <div style={{ fontSize: '16px', fontWeight: 600, color: demLead ? demColor : '#9c150b' }}>
+              {demLead ? demLetter : 'R'} +{Math.abs(avg.margin).toFixed(1)}
             </div>
             <div style={{ fontSize: '11px', color: '#6b6b6b' }}>avg. margin</div>
           </div>
@@ -420,7 +427,7 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
               <th style={{ padding: isDesktop ? '8px 12px 8px 0' : '6px 6px 6px 0' }}>Pollster</th>
               <th style={{ padding: isDesktop ? '8px 12px' : '6px' }}>Date</th>
               {isDesktop && <th style={{ padding: '8px 12px', textAlign: 'right' }}>Sample</th>}
-              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#123f8f' }}>D</th>
+              <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: demColor }}>{demLetter}</th>
               <th style={{ padding: isDesktop ? '8px 12px' : '6px', textAlign: 'right', color: '#9c150b' }}>R</th>
               <th style={{ padding: isDesktop ? '8px 0 8px 12px' : '6px 0 6px 6px', textAlign: 'right' }}>Margin</th>
             </tr>
@@ -452,8 +459,8 @@ const PollsSection = ({ data, demName, repName }: { data?: RacePolls; demName?: 
                   )}
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: leadD ? 'bold' : 'normal' }}>{poll.demPercent.toFixed(0)}%</td>
                   <td style={{ padding: isDesktop ? '10px 12px' : '8px 6px', textAlign: 'right', fontWeight: !leadD ? 'bold' : 'normal' }}>{poll.repPercent.toFixed(0)}%</td>
-                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: poll.margin === 0 ? '#666' : leadD ? '#123f8f' : '#9c150b', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {poll.margin === 0 ? 'EVEN' : `${leadD ? 'D' : 'R'} +${Math.abs(poll.margin).toFixed(0)}`}
+                  <td style={{ padding: isDesktop ? '10px 0 10px 12px' : '8px 0 8px 6px', textAlign: 'right', color: poll.margin === 0 ? '#666' : leadD ? demColor : '#9c150b', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {poll.margin === 0 ? 'EVEN' : `${leadD ? demLetter : 'R'} +${Math.abs(poll.margin).toFixed(0)}`}
                   </td>
                 </tr>
               );

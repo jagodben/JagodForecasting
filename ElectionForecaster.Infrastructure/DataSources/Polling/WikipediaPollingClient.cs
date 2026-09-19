@@ -290,7 +290,8 @@ public partial class WikipediaPollingClient : IPollingSource
 
     // ---- Table parsing -----------------------------------------------------
 
-    private List<PollData> ParseTable(string table, string raceId, bool twoWayOnly = false)
+    /// <summary>Parses one wikitable into polls. Internal so the parser has test coverage.</summary>
+    internal static List<PollData> ParseTable(string table, string raceId, bool twoWayOnly = false)
     {
         var polls = new List<PollData>();
         var rows = SplitRows(table);
@@ -307,7 +308,19 @@ public partial class WikipediaPollingClient : IPollingSource
 
         int demCol = headers.FindIndex(h => EndsWithParty(h, 'D'));
         int repCol = headers.FindIndex(h => EndsWithParty(h, 'R'));
-        if (demCol < 0 || repCol < 0) return polls; // Not a D-vs-R table.
+
+        // A designated independent challenger (Dan Osborn in Nebraska) holds the challenger slot in
+        // the forecast, so their column is the one to read — the token Democrat is a non-factor.
+        // Their head-to-head tables carry no "(D)" column at all, so without this the race's real
+        // general-election polling is skipped entirely and only hypothetical-Democrat tables survive.
+        if (IndependentChallengers.Get(raceId) is { ReplacesDem: true } independent)
+        {
+            var indCol = headers.FindIndex(h => EndsWithParty(h, 'I')
+                                             && CandidateNames.Match(CandidateFromHeader(h), independent.Name));
+            if (indCol >= 0) demCol = indCol;
+        }
+
+        if (demCol < 0 || repCol < 0) return polls; // Not a two-way table.
 
         // In House district sections we scan the whole section (primary + general tables mixed), so
         // only trust a clean two-way general matchup — exactly one Dem and one Rep candidate column.
@@ -472,13 +485,33 @@ public partial class WikipediaPollingClient : IPollingSource
 
     // ---- Field parsing helpers --------------------------------------------
 
-    private static bool EndsWithParty(string header, char party) =>
-        Regex.IsMatch(header, $@"\({party}\)\s*$");
+    /// <summary>
+    /// The national party a candidate-column header declares ('D'/'R'/'I'), or null. Most headers
+    /// tag the plain "(D)"/"(R)"/"(I)", but state affiliates print their own label — Minnesota's
+    /// Democrats run as the Democratic-Farmer-Labor party "(DFL)" and North Dakota's as the
+    /// Democratic-NPL "(D-NPL)". An unrecognised label makes the whole table invisible to the
+    /// parser, which is how every Minnesota poll went missing, so they map to their national party.
+    /// </summary>
+    private static char? HeaderParty(string header)
+    {
+        var m = Regex.Match(header, @"\(\s*([A-Za-z][A-Za-z\-]*)\s*\)\s*$");
+        if (!m.Success) return null;
+        return m.Groups[1].Value.ToUpperInvariant() switch
+        {
+            "D" or "DFL" or "D-NPL" => 'D',
+            "R" => 'R',
+            "I" => 'I',
+            _ => null,
+        };
+    }
+
+    private static bool EndsWithParty(string header, char party) => HeaderParty(header) == party;
 
     /// <summary>"Mandela Barnes (D)" → "Mandela Barnes"; null when the header holds no name.</summary>
     private static string? CandidateFromHeader(string header)
     {
-        var name = Regex.Replace(header, @"\s*\([DR]\)\s*$", "").Trim();
+        var name = Regex.Replace(header, @"\s*\(\s*(?:D|R|I|DFL|D-NPL)\s*\)\s*$", "",
+            RegexOptions.IgnoreCase).Trim();
         return name.Length > 0 ? name : null;
     }
 
@@ -686,6 +719,13 @@ public partial class WikipediaPollingClient : IPollingSource
             .FirstOrDefaultAsync(o => o.RaceId == raceId, cancellationToken);
         if (row?.DemName is not null) dem = row.DemName;
         if (row?.RepName is not null) rep = row.RepName;
+
+        // Where an independent holds the challenger slot, they are the settled challenger the
+        // matchups get judged against — not the token Democrat the nominee tables still name.
+        // Otherwise the blender would keep the stale hypothetical-Democrat rows and drop theirs.
+        if (IndependentChallengers.Get(raceId) is { ReplacesDem: true } independent)
+            dem = independent.Name;
+
         return (Settled(dem), Settled(rep));
 
         static string? Settled(string? name) =>

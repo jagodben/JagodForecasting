@@ -45,12 +45,6 @@ public class ForecastController : ControllerBase
         if (await _raceService.GetRaceByIdAsync(raceId) is null)
             return NotFound(new { message = $"Unknown race '{raceId}'" });
 
-        // Races with a viable independent challenger have no usable polling: the parsed Dem-vs-Rep
-        // tables poll the token Democrat (not the independent), so the forecast drops them. Return
-        // none here too, rather than mislabelling the Democrat's numbers as the independent's.
-        if (IndependentChallengers.Has(raceId))
-            return Ok(new RacePolls { RaceId = raceId, Average = null, Polls = new List<PollDto>() });
-
         var polls = await _pollingSource.GetRecentPollsAsync(raceId, days);
         var average = await _pollingSource.GetPollingAverageAsync(raceId);
 
