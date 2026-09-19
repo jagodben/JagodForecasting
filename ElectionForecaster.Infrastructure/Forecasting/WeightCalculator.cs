@@ -49,7 +49,7 @@ public class WeightCalculator
         };
 
         AdjustForDataAvailability(weights, marketOdds, polling, fundamentals);
-        AdjustForTimeToElection(weights, daysToElection);
+        AdjustForTimeToElection(weights, daysToElection, polling);
         AdjustForRaceType(weights, raceType);
         weights.Normalize();
         return weights;
@@ -101,7 +101,7 @@ public class WeightCalculator
         }
     }
 
-    private void AdjustForTimeToElection(ForecastWeights weights, double daysToElection)
+    private void AdjustForTimeToElection(ForecastWeights weights, double daysToElection, PollingAverage? polling)
     {
         // Base weights represent the ~2-6 month window. Far out, polls are sparse and
         // unrepresentative while markets aggregate information polls can't capture yet, so
@@ -121,14 +121,28 @@ public class WeightCalculator
         else if (daysToElection > 14)
         {
             weights.PollingWeight *= 1.35;
-            weights.FundamentalsWeight *= 0.65;
+            weights.FundamentalsWeight *= LateCycleFundamentalsFactor(0.65, polling);
         }
         else
         {
             weights.PollingWeight *= 1.5;
-            weights.FundamentalsWeight *= 0.5;
+            weights.FundamentalsWeight *= LateCycleFundamentalsFactor(0.5, polling);
             weights.MarketWeight *= 0.8;
         }
+    }
+
+    /// <summary>
+    /// How much of the late-cycle fundamentals haircut to actually apply. Cutting fundamentals as
+    /// the election nears is premised on polling being plentiful enough to replace them — with a
+    /// thin field that premise fails, and a couple of polls end up outvoting a seat's whole
+    /// partisan history (two Idaho polls once put an independent at 76% in a seat the Republicans
+    /// last won by 29). So the haircut fades in with polling strength: a deep, fresh field gets
+    /// close to the full cut, a two-poll race keeps most of its fundamentals.
+    /// </summary>
+    private static double LateCycleFundamentalsFactor(double fullHaircut, PollingAverage? polling)
+    {
+        var strength = Math.Clamp(polling?.Confidence ?? 0, 0, 1);
+        return 1.0 - (1.0 - fullHaircut) * strength;
     }
 
     private void AdjustForRaceType(ForecastWeights weights, RaceType raceType)

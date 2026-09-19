@@ -55,6 +55,22 @@ public class WeightCalculatorTests
     }
 
     [Fact]
+    public void ThinPollingKeepsFundamentalsLateInTheCycle()
+    {
+        // ~6 weeks out, where the late-cycle haircut applies. A two-poll field must not outvote a
+        // seat's partisan history the way a deep field legitimately can (the Idaho case: two polls
+        // briefly put an independent at 76% in a seat the Republicans last won by 29).
+        var lateOn = new DateTime(2026, 9, 19);
+        var thin = Calc().CalculateWeights(Market(), Polls(count: 2, confidence: 0.46), Fundamentals(), RaceType.Senate, lateOn);
+        var deep = Calc().CalculateWeights(Market(), Polls(count: 15, confidence: 0.85), Fundamentals(), RaceType.Senate, lateOn);
+
+        Assert.True(thin.FundamentalsWeight > deep.FundamentalsWeight);
+        Assert.True(thin.FundamentalsWeight > thin.PollingWeight);
+        // A deep field still gets to lead — the haircut isn't disabled, just conditioned.
+        Assert.True(deep.PollingWeight > deep.FundamentalsWeight);
+    }
+
+    [Fact]
     public void ThinMarketsCarryLessWeight()
     {
         var liquid = Calc().CalculateWeights(Market(volume: 2_000_000), Polls(), Fundamentals(), RaceType.Senate, AsOf);
