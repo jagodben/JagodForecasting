@@ -48,7 +48,11 @@ public class PolymarketClient : IPredictionMarketSource
         { "CO-SEN-2026", "630666" },
         { "DE-SEN-2026", "630679" },
         { "GA-SEN-2026", "630692" },
-        { "ID-SEN-2026", "630705" },
+        // ID and SD map to the "Will the Republicans win" markets for the same reason NE does
+        // (below): the viable challenger is an independent, so 1 - P(Republican) is their win
+        // probability. The Democrat markets price only the token Democrat (ID 0.6%, SD 0.15%)
+        // against independents the same books give 5.1% and 6.5%. See IndependentChallengers.
+        { "ID-SEN-2026", "630706" },
         { "IL-SEN-2026", "630720" },
         { "IA-SEN-2026", "630733" },
         { "KS-SEN-2026", "630746" },
@@ -72,7 +76,7 @@ public class PolymarketClient : IPredictionMarketSource
         { "OR-SEN-2026", "630898" },
         { "RI-SEN-2026", "630911" },
         { "SC-SEN-2026", "630924" },
-        { "SD-SEN-2026", "630937" },
+        { "SD-SEN-2026", "630938" },
         { "TN-SEN-2026", "630950" },
         { "TX-SEN-2026", "630963" },
         { "VA-SEN-2026", "630976" },

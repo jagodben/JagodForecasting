@@ -26,6 +26,23 @@ public static class IndependentChallengers
         // Democrat is a non-factor. Osborn took ~46.5% statewide vs Fischer in 2024, so a challenger
         // margin near R+6 is a far better prior than the seat's generic R+25 (Ricketts' 2024 special).
         ["NE-SEN-2026"] = new("Dan Osborn", ReplacesDem: true, PriorMargin: -6),
+
+        // Todd Achilles (I), a former Democratic state representative, is the challenger Idaho's
+        // article and its poll aggregate are built around — the Democrat, David Roth, was being
+        // pressed by his own county party to prove viability. Same shape in South Dakota, where
+        // Brian Bengs (the 2022 Democratic nominee) now runs as an independent.
+        //
+        // Neither has Osborn's demonstrated statewide independent result, so their priors stay far
+        // more conservative than his -6. Each takes the seat's generic-Democrat prior and closes
+        // half the gap the same pollster measured between the Democrat and the independent:
+        //   Idaho   Bullfinch: Risch +17 over Roth, then Achilles +5 over Risch -> 22pt gap;
+        //           -29 + 11 = -18.
+        //   S. Dak. PPP:       Rounds +25 over Beaudion, then +3 over Bengs   -> 22pt gap;
+        //           -31 + 11 = -20.
+        // Half the gap, not all of it: those polls are already the polling input, and this term
+        // must not double-count them.
+        ["ID-SEN-2026"] = new("Todd Achilles", ReplacesDem: true, PriorMargin: -18),
+        ["SD-SEN-2026"] = new("Brian Bengs", ReplacesDem: true, PriorMargin: -20),
     };
 
     public static Challenger? Get(string raceId) => ByRace.GetValueOrDefault(raceId);

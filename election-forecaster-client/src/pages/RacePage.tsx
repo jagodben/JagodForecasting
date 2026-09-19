@@ -49,16 +49,17 @@ const formatPollDateShort = (iso: string): string => {
   return `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
 };
 
-// Formats a Dem-margin (points) as a called result to one decimal (dropping a trailing .0),
-// e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2"; never "EVEN".
-const formatMargin = (margin: number): string => {
+// Formats a challenger-margin (points) as a called result to one decimal (dropping a trailing .0),
+// e.g. +5.3 -> "D+5.3", +5.0 -> "D+5", -3.2 -> "R+3.2"; never "EVEN". The challenger slot can hold
+// a viable independent, so their letter is passed in rather than assumed to be "D".
+const formatMargin = (margin: number, demLetter: 'I' | 'D' = 'D'): string => {
   // The projected result always assigns a winner — a margin that rounds to zero
   // shows as 0.1 on the true side rather than "EVEN".
   const rounded = Math.round(margin * 10) / 10;
   const demLeads = rounded !== 0 ? rounded > 0 : margin >= 0;
   const abs = Math.max(Math.abs(rounded), 0.1);
   const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
-  return demLeads ? `D+${num}` : `R+${num}`;
+  return demLeads ? `${demLetter}+${num}` : `R+${num}`;
 };
 
 const getRaceTypeLabel = (type: RaceType, districtNumber?: number, stateId?: string): string => {
@@ -218,9 +219,9 @@ export const RacePage = () => {
                   <div style={{
                     fontSize: '30px',
                     fontWeight: 'bold',
-                    color: forecast.expectedDemMargin > 0 ? '#123f8f' : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666',
+                    color: forecast.expectedDemMargin > 0 ? demColor : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666',
                   }}>
-                    {formatMargin(forecast.expectedDemMargin)}
+                    {formatMargin(forecast.expectedDemMargin, demLetter)}
                   </div>
                 </div>
               )}
@@ -285,15 +286,19 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, forecast }: {
   headRep: number;
   demCandidate?: Candidate;
   forecast?: DetailedForecast;
-}) => (
+}) => {
+  // Same challenger-side treatment as the main column: an independent gets their own color/letter.
+  const demColor = demCandidate ? getPartyColor(demCandidate.party) : '#123f8f';
+  const demLetter: 'I' | 'D' = demCandidate?.party === Party.Independent ? 'I' : 'D';
+  return (
   <div>
     <h3 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>Win Probability</h3>
     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
       <div style={{ flex: 1, textAlign: 'center' }}>
-        <div style={{ fontSize: '38px', fontWeight: 'bold', color: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f' }}>{(headDem * 100).toFixed(1)}%</div>
+        <div style={{ fontSize: '38px', fontWeight: 'bold', color: demColor }}>{(headDem * 100).toFixed(1)}%</div>
       </div>
       <div style={{ flex: 2, height: '44px', display: 'flex', borderRadius: '8px', overflow: 'hidden' }}>
-        <div style={{ width: `${headDem * 100}%`, backgroundColor: demCandidate ? getPartyColor(demCandidate.party) : '#123f8f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demCandidate?.party === Party.Independent ? 'I' : 'D'}</div>
+        <div style={{ width: `${headDem * 100}%`, backgroundColor: demColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>{demLetter}</div>
         <div style={{ width: `${headRep * 100}%`, backgroundColor: '#9c150b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', transition: 'width 0.3s ease' }}>R</div>
       </div>
       <div style={{ flex: 1, textAlign: 'center' }}>
@@ -303,13 +308,14 @@ const WinProbHeadline = ({ headDem, headRep, demCandidate, forecast }: {
     {forecast && (
       <div style={{ textAlign: 'center', marginTop: '16px' }}>
         <div style={{ fontSize: '13px', color: '#666', marginBottom: '4px' }}>Projected result</div>
-        <div style={{ fontSize: '24px', fontWeight: 'bold', color: forecast.expectedDemMargin > 0 ? '#123f8f' : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666' }}>
-          {formatMargin(forecast.expectedDemMargin)}
+        <div style={{ fontSize: '24px', fontWeight: 'bold', color: forecast.expectedDemMargin > 0 ? demColor : forecast.expectedDemMargin < 0 ? '#9c150b' : '#666' }}>
+          {formatMargin(forecast.expectedDemMargin, demLetter)}
         </div>
       </div>
     )}
   </div>
-);
+  );
+};
 
 // Candidate list — name, party, incumbency. Win probability is omitted (it's already shown by the
 // forecast chart / headline).
