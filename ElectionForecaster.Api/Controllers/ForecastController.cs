@@ -5,6 +5,7 @@ using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using ElectionForecaster.Infrastructure.DataSources.Interfaces;
+using ElectionForecaster.Infrastructure.DataSources.Polling;
 using ElectionForecaster.Infrastructure.Forecasting;
 using Microsoft.AspNetCore.Mvc;
 
@@ -220,9 +221,19 @@ public class ForecastController : ControllerBase
             IsPartisan = p.Methodology != null && p.Methodology.StartsWith("Partisan"),
             PartisanLean = Infrastructure.DataSources.Models.PollData.PartisanLeanOf(p.Methodology),
             DemCandidate = p.DemCandidate,
-            RepCandidate = p.RepCandidate
+            RepCandidate = p.RepCandidate,
+            ChallengerParty = IsIndependentRow(p) ? "I" : "D"
         }).ToList());
     }
+
+    /// <summary>
+    /// Whether this row's challenger column holds the race's designated independent. Judged per
+    /// row, not per race: Idaho and South Dakota also carry polls of the Democrat who the
+    /// independent displaced, and those rows are still Democratic ones.
+    /// </summary>
+    private static bool IsIndependentRow(PollEntity poll) =>
+        IndependentChallengers.Get(poll.RaceId) is { ReplacesDem: true } independent
+        && CandidateNames.Match(poll.DemCandidate, independent.Name);
 
     /// <summary>
     /// Full dump of the persisted model state (history, chambers, ballot series, polls,
@@ -358,4 +369,12 @@ public class PollDto
 public class SitePollDto : PollDto
 {
     public string RaceId { get; set; } = "";
+
+    /// <summary>
+    /// The party holding the challenger slot these percentages describe: "D" normally, "I" where a
+    /// viable independent displaces the Democrat. The all-polls table mixes every race together, so
+    /// without this a Dan Osborn or Todd Achilles lead renders as "D+11" — a Democrat who isn't in
+    /// the race.
+    /// </summary>
+    public string ChallengerParty { get; set; } = "D";
 }

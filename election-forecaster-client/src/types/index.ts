@@ -152,4 +152,6 @@ export interface RacePolls {
 
 export interface SitePoll extends Poll {
   raceId: string;
+  // "D", or "I" where a viable independent holds the challenger slot (Osborn, Achilles, Bengs).
+  challengerParty: 'D' | 'I';
 }

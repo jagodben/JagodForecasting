@@ -19,13 +19,21 @@ const formatDateShort = (iso: string): string => {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 };
 
-const formatMargin = (margin: number): string => {
+// Polls are shown exactly as published, so a tied poll stays "EVEN" here (unlike a projected
+// result, which always assigns a winner). The challenger's letter is passed in because the slot
+// can hold an independent — "D+11" would name a Democrat who isn't in the race.
+const formatMargin = (margin: number, challenger: 'D' | 'I' = 'D'): string => {
   const r = Math.round(margin * 10) / 10;
   if (r === 0) return 'EVEN';
   const abs = Math.abs(r);
   const num = Number.isInteger(abs) ? abs.toString() : abs.toFixed(1);
-  return r > 0 ? `D+${num}` : `R+${num}`;
+  return r > 0 ? `${challenger}+${num}` : `R+${num}`;
 };
+
+const INDEPENDENT_COLOR = '#eab308';
+const DEM_COLOR = '#123f8f';
+const challengerColor = (poll: { challengerParty?: 'D' | 'I' }) =>
+  poll.challengerParty === 'I' ? INDEPENDENT_COLOR : DEM_COLOR;
 
 export const PollsPage = () => {
   useDocumentTitle('Polls');
@@ -74,6 +82,10 @@ export const PollsPage = () => {
   const selectedState = stateOptions.some(o => o.id === stateParam) ? stateParam : '';
 
   const shown = selectedState ? tabPolls.filter(p => p.raceId.startsWith(selectedState)) : tabPolls;
+
+  // The challenger column mixes every race together, so it's only headed "D" when every visible
+  // row really is a Democrat — a Nebraska or Idaho row makes it "D/I".
+  const anyIndependent = shown.some(p => p.challengerParty === 'I');
 
   // An undecided-primary poll appears as one row per matchup it tested (same race, pollster,
   // and date). Label the matchup on those rows so it's clear who each line is polling.
@@ -168,7 +180,7 @@ export const PollsPage = () => {
               <th style={cell}>Pollster</th>
               <th style={cell}>Date</th>
               {isDesktop && <th style={cell}>Sample</th>}
-              {isDesktop && <th style={{ ...cell, textAlign: 'right', color: '#123f8f' }}>D</th>}
+              {isDesktop && <th style={{ ...cell, textAlign: 'right', color: DEM_COLOR }}>{anyIndependent ? 'D/I' : 'D'}</th>}
               {isDesktop && <th style={{ ...cell, textAlign: 'right', color: '#9c150b' }}>R</th>}
               <th style={{ ...cell, textAlign: 'right' }}>Margin</th>
             </tr>
@@ -199,10 +211,10 @@ export const PollsPage = () => {
                     {poll.sampleSize ? `${poll.sampleSize.toLocaleString()}${poll.population ? ` ${poll.population}` : ''}` : '—'}
                   </td>
                 )}
-                {isDesktop && <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#123f8f' }}>{poll.demPercent}%</td>}
+                {isDesktop && <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: challengerColor(poll) }}>{poll.demPercent}%</td>}
                 {isDesktop && <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: '#9c150b' }}>{poll.repPercent}%</td>}
-                <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: poll.margin > 0 ? '#123f8f' : poll.margin < 0 ? '#9c150b' : '#666' }}>
-                  {formatMargin(poll.margin)}
+                <td style={{ ...cell, textAlign: 'right', fontWeight: 600, color: poll.margin > 0 ? challengerColor(poll) : poll.margin < 0 ? '#9c150b' : '#666' }}>
+                  {formatMargin(poll.margin, poll.challengerParty)}
                 </td>
               </tr>
             ))}
