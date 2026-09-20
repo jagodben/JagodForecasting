@@ -319,11 +319,6 @@
   "photo": "/candidates/ca-22-2026-david-valadao.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/David_Valadao_117th_U.S_Congress.jpg/330px-David_Valadao_117th_U.S_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "CA-22-2026|Randy Villegas": {
-  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
-  "photo": "/candidates/ca-22-2026-randy-villegas.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg/330px-Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
- },
  "CA-23-2026|Jay Obernolte": {
   "page": "https://en.wikipedia.org/wiki/Jay_Obernolte",
   "photo": "/candidates/ca-23-2026-jay-obernolte.webp",
@@ -333,11 +328,6 @@
   "page": "https://en.wikipedia.org/wiki/Salud_Carbajal",
   "photo": "/candidates/ca-24-2026-salud-carbajal.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Salud_Carbajal_-_117th_Congress.jpg/330px-Salud_Carbajal_-_117th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
- "CA-25-2026|Joe Males": {
-  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
-  "photo": "/candidates/ca-25-2026-joe-males.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Joe_Males_%28cropped%29.jpg/330px-Joe_Males_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "CA-25-2026|Raul Ruiz": {
   "page": "https://en.wikipedia.org/wiki/Raul_Ruiz_%28politician%29",
@@ -443,11 +433,6 @@
   "page": "https://en.wikipedia.org/wiki/Nanette_Barrag%C3%A1n",
   "photo": "/candidates/ca-44-2026-nanette-barrag\u00e1n.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Nanette_Barragan_official_portrait.jpg/330px-Nanette_Barragan_official_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
- "CA-45-2026|Chuong Vo": {
-  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California",
-  "photo": "/candidates/ca-45-2026-chuong-vo.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Chuong_Vo%2C_Mayor_Pro_Tem_of_Cerritos%2C_CA%2C_2020.jpg/330px-Chuong_Vo%2C_Mayor_Pro_Tem_of_Cerritos%2C_CA%2C_2020.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "CA-45-2026|Derek Tran": {
   "page": "https://en.wikipedia.org/wiki/Derek_Tran",
@@ -958,6 +943,11 @@
   "page": "https://en.wikipedia.org/wiki/Jim_Risch",
   "photo": "/candidates/id-sen-2026-jim-risch.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Bob_Menendez%2C_Jim_Risch_with_Tsihanouskaya_at_Senate_Foreign_%28cropped%29.jpg/330px-Bob_Menendez%2C_Jim_Risch_with_Tsihanouskaya_at_Senate_Foreign_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "ID-SEN-2026|Todd Achilles": {
+  "page": "https://en.wikipedia.org/wiki/Todd_Achilles",
+  "photo": "/candidates/id-sen-2026-todd-achilles.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Todd_Achilles_on_LibertyDad%27s_stream.png/330px-Todd_Achilles_on_LibertyDad%27s_stream.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IL-01-2026|Jonathan Jackson": {
   "page": "https://en.wikipedia.org/wiki/Jonathan_Jackson_%28Illinois_politician%29",
@@ -2408,6 +2398,11 @@
   "page": "https://en.wikipedia.org/wiki/Larry_Rhoden",
   "photo": "/candidates/sd-gov-2026-larry-rhoden.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/Larry_Rhoden_2025_%28cropped%29.jpg/330px-Larry_Rhoden_2025_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "SD-SEN-2026|Brian Bengs": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_Senate_election_in_South_Dakota",
+  "photo": "/candidates/sd-sen-2026-brian-bengs.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Brian_Bengs_Air_Force_%28cropped%29.jpg/330px-Brian_Bengs_Air_Force_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "SD-SEN-2026|Mike Rounds": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rounds",
