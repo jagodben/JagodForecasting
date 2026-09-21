@@ -147,7 +147,7 @@
  "AZ-03-2026|Yassamin Ansari": {
   "page": "https://en.wikipedia.org/wiki/Yassamin_Ansari",
   "photo": "/candidates/az-03-2026-yassamin-ansari.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Rep._Yassamin_Ansari_official_photo%2C_119th_Congress_%284x5_cropped%29.jpg/330px-Rep._Yassamin_Ansari_official_photo%2C_119th_Congress_%284x5_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Rep._Yassamin_Ansari_official_photo%2C_119th_Congress.jpg/330px-Rep._Yassamin_Ansari_official_photo%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AZ-04-2026|Greg Stanton": {
   "page": "https://en.wikipedia.org/wiki/Greg_Stanton",
@@ -319,6 +319,11 @@
   "photo": "/candidates/ca-22-2026-david-valadao.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/be/David_Valadao_117th_U.S_Congress.jpg/330px-David_Valadao_117th_U.S_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "CA-22-2026|Randy Villegas": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California_%28districts_1%E2%80%9326%29",
+  "photo": "/candidates/ca-22-2026-randy-villegas.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg/330px-Randy_Villegas_at_Vota_Palooza_in_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "CA-23-2026|Jay Obernolte": {
   "page": "https://en.wikipedia.org/wiki/Jay_Obernolte",
   "photo": "/candidates/ca-23-2026-jay-obernolte.webp",
@@ -328,6 +333,11 @@
   "page": "https://en.wikipedia.org/wiki/Salud_Carbajal",
   "photo": "/candidates/ca-24-2026-salud-carbajal.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Salud_Carbajal_-_117th_Congress.jpg/330px-Salud_Carbajal_-_117th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "CA-25-2026|Joe Males": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California_%28districts_1%E2%80%9326%29",
+  "photo": "/candidates/ca-25-2026-joe-males.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Joe_Males_%28cropped%29.jpg/330px-Joe_Males_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "CA-25-2026|Raul Ruiz": {
   "page": "https://en.wikipedia.org/wiki/Raul_Ruiz_%28politician%29",
@@ -433,6 +443,11 @@
   "page": "https://en.wikipedia.org/wiki/Nanette_Barrag%C3%A1n",
   "photo": "/candidates/ca-44-2026-nanette-barrag\u00e1n.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Nanette_Barragan_official_portrait.jpg/330px-Nanette_Barragan_official_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "CA-45-2026|Chuong Vo": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_California_%28districts_27%E2%80%9352%29",
+  "photo": "/candidates/ca-45-2026-chuong-vo.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Chuong_Vo%2C_Mayor_Pro_Tem_of_Cerritos%2C_CA%2C_2020.jpg/330px-Chuong_Vo%2C_Mayor_Pro_Tem_of_Cerritos%2C_CA%2C_2020.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "CA-45-2026|Derek Tran": {
   "page": "https://en.wikipedia.org/wiki/Derek_Tran",
@@ -2563,6 +2578,11 @@
   "page": "https://en.wikipedia.org/wiki/Troy_Nehls",
   "photo": "/candidates/tx-22-2026-trever-nehls.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Troy_Nehls_117th_U.S_Congress.jpg/330px-Troy_Nehls_117th_U.S_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "TX-23-2026|Brandon Herrera": {
+  "page": "https://en.wikipedia.org/wiki/Brandon_Herrera",
+  "photo": "/candidates/tx-23-2026-brandon-herrera.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Brandon_Herrera_with_attendees_%2855457704523%29_%28cropped%29.jpg/330px-Brandon_Herrera_with_attendees_%2855457704523%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-23-2026|Katy Padilla Stout": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
