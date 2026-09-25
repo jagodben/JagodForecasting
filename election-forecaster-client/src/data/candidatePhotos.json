@@ -1052,7 +1052,7 @@
  "IL-GOV-2026|Darren Bailey": {
   "page": "https://en.wikipedia.org/wiki/Darren_Bailey",
   "photo": "/candidates/il-gov-2026-darren-bailey.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d0/Darren_Bailey_at_a_2022_Campaign_Event.jpg/330px-Darren_Bailey_at_a_2022_Campaign_Event.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Darren_Bailey_at_a_2022_Campaign_Event_%28cropped2%29.jpg/330px-Darren_Bailey_at_a_2022_Campaign_Event_%28cropped2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IL-GOV-2026|JB Pritzker": {
   "page": "https://en.wikipedia.org/wiki/JB_Pritzker",
@@ -2629,6 +2629,11 @@
   "photo": "/candidates/tx-31-2026-john-carter.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/John_Carter%2C_official_portrait_114th_Congress_%28cropped%29.jpg/330px-John_Carter%2C_official_portrait_114th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "TX-32-2026|Jace Yarbrough": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "photo": "/candidates/tx-32-2026-jace-yarbrough.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Joint_Base_Commander_visits_the_US_Air_Force_Honor_Guard_-_Jace_Yarbrough_%28cropped%29.jpg/330px-Joint_Base_Commander_visits_the_US_Air_Force_Honor_Guard_-_Jace_Yarbrough_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "TX-33-2026|Colin Allred": {
   "page": "https://en.wikipedia.org/wiki/Colin_Allred",
   "photo": "/candidates/tx-33-2026-colin-allred.webp",
@@ -2778,6 +2783,11 @@
   "page": "https://en.wikipedia.org/wiki/Gerald_Malloy",
   "photo": "/candidates/vt-01-2026-gerald-malloy.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Gerald_Malloy_at_Readiness_Center_Ground_Breaking_Ceremony_%28cropped%29.jpg/330px-Gerald_Malloy_at_Readiness_Center_Ground_Breaking_Ceremony_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "VT-GOV-2026|Amanda Janoo": {
+  "page": "https://en.wikipedia.org/wiki/2026_Vermont_gubernatorial_election",
+  "photo": "/candidates/vt-gov-2026-amanda-janoo.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Amanda_Janoo_at_candidate_forum_in_May_2026_%28cropped%29.png/330px-Amanda_Janoo_at_candidate_forum_in_May_2026_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "VT-GOV-2026|Phil Scott": {
   "page": "https://en.wikipedia.org/wiki/Phil_Scott",
