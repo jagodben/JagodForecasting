@@ -1339,6 +1339,11 @@
   "photo": "/candidates/me-01-2026-chellie-pingree.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/CPingree_Portrait_202203.jpg/330px-CPingree_Portrait_202203.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "ME-02-2026|Matthew Dunlap": {
+  "page": "https://en.wikipedia.org/wiki/Matthew_Dunlap",
+  "photo": "/candidates/me-02-2026-matthew-dunlap.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/7/70/Matt_Dunlap_%28cropped_headshot%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+ },
  "ME-02-2026|Paul LePage": {
   "page": "https://en.wikipedia.org/wiki/Paul_LePage",
   "photo": "/candidates/me-02-2026-paul-lepage.webp",
@@ -2092,7 +2097,7 @@
  "OH-09-2026|Marcy Kaptur": {
   "page": "https://en.wikipedia.org/wiki/Marcy_Kaptur",
   "photo": "/candidates/oh-09-2026-marcy-kaptur.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Marcy_Kaptur_portrait_%28118th_Congress%29.jpg/330px-Marcy_Kaptur_portrait_%28118th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/Marcy_Kaptur_Portrait_98th_Congress_1983.png/330px-Marcy_Kaptur_Portrait_98th_Congress_1983.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OH-10-2026|Mike Turner": {
   "page": "https://en.wikipedia.org/wiki/Mike_Turner",
