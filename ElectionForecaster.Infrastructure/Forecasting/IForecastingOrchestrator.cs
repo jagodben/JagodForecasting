@@ -10,6 +10,12 @@ public interface IForecastingOrchestrator
 
     Task<List<DetailedForecast>> GenerateAllForecastsAsync(RaceType? raceType = null, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// The race's forecast from fundamentals alone, built by the same pipeline as a full forecast.
+    /// The fallback for any race whose full forecast is unavailable — there is no second model.
+    /// </summary>
+    Task<DetailedForecast> GenerateBaselineForecastAsync(string raceId, CancellationToken cancellationToken = default);
+
     Task<ChamberForecast> SimulateChamberAsync(RaceType chamber, CancellationToken cancellationToken = default);
 
     /// <summary>Stored chamber control-over-time history (cheap DB read, no simulation).</summary>

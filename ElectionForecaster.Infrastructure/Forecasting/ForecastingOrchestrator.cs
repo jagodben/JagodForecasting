@@ -161,6 +161,33 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
             await fundamentalsTask, await genericBallotTask, race, DateTime.UtcNow, history);
     }
 
+    /// <summary>
+    /// The race's forecast from fundamentals alone — no market, no polls — built by the same
+    /// <see cref="BuildForecast"/> as every full forecast. It stands in wherever a full forecast is
+    /// unavailable (a race whose compute failed), so a gap is filled with this model's own estimate
+    /// instead of a separately maintained formula that drifts from it. Never throws for want of
+    /// data: without a generic-ballot average it takes the model's usual default environment.
+    /// </summary>
+    public async Task<DetailedForecast> GenerateBaselineForecastAsync(string raceId, CancellationToken cancellationToken = default)
+    {
+        var race = await _raceService.GetRaceByIdAsync(raceId);
+        var fundamentals = await _fundamentalsSource.GetFundamentalsAsync(raceId, cancellationToken);
+
+        double? genericBallot;
+        try
+        {
+            genericBallot = await _genericBallotSource.GetCurrentMarginAsync(cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Generic ballot unavailable for the {RaceId} baseline; using the default environment", raceId);
+            genericBallot = null;
+        }
+
+        return BuildForecast(raceId, race?.Type ?? RaceType.Senate, marketOdds: null, polling: null,
+            fundamentals, genericBallot, race, DateTime.UtcNow, new List<HistoricalDataPoint>());
+    }
+
     /// <summary>Reconstructs the served forecast from a stored daily-snapshot row.</summary>
     private static DetailedForecast EntityToForecast(ForecastHistoryEntity e, List<HistoricalDataPoint> history) => new()
     {
@@ -378,39 +405,24 @@ public class ForecastingOrchestrator : IForecastingOrchestrator
         var forecasts = await GenerateAllForecastsAsync(chamber, cancellationToken);
 
         // Every seat must be counted: a dropped race would shrink the seat total against the
-        // fixed control threshold and deflate both parties' odds. Fill gaps from the baseline.
+        // fixed control threshold and deflate both parties' odds. A race whose forecast failed is
+        // counted from this model's own fundamentals baseline — never a different model's guess.
         var allRaces = (await _raceService.GetAllRacesAsync(chamber)).ToList();
         var byId = forecasts.ToDictionary(f => f.RaceId);
-        var complete = allRaces
-            .Select(r => byId.TryGetValue(r.Id, out var f) ? f : FallbackForecast(r))
-            .ToList();
+        var complete = new List<DetailedForecast>(allRaces.Count);
+        foreach (var race in allRaces)
+        {
+            if (!byId.TryGetValue(race.Id, out var forecast))
+            {
+                _logger.LogWarning("No forecast for {RaceId}; counting its seat from the fundamentals baseline", race.Id);
+                forecast = await GenerateBaselineForecastAsync(race.Id, cancellationToken);
+            }
+            complete.Add(forecast);
+        }
 
         var chamberResult = _simulator.SimulateChamber(complete, chamber);
         chamberResult.History = history;
         return chamberResult;
-    }
-
-    /// <summary>
-    /// A minimal forecast reconstructed from a race's fundamentals-only RaceService prior. Used only
-    /// to keep the chamber Monte Carlo's seat total complete when a race's full forecast is missing —
-    /// never surfaced to the API.
-    /// </summary>
-    private static DetailedForecast FallbackForecast(Race race)
-    {
-        var demCand = race.Candidates.FirstOrDefault(c => c.Party == Party.Democrat);
-        var repCand = race.Candidates.FirstOrDefault(c => c.Party == Party.Republican);
-        var demForecast = race.Forecasts.FirstOrDefault(f => f.CandidateId == demCand?.Id);
-        var repForecast = race.Forecasts.FirstOrDefault(f => f.CandidateId == repCand?.Id);
-        var demVoteShare = demForecast?.ProjectedVoteShare ?? 0.5;
-        return new DetailedForecast
-        {
-            RaceId = race.Id,
-            DemWinProbability = demForecast?.WinProbability ?? 0.5,
-            RepWinProbability = repForecast?.WinProbability ?? 0.5,
-            // RaceService sets demVoteShare = 0.5 + margin/100, so invert to recover its margin.
-            ExpectedDemMargin = (demVoteShare - 0.5) * 100.0,
-            MarginStdDev = race.Type == RaceType.House ? 8.0 : 6.0
-        };
     }
 
     public async Task RefreshAllDataAsync(CancellationToken cancellationToken = default)

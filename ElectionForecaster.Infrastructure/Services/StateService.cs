@@ -13,7 +13,8 @@ public class StateService : IStateService
     {
         _states = ElectionDataProvider.GetAllStates();
 
-        // Replace races in each state with the updated forecasted races from RaceService
+        // Point each state at RaceService's shared race instances, so candidate refreshes applied
+        // to those instances show up here too. (Neither service forecasts — the API overlays it.)
         var allRaces = raceService.GetAllRacesAsync().Result.ToList();
         foreach (var state in _states)
         {

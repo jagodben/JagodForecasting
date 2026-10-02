@@ -1,22 +1,55 @@
 using ElectionForecaster.Core.Enums;
 using ElectionForecaster.Core.Models;
+using ElectionForecaster.Infrastructure.Forecasting;
 
 namespace ElectionForecaster.Api.Services;
 
 /// <summary>
-/// Overlays the blended model forecast (markets + polls + fundamentals + national environment)
-/// onto the static race objects RaceService builds at startup, so every endpoint serves the same
-/// numbers the model produces. Returns copies — the underlying Race/State/District instances are
-/// long-lived singletons shared across requests and must never be mutated.
+/// Overlays the model's forecast onto the static race objects RaceService holds, so every endpoint
+/// serves the numbers the model produces. RaceService computes no forecast of its own — its races
+/// carry only seed placeholders — so a race must never be served without an overlay. Returns
+/// copies: the underlying Race/State/District instances are long-lived singletons shared across
+/// requests and must never be mutated.
 /// </summary>
 public static class ForecastOverlay
 {
     /// <summary>
-    /// Returns a copy of the race whose rating and candidate win probabilities reflect the blended
-    /// forecast rather than the fundamentals-only startup baseline. Falls back to the race as-is
-    /// when no forecast is available.
+    /// The forecast to serve for a race: its full forecast, or — if that fails — the model's own
+    /// fundamentals-only baseline, so a failure degrades to fewer inputs rather than to a different
+    /// model's numbers. Null only when both fail.
     /// </summary>
-    public static Race WithBlendedForecast(Race race, DetailedForecast? f)
+    public static async Task<DetailedForecast?> ResolveAsync(IForecastingOrchestrator orchestrator, string raceId, ILogger logger)
+    {
+        try
+        {
+            return await orchestrator.GenerateForecastAsync(raceId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Forecast failed for {RaceId}; serving its fundamentals baseline", raceId);
+        }
+        return await BaselineOrNullAsync(orchestrator, raceId, logger);
+    }
+
+    /// <summary>The race's fundamentals-only baseline, or null (logged) if even that fails.</summary>
+    public static async Task<DetailedForecast?> BaselineOrNullAsync(IForecastingOrchestrator orchestrator, string raceId, ILogger logger)
+    {
+        try
+        {
+            return await orchestrator.GenerateBaselineForecastAsync(raceId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Fundamentals baseline also failed for {RaceId}; serving it unforecast", raceId);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Returns a copy of the race whose rating and candidate win probabilities reflect the given
+    /// forecast. Falls back to the race as-is only when no forecast is available at all.
+    /// </summary>
+    public static Race WithForecast(Race race, DetailedForecast? f)
     {
         if (f == null) return race;
 
@@ -51,7 +84,7 @@ public static class ForecastOverlay
         };
     }
 
-    // Same thresholds the maps and RaceService use, so the rating agrees with the win probability.
+    // Same thresholds the maps use, so the rating agrees with the win probability.
     public static RaceRating RatingFromProbability(double demProb) => demProb switch
     {
         >= 0.90 => RaceRating.SolidDem,
