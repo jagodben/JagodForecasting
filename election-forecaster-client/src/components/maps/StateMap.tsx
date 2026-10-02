@@ -3,6 +3,8 @@ import { District, RaceRating } from '../../types';
 import { geoPath, geoAlbersUsa, GeoPermissibleObjects } from 'd3-geo';
 import { feature } from 'topojson-client';
 import { districtCode } from '../../utils/districts';
+import './maps.css';
+import './StateMap.css';
 
 // Local TopoJSON file with 118th Congress districts
 const DISTRICTS_URL = '/data/districts.json';

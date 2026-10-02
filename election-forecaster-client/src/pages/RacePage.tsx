@@ -11,6 +11,7 @@ import { districtCode } from '../utils/districts';
 import { getCandidatePhoto } from '../utils/photos';
 import { CandidateAvatar } from '../components/CandidateAvatar';
 import { PartisanBadge } from '../components/PartisanBadge';
+import './RacePage.css';
 
 interface HistoricalOdds {
   date: string;

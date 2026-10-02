@@ -1,0 +1,44 @@
+.state-page {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%; /* same fit-content pitfall as .race-page — see its comment */
+}
+
+.state-header {
+  padding: 24px 0;
+  margin-bottom: 32px;
+  border-bottom: 2px solid var(--text-primary);
+}
+
+.state-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.state-title h1 {
+  font-family: var(--font-headline);
+}
+
+.state-info {
+  margin-top: 12px;
+  display: flex;
+  gap: 24px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.race-section h2 {
+  font-family: var(--font-headline);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--text-primary);
+  padding-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .state-page {
+    padding: 16px;
+  }
+}

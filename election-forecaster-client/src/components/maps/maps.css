@@ -1,0 +1,20 @@
+/* Styles shared by the map components (RaceMap, USDistrictMap, StateMap). */
+
+.us-map-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  /* Hide map instructions on mobile */
+  .map-instructions {
+    display: none;
+  }
+
+  /* Hide tooltip on mobile */
+  .map-tooltip {
+    display: none !important;
+  }
+}

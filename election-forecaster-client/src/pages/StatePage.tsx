@@ -5,6 +5,7 @@ import { StateMap } from '../components/maps/StateMap';
 import { RaceCard } from '../components/races/RaceCard';
 import { RaceType } from '../types';
 import { isTbdCandidate, TBD_NOTE } from '../utils/candidates';
+import './StatePage.css';
 
 export const StatePage = () => {
   const { stateId } = useParams<{ stateId: string }>();

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
+import './ChamberForecast.css';
 
 // Rating order from left (Solid D) to right (Solid R)
 const RATING_ORDER: RaceRating[] = [
