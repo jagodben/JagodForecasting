@@ -31,11 +31,9 @@ public class ForecastHistoryEntity
     public double MarketWeight { get; set; }
     public double PollingWeight { get; set; }
     public double FundamentalsWeight { get; set; }
-    public double ApprovalWeight { get; set; }
 
     // Input values at time of forecast
     public double? MarketOdds { get; set; }
     public double? PollingAverage { get; set; }
     public double? FundamentalsPrediction { get; set; }
-    public double? ApprovalAdjustment { get; set; }
 }
