@@ -45,16 +45,16 @@ public class StatesController : ControllerBase
         var state = await _stateService.GetStateByIdAsync(id);
         if (state == null)
             return NotFound();
-        return Ok(await WithBlendedForecastsAsync(state));
+        return Ok(await WithForecastsAsync(state));
     }
 
     /// <summary>
-    /// Returns a copy of the state whose races (and district grid ratings) carry the blended model
+    /// Returns a copy of the state whose races (and district grid ratings) carry the model's
     /// forecast, so the state page agrees with the dashboard map and the race pages. The underlying
     /// State/Race/District objects are startup singletons shared across requests — never mutated.
-    /// Races whose forecast fails fall back to the startup baseline individually.
+    /// A race whose forecast fails falls back to the model's own fundamentals baseline.
     /// </summary>
-    private async Task<State> WithBlendedForecastsAsync(State state)
+    private async Task<State> WithForecastsAsync(State state)
     {
         var races = await OverlayRacesAsync(state.Races);
         var byId = races.ToDictionary(r => r.Id);
@@ -88,16 +88,8 @@ public class StatesController : ControllerBase
         var result = new List<Race>();
         foreach (var race in races)
         {
-            try
-            {
-                var forecast = await _orchestrator.GenerateForecastAsync(race.Id);
-                result.Add(ForecastOverlay.WithBlendedForecast(race, forecast));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Blended-forecast overlay failed for {RaceId}; serving baseline", race.Id);
-                result.Add(race);
-            }
+            var forecast = await ForecastOverlay.ResolveAsync(_orchestrator, race.Id, _logger);
+            result.Add(ForecastOverlay.WithForecast(race, forecast));
         }
         return result;
     }

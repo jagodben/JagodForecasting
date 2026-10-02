@@ -70,8 +70,8 @@ public static partial class ElectionDataProvider
 
     private static State CreateState(string id, string name, int electoralVotes, int districts, bool hasSenateRace, bool hasGovRace)
     {
-        // Placeholder rating only — RaceService replaces every race's rating with the real
-        // forecast at startup, so the seed value never reaches the UI.
+        // Placeholder rating and probabilities only. No forecast is computed here or in
+        // RaceService — the API overlays the model's forecast on every race it serves.
         const RaceRating rating = RaceRating.TiltDem;
         var state = new State
         {
@@ -95,8 +95,8 @@ public static partial class ElectionDataProvider
             state.Races.Add(govRace);
         }
 
-        // Add House races for each district. Ratings here are placeholders; StateService
-        // replaces them with the real per-district forecasts at startup.
+        // Add House races for each district. Ratings here are placeholders too; the API serves
+        // each district's rating from the model's forecast for its race.
         for (int i = 1; i <= districts; i++)
         {
             var district = new District

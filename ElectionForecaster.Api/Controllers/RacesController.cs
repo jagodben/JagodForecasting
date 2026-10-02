@@ -30,17 +30,28 @@ public class RacesController : ControllerBase
     public async Task<IActionResult> GetAllRaces([FromQuery] RaceType? type = null)
     {
         var races = (await _raceService.GetAllRacesAsync(type)).ToList();
+
+        Dictionary<string, DetailedForecast> byId;
         try
         {
-            var byId = (await _orchestrator.GenerateAllForecastsAsync(type))
-                .ToDictionary(f => f.RaceId);
-            return Ok(races.Select(r => ForecastOverlay.WithBlendedForecast(r, byId.GetValueOrDefault(r.Id))));
+            byId = (await _orchestrator.GenerateAllForecastsAsync(type)).ToDictionary(f => f.RaceId);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Blended-forecast overlay failed; serving baseline ratings");
-            return Ok(races);
+            _logger.LogWarning(ex, "Forecasts failed; serving every race's fundamentals baseline");
+            byId = new Dictionary<string, DetailedForecast>();
         }
+
+        // GenerateAllForecastsAsync drops any race whose forecast threw — fill those from the
+        // model's own baseline rather than serving RaceService's placeholder numbers.
+        var result = new List<Race>(races.Count);
+        foreach (var race in races)
+        {
+            var forecast = byId.GetValueOrDefault(race.Id)
+                           ?? await ForecastOverlay.BaselineOrNullAsync(_orchestrator, race.Id, _logger);
+            result.Add(ForecastOverlay.WithForecast(race, forecast));
+        }
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -50,16 +61,8 @@ public class RacesController : ControllerBase
         if (race == null)
             return NotFound();
 
-        try
-        {
-            var forecast = await _orchestrator.GenerateForecastAsync(id);
-            return Ok(ForecastOverlay.WithBlendedForecast(race, forecast));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Blended-forecast overlay failed for {RaceId}; serving baseline", id);
-            return Ok(race);
-        }
+        var forecast = await ForecastOverlay.ResolveAsync(_orchestrator, race.Id, _logger);
+        return Ok(ForecastOverlay.WithForecast(race, forecast));
     }
 
 }
