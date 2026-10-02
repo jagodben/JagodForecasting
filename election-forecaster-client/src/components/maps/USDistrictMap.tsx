@@ -8,6 +8,8 @@ import { feature } from 'topojson-client';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { districtCode } from '../../utils/districts';
+import './maps.css';
+import './USDistrictMap.css';
 
 type DataSource = 'combined' | 'markets' | 'polling';
 

@@ -1,0 +1,6 @@
+/* On phones the footer keeps just the switch — the word doesn't fit the row. */
+@media (max-width: 768px) {
+  .accessibility-toggle__label {
+    display: none;
+  }
+}

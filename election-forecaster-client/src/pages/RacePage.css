@@ -1,0 +1,66 @@
+/* =========================================
+   Race detail page
+   Mobile: single scrolling column (default).
+   Desktop: fills the viewport in two columns — no page scroll.
+   ========================================= */
+.race-page {
+  background: #fff;
+  min-height: 100vh;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  /* .app-content is a column flex container and the auto margins disable its default stretch,
+     so without an explicit width the page sizes to fit-content — a wide child (the polls
+     table) then blows the layout past the phone's viewport and breaks initial zoom and the
+     footer's span. Full width keeps the page at viewport size; the table scrolls internally. */
+  width: 100%;
+}
+
+.race-page__header-top {
+  margin-bottom: 20px;
+}
+
+.race-page__left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.race-page__right {
+  margin-top: 24px;
+}
+
+@media (min-width: 900px) {
+  .race-page {
+    max-width: 1180px;
+    /* Fill at least the viewport (minus the fixed 40px footer), but grow with the content so
+       nothing is clipped — the page scrolls when the columns are taller than one screen. */
+    min-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 32px;
+  }
+
+  .race-page__header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  /* Desktop: 2x2 quadrants — left column (chart + projected), right column (candidates + polls). */
+  .race-page__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+
+  .race-page__col {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+}

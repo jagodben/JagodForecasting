@@ -7,6 +7,7 @@ import { forecastApi } from '../../services/api';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
+import './maps.css';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 

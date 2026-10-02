@@ -6,6 +6,7 @@ import { Race, RaceType, RaceRating, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
+import './RaceCard.css';
 
 const getRatingLabel = (rating: RaceRating): string => {
   switch (rating) {

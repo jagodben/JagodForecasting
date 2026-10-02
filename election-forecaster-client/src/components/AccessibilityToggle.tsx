@@ -1,4 +1,5 @@
 import { useAccessibility } from '../context/AccessibilityContext';
+import './AccessibilityToggle.css';
 
 // Inline switch (lives in the site footer) that turns the colorblind-friendly map patterns on/off.
 export const AccessibilityToggle = () => {

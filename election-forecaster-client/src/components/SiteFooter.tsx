@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AccessibilityToggle } from './AccessibilityToggle';
 import { SocialLinks } from './SocialLinks';
+import './SiteFooter.css';
 
 // Slim site-wide bottom bar (in normal flow, at the bottom of the page): copyright, a light
 // disclaimer, and (only on the map/home page) the colorblind-pattern switch.

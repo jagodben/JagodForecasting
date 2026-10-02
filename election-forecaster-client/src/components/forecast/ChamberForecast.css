@@ -1,0 +1,151 @@
+/* =============================================
+   Forecast Sidebar - NYT Style
+   ============================================= */
+.forecast-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.forecast-sidebar__title {
+  margin: 0;
+  font-family: var(--font-headline);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--text-primary);
+}
+
+.forecast-sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forecast-sidebar__label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Party labels */
+.forecast-sidebar__party-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Seats/Probability numbers row */
+.forecast-sidebar__seats {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Unified bar style for both win probability and seat bars */
+.forecast-sidebar__seat-bar {
+  height: 28px;
+  display: flex;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.forecast-sidebar__seat-bar > div {
+  transition: width 0.4s ease;
+}
+
+.forecast-sidebar__majority-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: var(--text-primary);
+}
+
+.forecast-sidebar__loading {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  /* Chamber summary card — fills the map pane's empty space when nothing is selected. */
+  .mobile-chamber-card {
+    margin-top: 12px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+  }
+
+  .mobile-chamber-card__title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .mobile-chamber-card__probs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-chamber-card__probs > span {
+    font-weight: 700;
+    font-size: 16px;
+    min-width: 48px;
+  }
+
+  .mobile-chamber-card__bar {
+    flex: 1;
+    height: 10px;
+    display: flex;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .mobile-chamber-card__caption {
+    font-size: 11px;
+    color: var(--text-muted, #888);
+    margin-top: 6px;
+  }
+
+  .mobile-chamber-card__seats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .mobile-chamber-card__seats b {
+    font-size: 15px;
+  }
+
+  .mobile-chamber-card__dash {
+    margin: 0 6px;
+    color: var(--text-muted, #999);
+  }
+
+  .mobile-chamber-card__hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-muted, #999);
+    text-align: center;
+  }
+}

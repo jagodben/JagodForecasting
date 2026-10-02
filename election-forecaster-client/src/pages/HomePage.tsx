@@ -8,6 +8,7 @@ import { ChamberForecast } from '../components/forecast/ChamberForecast';
 import { RaceType } from '../types';
 import { useDocumentTitle } from '../utils/useDocumentTitle';
 import { districtCode } from '../utils/districts';
+import './HomePage.css';
 
 type MapView = 'senate' | 'house' | 'governors';
 type MobilePanel = 'map' | 'data';
