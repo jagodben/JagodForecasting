@@ -112,4 +112,69 @@ public class PollTableParsingTests
 
         Assert.Empty(WikipediaPollingClient.ParseTable(table, "MN-GOV-2026"));
     }
+
+    [Fact]
+    public void RankedChoiceTableSumsEachPartysCandidates()
+    {
+        // Alaska's top four: Republican first choices transfer to the surviving Republican, so
+        // the party total — not the first-listed candidate — approximates the final round.
+        var table = """
+        {| class="wikitable"
+        |-
+        ! Poll source
+        ! Date(s)<br />administered
+        ! Sample<br />size
+        ! Margin<br />of error
+        ! Bernadette<br />Wilson (R)
+        ! Jonathan<br />Kreiss-Tomkins (D)
+        ! Dave<br />Bronson (R)
+        ! Undecided
+        |-
+        |Example Poll
+        |September 24–27, 2026
+        |502 (LV)
+        |± 4%
+        |24%
+        |44%
+        |17%
+        |15%
+        |}
+        """;
+
+        var poll = Assert.Single(WikipediaPollingClient.ParseTable(table, "AK-GOV-2026"));
+        Assert.Equal(44, poll.DemPercent);
+        Assert.Equal(41, poll.RepPercent);
+        Assert.Equal("Bernadette Wilson", poll.RepCandidate);
+    }
+
+    [Fact]
+    public void PluralityRaceDoesNotSumASplitParty()
+    {
+        // Without ranked-choice voting a split party's votes don't consolidate.
+        var table = """
+        {| class="wikitable"
+        |-
+        ! Poll source
+        ! Date(s)<br />administered
+        ! Sample<br />size
+        ! Margin<br />of error
+        ! Mike<br />Collins (R)
+        ! Jon<br />Ossoff (D)
+        ! Buddy<br />Carter (R)
+        ! Undecided
+        |-
+        |Example Poll
+        |September 24–27, 2026
+        |502 (LV)
+        |± 4%
+        |24%
+        |44%
+        |17%
+        |15%
+        |}
+        """;
+
+        var poll = Assert.Single(WikipediaPollingClient.ParseTable(table, "GA-SEN-2026"));
+        Assert.Equal(24, poll.RepPercent);
+    }
 }
