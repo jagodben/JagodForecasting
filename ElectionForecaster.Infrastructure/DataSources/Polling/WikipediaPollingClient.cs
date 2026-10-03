@@ -338,15 +338,31 @@ public partial class WikipediaPollingClient : IPollingSource
         var demCandidate = CandidateFromHeader(headers[demCol]);
         var repCandidate = CandidateFromHeader(headers[repCol]);
 
+        // Ranked-choice races (Alaska's top four, Maine) often poll several candidates from one
+        // party. Their first-choice votes transfer within the party as candidates are eliminated, so
+        // the party's total approximates the final round — reading only the first-listed one turned
+        // an Alaska poll of 44 D vs 24+8+9 R into D+20.
+        var rcv = RankedChoiceVoting.IsRankedChoice(raceId);
+        List<int> SamePartyColumns(char party, int primary) => headers
+            .Select((h, i) => (h, i))
+            .Where(x => x.i != primary && EndsWithParty(x.h, party))
+            .Select(x => x.i)
+            .ToList();
+        var extraDem = rcv && EndsWithParty(headers[demCol], 'D') ? SamePartyColumns('D', demCol) : new List<int>();
+        var extraRep = rcv ? SamePartyColumns('R', repCol) : new List<int>();
+        var lastCol = new[] { demCol, repCol }.Concat(extraDem).Concat(extraRep).Max();
+
         foreach (var row in rows)
         {
             if (row.Any(c => c.IsHeader)) continue; // skip header rows
             var cells = row.Where(c => !c.IsHeader).Select(c => c.Content).ToList();
-            if (cells.Count <= Math.Max(demCol, repCol)) continue; // misaligned (rowspan/colspan)
+            if (cells.Count <= lastCol) continue; // misaligned (rowspan/colspan)
 
             var demPct = ParsePercent(cells[demCol]);
             var repPct = ParsePercent(cells[repCol]);
             if (demPct is null || repPct is null) continue;
+            demPct += extraDem.Sum(i => ParsePercent(cells[i]) ?? 0);
+            repPct += extraRep.Sum(i => ParsePercent(cells[i]) ?? 0);
 
             if (!PollFilters.IsUsableTwoWay(demPct.Value, repPct.Value)) continue;
 
