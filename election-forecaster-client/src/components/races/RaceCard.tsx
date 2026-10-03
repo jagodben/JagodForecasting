@@ -1,9 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
 import { getCandidatePhoto } from '../../utils/photos';
 import { CandidateAvatar } from '../CandidateAvatar';
 import { Link } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
-import { forecastApi } from '../../services/api';
 import { districtCode } from '../../utils/districts';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 import './RaceCard.css';
@@ -84,17 +82,12 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
   const demForecast = race.forecasts.find(f => f.candidateId === demCandidate?.id);
   const repForecast = race.forecasts.find(f => f.candidateId === repCandidate?.id);
 
-  // Use the blended forecast (markets + polling + fundamentals + national environment) — the same
-  // number the home page map and race page show — instead of the fundamentals-only
-  // race.forecasts value. Shares a query cache key with RacePage/RaceMap.
-  const { data: detailed } = useQuery({
-    queryKey: ['forecast', race.id],
-    queryFn: () => forecastApi.getByRaceId(race.id),
-    enabled: !compact && !!race.id,
-  });
-
-  const demProbability = detailed?.demWinProbability ?? demForecast?.winProbability;
-  const repProbability = detailed?.repWinProbability ?? repForecast?.winProbability;
+  // The API serves every race with the model's forecast already applied (win probabilities and
+  // projected margin), so a card needs no request of its own — a state page is one call, not one
+  // per race.
+  const demProbability = demForecast?.winProbability;
+  const repProbability = repForecast?.winProbability;
+  const margin = race.projectedDemMargin;
 
   if (compact) {
     // A real <a href> (via Link) rather than a div with onClick, so crawlers can discover
@@ -183,7 +176,7 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
         )}
       </div>
 
-      {detailed && (
+      {margin != null && (
         <div style={{
           marginTop: '16px',
           paddingTop: '12px',
@@ -198,9 +191,9 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           <span style={{
             fontWeight: 'bold',
             fontSize: '16px',
-            color: detailed.expectedDemMargin > 0 ? '#123f8f' : detailed.expectedDemMargin < 0 ? '#9c150b' : '#666',
+            color: margin > 0 ? '#123f8f' : margin < 0 ? '#9c150b' : '#666',
           }}>
-            {formatMargin(detailed.expectedDemMargin)}
+            {formatMargin(margin)}
           </span>
         </div>
       )}
