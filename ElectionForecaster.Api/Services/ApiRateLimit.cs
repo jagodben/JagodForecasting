@@ -17,7 +17,7 @@ namespace ElectionForecaster.Api.Services;
 public static class ApiRateLimit
 {
     public const string PolicyName = "api";
-    public const int PermitsPerWindow = 100;
+    public const int PermitsPerWindow = 300;
     public static readonly TimeSpan Window = TimeSpan.FromMinutes(1);
 
     private const string CloudflareClientHeader = "CF-Connecting-IP";
