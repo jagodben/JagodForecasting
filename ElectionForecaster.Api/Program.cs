@@ -1,5 +1,5 @@
 using System.IO.Compression;
-using System.Threading.RateLimiting;
+using ElectionForecaster.Api.Services;
 using ElectionForecaster.Core.Interfaces;
 using ElectionForecaster.Infrastructure.Data;
 using ElectionForecaster.Infrastructure.DataSources.Candidates;
@@ -68,13 +68,7 @@ builder.Services.AddHostedService<DataRefreshService>();
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
-    options.AddFixedWindowLimiter("api", limiterOptions =>
-    {
-        limiterOptions.PermitLimit = 100; // 100 requests per window
-        limiterOptions.Window = TimeSpan.FromMinutes(1); // 1 minute window
-        limiterOptions.QueueLimit = 10;
-        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-    });
+    options.AddPolicy(ApiRateLimit.PolicyName, ApiRateLimit.Partition);
 });
 
 builder.Services.AddCors(options =>
@@ -131,7 +125,7 @@ app.UseCors("ReactApp");
 app.UseRateLimiter();
 
 app.UseAuthorization();
-app.MapControllers().RequireRateLimiting("api");
+app.MapControllers().RequireRateLimiting(ApiRateLimit.PolicyName);
 
 // Liveness plus data freshness: one URL to confirm the daily pipeline is actually keeping up
 // (latest snapshot/poll/ballot dates), for a weekly glance or an uptime monitor. Always 200 as

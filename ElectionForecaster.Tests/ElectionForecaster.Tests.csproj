@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ElectionForecaster.Api\ElectionForecaster.Api.csproj" />
     <ProjectReference Include="..\ElectionForecaster.Infrastructure\ElectionForecaster.Infrastructure.csproj" />
     <ProjectReference Include="..\ElectionForecaster.Core\ElectionForecaster.Core.csproj" />
   </ItemGroup>
