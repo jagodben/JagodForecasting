@@ -46,6 +46,8 @@ export interface Race {
   rating: RaceRating;
   candidates: Candidate[];
   forecasts: Forecast[];
+  // The model's expected Dem margin in points, included with every race the API serves.
+  projectedDemMargin?: number;
   isSpecialElection: boolean;
   year: number;
 }

@@ -77,6 +77,7 @@ public static class ForecastOverlay
             Type = race.Type,
             DistrictNumber = race.DistrictNumber,
             Rating = RatingFromProbability(f.DemWinProbability),
+            ProjectedDemMargin = f.ExpectedDemMargin,
             Candidates = race.Candidates,
             Forecasts = forecasts,
             IsSpecialElection = race.IsSpecialElection,

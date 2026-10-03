@@ -11,6 +11,8 @@ public class Race
     public RaceRating Rating { get; set; }
     public List<Candidate> Candidates { get; set; } = new();
     public List<Forecast> Forecasts { get; set; } = new();
+    /// <summary>The model's expected Dem margin (points), set when the API overlays its forecast.</summary>
+    public double? ProjectedDemMargin { get; set; }
     public bool IsSpecialElection { get; set; }
     public int Year { get; set; } = 2024;
 }
