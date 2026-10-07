@@ -967,7 +967,7 @@
  "IL-01-2026|Jonathan Jackson": {
   "page": "https://en.wikipedia.org/wiki/Jonathan_Jackson_%28Illinois_politician%29",
   "photo": "/candidates/il-01-2026-jonathan-jackson.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Rep._Jonathan_Jackson_official_portrait%2C_118th_Congress.jpg/330px-Rep._Jonathan_Jackson_official_portrait%2C_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Jonathan_Jackson%2C_official_portrait_-_2025.jpg/330px-Jonathan_Jackson%2C_official_portrait_-_2025.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IL-02-2026|Donna Miller": {
   "page": "https://en.wikipedia.org/wiki/Donna_Miller",
@@ -992,7 +992,7 @@
  "IL-06-2026|Sean Casten": {
   "page": "https://en.wikipedia.org/wiki/Sean_Casten",
   "photo": "/candidates/il-06-2026-sean-casten.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Sean_Casten_Headshot_117th_Congress.jpeg/330px-Sean_Casten_Headshot_117th_Congress.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Sean_Casten%2C_official_portrait_-_2025_%281%29.jpg/330px-Sean_Casten%2C_official_portrait_-_2025_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IL-07-2026|La Shawn Ford": {
   "page": "https://en.wikipedia.org/wiki/La_Shawn_Ford",
@@ -1138,6 +1138,11 @@
   "page": "https://en.wikipedia.org/wiki/Cindy_Holscher",
   "photo": "/candidates/ks-gov-2026-cindy-holscher.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Cindy_Holscher_2026_in_Manhattan_%28cropped%29.jpg/330px-Cindy_Holscher_2026_in_Manhattan_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "KS-GOV-2026|Ty Masterson": {
+  "page": "https://en.wikipedia.org/wiki/Ty_Masterson",
+  "photo": "/candidates/ks-gov-2026-ty-masterson.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/TY_mASTERSON_%28cropped%29.jpg/330px-TY_mASTERSON_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "KS-SEN-2026|Adam Hamilton": {
   "page": "https://en.wikipedia.org/wiki/Adam_Hamilton_%28pastor%29",
