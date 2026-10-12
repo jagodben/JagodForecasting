@@ -1,5 +1,4 @@
 import { useState, ReactNode } from 'react';
-import { CandidatePhoto } from '../utils/photos';
 import { Party } from '../types';
 
 // Ring shades, used only on these circles: the Democrat ring borrows the logo blue (a
@@ -13,7 +12,7 @@ const RING_COLORS: Partial<Record<Party, string>> = {
 };
 
 interface Props {
-  photo: CandidatePhoto | undefined;
+  photo: string | undefined; // avatar path, from getCandidatePhoto
   name: string;
   size: number;
   // Party ring around the photo (logo blue/red, gold for independents).
@@ -35,12 +34,12 @@ export const CandidateAvatar = ({ photo, name, size, fallback, ringParty }: Prop
 
   if (!photo || failed) return <div style={box}>{fallback}</div>;
 
-  // Photos aren't links — sourcing is credited on the About page, and each image's
-  // origin article is recorded in candidatePhotos.json.
+  // Photos aren't links; each image's source article is recorded in
+  // tools/candidatePhotos.manifest.json.
   return (
     <div style={box}>
       <img
-        src={photo.photo}
+        src={photo}
         alt={name}
         onError={() => setFailed(true)}
         style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', display: 'block', backgroundColor: '#f0f0f0', boxShadow: ringShadow }}

@@ -102,8 +102,9 @@ public class ForecastController : ControllerBase
     [ProducesResponseType(typeof(List<DetailedForecast>), StatusCodes.Status200OK)]
     public async Task<ActionResult<List<DetailedForecast>>> GetAllForecasts([FromQuery] RaceType? type = null)
     {
+        // Odds only — each race's timeline is served with its single-race forecast.
         var forecasts = await _orchestrator.GenerateAllForecastsAsync(type);
-        return Ok(forecasts);
+        return Ok(forecasts.Select(f => f.WithoutHistory()).ToList());
     }
 
     /// <summary>
