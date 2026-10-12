@@ -43,3 +43,21 @@ jobs:
           git commit -m "Nightly forecast history backup"
           git pull --rebase origin master
           git push origin master
+
+      # Scrapers fall back to their last stored value when Wikipedia changes a page's layout, so
+      # a broken feed looks healthy from the outside. Fail the run (GitHub emails on a failed
+      # scheduled workflow) when /health reports anything stale. Runs after the backup is saved.
+      - name: Check data freshness
+        run: |
+          curl -sf --retry 3 --retry-delay 30 https://api.jagodforecasting.com/health -o health.json
+          python3 - <<'EOF'
+          import json, sys
+          h = json.load(open("health.json"))
+          stale = h.get("stale") or []
+          if stale:
+              print("Stale data feeds:")
+              for s in stale:
+                  print(f"  - {s}")
+              sys.exit(1)
+          print("all feeds fresh")
+          EOF
