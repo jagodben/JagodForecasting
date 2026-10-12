@@ -84,10 +84,13 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
                 _logger.LogWarning(ex, "Generic-ballot fetch failed; falling back to stored value");
             }
 
-            // Fallback: most recent stored point of any date.
+            // Fallback: most recent stored point of any date. Said out loud — this keeps the model
+            // running, but every day it's served the national environment is a day older.
             var latest = await _dbContext.GenericBallot
                 .OrderByDescending(g => g.Date)
                 .FirstOrDefaultAsync(cancellationToken);
+            _logger.LogWarning("Generic ballot unavailable today; using the stored value from {Date}",
+                latest?.Date.ToString("yyyy-MM-dd") ?? "never");
             return CacheAndReturn(latest?.Margin);
         }
         finally
@@ -122,21 +125,39 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
             !parse.TryGetProperty("wikitext", out var wt))
             return null;
 
-        var wikitext = wt.GetString() ?? string.Empty;
+        var parsed = ParseAggregate(wt.GetString() ?? string.Empty);
+        if (parsed is null)
+            _logger.LogWarning("Generic-ballot aggregation table not found on '{Page}'", PageTitle);
+        return parsed;
+    }
 
-        // The generic-ballot aggregation table is the first wikitable in "Opinion polling".
-        var section = ExtractSectionBlock(wikitext, t => t.Equals("Opinion polling", StringComparison.OrdinalIgnoreCase), 2);
-        var table = section is null ? null : ExtractTables(section).FirstOrDefault();
-        if (table is null) return null;
-
-        var rows = SplitRows(table);
-        var headerRow = rows.FirstOrDefault(r => r.Any(c => c.IsHeader));
-        if (headerRow is null) return null;
-        var headers = headerRow.Select(c => CleanWikiText(c.Content)).ToList();
+    /// <summary>The mean Dem/Rep share across the page's poll aggregators, or null if absent.</summary>
+    internal static (double DemPercent, double RepPercent, int Count)? ParseAggregate(string wikitext)
+    {
+        // Find the aggregation table by its shape — a "Source of poll aggregation" column plus
+        // Democrats and Republicans columns — not by the heading above it. Editors retitle that
+        // heading ("Opinion polling" became "Generic congressional ballot aggregate polls"), and a
+        // heading match silently froze the national environment for weeks when they did.
+        List<List<Cell>>? rows = null;
+        List<string>? headers = null;
+        foreach (var candidate in ExtractTables(wikitext))
+        {
+            var candidateRows = SplitRows(candidate);
+            var headerRow = candidateRows.FirstOrDefault(r => r.Any(c => c.IsHeader));
+            if (headerRow is null) continue;
+            var candidateHeaders = headerRow.Select(c => CleanWikiText(c.Content)).ToList();
+            if (candidateHeaders.Any(h => h.Contains("aggregation", StringComparison.OrdinalIgnoreCase)) &&
+                candidateHeaders.Any(h => h.StartsWith("Democrat", StringComparison.OrdinalIgnoreCase)) &&
+                candidateHeaders.Any(h => h.StartsWith("Republican", StringComparison.OrdinalIgnoreCase)))
+            {
+                (rows, headers) = (candidateRows, candidateHeaders);
+                break;
+            }
+        }
+        if (rows is null || headers is null) return null;
 
         int demCol = headers.FindIndex(h => h.StartsWith("Democrat", StringComparison.OrdinalIgnoreCase));
         int repCol = headers.FindIndex(h => h.StartsWith("Republican", StringComparison.OrdinalIgnoreCase));
-        if (demCol < 0 || repCol < 0) return null;
 
         var demVals = new List<double>();
         var repVals = new List<double>();
@@ -264,35 +285,6 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
         }
     }
 
-    /// <summary>
-    /// Returns the text of the section with the given heading title/level, up to the next
-    /// heading of equal-or-higher level. Returns null if not found.
-    /// </summary>
-    private static string? ExtractSectionBlock(string wikitext, Func<string, bool> titleMatch, int level)
-    {
-        var lines = wikitext.Split('\n');
-        var headingRe = HeadingRegex();
-        int start = -1;
-
-        for (int i = 0; i < lines.Length; i++)
-        {
-            var m = headingRe.Match(lines[i]);
-            if (!m.Success) continue;
-            int lvl = m.Groups[1].Value.Length;
-            var title = m.Groups[2].Value.Trim();
-
-            if (start < 0)
-            {
-                if (lvl == level && titleMatch(title)) start = i;
-            }
-            else if (lvl <= level)
-            {
-                return string.Join("\n", lines.Skip(start + 1).Take(i - start - 1));
-            }
-        }
-        return start >= 0 ? string.Join("\n", lines.Skip(start + 1)) : null;
-    }
-
     private static double? ParsePercent(string cell)
     {
         var text = CleanWikiText(cell);
@@ -324,6 +316,4 @@ public partial class WikipediaGenericBallotClient : IGenericBallotSource
         return s.Trim();
     }
 
-    [GeneratedRegex(@"^(={2,6})\s*(.*?)\s*\1\s*$")]
-    private static partial Regex HeadingRegex();
 }

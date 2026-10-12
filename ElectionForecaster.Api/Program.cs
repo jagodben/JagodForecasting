@@ -142,7 +142,14 @@ app.MapGet("/health", async (ForecastDbContext db) =>
             ? 0
             : await db.ForecastHistory.CountAsync(f => f.Date == latestSnapshot);
         body["latestPoll"] = (await db.Polls.MaxAsync(p => (DateTime?)p.Date))?.ToString("yyyy-MM-dd");
-        body["latestGenericBallot"] = (await db.GenericBallot.MaxAsync(g => (DateTime?)g.Date))?.ToString("yyyy-MM-dd");
+        var latestBallot = await db.GenericBallot.MaxAsync(g => (DateTime?)g.Date);
+        body["latestGenericBallot"] = latestBallot?.ToString("yyyy-MM-dd");
+
+        var refreshes = (await db.NomineeOverrides.Select(n => new { n.RaceId, n.UpdatedAt }).ToListAsync())
+            .Select(n => (n.RaceId, n.UpdatedAt));
+        var stale = DataFreshness.StaleSources(DateTime.UtcNow, latestSnapshot, latestBallot, refreshes);
+        body["stale"] = stale;
+        if (stale.Count > 0) body["status"] = "stale";
     }
     catch (Exception ex)
     {
