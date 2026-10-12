@@ -29,6 +29,18 @@ public class DetailedForecast
     /// Historical data points for charting.
     /// </summary>
     public List<HistoricalDataPoint> History { get; set; } = new();
+
+    /// <summary>
+    /// A copy without the history, for list responses: a map needs each race's odds, not its daily
+    /// timeline, and the history was 96% of the House list's 6.4 MB. A copy, because forecasts are
+    /// cached and shared across requests.
+    /// </summary>
+    public DetailedForecast WithoutHistory()
+    {
+        var copy = (DetailedForecast)MemberwiseClone();
+        copy.History = new();
+        return copy;
+    }
 }
 
 /// <summary>

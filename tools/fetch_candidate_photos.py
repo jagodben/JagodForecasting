@@ -11,7 +11,10 @@ Re-run after primaries change the field:
 Set FORECAST_API to pull the candidate list from production instead of a local
 API (whose DB may lag prod's daily nominee refresh by weeks):
     FORECAST_API=https://api.jagodforecasting.com/api python tools/fetch_candidate_photos.py
-Writes election-forecaster-client/src/data/candidatePhotos.json
+Writes election-forecaster-client/src/data/candidatePhotos.json (race|name -> avatar path, the
+only thing the site reads; it ships in the JS bundle, so it stays small) and
+tools/candidatePhotos.manifest.json (each avatar's source article and image, which incremental
+re-runs compare against to know when a file must be re-downloaded).
 """
 import json
 import os
@@ -32,6 +35,7 @@ API = os.environ.get("FORECAST_API", "http://localhost:5000/api")
 WIKI = "https://en.wikipedia.org/w/api.php"
 WIKIDATA = "https://www.wikidata.org/w/api.php"
 OUT = "election-forecaster-client/src/data/candidatePhotos.json"
+MANIFEST = "tools/candidatePhotos.manifest.json"
 IMG_DIR = "election-forecaster-client/public/candidates"
 AVATAR_PX = 84  # 2x the largest render size (42px), cover-cropped square
 THUMB = 256
@@ -458,8 +462,8 @@ def main():
 
     os.makedirs(IMG_DIR, exist_ok=True)
     previous = {}
-    if os.path.exists(OUT):
-        previous = json.load(open(OUT, encoding="utf-8"))
+    if os.path.exists(MANIFEST):
+        previous = json.load(open(MANIFEST, encoding="utf-8"))
     photos = {}
     failures = 0
     saved_by_name = {}
@@ -512,9 +516,11 @@ def main():
             os.remove(os.path.join(IMG_DIR, f))
             print(f"  removed orphaned avatar {f}")
 
+    with open(MANIFEST, "w", encoding="utf-8") as f:
+        json.dump(photos, f, indent=1, sort_keys=True)
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
-        json.dump(photos, f, indent=1, sort_keys=True)
+        json.dump({key: entry["photo"] for key, entry in photos.items()}, f, indent=1, sort_keys=True)
 
     covered = len(photos)
     print(f"photos for {covered}/{len(candidates)} slots ({covered / len(candidates):.0%}) -> {OUT}")
