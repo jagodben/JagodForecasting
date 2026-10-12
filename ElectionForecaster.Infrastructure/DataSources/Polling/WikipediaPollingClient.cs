@@ -213,26 +213,8 @@ public partial class WikipediaPollingClient : IPollingSource
 
     private async Task<List<PollData>> FetchAndParseAsync(string raceId, CancellationToken cancellationToken)
     {
-        var title = GetPageTitle(raceId)!;
-        var url = $"{ApiBase}?action=parse&prop=wikitext&formatversion=2&redirects=1&format=json&page={Uri.EscapeDataString(title)}";
+        var wikitext = await FetchWikitextAsync(GetPageTitle(raceId)!, cancellationToken);
 
-        var json = await _httpClient.GetStringAsync(url, cancellationToken);
-        using var doc = JsonDocument.Parse(json);
-
-        // A missing "parse" property means the API returned an error body (rate-limit, maxlag, a
-        // missing page) with a 200 status. Treat it as a failure — throw so the caller falls back to
-        // the DB — rather than as "this race has no polls", which would poison the blend.
-        if (!doc.RootElement.TryGetProperty("parse", out var parse) ||
-            !parse.TryGetProperty("wikitext", out var wt))
-        {
-            var error = doc.RootElement.TryGetProperty("error", out var err) &&
-                        err.TryGetProperty("info", out var info)
-                ? info.GetString()
-                : "no 'parse' content";
-            throw new InvalidOperationException($"MediaWiki parse failed for '{title}': {error}");
-        }
-
-        var wikitext = wt.GetString() ?? string.Empty;
 
         // For a multi-district House race, the state-wide article covers every district; narrow to
         // this district's "District N" section first. Within it we accept only clean two-way tables
@@ -241,11 +223,22 @@ public partial class WikipediaPollingClient : IPollingSource
         var twoWayOnly = false;
         if (IsMultiDistrictHouse(raceId, out var district))
         {
-            var districtSection = ExtractSectionBlock(
-                wikitext, t => t.Equals($"District {district}", StringComparison.OrdinalIgnoreCase), 2);
+            bool IsDistrict(string t) => t.Equals($"District {district}", StringComparison.OrdinalIgnoreCase);
+            var districtSection = ExtractSectionBlock(wikitext, IsDistrict, 2);
+
+            // Large states get split into per-range sub-articles ("...in California (districts
+            // 1–26)"); follow the parent's link to the one holding this district.
+            if (districtSection is null &&
+                WikipediaSplitArticles.SubArticleForDistrict(wikitext, district) is { } subArticle)
+            {
+                districtSection = ExtractSectionBlock(
+                    await FetchWikitextAsync(subArticle, cancellationToken), IsDistrict, 2);
+            }
+
             if (string.IsNullOrWhiteSpace(districtSection))
             {
-                _logger.LogDebug("No 'District {District}' section for {RaceId}", district, raceId);
+                // Every district has a section, polled or not — a miss means the page changed shape.
+                _logger.LogWarning("No 'District {District}' section found for {RaceId}", district, raceId);
                 return new List<PollData>();
             }
             wikitext = districtSection;
@@ -256,8 +249,10 @@ public partial class WikipediaPollingClient : IPollingSource
         // House district case above, the two-way guard already does this; there the "Polling"
         // heading may sit at any depth, so fall through to scanning the whole district section.)
         var geBlock = ExtractSectionBlock(wikitext, t => t.Equals("General election", StringComparison.OrdinalIgnoreCase), 2);
+        // Within the general election, read every polling subsection: pages retitle them once the
+        // primary is over ("Post-primary polling") and some split out an aggregates table.
         var pollingBlock = geBlock is not null
-            ? ExtractSectionBlock(geBlock, t => t.Equals("Polling", StringComparison.OrdinalIgnoreCase), 3)
+            ? ExtractSectionBlocks(geBlock, t => t.Contains("poll", StringComparison.OrdinalIgnoreCase), 3)
             : ExtractSectionBlock(wikitext, t => t.Equals("Polling", StringComparison.OrdinalIgnoreCase), 2);
 
         // Fall back to the whole (already district-scoped) block when there's no clean Polling
@@ -623,6 +618,54 @@ public partial class WikipediaPollingClient : IPollingSource
         s = Regex.Replace(s, @"&nbsp;|&#160;", " ");
         s = Regex.Replace(s, @"\s+", " ");
         return s.Trim();
+    }
+
+    /// <summary>
+    /// The article's wikitext. A missing "parse" property means the API returned an error body
+    /// (rate-limit, maxlag, a missing page) with a 200 status. That's a failure — it throws so the
+    /// caller falls back to the DB — not "this race has no polls", which would poison the blend.
+    /// </summary>
+    private async Task<string> FetchWikitextAsync(string title, CancellationToken cancellationToken)
+    {
+        var url = $"{ApiBase}?action=parse&prop=wikitext&formatversion=2&redirects=1&format=json&page={Uri.EscapeDataString(title)}";
+        var json = await _httpClient.GetStringAsync(url, cancellationToken);
+        using var doc = JsonDocument.Parse(json);
+
+        if (!doc.RootElement.TryGetProperty("parse", out var parse) ||
+            !parse.TryGetProperty("wikitext", out var wt))
+        {
+            var error = doc.RootElement.TryGetProperty("error", out var err) &&
+                        err.TryGetProperty("info", out var info)
+                ? info.GetString()
+                : "no 'parse' content";
+            throw new InvalidOperationException($"MediaWiki parse failed for '{title}': {error}");
+        }
+        return wt.GetString() ?? string.Empty;
+    }
+
+    /// <summary>Every section matching at the given level, joined; null if there are none.</summary>
+    internal static string? ExtractSectionBlocks(string wikitext, Func<string, bool> titleMatch, int level)
+    {
+        var lines = wikitext.Split('\n');
+        var headingRe = HeadingRegex();
+        var blocks = new List<string>();
+        List<string>? current = null;
+
+        foreach (var line in lines)
+        {
+            var m = headingRe.Match(line);
+            if (m.Success && m.Groups[1].Value.Length <= level)
+            {
+                if (current != null) blocks.Add(string.Join("\n", current));
+                current = m.Groups[1].Value.Length == level && titleMatch(m.Groups[2].Value.Trim())
+                    ? new List<string>()
+                    : null;
+                continue;
+            }
+            current?.Add(line);
+        }
+        if (current != null) blocks.Add(string.Join("\n", current));
+        return blocks.Count > 0 ? string.Join("\n", blocks) : null;
     }
 
     /// <summary>

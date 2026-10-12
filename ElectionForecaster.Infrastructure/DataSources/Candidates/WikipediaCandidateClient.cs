@@ -90,12 +90,30 @@ public partial class WikipediaCandidateClient
                 continue;
             }
 
+            // Large states get split into per-range sub-articles ("...in California (districts
+            // 1–26)"), each holding its districts' sections. Fetch each one once, on first need.
+            var subArticles = new Dictionary<string, string?>();
+
             foreach (var race in stateGroup)
             {
+                var district = race.DistrictNumber!.Value;
                 var section = atLarge
                     ? wikitext // the whole article is the single race
-                    : ExtractDistrictSection(wikitext, race.DistrictNumber!.Value);
-                if (section is null) continue;
+                    : ExtractDistrictSection(wikitext, district);
+
+                if (section is null && !atLarge &&
+                    WikipediaSplitArticles.SubArticleForDistrict(wikitext, district) is { } subTitle)
+                {
+                    if (!subArticles.TryGetValue(subTitle, out var subText))
+                        subArticles[subTitle] = subText = await FetchPageAsync(subTitle, cancellationToken);
+                    if (subText is not null) section = ExtractDistrictSection(subText, district);
+                }
+
+                if (section is null)
+                {
+                    _logger.LogWarning("No 'District {District}' section found for {RaceId}", district, race.Id);
+                    continue;
+                }
 
                 var nominees = ParseInfoboxNominees(section);
                 if (nominees is not null) result[race.Id] = nominees;
