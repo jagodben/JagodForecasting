@@ -854,6 +854,11 @@
   "photo": "/candidates/ga-gov-2026-keisha-lance-bottoms.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Keisha_Lance_Bottoms.jpg/330px-Keisha_Lance_Bottoms.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "GA-GOV-2026|Rick Jackson": {
+  "page": "https://en.wikipedia.org/wiki/Rick_Jackson_%28businessman%29",
+  "photo": "/candidates/ga-gov-2026-rick-jackson.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Rick_Jackson_%28cropped%29.png/330px-Rick_Jackson_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "GA-SEN-2026|Jon Ossoff": {
   "page": "https://en.wikipedia.org/wiki/Jon_Ossoff",
   "photo": "/candidates/ga-sen-2026-jon-ossoff.webp",
@@ -2107,7 +2112,7 @@
  "OH-09-2026|Marcy Kaptur": {
   "page": "https://en.wikipedia.org/wiki/Marcy_Kaptur",
   "photo": "/candidates/oh-09-2026-marcy-kaptur.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Marcy_Kaptur_portrait_%28118th_Congress%29.jpg/330px-Marcy_Kaptur_portrait_%28118th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Marcy_Kaptur_Wikipedia.jpg/330px-Marcy_Kaptur_Wikipedia.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OH-10-2026|Mike Turner": {
   "page": "https://en.wikipedia.org/wiki/Mike_Turner",
