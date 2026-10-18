@@ -347,7 +347,7 @@
  "CA-26-2026|Jacqui Irwin": {
   "page": "https://en.wikipedia.org/wiki/Jacqui_Irwin",
   "photo": "/candidates/ca-26-2026-jacqui-irwin.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/150302-Z-WQ610-_%2816698067641%29_%28cropped%29.jpg/330px-150302-Z-WQ610-_%2816698067641%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Jacqui_Irwin_%28cropped%29_150302-Z-WQ610-_%2816698067641%29.jpg/330px-Jacqui_Irwin_%28cropped%29_150302-Z-WQ610-_%2816698067641%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "CA-27-2026|George Whitesides": {
   "page": "https://en.wikipedia.org/wiki/George_T._Whitesides",
@@ -1188,6 +1188,11 @@
   "page": "https://en.wikipedia.org/wiki/Ralph_Alvarado",
   "photo": "/candidates/ky-06-2026-ralph-alvarado.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Ralph_Alvarado_by_Gage_Skidmore.jpg/330px-Ralph_Alvarado_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "KY-06-2026|Zach Dembo": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Kentucky",
+  "photo": "/candidates/ky-06-2026-zach-dembo.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Zach_Dembo.jpg/330px-Zach_Dembo.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "KY-SEN-2026|Andy Barr": {
   "page": "https://en.wikipedia.org/wiki/Andy_Barr",
