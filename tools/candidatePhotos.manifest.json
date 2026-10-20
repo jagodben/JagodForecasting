@@ -159,11 +159,6 @@
   "photo": "/candidates/az-04-2026-zuhdi-jasser.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/M._Zuhdi_Jasser_by_Gage_Skidmore.jpg/330px-M._Zuhdi_Jasser_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "AZ-05-2026|Mark Lamb": {
-  "page": "https://en.wikipedia.org/wiki/Mark_Lamb_%28sheriff%29",
-  "photo": "/candidates/az-05-2026-mark-lamb.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Mark_Lamb_%2855021585032%29_%28cropped%29.jpg/330px-Mark_Lamb_%2855021585032%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
  "AZ-06-2026|JoAnna Mendoza": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Arizona",
   "photo": "/candidates/az-06-2026-joanna-mendoza.webp",
@@ -962,7 +957,7 @@
  "ID-SEN-2026|Todd Achilles": {
   "page": "https://en.wikipedia.org/wiki/Todd_Achilles",
   "photo": "/candidates/id-sen-2026-todd-achilles.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Todd_Achilles_2026_%28cropped2%29.jpg/330px-Todd_Achilles_2026_%28cropped2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Todd_Achilles_on_LibertyDad%27s_stream.png/330px-Todd_Achilles_on_LibertyDad%27s_stream.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IL-01-2026|Jonathan Jackson": {
   "page": "https://en.wikipedia.org/wiki/Jonathan_Jackson_%28Illinois_politician%29",
@@ -1467,7 +1462,7 @@
  "MI-SEN-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
   "photo": "/candidates/mi-sen-2026-mike-rogers.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Mike_Rogers_in_November_2019_%283x4_cropped%29.jpg/330px-Mike_Rogers_in_November_2019_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Congressman_Brooks_and_Congressman_Mike_Rogers.jpg/330px-Congressman_Brooks_and_Congressman_Mike_Rogers.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MN-01-2026|Brad Finstad": {
   "page": "https://en.wikipedia.org/wiki/Brad_Finstad",
@@ -1548,6 +1543,11 @@
   "page": "https://en.wikipedia.org/wiki/Ann_Wagner",
   "photo": "/candidates/mo-02-2026-ann-wagner.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Ann_Wagner_Headshot_%28002%29_%28cropped%29.jpg/330px-Ann_Wagner_Headshot_%28002%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "MO-02-2026|Fred Wellman": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Missouri",
+  "photo": "/candidates/mo-02-2026-fred-wellman.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/4/40/Fred_Wellman%2C_August_2025.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
  },
  "MO-03-2026|Bob Onder": {
   "page": "https://en.wikipedia.org/wiki/Bob_Onder",
@@ -2242,7 +2242,7 @@
  "OR-GOV-2026|Tina Kotek": {
   "page": "https://en.wikipedia.org/wiki/Tina_Kotek",
   "photo": "/candidates/or-gov-2026-tina-kotek.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Tina_Kotek_official_portrait_2021%283x4_cropped%29.jpg/330px-Tina_Kotek_official_portrait_2021%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Tina_Kotek_2011.jpg/330px-Tina_Kotek_2011.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OR-SEN-2026|David Brock Smith": {
   "page": "https://en.wikipedia.org/wiki/David_Brock_Smith",
