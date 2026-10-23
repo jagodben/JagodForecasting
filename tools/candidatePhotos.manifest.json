@@ -159,6 +159,11 @@
   "photo": "/candidates/az-04-2026-zuhdi-jasser.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/M._Zuhdi_Jasser_by_Gage_Skidmore.jpg/330px-M._Zuhdi_Jasser_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "AZ-05-2026|Mark Lamb": {
+  "page": "https://en.wikipedia.org/wiki/Mark_Lamb_%28sheriff%29",
+  "photo": "/candidates/az-05-2026-mark-lamb.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Mark_Lamb_%2855021585032%29_%28cropped%29.jpg/330px-Mark_Lamb_%2855021585032%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "AZ-06-2026|JoAnna Mendoza": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Arizona",
   "photo": "/candidates/az-06-2026-joanna-mendoza.webp",
@@ -755,7 +760,7 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/REP.MES_Headshot_%28cropped_2%29.jpg/330px-REP.MES_Headshot_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "FL-28-2026|Carlos Gim\u00e9nez": {
-  "page": "https://en.wikipedia.org/wiki/Carlos_A._Gim%C3%A9nez",
+  "page": "https://en.wikipedia.org/wiki/Carlos_A._Gimenez",
   "photo": "/candidates/fl-28-2026-carlos-gim\u00e9nez.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Rep._Carlos_Gimenez_official_photo.jpg/330px-Rep._Carlos_Gimenez_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
@@ -1462,7 +1467,7 @@
  "MI-SEN-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
   "photo": "/candidates/mi-sen-2026-mike-rogers.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Congressman_Brooks_and_Congressman_Mike_Rogers.jpg/330px-Congressman_Brooks_and_Congressman_Mike_Rogers.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Mike_Rogers_in_November_2019_%283x4_cropped%29.jpg/330px-Mike_Rogers_in_November_2019_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MN-01-2026|Brad Finstad": {
   "page": "https://en.wikipedia.org/wiki/Brad_Finstad",
@@ -2242,7 +2247,7 @@
  "OR-GOV-2026|Tina Kotek": {
   "page": "https://en.wikipedia.org/wiki/Tina_Kotek",
   "photo": "/candidates/or-gov-2026-tina-kotek.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Tina_Kotek_2011.jpg/330px-Tina_Kotek_2011.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Tina_Kotek_official_portrait_2021%283x4_cropped%29.jpg/330px-Tina_Kotek_official_portrait_2021%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OR-SEN-2026|David Brock Smith": {
   "page": "https://en.wikipedia.org/wiki/David_Brock_Smith",
@@ -2537,7 +2542,7 @@
  "TX-06-2026|Jake Ellzey": {
   "page": "https://en.wikipedia.org/wiki/Jake_Ellzey",
   "photo": "/candidates/tx-06-2026-jake-ellzey.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Jake_Ellzey_Official_Portrait_-_117th_Congress.jpg/330px-Jake_Ellzey_Official_Portrait_-_117th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Jake_Ellzey_Official_Portrait_-_117th_Congress_%28full%29.png/330px-Jake_Ellzey_Official_Portrait_-_117th_Congress_%28full%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-07-2026|Lizzie Fletcher": {
   "page": "https://en.wikipedia.org/wiki/Lizzie_Fletcher",
@@ -2692,7 +2697,7 @@
  "TX-SEN-2026|Ken Paxton": {
   "page": "https://en.wikipedia.org/wiki/Ken_Paxton",
   "photo": "/candidates/tx-sen-2026-ken-paxton.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Ken_Paxton_%2854816860552%29_%28cropped%29.jpg/330px-Ken_Paxton_%2854816860552%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Ken_Paxton_in_Nov_2021.jpg/330px-Ken_Paxton_in_Nov_2021.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "UT-01-2026|Ben McAdams": {
   "page": "https://en.wikipedia.org/wiki/Ben_McAdams",
@@ -2842,7 +2847,7 @@
  "WA-05-2026|Carmela Conroy": {
   "page": "https://en.wikipedia.org/wiki/Carmela_Conroy",
   "photo": "/candidates/wa-05-2026-carmela-conroy.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Carmela_Conroy_State_Department_Portrait_%28cropped%29.jpg/330px-Carmela_Conroy_State_Department_Portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Conroydebate.png/330px-Conroydebate.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "WA-05-2026|Michael Baumgartner": {
   "page": "https://en.wikipedia.org/wiki/Michael_Baumgartner",
