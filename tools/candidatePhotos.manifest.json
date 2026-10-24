@@ -117,7 +117,7 @@
  "AR-SEN-2026|Hallie Shoffner": {
   "page": "https://en.wikipedia.org/wiki/Hallie_Shoffner",
   "photo": "/candidates/ar-sen-2026-hallie-shoffner.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Hallie_Shoffner_%28cropped%29.jpg/330px-Hallie_Shoffner_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Hallie_Shoffner_headshot_003.jpg/330px-Hallie_Shoffner_headshot_003.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AR-SEN-2026|Tom Cotton": {
   "page": "https://en.wikipedia.org/wiki/Tom_Cotton",
@@ -2494,6 +2494,11 @@
   "photo": "/candidates/tn-09-2026-justin-j-pearson.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Justin_J_Pearson_August_2023.jpg/330px-Justin_J_Pearson_August_2023.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "TN-GOV-2026|Jerri Green": {
+  "page": "https://en.wikipedia.org/wiki/2026_Tennessee_gubernatorial_election",
+  "photo": "/candidates/tn-gov-2026-jerri-green.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Jerri_Green_%28cropped%29.3_%28cropped%29.jpg/330px-Jerri_Green_%28cropped%29.3_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
  "TN-GOV-2026|Marsha Blackburn": {
   "page": "https://en.wikipedia.org/wiki/Marsha_Blackburn",
   "photo": "/candidates/tn-gov-2026-marsha-blackburn.webp",
@@ -2697,7 +2702,7 @@
  "TX-SEN-2026|Ken Paxton": {
   "page": "https://en.wikipedia.org/wiki/Ken_Paxton",
   "photo": "/candidates/tx-sen-2026-ken-paxton.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Ken_Paxton_in_Nov_2021.jpg/330px-Ken_Paxton_in_Nov_2021.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Ken_Paxton_%2854816860552%29_%28cropped%29.jpg/330px-Ken_Paxton_%2854816860552%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "UT-01-2026|Ben McAdams": {
   "page": "https://en.wikipedia.org/wiki/Ben_McAdams",
