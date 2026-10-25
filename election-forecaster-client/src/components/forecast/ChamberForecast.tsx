@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Race, RaceType, RaceRating } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ProbabilityTrendChart } from '../charts/ProbabilityTrendChart';
+import { ratingFromMargin } from '../../utils/ratings';
 import './ChamberForecast.css';
 
 // Rating order from left (Solid D) to right (Solid R)
@@ -26,18 +27,6 @@ const RATING_COLORS: Record<RaceRating, string> = {
   [RaceRating.LeanRep]: '#e2694f',
   [RaceRating.LikelyRep]: '#cf2f1a',
   [RaceRating.SolidRep]: '#9c150b',
-};
-
-// Convert probability to rating
-const probabilityToRating = (demProb: number): RaceRating => {
-  if (demProb >= 0.90) return RaceRating.SolidDem;
-  if (demProb >= 0.70) return RaceRating.LikelyDem;
-  if (demProb >= 0.55) return RaceRating.LeanDem;
-  if (demProb > 0.50) return RaceRating.TiltDem;
-  if (demProb >= 0.45) return RaceRating.TiltRep;
-  if (demProb >= 0.30) return RaceRating.LeanRep;
-  if (demProb >= 0.10) return RaceRating.LikelyRep;
-  return RaceRating.SolidRep;
 };
 
 interface ChamberForecastProps {
@@ -109,7 +98,7 @@ export const ChamberForecast = ({ races, raceType, compact = false }: ChamberFor
           )?.winProbability ?? 0.5);
 
       // Categorize by rating (must match the respective map coloring).
-      const barRating = raceType === RaceType.House ? race.rating : probabilityToRating(demProb);
+      const barRating = detailed ? ratingFromMargin(detailed.expectedDemMargin) : race.rating;
       ratingCounts.set(barRating, (ratingCounts.get(barRating) || 0) + 1);
 
       if (demProb >= 0.5) projection.democrat++;

@@ -76,7 +76,7 @@ public static class ForecastOverlay
             StateId = race.StateId,
             Type = race.Type,
             DistrictNumber = race.DistrictNumber,
-            Rating = RatingFromProbability(f.DemWinProbability),
+            Rating = RatingFromMargin(f.ExpectedDemMargin),
             ProjectedDemMargin = f.ExpectedDemMargin,
             Candidates = race.Candidates,
             Forecasts = forecasts,
@@ -85,16 +85,22 @@ public static class ForecastOverlay
         };
     }
 
-    // Same thresholds the maps use, so the rating agrees with the win probability.
-    public static RaceRating RatingFromProbability(double demProb) => demProb switch
+    /// <summary>
+    /// A race's rating from its projected Dem margin in points: Tilt under 1, Lean 1–4, Likely 4–8,
+    /// Solid 8+. Rated on the margin as the site displays it — rounded to 0.1 half-up like the
+    /// client's Math.round, a rounded zero going to the true side — so a race shown as "D+1" is
+    /// Lean, never Tilt. The client's ratingFromMargin (utils/ratings.ts) mirrors this.
+    /// </summary>
+    public static RaceRating RatingFromMargin(double demMargin)
     {
-        >= 0.90 => RaceRating.SolidDem,
-        >= 0.70 => RaceRating.LikelyDem,
-        >= 0.55 => RaceRating.LeanDem,
-        > 0.50 => RaceRating.TiltDem,
-        >= 0.45 => RaceRating.TiltRep,
-        >= 0.30 => RaceRating.LeanRep,
-        >= 0.10 => RaceRating.LikelyRep,
-        _ => RaceRating.SolidRep
-    };
+        var rounded = Math.Floor(demMargin * 10 + 0.5) / 10;
+        var demLeads = rounded != 0 ? rounded > 0 : demMargin >= 0;
+        return Math.Abs(rounded) switch
+        {
+            < 1 => demLeads ? RaceRating.TiltDem : RaceRating.TiltRep,
+            < 4 => demLeads ? RaceRating.LeanDem : RaceRating.LeanRep,
+            < 8 => demLeads ? RaceRating.LikelyDem : RaceRating.LikelyRep,
+            _ => demLeads ? RaceRating.SolidDem : RaceRating.SolidRep
+        };
+    }
 }

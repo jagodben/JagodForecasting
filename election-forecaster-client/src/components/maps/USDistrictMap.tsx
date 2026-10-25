@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Race, RaceRating, RaceType } from '../../types';
@@ -10,8 +10,6 @@ import { useAccessibility } from '../../context/AccessibilityContext';
 import { districtCode } from '../../utils/districts';
 import './maps.css';
 import './USDistrictMap.css';
-
-type DataSource = 'combined' | 'markets' | 'polling';
 
 const DISTRICTS_URL = '/data/districts.json';
 
@@ -64,17 +62,6 @@ const formatMargin = (margin: number): string => {
   return demLeads ? `D+${num}` : `R+${num}`;
 };
 
-const probabilityToRating = (demProb: number): RaceRating => {
-  if (demProb >= 0.90) return RaceRating.SolidDem;
-  if (demProb >= 0.70) return RaceRating.LikelyDem;
-  if (demProb >= 0.55) return RaceRating.LeanDem;
-  if (demProb > 0.50) return RaceRating.TiltDem;
-  if (demProb >= 0.45) return RaceRating.TiltRep;
-  if (demProb >= 0.30) return RaceRating.LeanRep;
-  if (demProb >= 0.10) return RaceRating.LikelyRep;
-  return RaceRating.SolidRep;
-};
-
 export interface SelectedDistrictData {
   stateId: string;
   districtNumber: number;
@@ -88,7 +75,6 @@ export interface SelectedDistrictData {
 
 interface USDistrictMapProps {
   races: Race[];
-  dataSource?: DataSource;
   // Fires when a district is tapped/hovered, so the parent can show a mobile info panel.
   onDistrictSelect?: (data: SelectedDistrictData | null) => void;
 }
@@ -110,7 +96,7 @@ interface TooltipData {
   race: Race | null;
 }
 
-export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect }: USDistrictMapProps) => {
+export const USDistrictMap = ({ races, onDistrictSelect }: USDistrictMapProps) => {
   const { patterns } = useAccessibility();
   const navigate = useNavigate();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
@@ -142,36 +128,13 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
   zoomRef.current = zoom;
   panRef.current = pan;
 
-  // Fetch detailed forecasts for data-source-aware coloring in a single batched request
+  // Fetch detailed forecasts (margins, win probabilities) in a single batched request
   // (one call for all House races instead of one per district).
   const { data: detailedForecasts } = useQuery({
     queryKey: ['forecasts', RaceType.House],
     queryFn: () => forecastApi.getAll(RaceType.House),
     enabled: races.length > 0,
   });
-
-  // Calculate ratings based on selected data source
-  // For 'combined', use the original per-district race.rating (detailed forecasts are state-level)
-  const raceRatings = useMemo(() => {
-    if (dataSource === 'combined') return null;
-
-    const ratings = new Map<string, RaceRating>();
-    races.forEach(race => {
-      const detailed = detailedForecasts?.find(f => f.raceId === race.id);
-      let demProb: number | null = null;
-
-      if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
-        demProb = detailed.inputs.marketOdds;
-      } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
-        demProb = detailed.inputs.pollingWinProbability;
-      }
-
-      if (demProb != null) {
-        ratings.set(race.id, probabilityToRating(demProb));
-      }
-    });
-    return ratings;
-  }, [races, detailedForecasts, dataSource]);
 
   const raceMap = new Map(
     races.map(r => [`${r.stateId}-${r.districtNumber || 1}`, r])
@@ -414,7 +377,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
     onDistrictSelect({
       stateId,
       districtNumber: districtNum,
-      rating: raceRatings?.get(race.id) ?? race.rating,
+      rating: race.rating,
       demProb,
       raceId: race.id,
       marginText: margin != null ? formatMargin(margin) : null,
@@ -506,7 +469,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                 const districtNum = cd === '00' ? 1 : parseInt(cd, 10);
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
-                const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
+                const rating = race ? race.rating : null;
                 const fillColor = !rating
                   ? '#CCCCCC'
                   : patterns
@@ -538,7 +501,7 @@ export const USDistrictMap = ({ races, dataSource = 'combined', onDistrictSelect
                 if (!isHovered) return null;
 
                 const race = raceMap.get(`${stateId}-${districtNum}`);
-                const rating = race ? (raceRatings?.get(race.id) ?? race.rating) : null;
+                const rating = race ? race.rating : null;
                 const fillColor = !rating
                   ? '#CCCCCC'
                   : patterns

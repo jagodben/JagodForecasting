@@ -13,10 +13,6 @@ import './HomePage.css';
 type MapView = 'senate' | 'house' | 'governors';
 type MobilePanel = 'map' | 'data';
 
-// The forecast now surfaces only the combined model — no Polymarket/Polls lens selector. The maps
-// still take a dataSource prop, so keep passing the fixed 'combined' value.
-const dataSource = 'combined' as const;
-
 export const HomePage = () => {
   const navigate = useNavigate();
   // The active view lives in the URL (?view=house|governors; Senate is the bare "/") so
@@ -155,13 +151,13 @@ export const HomePage = () => {
           )}
           <div className="dashboard-map__inner">
             {activeView === 'senate' && senateRaces && (
-              <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} dataSource={dataSource} onStateSelect={setSelectedState} />
+              <RaceMap states={states} races={senateRaces} raceType={RaceType.Senate} onStateSelect={setSelectedState} />
             )}
             {activeView === 'governors' && govRaces && (
-              <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} dataSource={dataSource} onStateSelect={setSelectedState} />
+              <RaceMap states={states} races={govRaces} raceType={RaceType.Governor} onStateSelect={setSelectedState} />
             )}
             {activeView === 'house' && houseRaces && (
-              <USDistrictMap races={houseRaces} dataSource={dataSource} onDistrictSelect={setSelectedDistrict} />
+              <USDistrictMap races={houseRaces} onDistrictSelect={setSelectedDistrict} />
             )}
           </div>
 
