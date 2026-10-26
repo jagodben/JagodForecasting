@@ -6,12 +6,11 @@ import { StateSummary, Race, RaceRating, RaceType, Party } from '../../types';
 import { forecastApi } from '../../services/api';
 import { ratingFill, MapPatternDefs } from './ratingFill';
 import { useAccessibility } from '../../context/AccessibilityContext';
+import { ratingFromMargin } from '../../utils/ratings';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
 import './maps.css';
 
 const GEO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
-
-type DataSource = 'combined' | 'markets' | 'polling';
 
 const stateNameToId: Record<string, string> = {
   'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
@@ -24,17 +23,6 @@ const stateNameToId: Record<string, string> = {
   'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
   'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
   'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
-};
-
-const probabilityToRating = (demProb: number): RaceRating => {
-  if (demProb >= 0.90) return RaceRating.SolidDem;
-  if (demProb >= 0.70) return RaceRating.LikelyDem;
-  if (demProb >= 0.55) return RaceRating.LeanDem;
-  if (demProb > 0.50) return RaceRating.TiltDem;
-  if (demProb >= 0.45) return RaceRating.TiltRep;
-  if (demProb >= 0.30) return RaceRating.LeanRep;
-  if (demProb >= 0.10) return RaceRating.LikelyRep;
-  return RaceRating.SolidRep;
 };
 
 // When the challenger is a viable independent (not a Democrat), the "Dem-side" ratings render on a
@@ -120,7 +108,6 @@ interface RaceMapProps {
   states: StateSummary[];
   races: Race[];
   raceType: RaceType;
-  dataSource?: DataSource;
   onStateSelect?: (data: SelectedStateData | null) => void;
 }
 
@@ -134,7 +121,7 @@ interface TooltipData {
   rating: RaceRating | null;
 }
 
-export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onStateSelect }: RaceMapProps) => {
+export const RaceMap = ({ states, races, raceType, onStateSelect }: RaceMapProps) => {
   const navigate = useNavigate();
   const { patterns } = useAccessibility();
   const [tooltipData, setTooltipData] = useState<TooltipData | null>(null);
@@ -156,37 +143,29 @@ export const RaceMap = ({ states, races, raceType, dataSource = 'combined', onSt
     enabled: races.length > 0,
   });
 
-  // Calculate ratings based on selected data source
+  // Each race's rating (from its projected margin) and win probability.
   const raceRatings = useMemo(() => {
     const ratings = new Map<string, { rating: RaceRating; demProb: number }>();
 
     races.forEach(race => {
       const detailed = detailedForecasts?.find(f => f.raceId === race.id);
-      let demProb: number;
-
-      // Get probability based on selected data source
-      if (dataSource === 'markets' && detailed?.inputs.marketOdds != null) {
-        demProb = detailed.inputs.marketOdds;
-      } else if (dataSource === 'polling' && detailed?.inputs.pollingWinProbability != null) {
-        demProb = detailed.inputs.pollingWinProbability;
-      } else if (detailed) {
-        demProb = detailed.demWinProbability;
-      } else {
-        // Fallback to the baseline forecast (challenger = non-Republican, i.e. Democrat or independent).
-        const demForecast = race.forecasts.find(f =>
-          race.candidates.find(c => c.id === f.candidateId)?.party !== 'Republican'
-        );
-        demProb = demForecast?.winProbability || 0.5;
+      if (detailed) {
+        ratings.set(race.id, {
+          rating: ratingFromMargin(detailed.expectedDemMargin),
+          demProb: detailed.demWinProbability,
+        });
+        return;
       }
-
-      ratings.set(race.id, {
-        rating: probabilityToRating(demProb),
-        demProb,
-      });
+      // Until the forecasts load: the race payload's own forecast (challenger = non-Republican,
+      // i.e. Democrat or independent).
+      const demForecast = race.forecasts.find(f =>
+        race.candidates.find(c => c.id === f.candidateId)?.party !== 'Republican'
+      );
+      ratings.set(race.id, { rating: race.rating, demProb: demForecast?.winProbability || 0.5 });
     });
 
     return ratings;
-  }, [races, detailedForecasts, dataSource]);
+  }, [races, detailedForecasts]);
 
   const stateMap = new Map(states.map(s => [s.id, s]));
   const raceMap = new Map(races.map(r => [r.stateId, r]));
