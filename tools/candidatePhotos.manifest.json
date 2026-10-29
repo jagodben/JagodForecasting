@@ -719,11 +719,6 @@
   "photo": "/candidates/fl-21-2026-brian-mast.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Brian_Mast_official_115th_Congress_photo.jpg/330px-Brian_Mast_official_115th_Congress_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "FL-22-2026|Casey Askar": {
-  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Florida",
-  "photo": "/candidates/fl-22-2026-casey-askar.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/Casey_Askar.jpg/330px-Casey_Askar.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
- },
  "FL-22-2026|Pia Dandiya": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Florida",
   "photo": "/candidates/fl-22-2026-pia-dandiya.webp",
@@ -2510,9 +2505,9 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Bill_Hagerty_senatorial_portrait.jpg/330px-Bill_Hagerty_senatorial_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TN-SEN-2026|Marquita Bradshaw": {
-  "page": "https://en.wikipedia.org/wiki/Marquita_Bradshaw",
+  "page": "https://commons.wikimedia.org/wiki/File:Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg",
   "photo": "/candidates/tn-sen-2026-marquita-bradshaw.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg/330px-Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg/330px-Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "TX-01-2026|Nathaniel Moran": {
   "page": "https://en.wikipedia.org/wiki/Nathaniel_Moran",
