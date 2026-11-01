@@ -1147,7 +1147,7 @@
  "KS-SEN-2026|Roger Marshall": {
   "page": "https://en.wikipedia.org/wiki/Roger_Marshall",
   "photo": "/candidates/ks-sen-2026-roger-marshall.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Roger_Marshall_117th_Congress_portrait.jpg/330px-Roger_Marshall_117th_Congress_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e9/Senator_Roger_Marshall_official_photo.jpg/330px-Senator_Roger_Marshall_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "KY-01-2026|James Comer": {
   "page": "https://en.wikipedia.org/wiki/James_Comer",
@@ -2414,11 +2414,6 @@
   "photo": "/candidates/sc-gov-2026-alan-wilson.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Alan_Wilson_in_August_2025.jpg/330px-Alan_Wilson_in_August_2025.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "SC-SEN-2026|Annie Andrews": {
-  "page": "https://en.wikipedia.org/wiki/Annie_Andrews_%28pediatrician%29",
-  "photo": "/candidates/sc-sen-2026-annie-andrews.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Annie_Andrews_Greenville_%28cropped_2%29.jpg/330px-Annie_Andrews_Greenville_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
  "SC-SEN-2026|Darline Graham": {
   "page": "https://en.wikipedia.org/wiki/Darline_Graham",
   "photo": "/candidates/sc-sen-2026-darline-graham.webp",
@@ -2505,9 +2500,9 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Bill_Hagerty_senatorial_portrait.jpg/330px-Bill_Hagerty_senatorial_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TN-SEN-2026|Marquita Bradshaw": {
-  "page": "https://commons.wikimedia.org/wiki/File:Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg",
+  "page": "https://en.wikipedia.org/wiki/Marquita_Bradshaw",
   "photo": "/candidates/tn-sen-2026-marquita-bradshaw.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg/330px-Marquita_Bradshaw_at_Morristown_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Marquita_Bradshaw_at_Morristown.jpg/330px-Marquita_Bradshaw_at_Morristown.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-01-2026|Nathaniel Moran": {
   "page": "https://en.wikipedia.org/wiki/Nathaniel_Moran",
@@ -2603,6 +2598,11 @@
   "page": "https://en.wikipedia.org/wiki/Troy_Nehls",
   "photo": "/candidates/tx-22-2026-trever-nehls.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Troy_Nehls_117th_U.S_Congress.jpg/330px-Troy_Nehls_117th_U.S_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "TX-23-2026|Brandon Herrera": {
+  "page": "https://en.wikipedia.org/wiki/Brandon_Herrera",
+  "photo": "/candidates/tx-23-2026-brandon-herrera.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Brandon_Herrera_with_attendees_%2855457704523%29_%28cropped%29.jpg/330px-Brandon_Herrera_with_attendees_%2855457704523%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-23-2026|Katy Padilla Stout": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
