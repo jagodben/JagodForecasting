@@ -1609,6 +1609,11 @@
   "photo": "/candidates/ms-sen-2026-cindy-hyde-smith.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Official_headshot_of_US_Senator_Cindy_Hyde-Smith.jpg/330px-Official_headshot_of_US_Senator_Cindy_Hyde-Smith.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MS-SEN-2026|Scott Colom": {
+  "page": "https://en.wikipedia.org/wiki/Scott_Colom",
+  "photo": "/candidates/ms-sen-2026-scott-colom.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Scott_Colom_2_%28cropped%29.png/330px-Scott_Colom_2_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MT-01-2026|Sam Forstag": {
   "page": "https://en.wikipedia.org/wiki/Sam_Forstag",
   "photo": "/candidates/mt-01-2026-sam-forstag.webp",
@@ -1883,6 +1888,11 @@
   "page": "https://en.wikipedia.org/wiki/Dina_Titus",
   "photo": "/candidates/nv-01-2026-dina-titus.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Dina_Titus_official_photo.jpg/330px-Dina_Titus_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NV-02-2026|David Flippo": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Nevada",
+  "photo": "/candidates/nv-02-2026-david-flippo.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/David_Flippo.png/330px-David_Flippo.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "NV-03-2026|Martin O'Donnell": {
   "page": "https://en.wikipedia.org/wiki/Martin_O%27Donnell",
@@ -2414,6 +2424,11 @@
   "photo": "/candidates/sc-gov-2026-alan-wilson.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Alan_Wilson_in_August_2025.jpg/330px-Alan_Wilson_in_August_2025.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "SC-SEN-2026|Annie Andrews": {
+  "page": "https://en.wikipedia.org/wiki/Annie_Andrews_%28pediatrician%29",
+  "photo": "/candidates/sc-sen-2026-annie-andrews.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Annie_Andrews_York_Town_%28cropped_2%29.png/330px-Annie_Andrews_York_Town_%28cropped_2%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "SC-SEN-2026|Darline Graham": {
   "page": "https://en.wikipedia.org/wiki/Darline_Graham",
   "photo": "/candidates/sc-sen-2026-darline-graham.webp",
@@ -2682,7 +2697,7 @@
  "TX-GOV-2026|Gina Hinojosa": {
   "page": "https://en.wikipedia.org/wiki/Gina_Hinojosa",
   "photo": "/candidates/tx-gov-2026-gina-hinojosa.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Gina_Hinojosa_at_LBJ_Library_Forum_%283x4_cropped%29.jpg/330px-Gina_Hinojosa_at_LBJ_Library_Forum_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Gina_Hinojosa_at_the_AFL-CIO_COPE_convention_in_2024.jpg/330px-Gina_Hinojosa_at_the_AFL-CIO_COPE_convention_in_2024.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-GOV-2026|Greg Abbott": {
   "page": "https://en.wikipedia.org/wiki/Greg_Abbott",
