@@ -1142,7 +1142,7 @@
  "KS-SEN-2026|Adam Hamilton": {
   "page": "https://en.wikipedia.org/wiki/Adam_Hamilton_%28pastor%29",
   "photo": "/candidates/ks-sen-2026-adam-hamilton.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/Adam_Hamilton_on_the_Courage_to_Preach_%28cropped%29.png/330px-Adam_Hamilton_on_the_Courage_to_Preach_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Adam_Hamilton_campaign_rally%2C_Newton%2C_Kansas%2C_30_Oct_2026_%28cropped%29.jpg/330px-Adam_Hamilton_campaign_rally%2C_Newton%2C_Kansas%2C_30_Oct_2026_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "KS-SEN-2026|Roger Marshall": {
   "page": "https://en.wikipedia.org/wiki/Roger_Marshall",
@@ -1453,11 +1453,6 @@
   "page": "https://en.wikipedia.org/wiki/John_James_%28Michigan_politician%29",
   "photo": "/candidates/mi-gov-2026-john-james.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Rep._John_James_official_photo%2C_118th_Congress.jpg/330px-Rep._John_James_official_photo%2C_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
- "MI-SEN-2026|Abdul El-Sayed": {
-  "page": "https://en.wikipedia.org/wiki/Abdul_El-Sayed",
-  "photo": "/candidates/mi-sen-2026-abdul-el-sayed.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Abdul_El-Sayed_meet-and-greet_by_Conlan_Houston_5_%28cropped%29.jpg/330px-Abdul_El-Sayed_meet-and-greet_by_Conlan_Houston_5_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MI-SEN-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
@@ -2219,6 +2214,11 @@
   "photo": "/candidates/or-01-2026-suzanne-bonamici.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Suzanne_Bonamici.jpg/330px-Suzanne_Bonamici.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "OR-02-2026|Chris Beck": {
+  "page": "https://en.wikipedia.org/wiki/Chris_Beck_%28politician%29",
+  "photo": "/candidates/or-02-2026-chris-beck.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/d/db/Chris_Beck_Oregon.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+ },
  "OR-02-2026|Cliff Bentz": {
   "page": "https://en.wikipedia.org/wiki/Cliff_Bentz",
   "photo": "/candidates/or-02-2026-cliff-bentz.webp",
@@ -2532,7 +2532,7 @@
  "TX-02-2026|Steve Toth": {
   "page": "https://en.wikipedia.org/wiki/Steve_Toth",
   "photo": "/candidates/tx-02-2026-steve-toth.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/SteveToth--EagleForum--TX2Debate--GraceChurch--SpringTX--08Jan2026_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/Steve_Toth_at_Alamo_Cenotaph_%28cropped%29.jpg/330px-Steve_Toth_at_Alamo_Cenotaph_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-03-2026|Keith Self": {
   "page": "https://en.wikipedia.org/wiki/Keith_Self",
