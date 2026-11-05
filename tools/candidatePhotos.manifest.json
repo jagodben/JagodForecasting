@@ -852,7 +852,7 @@
  "GA-GOV-2026|Rick Jackson": {
   "page": "https://en.wikipedia.org/wiki/Rick_Jackson_%28businessman%29",
   "photo": "/candidates/ga-gov-2026-rick-jackson.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Rick_Jackson_%28cropped%29.png/330px-Rick_Jackson_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Rick_Jackson_%28cropped%29_%28cropped%29.png/330px-Rick_Jackson_%28cropped%29_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "GA-SEN-2026|Jon Ossoff": {
   "page": "https://en.wikipedia.org/wiki/Jon_Ossoff",
@@ -1424,6 +1424,11 @@
   "photo": "/candidates/mi-07-2026-tom-barrett.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Tom_Barrett%2C_official_portrait_%28119th_Congress%29.jpg/330px-Tom_Barrett%2C_official_portrait_%28119th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MI-07-2026|William Lawrence": {
+  "page": "https://en.wikipedia.org/wiki/William_Lawrence_%28Michigan_politician%29",
+  "photo": "/candidates/mi-07-2026-william-lawrence.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/William_Lawrence_2026.jpg/330px-William_Lawrence_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MI-08-2026|Kristen McDonald Rivet": {
   "page": "https://en.wikipedia.org/wiki/Kristen_McDonald_Rivet",
   "photo": "/candidates/mi-08-2026-kristen-mcdonald-rivet.webp",
@@ -1462,7 +1467,7 @@
  "MI-SEN-2026|Abdul El-Sayed": {
   "page": "https://en.wikipedia.org/wiki/Abdul_El-Sayed",
   "photo": "/candidates/mi-sen-2026-abdul-el-sayed.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/26/Abdul_El-Sayed.jpg/330px-Abdul_El-Sayed.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Abdul_El-Sayed_meet-and-greet_by_Conlan_Houston_5_%28cropped%29.jpg/330px-Abdul_El-Sayed_meet-and-greet_by_Conlan_Houston_5_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MI-SEN-2026|Mike Rogers": {
   "page": "https://en.wikipedia.org/wiki/Mike_Rogers_%28Michigan_politician%29",
@@ -1537,7 +1542,7 @@
  "MN-SEN-2026|Peggy Flanagan": {
   "page": "https://en.wikipedia.org/wiki/Peggy_Flanagan",
   "photo": "/candidates/mn-sen-2026-peggy-flanagan.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/2026PeggyFlanagan_%28newcropped%29.jpg/330px-2026PeggyFlanagan_%28newcropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Peggy_Flanagan_and_Premier_Kinew_%28cropped%29.jpg/330px-Peggy_Flanagan_and_Premier_Kinew_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MO-01-2026|Wesley Bell": {
   "page": "https://en.wikipedia.org/wiki/Wesley_Bell",
@@ -1617,7 +1622,7 @@
  "MS-SEN-2026|Scott Colom": {
   "page": "https://en.wikipedia.org/wiki/Scott_Colom",
   "photo": "/candidates/ms-sen-2026-scott-colom.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Scott_Colom.jpg/330px-Scott_Colom.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Scott_Colom_2_%28cropped%29.png/330px-Scott_Colom_2_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MT-01-2026|Sam Forstag": {
   "page": "https://en.wikipedia.org/wiki/Sam_Forstag",
@@ -1743,6 +1748,11 @@
   "page": "https://en.wikipedia.org/wiki/Mike_Flood_%28politician%29",
   "photo": "/candidates/ne-01-2026-mike-flood.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Mike_Flood%2C_official_portrait_%28118th_Congress%29.jpg/330px-Mike_Flood%2C_official_portrait_%28118th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NE-02-2026|Denise Powell": {
+  "page": "https://en.wikipedia.org/wiki/Denise_Powell",
+  "photo": "/candidates/ne-02-2026-denise-powell.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Denise_Powell_talking_at_Campaign_Rally_%28cropped%29.jpg/330px-Denise_Powell_talking_at_Campaign_Rally_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NE-03-2026|Adrian Smith": {
   "page": "https://en.wikipedia.org/wiki/Adrian_Smith_%28politician%29",
@@ -1920,7 +1930,7 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Steven_Horsford_118th.jpeg/330px-Steven_Horsford_118th.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NV-GOV-2026|Aaron Ford": {
-  "page": "https://en.wikipedia.org/wiki/Aaron_Ford_%28Nevada_politician%29",
+  "page": "https://en.wikipedia.org/wiki/Aaron_Ford",
   "photo": "/candidates/nv-gov-2026-aaron-ford.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Nevada_Attorney_General_Aaron_Ford_addresses_the_United_Nations_Human_Rights_Committee%2C_October_17-18%2C_2023_1_%28cropped%29.jpg/330px-Nevada_Attorney_General_Aaron_Ford_addresses_the_United_Nations_Human_Rights_Committee%2C_October_17-18%2C_2023_1_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
@@ -2158,6 +2168,11 @@
   "page": "https://en.wikipedia.org/wiki/David_Joyce_%28politician%29",
   "photo": "/candidates/oh-14-2026-david-joyce.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/David_Joyce.jpg/330px-David_Joyce.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "OH-15-2026|Don Leonard": {
+  "page": "https://en.wikipedia.org/wiki/Don_Leonard_%28politician%29",
+  "photo": "/candidates/oh-15-2026-don-leonard.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Don_Leonard_in_2025.png/330px-Don_Leonard_in_2025.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OH-15-2026|Mike Carey": {
   "page": "https://en.wikipedia.org/wiki/Mike_Carey_%28politician%29",
@@ -2442,7 +2457,7 @@
  "SC-SEN-2026|Annie Andrews": {
   "page": "https://en.wikipedia.org/wiki/Annie_Andrews",
   "photo": "/candidates/sc-sen-2026-annie-andrews.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/80/Annie_Andrews_York_Town_%28cropped_2%29.png/330px-Annie_Andrews_York_Town_%28cropped_2%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/69/Annie_Andrews_Greenville_%28cropped_2%29.jpg/330px-Annie_Andrews_Greenville_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "SC-SEN-2026|Darline Graham": {
   "page": "https://en.wikipedia.org/wiki/Darline_Graham",
@@ -2574,6 +2589,11 @@
   "photo": "/candidates/tx-07-2026-lizzie-fletcher.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Lizzie_Fletcher_117th_Congress_2_%28cropped%29.jpg/330px-Lizzie_Fletcher_117th_Congress_2_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "TX-08-2026|Jessica Steinmann": {
+  "page": "https://en.wikipedia.org/wiki/Jessica_Steinmann",
+  "photo": "/candidates/tx-08-2026-jessica-steinmann.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Jessica_Hart_Steinmann.png/330px-Jessica_Hart_Steinmann.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "TX-11-2026|August Pfluger": {
   "page": "https://en.wikipedia.org/wiki/August_Pfluger",
   "photo": "/candidates/tx-11-2026-august-pfluger.webp",
@@ -2630,9 +2650,9 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Mark_Teixeira_basepaths_2011.jpg/330px-Mark_Teixeira_basepaths_2011.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-22-2026|Trever Nehls": {
-  "page": "https://en.wikipedia.org/wiki/Troy_Nehls",
+  "page": "https://en.wikipedia.org/wiki/Trever_Nehls",
   "photo": "/candidates/tx-22-2026-trever-nehls.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Troy_Nehls_117th_U.S_Congress.jpg/330px-Troy_Nehls_117th_U.S_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Blackjack_Recognition_Ceremony_Trever_Nehls_%28cropped%29.jpg/330px-Blackjack_Recognition_Ceremony_Trever_Nehls_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-23-2026|Brandon Herrera": {
   "page": "https://en.wikipedia.org/wiki/Brandon_Herrera",
@@ -2690,9 +2710,9 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/John_Carter%2C_official_portrait_114th_Congress_%28cropped%29.jpg/330px-John_Carter%2C_official_portrait_114th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-32-2026|Jace Yarbrough": {
-  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Texas",
+  "page": "https://en.wikipedia.org/wiki/Jace_Yarbrough",
   "photo": "/candidates/tx-32-2026-jace-yarbrough.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Joint_Base_Commander_visits_the_US_Air_Force_Honor_Guard_-_Jace_Yarbrough_%28cropped%29.jpg/330px-Joint_Base_Commander_visits_the_US_Air_Force_Honor_Guard_-_Jace_Yarbrough_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Joint_Base_Commander_visits_the_US_Air_Force_Honor_Guard_-_Jace_Yarbrough_%28cropped%29.jpg/330px-Joint_Base_Commander_visits_the_US_Air_Force_Honor_Guard_-_Jace_Yarbrough_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-33-2026|Colin Allred": {
   "page": "https://en.wikipedia.org/wiki/Colin_Allred",
@@ -2717,12 +2737,12 @@
  "TX-GOV-2026|Gina Hinojosa": {
   "page": "https://en.wikipedia.org/wiki/Gina_Hinojosa",
   "photo": "/candidates/tx-gov-2026-gina-hinojosa.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Gina_Hinojosa_at_the_AFL-CIO_COPE_convention_in_2024.jpg/330px-Gina_Hinojosa_at_the_AFL-CIO_COPE_convention_in_2024.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/Gina_Hinojosa_16_February_2017_%28cropped%29.jpg/330px-Gina_Hinojosa_16_February_2017_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-GOV-2026|Greg Abbott": {
   "page": "https://en.wikipedia.org/wiki/Greg_Abbott",
   "photo": "/candidates/tx-gov-2026-greg-abbott.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Greg_Abbott_at_NASA_2024_%28cropped%29.jpg/330px-Greg_Abbott_at_NASA_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/1944_Water_Treaty_Roundtable_with_Secretary_Rollins_and_Governor_Abbott_%2855100361705%29_%28crop_4x5%29.jpg/330px-1944_Water_Treaty_Roundtable_with_Secretary_Rollins_and_Governor_Abbott_%2855100361705%29_%28crop_4x5%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-SEN-2026|James Talarico": {
   "page": "https://en.wikipedia.org/wiki/James_Talarico",
@@ -2882,7 +2902,7 @@
  "WA-05-2026|Carmela Conroy": {
   "page": "https://en.wikipedia.org/wiki/Carmela_Conroy",
   "photo": "/candidates/wa-05-2026-carmela-conroy.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Conroydebate.png/330px-Conroydebate.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Carmela_Conroy_State_Department_Portrait_%28cropped%29.jpg/330px-Carmela_Conroy_State_Department_Portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "WA-05-2026|Michael Baumgartner": {
   "page": "https://en.wikipedia.org/wiki/Michael_Baumgartner",
@@ -2930,7 +2950,7 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Congressman_dvo_%281%29.jpg/330px-Congressman_dvo_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "WI-03-2026|Rebecca Cooke": {
-  "page": "https://en.wikipedia.org/wiki/Rebecca_Cooke_%28politician%29",
+  "page": "https://en.wikipedia.org/wiki/Rebecca_Cooke",
   "photo": "/candidates/wi-03-2026-rebecca-cooke.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Rebecca_Cooke_on_UpNorthNews_March_2025_%28cropped%29.jpg/330px-Rebecca_Cooke_on_UpNorthNews_March_2025_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
