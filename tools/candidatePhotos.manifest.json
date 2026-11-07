@@ -1809,6 +1809,11 @@
   "photo": "/candidates/nj-02-2026-jeff-van-drew.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Representative_Jeff_Van_Drew.jpg/330px-Representative_Jeff_Van_Drew.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "NJ-02-2026|Zack Mullock": {
+  "page": "https://en.wikipedia.org/wiki/Zack_Mullock",
+  "photo": "/candidates/nj-02-2026-zack-mullock.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/Zack_Mullock.jpg/330px-Zack_Mullock.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "NJ-03-2026|Herb Conaway": {
   "page": "https://en.wikipedia.org/wiki/Herb_Conaway",
   "photo": "/candidates/nj-03-2026-herb-conaway.webp",
@@ -2587,7 +2592,7 @@
  "TX-09-2026|Leticia Gutierrez": {
   "page": "https://en.wikipedia.org/wiki/Leticia_Gutierrez",
   "photo": "/candidates/tx-09-2026-leticia-gutierrez.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/4/47/Leticia_Gutierrez_Cropped.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Leticia_Gutierrez_%28cropped2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "TX-11-2026|August Pfluger": {
   "page": "https://en.wikipedia.org/wiki/August_Pfluger",
@@ -2657,7 +2662,7 @@
  "TX-23-2026|Katy Padilla Stout": {
   "page": "https://en.wikipedia.org/wiki/Katy_Padilla_Stout",
   "photo": "/candidates/tx-23-2026-katy-padilla-stout.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Katy_Padilla_Stout_Cropped.jpg/330px-Katy_Padilla_Stout_Cropped.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Katypadillastoutofficialcampaign.jpg/330px-Katypadillastoutofficialcampaign.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-24-2026|Beth Van Duyne": {
   "page": "https://en.wikipedia.org/wiki/Beth_Van_Duyne",
@@ -2982,7 +2987,7 @@
  "WI-GOV-2026|David Crowley": {
   "page": "https://en.wikipedia.org/wiki/David_Crowley_%28Wisconsin_politician%29",
   "photo": "/candidates/wi-gov-2026-david-crowley.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/76/Milwaukee_County_Executive_David_Crowley_during_Democratic_Primary_debate_on_July_28%2C_2026.jpg/330px-Milwaukee_County_Executive_David_Crowley_during_Democratic_Primary_debate_on_July_28%2C_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/David_Crowley.jpg/330px-David_Crowley.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "WI-GOV-2026|Tom Tiffany": {
   "page": "https://en.wikipedia.org/wiki/Tom_Tiffany",
