@@ -172,7 +172,7 @@
  "AZ-06-2026|JoAnna Mendoza": {
   "page": "https://en.wikipedia.org/wiki/JoAnna_Mendoza",
   "photo": "/candidates/az-06-2026-joanna-mendoza.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0d/JoAnna_Mendoza%2C_2013.jpg/330px-JoAnna_Mendoza%2C_2013.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Arizona_Democratic_House_delegation%2C_November_2026_%28JoAnna_Mendoza_-_cropped%29.jpeg/330px-Arizona_Democratic_House_delegation%2C_November_2026_%28JoAnna_Mendoza_-_cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AZ-06-2026|Juan Ciscomani": {
   "page": "https://en.wikipedia.org/wiki/Juan_Ciscomani",
@@ -534,11 +534,6 @@
   "photo": "/candidates/co-03-2026-jeff-hurd.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/RepJeffHurd.jpg/330px-RepJeffHurd.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "CO-04-2026|Eileen Laubacher": {
-  "page": "https://en.wikipedia.org/wiki/Eileen_Laubacher",
-  "photo": "/candidates/co-04-2026-eileen-laubacher.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Eileen_H._Laubacher_%283%29.jpg/330px-Eileen_H._Laubacher_%283%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
  "CO-04-2026|Lauren Boebert": {
   "page": "https://en.wikipedia.org/wiki/Lauren_Boebert",
   "photo": "/candidates/co-04-2026-lauren-boebert.webp",
@@ -862,7 +857,7 @@
  "GA-SEN-2026|Jon Ossoff": {
   "page": "https://en.wikipedia.org/wiki/Jon_Ossoff",
   "photo": "/candidates/ga-sen-2026-jon-ossoff.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Jon_Ossoff_Senate_Portrait_2021.jpg/330px-Jon_Ossoff_Senate_Portrait_2021.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Senator_Jon_Ossoff_Official_Portrait.jpg/330px-Senator_Jon_Ossoff_Official_Portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "GA-SEN-2026|Mike Collins": {
   "page": "https://en.wikipedia.org/wiki/Mike_Collins_%28politician%29",
@@ -1484,6 +1479,11 @@
   "photo": "/candidates/mn-01-2026-brad-finstad.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Rep._Brad_Finstad_%28R-MN%29%2C_Official_Portrait%2C_119th_Congress.jpg/330px-Rep._Brad_Finstad_%28R-MN%29%2C_Official_Portrait%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MN-01-2026|Jake Johnson": {
+  "page": "https://en.wikipedia.org/wiki/Jake_Johnson_%28Minnesota_politician%29",
+  "photo": "/candidates/mn-01-2026-jake-johnson.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Jake_Johnson_MN_%28cropped%29.jpg/330px-Jake_Johnson_MN_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MN-02-2026|Eric Pratt": {
   "page": "https://en.wikipedia.org/wiki/Eric_Pratt",
   "photo": "/candidates/mn-02-2026-eric-pratt.webp",
@@ -1634,11 +1634,6 @@
   "photo": "/candidates/mt-sen-2026-alani-bankhead.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Alani_Bankhead_USAF_2021.png/330px-Alani_Bankhead_USAF_2021.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
- "MT-SEN-2026|Kurt Alme": {
-  "page": "https://en.wikipedia.org/wiki/Kurt_Alme",
-  "photo": "/candidates/mt-sen-2026-kurt-alme.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Kurt_G._Alme_official_photo.jpg/330px-Kurt_G._Alme_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
- },
  "NC-01-2026|Don Davis": {
   "page": "https://en.wikipedia.org/wiki/Don_Davis_%28North_Carolina_politician%29",
   "photo": "/candidates/nc-01-2026-don-davis.webp",
@@ -1669,6 +1664,11 @@
   "photo": "/candidates/nc-04-2026-valerie-foushee.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Valerie_Foushee_118th_Congress_3.jpg/330px-Valerie_Foushee_118th_Congress_3.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "NC-05-2026|Chuck Hubbard": {
+  "page": "https://en.wikipedia.org/wiki/Chuck_Hubbard",
+  "photo": "/candidates/nc-05-2026-chuck-hubbard.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7a/NC_Democratic_House_Delegation_Nov_2026_%28Hubbard-cropped%29.jpeg/330px-NC_Democratic_House_Delegation_Nov_2026_%28Hubbard-cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "NC-05-2026|Virginia Foxx": {
   "page": "https://en.wikipedia.org/wiki/Virginia_Foxx",
   "photo": "/candidates/nc-05-2026-virginia-foxx.webp",
@@ -1678,6 +1678,11 @@
   "page": "https://en.wikipedia.org/wiki/Addison_McDowell",
   "photo": "/candidates/nc-06-2026-addison-mcdowell.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Addison_McDowell_119th_congress.jpg/330px-Addison_McDowell_119th_congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NC-06-2026|Cyril Jefferson": {
+  "page": "https://en.wikipedia.org/wiki/Cyril_Jefferson",
+  "photo": "/candidates/nc-06-2026-cyril-jefferson.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/NC_Democratic_House_Delegation_Nov_2026_%28Jefferson-cropped%29.jpeg/330px-NC_Democratic_House_Delegation_Nov_2026_%28Jefferson-cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NC-07-2026|David Rouzer": {
   "page": "https://en.wikipedia.org/wiki/David_Rouzer",
@@ -1704,6 +1709,11 @@
   "photo": "/candidates/nc-10-2026-pat-harrigan.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/14/CongressmanPatHarriganPortrait.jpg/330px-CongressmanPatHarriganPortrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "NC-11-2026|Jamie Ager": {
+  "page": "https://en.wikipedia.org/wiki/Jamie_Ager",
+  "photo": "/candidates/nc-11-2026-jamie-ager.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/NC_Democratic_House_Delegation_Nov_2026_%28Ager-cropped%29.jpeg/330px-NC_Democratic_House_Delegation_Nov_2026_%28Ager-cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "NC-11-2026|Jennifer Balkcom": {
   "page": "https://en.wikipedia.org/wiki/Jennifer_Balkcom",
   "photo": "/candidates/nc-11-2026-jennifer-balkcom.webp",
@@ -1718,6 +1728,16 @@
   "page": "https://en.wikipedia.org/wiki/Brad_Knott",
   "photo": "/candidates/nc-13-2026-brad-knott.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/68/Rep._Brad_Knott_official_photo%2C_119th_Congress.jpg/330px-Rep._Brad_Knott_official_photo%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NC-13-2026|Paul Barringer": {
+  "page": "https://en.wikipedia.org/wiki/Paul_Barringer_%28attorney%29",
+  "photo": "/candidates/nc-13-2026-paul-barringer.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/83/NC_Democratic_House_Delegation_Nov_2026_%28Barringer-cropped%29.jpeg/330px-NC_Democratic_House_Delegation_Nov_2026_%28Barringer-cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NC-14-2026|LaKesha Womack": {
+  "page": "https://en.wikipedia.org/wiki/LaKesha_Womack",
+  "photo": "/candidates/nc-14-2026-lakesha-womack.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/NC_Democratic_House_Delegation_Nov_2026_%28Womack-cropped%29.jpeg/330px-NC_Democratic_House_Delegation_Nov_2026_%28Womack-cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NC-14-2026|Tim Moore": {
   "page": "https://en.wikipedia.org/wiki/Tim_Moore_%28North_Carolina_politician%29",
@@ -1808,6 +1828,11 @@
   "page": "https://en.wikipedia.org/wiki/Jeff_Van_Drew",
   "photo": "/candidates/nj-02-2026-jeff-van-drew.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/29/Representative_Jeff_Van_Drew.jpg/330px-Representative_Jeff_Van_Drew.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "NJ-02-2026|Zack Mullock": {
+  "page": "https://en.wikipedia.org/wiki/Zack_Mullock",
+  "photo": "/candidates/nj-02-2026-zack-mullock.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Image_of_Zach_Mullock.jpg/330px-Image_of_Zach_Mullock.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NJ-03-2026|Herb Conaway": {
   "page": "https://en.wikipedia.org/wiki/Herb_Conaway",
@@ -1908,6 +1933,11 @@
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Nevada",
   "photo": "/candidates/nv-02-2026-david-flippo.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/David_Flippo.png/330px-David_Flippo.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
+ "NV-02-2026|Teresa Benitez-Thompson": {
+  "page": "https://en.wikipedia.org/wiki/Teresa_Benitez-Thompson",
+  "photo": "/candidates/nv-02-2026-teresa-benitez-thompson.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/41/Teresa_Benitez-Thompson_%28cropped%29.jpeg/330px-Teresa_Benitez-Thompson_%28cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NV-03-2026|Martin O'Donnell": {
   "page": "https://en.wikipedia.org/wiki/Martin_O%27Donnell",
@@ -2462,7 +2492,7 @@
  "SC-SEN-2026|Darline Graham": {
   "page": "https://en.wikipedia.org/wiki/Darline_Graham",
   "photo": "/candidates/sc-sen-2026-darline-graham.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a8/Official_portrait_of_Darline_Graham%2C_member_of_the_United_States_Senate_from_South_Carolina_%282026%29.jpg/330px-Official_portrait_of_Darline_Graham%2C_member_of_the_United_States_Senate_from_South_Carolina_%282026%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Sen._Darline_Graham_%28R-SC%29%2C_Official_Portrait%2C_119th_Congress.jpg/330px-Sen._Darline_Graham_%28R-SC%29%2C_Official_Portrait%2C_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "SD-01-2026|Marty Jackley": {
   "page": "https://en.wikipedia.org/wiki/Marty_Jackley",
