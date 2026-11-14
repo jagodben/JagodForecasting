@@ -12,7 +12,7 @@
  "AK-GOV-2026|Bernadette Wilson": {
   "page": "https://en.wikipedia.org/wiki/2026_Alaska_gubernatorial_election",
   "photo": "/candidates/ak-gov-2026-bernadette-wilson.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Bernadette_Wilson_at_Chris_Birch_memorial_service.jpg/330px-Bernadette_Wilson_at_Chris_Birch_memorial_service.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Bernadette_Wilson_2021_%28cropped%29.png/330px-Bernadette_Wilson_2021_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AK-GOV-2026|Jonathan Kreiss-Tomkins": {
   "page": "https://en.wikipedia.org/wiki/Jonathan_Kreiss-Tomkins",
@@ -77,7 +77,7 @@
  "AL-GOV-2026|Tommy Tuberville": {
   "page": "https://en.wikipedia.org/wiki/Tommy_Tuberville",
   "photo": "/candidates/al-gov-2026-tommy-tuberville.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Sen._Tommy_Tuberville_Official_Portrait%2C_118th_Congress_%28cropped%29.jpg/330px-Sen._Tommy_Tuberville_Official_Portrait%2C_118th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Tommy_tuberville.jpg/330px-Tommy_tuberville.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AL-SEN-2026|Barry Moore": {
   "page": "https://en.wikipedia.org/wiki/Barry_Moore_%28American_politician%29",
@@ -567,7 +567,7 @@
  "CO-GOV-2026|Phil Weiser": {
   "page": "https://en.wikipedia.org/wiki/Phil_Weiser",
   "photo": "/candidates/co-gov-2026-phil-weiser.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/AG_Phil_Weiser.jpg/330px-AG_Phil_Weiser.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/AG_Phil_Weiser_4_%28cropped%29.png/330px-AG_Phil_Weiser_4_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "CO-GOV-2026|Victor Marx": {
   "page": "https://en.wikipedia.org/wiki/Victor_Marx",
@@ -862,7 +862,7 @@
  "GA-SEN-2026|Jon Ossoff": {
   "page": "https://en.wikipedia.org/wiki/Jon_Ossoff",
   "photo": "/candidates/ga-sen-2026-jon-ossoff.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/10/Senator_Jon_Ossoff_Official_Portrait.jpg/330px-Senator_Jon_Ossoff_Official_Portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/97/Jon_Ossoff_Senate_Portrait_2021.jpg/330px-Jon_Ossoff_Senate_Portrait_2021.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "GA-SEN-2026|Mike Collins": {
   "page": "https://en.wikipedia.org/wiki/Mike_Collins_%28politician%29",
@@ -1364,11 +1364,6 @@
   "photo": "/candidates/me-01-2026-chellie-pingree.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/42/CPingree_Portrait_202203.jpg/330px-CPingree_Portrait_202203.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
- "ME-02-2026|Matthew Dunlap": {
-  "page": "https://en.wikipedia.org/wiki/Matthew_Dunlap",
-  "photo": "/candidates/me-02-2026-matthew-dunlap.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/7/70/Matt_Dunlap_%28cropped_headshot%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
- },
  "ME-02-2026|Paul LePage": {
   "page": "https://en.wikipedia.org/wiki/Paul_LePage",
   "photo": "/candidates/me-02-2026-paul-lepage.webp",
@@ -1644,6 +1639,16 @@
   "photo": "/candidates/ms-sen-2026-scott-colom.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Scott_Colom_2_%28cropped%29.png/330px-Scott_Colom_2_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
+ "MT-01-2026|Aaron Flint": {
+  "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Montana",
+  "photo": "/candidates/mt-01-2026-aaron-flint.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Aaron_Flint_2026_%28cropped%29.png/330px-Aaron_Flint_2026_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+ },
+ "MT-01-2026|Sam Forstag": {
+  "page": "https://en.wikipedia.org/wiki/Sam_Forstag",
+  "photo": "/candidates/mt-01-2026-sam-forstag.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Sam_Forstag_2026.png/330px-Sam_Forstag_2026.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
  "MT-02-2026|Troy Downing": {
   "page": "https://en.wikipedia.org/wiki/Troy_Downing",
   "photo": "/candidates/mt-02-2026-troy-downing.webp",
@@ -1892,7 +1897,7 @@
  "NJ-08-2026|Rob Menendez": {
   "page": "https://en.wikipedia.org/wiki/Rob_Menendez",
   "photo": "/candidates/nj-08-2026-rob-menendez.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Rep._Rob_Menendez_Jr._-_118th_Congress.jpg/330px-Rep._Rob_Menendez_Jr._-_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Rob_Menendez_119th_Congress.jpg/330px-Rob_Menendez_119th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NJ-09-2026|Nellie Pou": {
   "page": "https://en.wikipedia.org/wiki/Nellie_Pou",
@@ -2167,7 +2172,7 @@
  "OH-04-2026|Jim Jordan": {
   "page": "https://en.wikipedia.org/wiki/Jim_Jordan",
   "photo": "/candidates/oh-04-2026-jim-jordan.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Jim_Jordan.jpg/330px-Jim_Jordan.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Jim_Jordan_%2851769862077%29_%28cropped%29.jpg/330px-Jim_Jordan_%2851769862077%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "OH-05-2026|Bob Latta": {
   "page": "https://en.wikipedia.org/wiki/Bob_Latta",
@@ -2442,7 +2447,7 @@
  "PA-15-2026|Glenn Thompson": {
   "page": "https://en.wikipedia.org/wiki/Glenn_Thompson_%28politician%29",
   "photo": "/candidates/pa-15-2026-glenn-thompson.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Glenn_Thompson_portrait_%28118th_Congress%29.jpg/330px-Glenn_Thompson_portrait_%28118th_Congress%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Glenn_GT_Thompson_118th_Congress.jpg/330px-Glenn_GT_Thompson_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "PA-16-2026|Mike Kelly": {
   "page": "https://en.wikipedia.org/wiki/Mike_Kelly_%28Pennsylvania_politician%29",
@@ -2487,7 +2492,7 @@
  "SC-01-2026|Nancy Lacore": {
   "page": "https://en.wikipedia.org/wiki/Nancy_Lacore",
   "photo": "/candidates/sc-01-2026-nancy-lacore.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/VADM_Nancy_S._Lacore_%282%29.jpg/330px-VADM_Nancy_S._Lacore_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Nancy_Lacore_in_November_2026.jpg/330px-Nancy_Lacore_in_November_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "SC-02-2026|Joe Wilson": {
   "page": "https://en.wikipedia.org/wiki/Joe_Wilson",
@@ -2567,7 +2572,7 @@
  "TN-04-2026|Scott DesJarlais": {
   "page": "https://en.wikipedia.org/wiki/Scott_DesJarlais",
   "photo": "/candidates/tn-04-2026-scott-desjarlais.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Scott_DesJarlais_118th_Congress.jpg/330px-Scott_DesJarlais_118th_Congress.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Scott_DesJarlais%2C_official_portrait%2C_112th_Congress_%283x4%29.jpg/330px-Scott_DesJarlais%2C_official_portrait%2C_112th_Congress_%283x4%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TN-05-2026|Chaz Molder": {
   "page": "https://en.wikipedia.org/wiki/2026_United_States_House_of_Representatives_elections_in_Tennessee",
@@ -2697,7 +2702,7 @@
  "TX-17-2026|Pete Sessions": {
   "page": "https://en.wikipedia.org/wiki/Pete_Sessions",
   "photo": "/candidates/tx-17-2026-pete-sessions.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Pete_Sessions_Congressional_ID_photo_117.jpg/330px-Pete_Sessions_Congressional_ID_photo_117.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Pete_Sessions_TX-17_circa_2020.jpg/330px-Pete_Sessions_TX-17_circa_2020.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-18-2026|Christian Menefee": {
   "page": "https://en.wikipedia.org/wiki/Christian_Menefee",
@@ -3083,6 +3088,11 @@
   "page": "https://en.wikipedia.org/wiki/Chuck_Gray_%28Wyoming_politician%29",
   "photo": "/candidates/wy-01-2026-chuck-gray.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Chuck_Gray_in_2025_%28cropped%29.jpg/330px-Chuck_Gray_in_2025_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "WY-GOV-2026|Eric Barlow": {
+  "page": "https://en.wikipedia.org/wiki/Eric_Barlow",
+  "photo": "/candidates/wy-gov-2026-eric-barlow.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/5/54/68th-BarlowEric_%281%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "WY-SEN-2026|Harriet Hageman": {
   "page": "https://en.wikipedia.org/wiki/Harriet_Hageman",
