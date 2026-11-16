@@ -12,7 +12,7 @@
  "AK-GOV-2026|Bernadette Wilson": {
   "page": "https://en.wikipedia.org/wiki/2026_Alaska_gubernatorial_election",
   "photo": "/candidates/ak-gov-2026-bernadette-wilson.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Bernadette_Wilson_at_Chris_Birch_memorial_service.jpg/330px-Bernadette_Wilson_at_Chris_Birch_memorial_service.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Bernadette_Wilson_2021_%28cropped%29.png/330px-Bernadette_Wilson_2021_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail"
  },
  "AK-GOV-2026|Jonathan Kreiss-Tomkins": {
   "page": "https://en.wikipedia.org/wiki/Jonathan_Kreiss-Tomkins",
@@ -35,9 +35,9 @@
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Rep._Jerry_Carl_official_photo.jpg/330px-Rep._Jerry_Carl_official_photo.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "AL-02-2026|Rhett Marques": {
-  "page": "https://en.wikipedia.org/wiki/Rhett_Marques",
+  "page": "https://commons.wikimedia.org/wiki/File:Rhett_Marques_in_Enterprise.jpg",
   "photo": "/candidates/al-02-2026-rhett-marques.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Rhett_Marques.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Rhett_Marques_in_Enterprise.jpg?utm_source=en.wikipedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled"
  },
  "AL-02-2026|Shomari Figures": {
   "page": "https://en.wikipedia.org/wiki/Shomari_Figures",
@@ -642,7 +642,7 @@
  "FL-02-2026|Austin Rogers": {
   "page": "https://en.wikipedia.org/wiki/Austin_Rogers_%28politician%29",
   "photo": "/candidates/fl-02-2026-austin-rogers.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/Austin_Rogers_FL.png/330px-Austin_Rogers_FL.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/8/83/Austin_Rogers_119th-120th_Congress_Veterans_Day_tribute_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "FL-03-2026|Kat Cammack": {
   "page": "https://en.wikipedia.org/wiki/Kat_Cammack",
@@ -708,6 +708,11 @@
   "page": "https://en.wikipedia.org/wiki/Laurel_Lee",
   "photo": "/candidates/fl-15-2026-laurel-lee.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Laurel_Lee_118thCong.jpeg/330px-Laurel_Lee_118thCong.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "FL-16-2026|Sydney Gruters": {
+  "page": "https://en.wikipedia.org/wiki/Sydney_Gruters",
+  "photo": "/candidates/fl-16-2026-sydney-gruters.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Sydney_Gruters_119th-120th_Congress_Veterans_Day_tribute_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "FL-17-2026|Greg Steube": {
   "page": "https://en.wikipedia.org/wiki/Greg_Steube",
@@ -927,7 +932,7 @@
  "IA-GOV-2026|Rob Sand": {
   "page": "https://en.wikipedia.org/wiki/Rob_Sand",
   "photo": "/candidates/ia-gov-2026-rob-sand.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Rob_Sand_in_Iowa_County_September_2025_%28cropped%29.jpg/330px-Rob_Sand_in_Iowa_County_September_2025_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Tama_County_-_54813051747_%28cropped%29.png/330px-Tama_County_-_54813051747_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "IA-GOV-2026|Zach Lahn": {
   "page": "https://en.wikipedia.org/wiki/2026_Iowa_gubernatorial_election",
@@ -2122,7 +2127,7 @@
  "NY-21-2026|Anthony Constantino": {
   "page": "https://en.wikipedia.org/wiki/Anthony_Constantino_%28politician%29",
   "photo": "/candidates/ny-21-2026-anthony-constantino.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Anthony_Constantino_speaking_at_Uncle_Mario%27s_Garage.jpg/330px-Anthony_Constantino_speaking_at_Uncle_Mario%27s_Garage.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Anthony_Constantino_speaking_at_Uncle_Mario%27s_Garage_%28cropped%29.jpg/330px-Anthony_Constantino_speaking_at_Uncle_Mario%27s_Garage_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "NY-22-2026|John Mannion": {
   "page": "https://en.wikipedia.org/wiki/John_Mannion_%28American_politician%29",
@@ -2407,7 +2412,7 @@
  "PA-08-2026|Paige Cognetti": {
   "page": "https://en.wikipedia.org/wiki/Paige_Cognetti",
   "photo": "/candidates/pa-08-2026-paige-cognetti.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Paige_Cognetti_%2852165104986%29_%283x4a%29.jpg/330px-Paige_Cognetti_%2852165104986%29_%283x4a%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Paige_Cognetti_Pennsylvania_new_Democrat_house_members_2026_%28cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "PA-08-2026|Rob Bresnahan": {
   "page": "https://en.wikipedia.org/wiki/Rob_Bresnahan",
@@ -2422,7 +2427,7 @@
  "PA-10-2026|Janelle Stelson": {
   "page": "https://en.wikipedia.org/wiki/Janelle_Stelson",
   "photo": "/candidates/pa-10-2026-janelle-stelson.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Janelle_Stelson_08-29-2026_%28cropped%29.jpg/330px-Janelle_Stelson_08-29-2026_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://upload.wikimedia.org/wikipedia/commons/8/89/Janelle_Stelson_Pennsylvania_new_Democrat_house_members_2026_%28cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "PA-10-2026|Scott Perry": {
   "page": "https://en.wikipedia.org/wiki/Scott_Perry",
@@ -2713,6 +2718,11 @@
   "page": "https://en.wikipedia.org/wiki/Christian_Menefee",
   "photo": "/candidates/tx-18-2026-christian-menefee.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Christian_Menefee%2C_official_portrait_%28119th_Congress%29_%282%29.jpg/330px-Christian_Menefee%2C_official_portrait_%28119th_Congress%29_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "TX-19-2026|Tom Sell": {
+  "page": "https://en.wikipedia.org/wiki/Tom_Sell",
+  "photo": "/candidates/tx-19-2026-tom-sell.webp",
+  "src": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Tom_Sell_119th-120th_Congress_Veterans_Day_tribute_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
  },
  "TX-20-2026|Joaquin Castro": {
   "page": "https://en.wikipedia.org/wiki/Joaquin_Castro",
