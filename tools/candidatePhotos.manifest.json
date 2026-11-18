@@ -1462,7 +1462,7 @@
  "MI-10-2026|Christina Hines": {
   "page": "https://en.wikipedia.org/wiki/Christina_Hines",
   "photo": "/candidates/mi-10-2026-christina-hines.webp",
-  "src": "https://upload.wikimedia.org/wikipedia/commons/d/df/New_Democrat_members_of_Congress_from_Michigan_2026_%28Hines-cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Christina_Hines.jpg/330px-Christina_Hines.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "MI-11-2026|Jeremy Moss": {
   "page": "https://en.wikipedia.org/wiki/Jeremy_Moss",
@@ -2787,7 +2787,7 @@
  "TX-30-2026|Frederick Haynes III": {
   "page": "https://en.wikipedia.org/wiki/Frederick_Haynes_III",
   "photo": "/candidates/tx-30-2026-frederick-haynes-iii.webp",
-  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/Frederick_Haynes_III_at_Calvary_Baptist_Church.png/330px-Frederick_Haynes_III_at_Calvary_Baptist_Church.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/Frederick_Haynes_-_USHR_Financial_Services_Committee_New_Members_Fair_2026_%281%29_%28cropped%29.jpeg/330px-Frederick_Haynes_-_USHR_Financial_Services_Committee_New_Members_Fair_2026_%281%29_%28cropped%29.jpeg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "TX-31-2026|John Carter": {
   "page": "https://en.wikipedia.org/wiki/John_Carter_%28Texas_politician%29",
@@ -2868,6 +2868,11 @@
   "page": "https://en.wikipedia.org/wiki/Rob_Wittman",
   "photo": "/candidates/va-01-2026-rob-wittman.webp",
   "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Rob_Wittman_official_portrait%2C_118th_Congress_%28cropped%29.jpg/330px-Rob_Wittman_official_portrait%2C_118th_Congress_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+ },
+ "VA-01-2026|Shannon Taylor": {
+  "page": "https://en.wikipedia.org/wiki/Shannon_Taylor_%28politician%29",
+  "photo": "/candidates/va-01-2026-shannon-taylor.webp",
+  "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Shannon_Taylor_Nov_2026.jpg/330px-Shannon_Taylor_Nov_2026.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
  },
  "VA-02-2026|Elaine Luria": {
   "page": "https://en.wikipedia.org/wiki/Elaine_Luria",
