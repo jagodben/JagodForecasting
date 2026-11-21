@@ -3,9 +3,8 @@ name: Nightly forecast history backup
 # Offsite copy of the model's persisted state (forecast history, chamber lines, ballot
 # series, polls, overrides). The API's disk is the only other copy — if it's ever lost,
 # the latest file in backups/ restores every recorded day via POST /api/forecast/import.
+# Ran nightly through the 2026 election; the forecast is final now, so it runs only on demand.
 on:
-  schedule:
-    - cron: "45 13 * * *" # 9:45 AM ET (EDT), after the 8 AM snapshot
   workflow_dispatch:
 
 permissions:
