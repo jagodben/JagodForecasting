@@ -4,9 +4,8 @@ name: Nightly candidate photo refresh
 # candidate refresh swaps placeholders for real nominees, and this run fetches their photos
 # (Wikipedia page images, identity-checked via Wikidata) so new nominees never ship without
 # an avatar. Incremental — already-downloaded photos are kept, only roster changes act.
+# Ran nightly through the 2026 election; the roster is final now, so it runs only on demand.
 on:
-  schedule:
-    - cron: "15 14 * * *" # 10:15 AM ET (EDT), after the 8 AM candidate refresh and the 9:45 backup
   workflow_dispatch:
 
 permissions:
