@@ -13,6 +13,8 @@ export const SiteFooter = () => {
       <span>© {new Date().getFullYear()} Jagod Forecasting</span>
       <span className="site-footer__nav-mobile">
         <span className="site-footer__dot" aria-hidden>·</span>
+        <Link to="/results" className="site-footer__link">Results</Link>
+        <span className="site-footer__dot" aria-hidden>·</span>
         <Link to="/polls" className="site-footer__link">Polls</Link>
         <span className="site-footer__dot" aria-hidden>·</span>
         <Link to="/methodology" className="site-footer__link">Methodology</Link>

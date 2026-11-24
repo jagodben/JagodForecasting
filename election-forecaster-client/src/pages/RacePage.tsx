@@ -11,6 +11,8 @@ import { districtCode } from '../utils/districts';
 import { getCandidatePhoto } from '../utils/photos';
 import { CandidateAvatar } from '../components/CandidateAvatar';
 import { PartisanBadge } from '../components/PartisanBadge';
+import { ResultComparison } from '../components/ResultComparison';
+import { RESULT_NOTES, useElectionResults } from '../utils/results';
 import './RacePage.css';
 
 interface HistoricalOdds {
@@ -90,6 +92,9 @@ export const RacePage = () => {
     queryFn: () => forecastApi.getByRaceId(raceId!),
     enabled: !!raceId,
   });
+
+  const { data: results } = useElectionResults();
+  const result = raceId ? results?.races[raceId] : undefined;
 
   const { data: state } = useQuery({
     queryKey: ['state', race?.stateId],
@@ -187,13 +192,15 @@ export const RacePage = () => {
             {raceTypeLabel} {race.year}
             {race.isSpecialElection && <span style={{ marginLeft: '8px', color: '#dc2626' }}>(Special Election)</span>}
           </h2>
-          {forecast && (
+          {forecast && !result && (
             <div style={{ fontSize: '12px', color: '#6b6b6b', marginTop: '6px' }}>
               Updated daily at 8:00 AM ET
             </div>
           )}
         </div>
       </div>
+
+      {result && <ResultComparison result={result} note={raceId ? RESULT_NOTES[raceId] : undefined} />}
 
       <div className="race-page__body">
         {isDesktop ? (

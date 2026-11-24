@@ -1,0 +1,201 @@
+.results-page {
+  background: white;
+  min-height: 100vh;
+  max-width: 860px;
+  margin: 0 auto;
+  color: #333333;
+}
+
+.results-page__dek {
+  color: #555555;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 8px 0 20px;
+}
+
+.results-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.results-tile {
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.results-tile__big {
+  font-size: 26px;
+  font-weight: 700;
+  color: #121212;
+  line-height: 1.15;
+}
+
+.results-tile__label {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.results-tile__sub {
+  font-size: 12px;
+  color: #6b6b6b;
+  margin-top: 2px;
+}
+
+.results-h2 {
+  font-size: 18px;
+  margin: 28px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.results-table-wrap {
+  overflow-x: auto;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.results-table th {
+  text-align: left;
+  color: #555555;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-bottom: 2px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.results-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eeeeee;
+  white-space: nowrap;
+}
+
+.results-table--summary {
+  max-width: 520px;
+}
+
+.results-muted {
+  color: #6b6b6b;
+  font-weight: 400;
+}
+
+.results-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.results-controls select {
+  padding: 7px 10px;
+  border: 1px solid #d5d5d5;
+  border-radius: 2px;
+  background: white;
+  font-size: 14px;
+}
+
+.results-tab {
+  padding: 8px 20px;
+  border-radius: 2px;
+  border: 1px solid #d5d5d5;
+  background: white;
+  color: #333333;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.results-tab--active {
+  border-color: #121212;
+  background: #121212;
+  color: white;
+  font-weight: 700;
+}
+
+.results-note {
+  color: #6b6b6b;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 20px 0 0;
+}
+
+.chamber-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.chamber-card {
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 14px;
+  background: #fafafa;
+}
+
+.chamber-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.chamber-card__head h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.chamber-card__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.chamber-card__row:last-child {
+  margin-bottom: 0;
+}
+
+.chamber-card__label {
+  font-size: 12px;
+  color: #666666;
+}
+
+.chamber-card__big {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.chamber-card__seats {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.chamber-card__sub {
+  font-size: 12px;
+  color: #6b6b6b;
+}
+
+@media (max-width: 900px) {
+  .chamber-cards { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .results-tiles { grid-template-columns: minmax(0, 1fr); }
+  .results-tile__big { font-size: 22px; }
+  /* The app shell is min-width: fit-content, so unbreakable cells would widen the whole page past
+     the screen; let them wrap instead. */
+  .results-table th, .results-table td { padding: 7px 5px; font-size: 13px; white-space: normal; }
+}
