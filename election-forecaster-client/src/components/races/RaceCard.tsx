@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { Race, RaceType, RaceRating, Party } from '../../types';
 import { districtCode } from '../../utils/districts';
 import { isTbdCandidate, TBD_NOTE } from '../../utils/candidates';
+import { useElectionResults } from '../../utils/results';
+import { ResultComparison } from '../ResultComparison';
 import './RaceCard.css';
 
 const getRatingLabel = (rating: RaceRating): string => {
@@ -88,6 +90,8 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
   const demProbability = demForecast?.winProbability;
   const repProbability = repForecast?.winProbability;
   const margin = race.projectedDemMargin;
+  const { data: results } = useElectionResults();
+  const result = results?.races[race.id];
 
   if (compact) {
     // A real <a href> (via Link) rather than a div with onClick, so crawlers can discover
@@ -195,6 +199,12 @@ export const RaceCard = ({ race, compact = false }: RaceCardProps) => {
           }}>
             {formatMargin(margin)}
           </span>
+        </div>
+      )}
+
+      {result && (
+        <div style={{ marginTop: '10px' }}>
+          <ResultComparison result={result} compact />
         </div>
       )}
     </Link>
